@@ -30,8 +30,9 @@ namespace SoraBot_v2
 
             _client.Log += Log;
             
-            //Setup copfig
-            
+            //Setup config
+            ConfigService.InitializeLoader();
+            ConfigService.LoadConfig();
             //Setup Services
             
             //Instantiate the dependency map and add our services and client to it
