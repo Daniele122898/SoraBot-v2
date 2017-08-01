@@ -5,6 +5,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using SixLabors.Shapes;
+using SoraBot_v2.Services;
 
 namespace SoraBot_v2
 {
@@ -45,10 +46,15 @@ namespace SoraBot_v2
             {
 
             };*/
+            string token = "";
+            ConfigService.GetConfig().TryGetValue("token2", out token);
             
             //Connect to Discord
-            await _client.LoginAsync(TokenType.Bot, "");
+            await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
+            
+            //Hang indefinitely
+            await Task.Delay(-1);
         }
 
         private IServiceProvider ConfigureServices()
