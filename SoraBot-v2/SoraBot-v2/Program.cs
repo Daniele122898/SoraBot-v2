@@ -1,10 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Remotion.Linq.Parsing;
 using SixLabors.Shapes;
+using SoraBot_v2.Data;
+using SoraBot_v2.Services;
 
 namespace SoraBot_v2
 {
@@ -16,6 +20,7 @@ namespace SoraBot_v2
 
         private DiscordSocketClient _client;
         private CommandHandler _commands;
+        private SoraContext _soraContext;
         #endregion
 
         public async Task MainAsync(string[] args)
@@ -29,7 +34,22 @@ namespace SoraBot_v2
 
             _client.Log += Log;
             
-            //Setup copfig
+            //Setup config
+            ConfigService.InitializeLoader();
+            ConfigService.LoadConfig();
+            
+            //setup DB
+            string connectionString;
+            if (!ConfigService.GetConfig().TryGetValue("connectionString", out connectionString))
+            {
+                throw new IOException
+                {
+                    Source = "COULDNT FIND CONNECTION STRING FOR DB!"
+                };
+            }
+            Console.WriteLine(connectionString);
+            _soraContext = new SoraContext(connectionString);
+            await _soraContext.Database.EnsureCreatedAsync();
             
             //Setup Services
             
@@ -45,15 +65,22 @@ namespace SoraBot_v2
             {
 
             };*/
+            string token = "";
+            ConfigService.GetConfig().TryGetValue("token2", out token);
             
             //Connect to Discord
-            await _client.LoginAsync(TokenType.Bot, "");
+            await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
+            
+            //Hang indefinitely
+            await Task.Delay(-1);
         }
 
         private IServiceProvider ConfigureServices()
         {    var services = new ServiceCollection();
             services.AddSingleton(_client);
+            services.AddSingleton(_soraContext);
+            services.AddSingleton(new InteractionsService());
             services.AddSingleton(new CommandService());
 
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
