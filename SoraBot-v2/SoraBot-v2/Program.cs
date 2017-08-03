@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Remotion.Linq.Parsing;
 using SixLabors.Shapes;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2
@@ -17,6 +20,7 @@ namespace SoraBot_v2
 
         private DiscordSocketClient _client;
         private CommandHandler _commands;
+        private SoraContext _soraContext;
         #endregion
 
         public async Task MainAsync(string[] args)
@@ -33,6 +37,20 @@ namespace SoraBot_v2
             //Setup config
             ConfigService.InitializeLoader();
             ConfigService.LoadConfig();
+            
+            //setup DB
+            string connectionString;
+            if (!ConfigService.GetConfig().TryGetValue("connectionString", out connectionString))
+            {
+                throw new IOException
+                {
+                    Source = "COULDNT FIND CONNECTION STRING FOR DB!"
+                };
+            }
+            Console.WriteLine(connectionString);
+            _soraContext = new SoraContext(connectionString);
+            await _soraContext.Database.EnsureCreatedAsync();
+            
             //Setup Services
             
             //Instantiate the dependency map and add our services and client to it
@@ -61,6 +79,8 @@ namespace SoraBot_v2
         private IServiceProvider ConfigureServices()
         {    var services = new ServiceCollection();
             services.AddSingleton(_client);
+            services.AddSingleton(_soraContext);
+            services.AddSingleton(new InteractionsService());
             services.AddSingleton(new CommandService());
 
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
