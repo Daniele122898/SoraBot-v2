@@ -102,7 +102,6 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/yEL7bpC.gif",
             "http://i.imgur.com/3rHE4Ee.gif",
             "http://i.imgur.com/ihkVAis.gif",
-            ""
         };
 
         public static string[] Kisses= new string[]

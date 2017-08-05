@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
@@ -34,7 +35,7 @@ namespace SoraBot_v2.Module
                 Color = Utility.PurpleEmbed,
             };
             
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             if(sameAsInvoker !=null)
@@ -77,7 +78,7 @@ namespace SoraBot_v2.Module
                 Color = Utility.PurpleEmbed,
             };
 
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             if(sameAsInvoker != null)
@@ -115,7 +116,7 @@ namespace SoraBot_v2.Module
             };
             var r = new Random();
 
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             if(sameAsInvoker!= null)
             {
@@ -152,7 +153,7 @@ namespace SoraBot_v2.Module
                 await AtLeast1Param(Context);
                 return;
             }
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             var r = new Random();
@@ -180,7 +181,7 @@ namespace SoraBot_v2.Module
                 await AtLeast1Param(Context);
                 return;
             }
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             
@@ -224,7 +225,7 @@ namespace SoraBot_v2.Module
                 await AtLeast1Param(Context);
                 return;
             }
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             
@@ -262,7 +263,7 @@ namespace SoraBot_v2.Module
                 await AtLeast1Param(Context);
                 return;
             }
-            var users = usersT.ToList();
+            var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             var eb = new EmbedBuilder()
