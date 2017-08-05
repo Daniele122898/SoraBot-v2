@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
 
@@ -16,10 +17,14 @@ namespace SoraBot_v2.Data
         {
             _connectionString = con;
         }
-
+        
+        public SoraContext()
+        {
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(@""+_connectionString);
+            //optionsBuilder.UseMySql(@"");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
