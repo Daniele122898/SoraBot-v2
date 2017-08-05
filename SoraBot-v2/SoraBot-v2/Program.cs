@@ -82,6 +82,7 @@ namespace SoraBot_v2
             services.AddSingleton(_soraContext);
             services.AddSingleton(new InteractionsService());
             services.AddSingleton(new AfkService());
+            services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new CommandService());
 
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);

@@ -8,10 +8,14 @@ namespace SoraBot_v2.Data
 {
     public class SoraContext : DbContext
     {
+        //User Database
         public DbSet<User> Users { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Afk> Afk { get; set; }
-
+        
+        //Guild Database
+        public DbSet<Guild> Guilds { get; set; }
+        
         private string _connectionString;
 
         public SoraContext(string con)

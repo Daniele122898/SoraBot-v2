@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -17,11 +18,12 @@ namespace SoraBot_v2.Services
         public static Discord.Color YellowWarningEmbed = new Discord.Color(255,204,77);
         public static Discord.Color GreenSuccessEmbed = new Discord.Color(119,178,85);
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
+        public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
-            "✅","⚠","❌"
+            "✅","⚠","❌","ℹ"
         };
         
         #region Gifs
@@ -166,6 +168,26 @@ namespace SoraBot_v2.Services
             result.Interactions = inter;
             result.Afk = afk;
             return result;
+        }
+
+        public static string GetGuildPrefix(SocketGuild guild, SoraContext soraContext)
+        {
+            var guildDb = GetOrCreateGuild(guild, soraContext);
+            return guildDb.Prefix;
+        }
+
+        public static Guild GetOrCreateGuild(SocketGuild guild, SoraContext soraContext)
+        {
+            var result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guild.Id);
+            if (result == null)
+            {
+                //Guild not found => Create
+                var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$"});
+                return addGuild.Entity;
+            }
+            //guild found
+            return result;
+
         }
 
         public static double CalculateAffinity(Interactions interactions)

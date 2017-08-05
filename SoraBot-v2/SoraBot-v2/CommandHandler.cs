@@ -43,13 +43,16 @@ namespace SoraBot_v2
             //Hand to AFK service
             await _afkService.Client_MessageReceived(m, _soraContext);
             
+            //create Context
+            var context = new SocketCommandContext(_client,message);
+            
             //prefix ends and command starts
-            string prefix = ">";
+            string prefix = Utility.GetGuildPrefix(context.Guild, _soraContext);
             int argPos = prefix.Length-1;
             if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                 return;
             
-            var context = new SocketCommandContext(_client,message);
+            
 
             var result = await _commands.ExecuteAsync(context, argPos, _services);
 

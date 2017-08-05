@@ -71,7 +71,7 @@ namespace SoraBot_v2.Services
                 return;
             
             //Get GUILD PREFIX
-            string prefix = ">";
+            string prefix = Utility.GetGuildPrefix(((SocketGuildChannel)msg.Channel).Guild, soraContext);
             if (msg.Content.StartsWith(prefix))
                 return;
 
