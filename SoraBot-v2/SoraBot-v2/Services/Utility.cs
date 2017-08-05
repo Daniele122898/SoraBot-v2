@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -14,11 +16,14 @@ namespace SoraBot_v2.Services
 
         public static Discord.Color PurpleEmbed = new Discord.Color(109, 41, 103);
         public static Discord.Color YellowWarningEmbed = new Discord.Color(255,204,77);
+        public static Discord.Color GreenSuccessEmbed = new Discord.Color(119,178,85);
+        public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
+        public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
-            "✅","⚠","❌"
+            "✅","⚠","❌","ℹ"
         };
         
         #region Gifs
@@ -145,11 +150,44 @@ namespace SoraBot_v2.Services
             if (result == null)
             {
                 //User Not found => CREATE
-                var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions()});
+                var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
+                //Set Default action to be false!
+                addedUser.Entity.Afk.IsAfk = false;
+                
                 return addedUser.Entity;
             }
-            result.Interactions = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+            //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
+            var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+            if(inter == null)
+                inter= new Interactions();
+            var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+            if (afk == null)
+            {
+                afk = new Afk {IsAfk = false};
+            }
+            result.Interactions = inter;
+            result.Afk = afk;
             return result;
+        }
+
+        public static string GetGuildPrefix(SocketGuild guild, SoraContext soraContext)
+        {
+            var guildDb = GetOrCreateGuild(guild, soraContext);
+            return guildDb.Prefix;
+        }
+
+        public static Guild GetOrCreateGuild(SocketGuild guild, SoraContext soraContext)
+        {
+            var result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guild.Id);
+            if (result == null)
+            {
+                //Guild not found => Create
+                var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$"});
+                return addGuild.Entity;
+            }
+            //guild found
+            return result;
+
         }
 
         public static double CalculateAffinity(Interactions interactions)
@@ -161,6 +199,16 @@ namespace SoraBot_v2.Services
             if (good == 0)
                 return 0;
             return Math.Round((100.0 / total * good), 2);
+        }
+
+        public static EmbedBuilder ResultFeedback(Discord.Color color, string symbol, string text)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Color = color,
+                Title = $"{symbol} {text}"
+            };
+            return eb;
         }
 
         public static string GiveUsernameDiscrimComb(SocketUser user)

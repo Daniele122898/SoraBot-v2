@@ -296,8 +296,8 @@ namespace SoraBot_v2.Module
         {
             var eb = new EmbedBuilder()
             {
-                Color = Utility.YellowWarningEmbed,
-                Title= $"{Utility.SuccessLevelEmoji[1]} You need to specify at least 1 person to be interacted with!"
+                Color = Utility.RedFailiureEmbed,
+                Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with!"
             };
             await context.Channel.SendMessageAsync("", embed: eb);
         }

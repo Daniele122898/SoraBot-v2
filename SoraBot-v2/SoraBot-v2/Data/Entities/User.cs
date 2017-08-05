@@ -13,5 +13,6 @@ namespace SoraBot_v2.Data.Entities
         public ulong UserId { get; set; }
         
         public virtual Interactions Interactions { get; set; }
+        public virtual Afk Afk { get; set; }
     }
 }
