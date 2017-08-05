@@ -41,6 +41,24 @@ namespace SoraBot_v2.Services
             "https://media.giphy.com/media/KZQlfylo73AMU/giphy.gif",
             "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif"
         };
+
+        public static string[] Self5 = new string[]
+        {
+            "https://media.tenor.com/images/7c0aca89e85e83db5d83b1003772544a/tenor.gif",
+            "https://media.giphy.com/media/jQTJVqu3Q1hmg/200.gif"
+        };
+        public static string[] High5 = new string[]
+        {
+            "https://68.media.tumblr.com/9ef425ac3528b8a56082535c6e9e8138/tumblr_mgitxqyFAP1r2wbr8o1_500.gif",
+            "http://pa1.narvii.com/5727/f54721f405a05727c5903e3afb49f5cdc16ef07a_hq.gif",
+            "https://media.giphy.com/media/cAiBXaCjbHTry/giphy.gif",
+            "http://i.imgur.com/Mghkjt9.gif",
+            "https://s-media-cache-ak0.pinimg.com/originals/fc/b1/44/fcb1446b74166b0860ace50ed8b33686.gif",
+            "https://static1.gamespot.com/uploads/original/745/7451470/2791604-2345202295-0H6Q9.gif",
+            "https://68.media.tumblr.com/398ca8b1c1a0de03078f7dacd4d522b9/tumblr_o7leikmO391tkf3aao1_500.gif",
+            "https://s-media-cache-ak0.pinimg.com/originals/17/09/22/170922b20ee616f11629b43d92c45fa7.gif",
+            "http://68.media.tumblr.com/0e5d981ef8d70fcc6093b98b3af09091/tumblr_inline_nx3q1hc86b1tyovn6_500.gif",
+        };
         public static string[] Hugs = new string[]
         {
             "https://media.giphy.com/media/od5H3PmEG5EVq/giphy.gif",
@@ -137,8 +155,8 @@ namespace SoraBot_v2.Services
 
         public static double CalculateAffinity(Interactions interactions)
         {
-            double total = interactions.Pats + interactions.Hugs * 2 + interactions.Kisses* 3 + interactions.Slaps + interactions.Punches*2;
-            double good = interactions.Pats + interactions.Hugs * 2 + interactions.Kisses * 3;
+            double total = interactions.Pats+ interactions.High5 + interactions.Hugs * 2 + interactions.Kisses* 3 + interactions.Slaps + interactions.Punches*2;
+            double good = interactions.Pats + interactions.High5+interactions.Hugs * 2 + interactions.Kisses * 3;
             if (total == 0)
                 return 0;
             if (good == 0)
