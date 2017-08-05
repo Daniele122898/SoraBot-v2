@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using SoraBot_v2.Data;
+using SoraBot_v2.Services;
 
 namespace SoraBot_v2
 {
@@ -13,11 +15,15 @@ namespace SoraBot_v2
         private IServiceProvider _services;
         private DiscordSocketClient _client;
         private CommandService _commands;
+        private AfkService _afkService;
+        private SoraContext _soraContext;
 
         public CommandHandler(IServiceProvider services)
         {
             _client = services.GetService<DiscordSocketClient>();
             _commands = services.GetService<CommandService>();
+            _afkService = services.GetService<AfkService>();
+            _soraContext = services.GetService<SoraContext>();
             _services = services;
         }
 
@@ -31,7 +37,12 @@ namespace SoraBot_v2
         {
             var message = m as SocketUserMessage;
             if (message == null) return;
+            if (message.Author.IsBot) return;
             if (!(message.Channel is SocketGuildChannel)) return;
+            
+            //Hand to AFK service
+            await _afkService.Client_MessageReceived(m, _soraContext);
+            
             //prefix ends and command starts
             string prefix = ">";
             int argPos = prefix.Length-1;

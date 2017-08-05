@@ -10,6 +10,7 @@ namespace SoraBot_v2.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
+        public DbSet<Afk> Afk { get; set; }
 
         private string _connectionString;
 
