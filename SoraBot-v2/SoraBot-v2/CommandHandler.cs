@@ -12,6 +12,9 @@ namespace SoraBot_v2
 {
     public class CommandHandler
     {
+        public double MessagesReceived;
+        public int CommandsExecuted;
+        
         private IServiceProvider _services;
         private DiscordSocketClient _client;
         private CommandService _commands;
@@ -19,6 +22,20 @@ namespace SoraBot_v2
         private SoraContext _soraContext;
 
         public CommandHandler(IServiceProvider services)
+        {
+            _client = services.GetService<DiscordSocketClient>();
+            _commands = services.GetService<CommandService>();
+            _afkService = services.GetService<AfkService>();
+            _soraContext = services.GetService<SoraContext>();
+            _services = services;
+        }
+
+        public CommandHandler()
+        {
+            
+        }
+
+        public void ConfigureCommandHandler(IServiceProvider services)
         {
             _client = services.GetService<DiscordSocketClient>();
             _commands = services.GetService<CommandService>();
@@ -35,6 +52,7 @@ namespace SoraBot_v2
 
         public async Task HandleCommandsAsync(SocketMessage m)
         {
+            MessagesReceived++;
             var message = m as SocketUserMessage;
             if (message == null) return;
             if (message.Author.IsBot) return;
@@ -60,6 +78,8 @@ namespace SoraBot_v2
             {
                 await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
             }
+            else if (result.IsSuccess)
+                CommandsExecuted++;
         }
     }
 }

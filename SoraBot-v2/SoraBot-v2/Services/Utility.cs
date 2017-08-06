@@ -107,6 +107,7 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/yEL7bpC.gif",
             "http://i.imgur.com/3rHE4Ee.gif",
             "http://i.imgur.com/ihkVAis.gif",
+            "https://images-ext-2.discordapp.net/external/w-qSUKPfkppjOocMTt0SFvrkNKhsPfUbPL7X2C_9REM/http/i.imgur.com/d9thUdx.gif"
         };
 
         public static string[] Kisses= new string[]
@@ -125,7 +126,10 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/4ttao29.gif",
             "http://i.imgur.com/USSPwRM.gif",
             "http://i.imgur.com/tCO461O.gif",
-            "http://i.imgur.com/GW1BXj8.gif"
+            "http://i.imgur.com/GW1BXj8.gif",
+            "https://images-ext-2.discordapp.net/external/bbnJekNfS8OkYfccvNI_gjy09SxMSkFE6w9NjtpvV7w/http/imgur.com/IsIR4V0.gif",
+            "https://images-ext-2.discordapp.net/external/tsnVWR_mE6fXTUo5P1thWQzCNoYKUZeKv3V_cYEH2Ow/http/imgur.com/Bftud8V.gif",
+            "https://images-ext-2.discordapp.net/external/BI9sQtRnDJ3MQ5MSxbrJcDTxcnzv8zEPkjdJMPpRl3g/http/imgur.com/LBWIJpu.gif"
         };
 
         public static string[] Punches = new string[]
@@ -209,6 +213,15 @@ namespace SoraBot_v2.Services
                 Title = $"{symbol} {text}"
             };
             return eb;
+        }
+
+        public static EmbedFooterBuilder RequestedBy(SocketUser user)
+        {
+            return new EmbedFooterBuilder()
+            {
+                Text = $"Requested by {Utility.GiveUsernameDiscrimComb(user)}",
+                IconUrl = user.GetAvatarUrl() ?? StandardDiscordAvatar
+            };
         }
 
         public static string GiveUsernameDiscrimComb(SocketUser user)

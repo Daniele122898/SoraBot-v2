@@ -59,30 +59,60 @@ namespace SoraBot_v2.Services
             //FindUserMentioned
             List<User> users = new List<User>();
             usersT.ForEach(x=> users.Add(Utility.GetOrCreateUser(x, soraContext)));
+
+            User giver = Utility.GetOrCreateUser(context.User, soraContext);
             //var dbUser = Utility.GetOrCreateUser(user, soraContext);
 
             switch (type)
             {
                 case(InteractionType.Pat):
-                    users.ForEach(x=> x.Interactions.Pats++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Pats++;
+                        giver.Interactions.PatsGiven++;
+                    }
                     break;
                 case(InteractionType.Hug):
-                    users.ForEach(x=> x.Interactions.Hugs++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Hugs++;
+                        giver.Interactions.HugsGiven++;
+                    }
                     break;
                 case(InteractionType.Kiss):
-                    users.ForEach(x=> x.Interactions.Kisses++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Kisses++;
+                        giver.Interactions.KissesGiven++;
+                    }
                     break;
                 case(InteractionType.Poke):
-                    users.ForEach(x=> x.Interactions.Pokes++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Pokes++;
+                        giver.Interactions.PokesGiven++;
+                    }
                     break;
                 case(InteractionType.Slap):
-                    users.ForEach(x=> x.Interactions.Slaps++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Slaps++;
+                        giver.Interactions.SlapsGiven++;
+                    }
                     break;
                 case(InteractionType.High5):
-                    users.ForEach(x=> x.Interactions.High5++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.High5++;
+                        giver.Interactions.High5Given++;
+                    }
                     break;
                 case(InteractionType.Punch):
-                    users.ForEach(x=> x.Interactions.Punches++);
+                    foreach (var user in users)
+                    {
+                        user.Interactions.Punches++;
+                        giver.Interactions.PunchesGiven++;
+                    }
                     break;
                 default:
                     await context.Channel.SendMessageAsync(":no_entry_sign: Something went horribly wrong :eyes:");
@@ -107,6 +137,7 @@ namespace SoraBot_v2.Services
                 },
                 Title = $"Affinity stats of {user.Username}#{user.Discriminator}",
                 ThumbnailUrl =  (user.GetAvatarUrl()?? Utility.StandardDiscordAvatar),
+                Description = "Received Interactions / Given Interactions"
                 /*Description = $"" +
                               $"Pats:     {dbUser.Interactions.Pats}\n" +
                               $"High5:     {dbUser.Interactions.High5}\n" +
@@ -121,49 +152,49 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = $"Pats";
-                x.Value= $"{dbUser.Interactions.Pats}";
+                x.Value= $"{dbUser.Interactions.Pats}/{dbUser.Interactions.PatsGiven}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"High5";
-                x.Value= $"{dbUser.Interactions.High5}";
+                x.Value= $"{dbUser.Interactions.High5}/{dbUser.Interactions.High5Given}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"Hugs";
-                x.Value= $"{dbUser.Interactions.Hugs}";
+                x.Value= $"{dbUser.Interactions.Hugs}/{dbUser.Interactions.HugsGiven}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"Kisses";
-                x.Value= $"{dbUser.Interactions.Kisses}";
+                x.Value= $"{dbUser.Interactions.Kisses}/{dbUser.Interactions.KissesGiven}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"Pokes";
-                x.Value= $"{dbUser.Interactions.Pokes}";
+                x.Value= $"{dbUser.Interactions.Pokes}/{dbUser.Interactions.PokesGiven}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"Slaps";
-                x.Value= $"{dbUser.Interactions.Slaps}";
+                x.Value= $"{dbUser.Interactions.Slaps}/{dbUser.Interactions.SlapsGiven}";
                 
             });
             eb.AddField((x) =>
             {
                 x.IsInline = true;
                 x.Name = $"Punches";
-                x.Value= $"{dbUser.Interactions.Punches}";
+                x.Value= $"{dbUser.Interactions.Punches}/{dbUser.Interactions.PunchesGiven}";
                 
             });
             eb.AddField((x) =>

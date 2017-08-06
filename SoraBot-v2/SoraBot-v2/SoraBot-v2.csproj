@@ -12,6 +12,7 @@
     <PackageReference Include="Google.Apis" Version="1.28.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.28.0" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.28.0.760" />
+    <PackageReference Include="Humanizer" Version="2.2.0" />
     <PackageReference Include="ImageSharp" Version="1.0.0-alpha9-00175" />
     <PackageReference Include="ImageSharp.Drawing" Version="1.0.0-alpha9-00170" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.2" />
