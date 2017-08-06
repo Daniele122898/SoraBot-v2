@@ -18,6 +18,14 @@ namespace SoraBot_v2.Data.Entities.SubEntities
         public int Slaps { get; set; }
         public int Punches { get; set; }
         
+        public int PatsGiven { get; set; }
+        public int HugsGiven  { get; set; }
+        public int KissesGiven  { get; set; }
+        public int High5Given  { get; set; }
+        public int PokesGiven  { get; set; }
+        public int SlapsGiven  { get; set; }
+        public int PunchesGiven  { get; set; }
+        
         public ulong UserForeignId { get; set; }
         [ForeignKey("UserForeignId")]
         public virtual User User { get; set; }

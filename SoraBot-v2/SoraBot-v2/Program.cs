@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Parsing;
 using SixLabors.Shapes;
@@ -53,11 +54,13 @@ namespace SoraBot_v2
             
             //Setup Services
             
+            //Create dummy commandHandler for dependency Injection
+            _commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
             var serviceProvider = ConfigureServices();
             
             //setup command handler
-            _commands = new CommandHandler(serviceProvider);
+            _commands.ConfigureCommandHandler(serviceProvider);
             await _commands.InstallAsync();
             
             //Set up an event handler to execute some state-reliant startup tasks
@@ -80,11 +83,12 @@ namespace SoraBot_v2
         {    var services = new ServiceCollection();
             services.AddSingleton(_client);
             services.AddSingleton(_soraContext);
+            services.AddSingleton(_commands);
             services.AddSingleton(new InteractionsService());
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new CommandService());
-
+            
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
         }
 
