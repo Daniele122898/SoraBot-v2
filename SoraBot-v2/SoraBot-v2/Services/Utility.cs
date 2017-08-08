@@ -161,7 +161,7 @@ namespace SoraBot_v2.Services
                     var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
-                
+                    soraContext.SaveChanges();
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
@@ -180,6 +180,7 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
+            soraContext.SaveChanges();
             return result;
         }
 
@@ -199,6 +200,7 @@ namespace SoraBot_v2.Services
                 {
                     //Guild not found => Create
                     var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
+                    soraContext.SaveChanges();
                     return addGuild.Entity;
                 }
             
@@ -214,6 +216,7 @@ namespace SoraBot_v2.Services
             }
             
             //guild found
+            soraContext.SaveChanges();
             return result;
 
         }
