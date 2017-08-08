@@ -138,15 +138,6 @@ namespace SoraBot_v2.Services
                 Title = $"Affinity stats of {user.Username}#{user.Discriminator}",
                 ThumbnailUrl =  (user.GetAvatarUrl()?? Utility.StandardDiscordAvatar),
                 Description = "Received Interactions / Given Interactions"
-                /*Description = $"" +
-                              $"Pats:     {dbUser.Interactions.Pats}\n" +
-                              $"High5:     {dbUser.Interactions.High5}\n" +
-                              $"Hugs:     {dbUser.Interactions.Hugs}\n" +
-                              $"Kisses:   {dbUser.Interactions.Kisses}\n" +
-                              $"Pokes:    {dbUser.Interactions.Pokes}\n" +
-                              $"Slaps:    {dbUser.Interactions.Slaps}\n" +
-                              $"Punches:    {dbUser.Interactions.Punches}\n" +
-                              $"Affinity: {Utility.CalculateAffinity(dbUser.Interactions)}/100"*/
             };
             eb.AddField((x) =>
             {
