@@ -15,6 +15,7 @@ namespace SoraBot_v2.Data
         
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<Tags> Tags { get; set; }
         
         private string _connectionString;
 
@@ -39,6 +40,13 @@ namespace SoraBot_v2.Data
                 x.HasOne(d => d.User)
                     .WithOne(p => p.Interactions)
                     .HasForeignKey<Interactions>(g => g.UserForeignId);
+            });
+
+            modelBuilder.Entity<Tags>(x =>
+            {
+                x.HasOne(g => g.Guild)
+                    .WithMany(p => p.Tags)
+                    .HasForeignKey(g => g.GuildForeignId);
             });
         }
     }

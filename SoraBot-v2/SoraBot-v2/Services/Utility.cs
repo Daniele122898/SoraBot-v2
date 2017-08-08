@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Discord;
@@ -150,27 +151,35 @@ namespace SoraBot_v2.Services
         
         public static User GetOrCreateUser(SocketUser user, SoraContext soraContext)
         {
-            var result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
-            if (result == null)
+            User result = new User();
+            try
             {
-                //User Not found => CREATE
-                var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
-                //Set Default action to be false!
-                addedUser.Entity.Afk.IsAfk = false;
+                result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+                if (result == null)
+                {
+                    //User Not found => CREATE
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
+                    //Set Default action to be false!
+                    addedUser.Entity.Afk.IsAfk = false;
                 
-                return addedUser.Entity;
+                    return addedUser.Entity;
+                }
+                //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if(inter == null)
+                    inter= new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if (afk == null)
+                {
+                    afk = new Afk {IsAfk = false};
+                }
+                result.Interactions = inter;
+                result.Afk = afk;
             }
-            //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-            var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
-            if(inter == null)
-                inter= new Interactions();
-            var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
-            if (afk == null)
+            catch (Exception e)
             {
-                afk = new Afk {IsAfk = false};
+                Console.WriteLine(e);
             }
-            result.Interactions = inter;
-            result.Afk = afk;
             return result;
         }
 
@@ -182,13 +191,28 @@ namespace SoraBot_v2.Services
 
         public static Guild GetOrCreateGuild(SocketGuild guild, SoraContext soraContext)
         {
-            var result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guild.Id);
-            if (result == null)
+            Guild result = new Guild();
+            try
             {
-                //Guild not found => Create
-                var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$"});
-                return addGuild.Entity;
+                result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guild.Id);
+                if (result == null)
+                {
+                    //Guild not found => Create
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
+                    return addGuild.Entity;
+                }
+            
+                //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id).ToList();
+                if(foundTags == null)
+                    foundTags = new List<Tags>();
+                result.Tags = foundTags;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
             //guild found
             return result;
 

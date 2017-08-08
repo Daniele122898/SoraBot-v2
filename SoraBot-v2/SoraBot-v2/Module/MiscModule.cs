@@ -11,5 +11,13 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync($"Pong! {Context.Client.Latency} ms :ping_pong:");
         }
+
+        [Command("exc")]
+        [RequireOwner]
+        public async Task ThrowException()
+        {
+            int i2 = 0;
+            int i = 10 / i2;
+        }
     }
 }

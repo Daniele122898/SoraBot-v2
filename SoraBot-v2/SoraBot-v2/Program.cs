@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -88,6 +89,7 @@ namespace SoraBot_v2
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new CommandService());
+            services.AddSingleton<InteractiveService>();
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
         }
