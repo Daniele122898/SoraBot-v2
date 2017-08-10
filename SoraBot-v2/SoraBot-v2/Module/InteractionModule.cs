@@ -56,6 +56,7 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = $"{Utility.Pats[r.Next(0, Utility.Pats.Length - 1)]}";
             string patted ="";
             users.ForEach(x=>patted += Utility.GiveUsernameDiscrimComb(x)+", ");
+            patted = (patted.Length > 200 ? $"{patted.Remove(200)}..." : patted);
             eb.Title =
                 $"{Utility.GiveUsernameDiscrimComb(Context.User)} pats {patted.Remove(patted.Length-2)} ｡◕ ‿ ◕｡";
             
@@ -98,6 +99,8 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length - 1)]}";
             string hugged = "";
             users.ForEach(x=> hugged+= Utility.GiveUsernameDiscrimComb(x)+", ");
+            hugged = (hugged.Length > 200 ? $"{hugged.Remove(200)}..." : hugged);
+
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} hugged {hugged.Remove(hugged.Length-2)} °˖✧◝(⁰▿⁰)◜✧˖°";
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
@@ -133,6 +136,8 @@ namespace SoraBot_v2.Module
             await _interactions.InteractMultiple(InteractionType.High5, users, Context, _soraContext);
             var high5ed = "";
             users.ForEach(x=>high5ed+= Utility.GiveUsernameDiscrimComb(x)+", ");
+            high5ed = (high5ed.Length > 200 ? $"{high5ed.Remove(200)}..." : high5ed);
+
             eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length - 1)]}";
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} high fived {high5ed.Remove(high5ed.Length -2)} °˖✧◝(⁰▿⁰)◜✧˖°";
             await Context.Channel.SendMessageAsync("", embed: eb);
@@ -159,6 +164,8 @@ namespace SoraBot_v2.Module
             var r = new Random();
             string poked = "";
             users.ForEach(x=> poked+=Utility.GiveUsernameDiscrimComb(x)+", ");
+            poked = (poked.Length > 200 ? $"{poked.Remove(200)}..." : poked);
+
             var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,
@@ -205,6 +212,7 @@ namespace SoraBot_v2.Module
             await _interactions.InteractMultiple(InteractionType.Kiss, users, Context, _soraContext);
             string kissed = "";
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
+
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} kissed {kissed.Remove(kissed.Length-2)} (✿ ♥‿♥)♥";
             eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length - 1)]}";
             await ReplyAsync("", embed: eb);
@@ -249,7 +257,8 @@ namespace SoraBot_v2.Module
             await _interactions.InteractMultiple(InteractionType.Slap, users, Context, _soraContext);
 
             string slapped = "";
-            users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");            
+            users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");
+            slapped = (slapped.Length > 200 ? $"{slapped.Remove(200)}..." : slapped);
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} slapped {slapped.Remove(slapped.Length-2)} (ᗒᗩᗕ)՞ ";
             eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length - 1)]}"; 
             await ReplyAsync("", embed: eb);
@@ -287,6 +296,8 @@ namespace SoraBot_v2.Module
             await _interactions.InteractMultiple(InteractionType.Punch, users, Context, _soraContext);
             string punched = "";
             users.ForEach(x=> punched+= Utility.GiveUsernameDiscrimComb(x)+", ");
+            punched = (punched.Length > 200 ? $"{punched.Remove(200)}..." : punched);
+
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} punched {punched} (ᗒᗩᗕ)՞";
             eb.ImageUrl= $"{Utility.Punches[r.Next(0, Utility.Punches.Length - 1)]}";
             await ReplyAsync("", embed: eb);

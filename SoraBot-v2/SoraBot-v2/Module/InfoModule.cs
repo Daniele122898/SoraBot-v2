@@ -73,6 +73,12 @@ namespace SoraBot_v2.Module
             eb.AddField(x =>
             {
                 x.IsInline = true;
+                x.Name = $"ID";
+                x.Value =$"{user.Id}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
                 x.Name = $"Roles";
 
                 string roles = "";
@@ -106,7 +112,7 @@ namespace SoraBot_v2.Module
             var eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
-                Footer = Utility.RequestedBy(Context.User),
+                Footer = Utility.RequestedBy(Context.User).WithText($"Requested by {Utility.GiveUsernameDiscrimComb(Context.User)} | Guild ID: {Context.Guild.Id}"),
                 Title = $"{Utility.SuccessLevelEmoji[3]} **{Context.Guild.Name}**",
                 ThumbnailUrl = Context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
                 Description =$"Created on {Context.Guild.CreatedAt.ToString().Remove(Context.Guild.CreatedAt.ToString().Length - 6)}. That's {(int)(DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime).TotalDays)} days ago!"

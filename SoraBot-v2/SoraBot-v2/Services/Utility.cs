@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
+        public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
@@ -148,6 +150,13 @@ namespace SoraBot_v2.Services
         };
         #endregion
 
+        public static bool CheckIfSoraAdminExists(SocketGuild guild)
+        {
+            var admin = guild.Roles.FirstOrDefault(x=> x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.OrdinalIgnoreCase));
+            if (admin == null)
+                return false;
+            return true;
+        }
         
         public static User GetOrCreateUser(SocketUser user, SoraContext soraContext)
         {
@@ -219,6 +228,33 @@ namespace SoraBot_v2.Services
             soraContext.SaveChanges();
             return result;
 
+        }
+
+        public static async Task<bool> CreateSoraRoleOnJoinAsync(SocketGuild guild,DiscordSocketClient client, SoraContext soraContext)
+        {
+            try
+            {
+                Console.WriteLine("GOT HERE2");
+                if (guild.GetUser(client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
+                {
+                    //NEEDED FOR SORAS ADMIN ROLE
+                    await guild.CreateRoleAsync(SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
+                    return true;
+                }
+                Console.WriteLine("GOT HERE3");
+                await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"I do not have \"Manage Roles\" permissions in {guild.Name}!")
+                    .WithDescription($"Because of that i couldn't create the \"Sora-Admin\" role which is needed for MANY commands " +
+                                     $"so that you as a Guild owner can restrict certain commands to be only used by users " +
+                                     $"carrying that role. \nFor example => Tag creation should not be open to everyone on big servers!\n" +
+                                     $"You can either create the role yourself or let Sora do it with\n" +
+                                     $"\"{Utility.GetGuildPrefix(guild,soraContext)}createAdmin\""));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            return false;
         }
 
         public static double CalculateAffinity(Interactions interactions)

@@ -12,6 +12,9 @@ namespace SoraBot_v2.Data.Entities.SubEntities
         public string Name { get; set; }
         public string Value { get; set; }
         public ulong CreatorId { get; set; }
+        public bool PictureAttachment { get; set; }
+        public string AttachmentString { get; set; }
+        public bool ForceEmbed { get; set; }
         
         public ulong GuildForeignId { get; set; }
         [ForeignKey("GuildForeignId")]
