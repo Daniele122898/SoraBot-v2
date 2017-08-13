@@ -22,6 +22,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
+        
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
 
         public static string[] SuccessLevelEmoji = new string[]
@@ -47,7 +48,8 @@ namespace SoraBot_v2.Services
             "https://media.giphy.com/media/ye7OTQgwmVuVy/giphy.gif",
             "http://i.imgur.com/cPS1JlS.gif",
             "https://media.giphy.com/media/KZQlfylo73AMU/giphy.gif",
-            "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif"
+            "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif",
+            "http://i.imgur.com/d2jbnvs.gif"
         };
 
         public static string[] Self5 = new string[]
@@ -81,7 +83,17 @@ namespace SoraBot_v2.Services
             "https://media.giphy.com/media/kvKFM3UWg2P04/giphy.gif",
             "https://media.giphy.com/media/wnsgren9NtITS/giphy.gif",
             "http://i.imgur.com/nbWWuYJ.gif",
-            "http://i.imgur.com/ffsADGT.gif"
+            "http://i.imgur.com/ffsADGT.gif",
+            "http://i.imgur.com/TMOK7j2.gif",
+            "http://i.imgur.com/6Q3WBmN.gif",
+            "http://i.imgur.com/ffsADGT.gif",
+            "http://i.imgur.com/lIsXgjx.gif",
+            "http://i.imgur.com/Pz3iUsM.gif",
+            "http://i.imgur.com/og4QYSX.gif",
+            "http://i.imgur.com/lX4CbNN.gif",
+            "http://i.imgur.com/dmAp3z4.gif",
+            "http://i.imgur.com/0E0KfZa.gif",
+
         };
 
         public static string[] Pokes = new string[]

@@ -22,6 +22,13 @@ namespace SoraBot_v2.Module
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Sora does not have Manage Role Permissions!"));
                 return;
             }
+            
+            //Check if already exists
+            if (Utility.CheckIfSoraAdminExists(Context.Guild))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role already exists!"));
+                return;
+            }
             //Create role
             await Context.Guild.CreateRoleAsync(Utility.SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
             await ReplyAsync("",
