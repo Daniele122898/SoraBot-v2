@@ -169,6 +169,26 @@ namespace SoraBot_v2.Services
                 return false;
             return true;
         }
+
+        public static User OnlyGetUser(SocketUser user, SoraContext soraContext)
+        {
+            var result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+            if (result != null)
+            {
+                //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if(inter == null)
+                    inter= new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if (afk == null)
+                {
+                    afk = new Afk {IsAfk = false};
+                }
+                result.Interactions = inter;
+                result.Afk = afk;
+            }
+            return result;
+        }
         
         public static User GetOrCreateUser(SocketUser user, SoraContext soraContext)
         {
@@ -179,7 +199,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(), HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
                     soraContext.SaveChanges();

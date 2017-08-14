@@ -22,6 +22,7 @@ namespace SoraBot_v2
         private CommandService _commands;
         private AfkService _afkService;
         private SoraContext _soraContext;
+        private EpService _epService;
 
         public CommandHandler(IServiceProvider services)
         {
@@ -59,10 +60,12 @@ namespace SoraBot_v2
             _commands = services.GetService<CommandService>();
             _afkService = services.GetService<AfkService>();
             _soraContext = services.GetService<SoraContext>();
+            _epService = services.GetService<EpService>();
             _services = services;
             
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
+            _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
         }
 
         private Task CommandsOnLog(LogMessage logMessage)

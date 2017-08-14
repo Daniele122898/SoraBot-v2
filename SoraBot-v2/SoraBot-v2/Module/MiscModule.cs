@@ -82,7 +82,7 @@ namespace SoraBot_v2.Module
                           "Our next step is to conquer the world and challenge Tet.\n" +
                           "If you stand in our way we will have no other choice but\n" +
                           "to crush you. Because..\n" +
-                          "Blank never looses.";
+                          "Blank never loses.";
             });
             await ReplyAsync("", embed: eb);
         }

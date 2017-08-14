@@ -8,9 +8,10 @@ using SoraBot_v2.Data;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170813165251_UserEXP")]
+    partial class UserEXP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
@@ -122,6 +123,8 @@ namespace SoraBotv2.Migrations
                 {
                     b.Property<ulong>("UserId");
 
+                    b.Property<string>("BgFileName");
+
                     b.Property<DateTime>("CanGainAgain");
 
                     b.Property<float>("Exp");
@@ -129,8 +132,6 @@ namespace SoraBotv2.Migrations
                     b.Property<bool>("HasBg");
 
                     b.Property<bool>("Notified");
-
-                    b.Property<DateTime>("ShowProfileCardAgain");
 
                     b.Property<DateTime>("UpdateBgAgain");
 

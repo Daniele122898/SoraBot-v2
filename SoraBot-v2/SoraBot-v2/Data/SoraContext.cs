@@ -29,8 +29,8 @@ namespace SoraBot_v2.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(@""+_connectionString);
-            //optionsBuilder.UseMySql(@"");
+            //optionsBuilder.UseMySql(@""+_connectionString);
+            optionsBuilder.UseMySql(@"***REMOVED***");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
