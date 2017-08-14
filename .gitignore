@@ -9,7 +9,7 @@
 *.userosscache
 *.sln.docstates
 *.json
-
+/SoraBot-v2/SoraBot-v2/ProfileData
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
