@@ -8,9 +8,10 @@ using SoraBot_v2.Data;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170809120102_TagAttachment")]
+    partial class TagAttachment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
@@ -20,8 +21,6 @@ namespace SoraBotv2.Migrations
                     b.Property<ulong>("GuildId");
 
                     b.Property<string>("Prefix");
-
-                    b.Property<bool>("RestrictTags");
 
                     b.HasKey("GuildId");
 
@@ -101,8 +100,6 @@ namespace SoraBotv2.Migrations
 
                     b.Property<ulong>("CreatorId");
 
-                    b.Property<bool>("ForceEmbed");
-
                     b.Property<ulong>("GuildForeignId");
 
                     b.Property<string>("Name");
@@ -121,18 +118,6 @@ namespace SoraBotv2.Migrations
             modelBuilder.Entity("SoraBot_v2.Data.Entities.User", b =>
                 {
                     b.Property<ulong>("UserId");
-
-                    b.Property<DateTime>("CanGainAgain");
-
-                    b.Property<float>("Exp");
-
-                    b.Property<bool>("HasBg");
-
-                    b.Property<bool>("Notified");
-
-                    b.Property<DateTime>("ShowProfileCardAgain");
-
-                    b.Property<DateTime>("UpdateBgAgain");
 
                     b.HasKey("UserId");
 

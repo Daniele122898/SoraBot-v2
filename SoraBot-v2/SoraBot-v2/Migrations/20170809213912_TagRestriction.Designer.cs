@@ -8,9 +8,10 @@ using SoraBot_v2.Data;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170809213912_TagRestriction")]
+    partial class TagRestriction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
@@ -121,18 +122,6 @@ namespace SoraBotv2.Migrations
             modelBuilder.Entity("SoraBot_v2.Data.Entities.User", b =>
                 {
                     b.Property<ulong>("UserId");
-
-                    b.Property<DateTime>("CanGainAgain");
-
-                    b.Property<float>("Exp");
-
-                    b.Property<bool>("HasBg");
-
-                    b.Property<bool>("Notified");
-
-                    b.Property<DateTime>("ShowProfileCardAgain");
-
-                    b.Property<DateTime>("UpdateBgAgain");
 
                     b.HasKey("UserId");
 

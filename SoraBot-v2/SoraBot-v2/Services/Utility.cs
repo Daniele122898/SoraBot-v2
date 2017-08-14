@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,8 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
+        
+        public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
@@ -45,7 +48,8 @@ namespace SoraBot_v2.Services
             "https://media.giphy.com/media/ye7OTQgwmVuVy/giphy.gif",
             "http://i.imgur.com/cPS1JlS.gif",
             "https://media.giphy.com/media/KZQlfylo73AMU/giphy.gif",
-            "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif"
+            "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif",
+            "http://i.imgur.com/d2jbnvs.gif"
         };
 
         public static string[] Self5 = new string[]
@@ -79,7 +83,17 @@ namespace SoraBot_v2.Services
             "https://media.giphy.com/media/kvKFM3UWg2P04/giphy.gif",
             "https://media.giphy.com/media/wnsgren9NtITS/giphy.gif",
             "http://i.imgur.com/nbWWuYJ.gif",
-            "http://i.imgur.com/ffsADGT.gif"
+            "http://i.imgur.com/ffsADGT.gif",
+            "http://i.imgur.com/TMOK7j2.gif",
+            "http://i.imgur.com/6Q3WBmN.gif",
+            "http://i.imgur.com/ffsADGT.gif",
+            "http://i.imgur.com/lIsXgjx.gif",
+            "http://i.imgur.com/Pz3iUsM.gif",
+            "http://i.imgur.com/og4QYSX.gif",
+            "http://i.imgur.com/lX4CbNN.gif",
+            "http://i.imgur.com/dmAp3z4.gif",
+            "http://i.imgur.com/0E0KfZa.gif",
+
         };
 
         public static string[] Pokes = new string[]
@@ -148,6 +162,33 @@ namespace SoraBot_v2.Services
         };
         #endregion
 
+        public static bool CheckIfSoraAdminExists(SocketGuild guild)
+        {
+            var admin = guild.Roles.FirstOrDefault(x=> x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.OrdinalIgnoreCase));
+            if (admin == null)
+                return false;
+            return true;
+        }
+
+        public static User OnlyGetUser(SocketUser user, SoraContext soraContext)
+        {
+            var result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+            if (result != null)
+            {
+                //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if(inter == null)
+                    inter= new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+                if (afk == null)
+                {
+                    afk = new Afk {IsAfk = false};
+                }
+                result.Interactions = inter;
+                result.Afk = afk;
+            }
+            return result;
+        }
         
         public static User GetOrCreateUser(SocketUser user, SoraContext soraContext)
         {
@@ -158,7 +199,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk()});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(), HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
                     soraContext.SaveChanges();
@@ -219,6 +260,33 @@ namespace SoraBot_v2.Services
             soraContext.SaveChanges();
             return result;
 
+        }
+
+        public static async Task<bool> CreateSoraRoleOnJoinAsync(SocketGuild guild,DiscordSocketClient client, SoraContext soraContext)
+        {
+            try
+            {
+                Console.WriteLine("GOT HERE2");
+                if (guild.GetUser(client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
+                {
+                    //NEEDED FOR SORAS ADMIN ROLE
+                    await guild.CreateRoleAsync(SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
+                    return true;
+                }
+                Console.WriteLine("GOT HERE3");
+                await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"I do not have \"Manage Roles\" permissions in {guild.Name}!")
+                    .WithDescription($"Because of that i couldn't create the \"Sora-Admin\" role which is needed for MANY commands " +
+                                     $"so that you as a Guild owner can restrict certain commands to be only used by users " +
+                                     $"carrying that role. \nFor example => Tag creation should not be open to everyone on big servers!\n" +
+                                     $"You can either create the role yourself or let Sora do it with\n" +
+                                     $"\"{Utility.GetGuildPrefix(guild,soraContext)}createAdmin\""));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            return false;
         }
 
         public static double CalculateAffinity(Interactions interactions)

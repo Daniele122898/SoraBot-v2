@@ -49,12 +49,11 @@ namespace SoraBot_v2
                     Source = "COULDNT FIND CONNECTION STRING FOR DB!"
                 };
             }
-            Console.WriteLine(connectionString);
             _soraContext = new SoraContext(connectionString);
             await _soraContext.Database.EnsureCreatedAsync();
             
             //Setup Services
-            
+            ProfileImageProcessing.Initialize();
             //Create dummy commandHandler for dependency Injection
             _commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
@@ -89,6 +88,8 @@ namespace SoraBot_v2
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new CommandService());
+            services.AddSingleton(new EpService(_client, _soraContext));
+            services.AddSingleton(new TagService());
             services.AddSingleton<InteractiveService>();
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);

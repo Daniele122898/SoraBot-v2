@@ -8,9 +8,10 @@ using SoraBot_v2.Data;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170813184454_MoreCooldowns")]
+    partial class MoreCooldowns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2");
@@ -121,6 +122,8 @@ namespace SoraBotv2.Migrations
             modelBuilder.Entity("SoraBot_v2.Data.Entities.User", b =>
                 {
                     b.Property<ulong>("UserId");
+
+                    b.Property<string>("BgFileName");
 
                     b.Property<DateTime>("CanGainAgain");
 
