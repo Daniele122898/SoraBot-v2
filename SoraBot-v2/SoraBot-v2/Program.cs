@@ -90,6 +90,7 @@ namespace SoraBot_v2
             services.AddSingleton(new CommandService());
             services.AddSingleton(new EpService(_client, _soraContext));
             services.AddSingleton(new TagService());
+            //services.AddSingleton(new AudioService(_soraContext)); TODO ADD WHEN FIXED
             services.AddSingleton<InteractiveService>();
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);

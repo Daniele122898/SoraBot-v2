@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Services;
@@ -26,8 +27,8 @@ namespace SoraBot_v2.Module
         {
             var typing = Context.Channel.EnterTypingState();
             var user = userT ?? Context.User;
-            await _epService.DrawProfileCard(Context, user);
             typing.Dispose();
+            await _epService.DrawProfileCard(Context, user);
         }
 
         [Command("removebackground"), Alias("removebg", "rbg", "defaultcard"),

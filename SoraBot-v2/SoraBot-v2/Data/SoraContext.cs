@@ -17,6 +17,9 @@ namespace SoraBot_v2.Data
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Tags> Tags { get; set; }
         
+        //Song list
+        public DbSet<Song> Songs { get; set; }
+        
         private string _connectionString;
 
         public SoraContext(string con)
@@ -29,8 +32,8 @@ namespace SoraBot_v2.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseMySql(@""+_connectionString);
-            optionsBuilder.UseMySql(@"***REMOVED***");
+            optionsBuilder.UseMySql(@""+_connectionString);
+            //optionsBuilder.UseMySql(@"");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

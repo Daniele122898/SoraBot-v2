@@ -27,7 +27,7 @@ namespace SoraBot_v2.Services
 
         public static string[] SuccessLevelEmoji = new string[]
         {
-            "✅","⚠","❌","ℹ"
+            "✅","⚠","❌","ℹ",""
         };
         
         #region Gifs

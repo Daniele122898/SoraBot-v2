@@ -9,6 +9,11 @@
 *.userosscache
 *.sln.docstates
 *.json
+*.exe
+*.dll
+*.opus
+*.mp3
+*.checksums
 
 /SoraBot-v2/SoraBot-v2/ProfileData
 
