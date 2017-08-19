@@ -94,6 +94,7 @@ namespace SoraBot_v2
             services.AddSingleton(new InteractionsService());
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
+            services.AddSingleton(new WeatherService());
             services.AddSingleton(new GiphyService());
             services.AddSingleton(new UbService());
             services.AddSingleton(new ImdbService(_interactiveCommands));
