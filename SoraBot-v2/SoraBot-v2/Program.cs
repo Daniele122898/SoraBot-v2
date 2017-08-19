@@ -5,6 +5,7 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using ImageSharp;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Parsing;
@@ -23,6 +24,8 @@ namespace SoraBot_v2
         private DiscordSocketClient _client;
         private CommandHandler _commands;
         private SoraContext _soraContext;
+        private InteractiveService _interactive;
+        private Discord.Addons.InteractiveCommands.InteractiveService _interactiveCommands;
         #endregion
 
         public async Task MainAsync(string[] args)
@@ -54,6 +57,8 @@ namespace SoraBot_v2
             
             //Setup Services
             ProfileImageProcessing.Initialize();
+            _interactive = new InteractiveService(_client);
+            _interactiveCommands = new Discord.Addons.InteractiveCommands.InteractiveService(_client);
             //Create dummy commandHandler for dependency Injection
             _commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
@@ -64,10 +69,10 @@ namespace SoraBot_v2
             await _commands.InstallAsync();
             
             //Set up an event handler to execute some state-reliant startup tasks
-            /*_client.Ready += async () =>
+            _client.Ready += async () =>
             {
-
-            };*/
+                await SentryService.Install(_client);
+            };
             string token = "";
             ConfigService.GetConfig().TryGetValue("token2", out token);
             
@@ -84,13 +89,21 @@ namespace SoraBot_v2
             services.AddSingleton(_client);
             services.AddSingleton(_soraContext);
             services.AddSingleton(_commands);
+            services.AddSingleton(_interactive);
+            services.AddSingleton(_interactiveCommands);
             services.AddSingleton(new InteractionsService());
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
+            services.AddSingleton(new WeatherService());
+            services.AddSingleton(new GiphyService());
+            services.AddSingleton(new UbService());
+            services.AddSingleton(new ImdbService(_interactiveCommands));
             services.AddSingleton(new CommandService());
             services.AddSingleton(new EpService(_client, _soraContext));
             services.AddSingleton(new TagService());
-            services.AddSingleton<InteractiveService>();
+            services.AddSingleton(new AnimeSearchService(_interactiveCommands));
+            //services.AddSingleton(new AudioService(_soraContext)); TODO ADD WHEN FIXED
+
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
         }

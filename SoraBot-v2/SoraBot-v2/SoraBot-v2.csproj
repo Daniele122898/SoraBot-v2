@@ -24,4 +24,22 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ProfileData\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="ProfileData\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ProfileData\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ProfileCreation\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="ProfileCreation\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ProfileCreation\**" />
+  </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@ namespace SoraBot_v2.Services
 
         public static string[] SuccessLevelEmoji = new string[]
         {
-            "✅","⚠","❌","ℹ"
+            "✅","⚠","❌","ℹ",""
         };
         
         #region Gifs
@@ -49,7 +49,7 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/cPS1JlS.gif",
             "https://media.giphy.com/media/KZQlfylo73AMU/giphy.gif",
             "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif",
-            "http://i.imgur.com/d2jbnvs.gif"
+            "http://i.imgur.com/d2jbnvs.gif",
         };
 
         public static string[] Self5 = new string[]
