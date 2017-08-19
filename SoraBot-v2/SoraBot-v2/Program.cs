@@ -94,6 +94,7 @@ namespace SoraBot_v2
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new GiphyService());
+            services.AddSingleton(new UbService());
             services.AddSingleton(new CommandService());
             services.AddSingleton(new EpService(_client, _soraContext));
             services.AddSingleton(new TagService());
