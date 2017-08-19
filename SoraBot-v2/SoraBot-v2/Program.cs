@@ -90,11 +90,13 @@ namespace SoraBot_v2
             services.AddSingleton(_soraContext);
             services.AddSingleton(_commands);
             services.AddSingleton(_interactive);
+            services.AddSingleton(_interactiveCommands);
             services.AddSingleton(new InteractionsService());
             services.AddSingleton(new AfkService());
             services.AddSingleton(new DynamicPrefixService());
             services.AddSingleton(new GiphyService());
             services.AddSingleton(new UbService());
+            services.AddSingleton(new ImdbService(_interactiveCommands));
             services.AddSingleton(new CommandService());
             services.AddSingleton(new EpService(_client, _soraContext));
             services.AddSingleton(new TagService());

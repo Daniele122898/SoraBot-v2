@@ -8,11 +8,13 @@ namespace SoraBot_v2.Module
     {
         private GiphyService _giphyService;
         private UbService _ubService;
+        private ImdbService _imdbService;
 
-        public Searches(GiphyService giphyService, UbService ubService)
+        public Searches(GiphyService giphyService, UbService ubService, ImdbService imdbService)
         {
             _giphyService = giphyService;
             _ubService = ubService;
+            _imdbService = imdbService;
         }
         
         [Command("gif", RunMode = RunMode.Async), Summary("Gives random Gif with specified search query")]
@@ -26,6 +28,12 @@ namespace SoraBot_v2.Module
         public async Task GetUbDef([Summary("Definition to search"),Remainder] string urban)
         {
             await _ubService.GetUbDef(Context, urban);
+        }
+        
+        [Command("movie", RunMode = RunMode.Async), Alias("imdb" ,"moviedb"), Summary("Gets Movies/Series from IMDB")]
+        public async Task GetImdb([Summary("Movie/Series to search"), Remainder] string target)
+        {
+            await _imdbService.GetImdb(Context, target);
         }
     }
 }

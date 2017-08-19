@@ -267,7 +267,7 @@ namespace SoraBot_v2.Services
             if(!string.IsNullOrWhiteSpace(publishing_status))
                 eb.AddField(efb => efb.WithName("📺 Status").WithValue(publishing_status).WithIsInline(true));
             if(!string.IsNullOrWhiteSpace(String.Join(", ", Genres)))
-                eb.AddField(efb => efb.WithName("📁 Genres").WithValue(String.Join(", ", Genres)).WithIsInline(true));
+                eb.AddField(efb => efb.WithName("📁 Genres").WithValue(String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length-2)).WithIsInline(true));
             eb.AddField(efb => efb.WithName("⭐ Score").WithValue((average_score ?? "-") + " / 100").WithIsInline(true));
             if(!string.IsNullOrWhiteSpace(start_date))
                 eb.AddField(efb => efb.WithName("🗓️ Published").WithValue($"{start_date.Remove(10)} - {(String.IsNullOrWhiteSpace(end_date) ? "Ongoing" : $"{end_date.Remove(10)}")}").WithIsInline(true));
@@ -315,7 +315,7 @@ namespace SoraBot_v2.Services
             }
             eb.AddField(efb => efb.WithName("🔢 Episodes").WithValue(total_episodes.ToString() ?? "-").WithIsInline(true));
             eb.AddField(efb => efb.WithName("📺 Status").WithValue(string.IsNullOrWhiteSpace(AiringStatus) ? "-" : AiringStatus.Humanize()).WithIsInline(true));
-            eb.AddField(efb => efb.WithName("📁 Genres").WithValue(string.IsNullOrWhiteSpace(String.Join(", ", Genres)) ? "-" : String.Join(", ", Genres)).WithIsInline(true));
+            eb.AddField(efb => efb.WithName("📁 Genres").WithValue(string.IsNullOrWhiteSpace(String.Join(", ", Genres)) ? "-" : String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length-2)).WithIsInline(true));
             eb.AddField(efb => efb.WithName("⭐ Score").WithValue((average_score ?? "-") + " / 100").WithIsInline(true));
             if(!string.IsNullOrWhiteSpace(start_date))
                 eb.AddField(efb => efb.WithName("🗓️ Aired").WithValue($"{start_date.Remove(10)} - {(String.IsNullOrWhiteSpace(end_date) ? "Ongoing": $"{end_date.Remove(10)}")}").WithIsInline(true));
