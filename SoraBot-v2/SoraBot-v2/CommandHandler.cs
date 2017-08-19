@@ -126,7 +126,7 @@ namespace SoraBot_v2
                     case CommandError.Exception:
                         if (exception != null)
                         {
-                            await context.Channel.SendMessageAsync(
+                            await SentryService.SendMessage(
                                 $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException.StackTrace}```");
                         }
                         break;
@@ -137,7 +137,7 @@ namespace SoraBot_v2
                         return;
                         break;
                     default:
-                        await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                        await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));
                         break;
             }
         }
