@@ -286,7 +286,7 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Playing music for";
                 x.IsInline = true;
-                x.Value = $"0 guilds"; //TODO COUNT MUSIC STREAMS
+                x.Value = $"Disactivated"; //TODO COUNT MUSIC STREAMS
             });
             eb.AddField((x) =>
             {

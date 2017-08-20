@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
             userDb.Afk.IsAfk = true;
             userDb.Afk.Message = message;
             userDb.Afk.TimeToTriggerAgain = timeToTriggerAgain;
-            await soraContext.SaveChangesAsync();
+            soraContext.SaveChangesThreadSafe();
 
             var eb = new EmbedBuilder()
             {
@@ -60,7 +60,7 @@ namespace SoraBot_v2.Services
                     await AddAfk(context, soraContext, message, true);
                 }
             }
-            await soraContext.SaveChangesAsync();
+            soraContext.SaveChangesThreadSafe();
         }
 
         public async Task Client_MessageReceived(SocketMessage msg, SoraContext soraContext)
@@ -97,7 +97,7 @@ namespace SoraBot_v2.Services
                         Description = userDb.Afk.Message
                     };
 
-                    await soraContext.SaveChangesAsync();
+                    soraContext.SaveChangesThreadSafe();
                     await msg.Channel.SendMessageAsync("", embed: eb);
                 }
             }

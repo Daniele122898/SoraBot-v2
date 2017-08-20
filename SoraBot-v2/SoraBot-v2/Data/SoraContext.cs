@@ -12,6 +12,7 @@ namespace SoraBot_v2.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Afk> Afk { get; set; }
+        public DbSet<Reminders> Reminders { get; set; }
         
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -22,9 +23,11 @@ namespace SoraBot_v2.Data
         
         private string _connectionString;
 
+        private static volatile object padlock = new Object();
+
         public SoraContext(string con)
         {
-            _connectionString = con;
+            _connectionString =con;
         }
         
         public SoraContext()
@@ -34,6 +37,14 @@ namespace SoraBot_v2.Data
         {
             optionsBuilder.UseMySql(@""+_connectionString);
             //optionsBuilder.UseMySql(@"");
+        }
+
+        public int SaveChangesThreadSafe()
+        {
+            lock (padlock)
+            {
+                return SaveChanges();
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +61,13 @@ namespace SoraBot_v2.Data
                 x.HasOne(g => g.Guild)
                     .WithMany(p => p.Tags)
                     .HasForeignKey(g => g.GuildForeignId);
+            });
+
+            modelBuilder.Entity<Reminders>(x =>
+            {
+                x.HasOne(g => g.User)
+                    .WithMany(p => p.Reminders)
+                    .HasForeignKey(g => g.UserForeignId);
             });
         }
     }

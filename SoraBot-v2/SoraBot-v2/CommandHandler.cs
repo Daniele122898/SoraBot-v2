@@ -45,7 +45,7 @@ namespace SoraBot_v2
             {
                 guild.RestrictTags = socketGuild.MemberCount > 100;
             }
-            await _soraContext.SaveChangesAsync();
+            _soraContext.SaveChangesThreadSafe();
             //TODO WELCOME MESSAGE
         }
 
@@ -134,7 +134,6 @@ namespace SoraBot_v2
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
                         break;
                     case CommandError.UnknownCommand:
-                        return;
                         break;
                     default:
                         await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));

@@ -34,7 +34,7 @@ namespace SoraBot_v2.Services
         {
             var userDb = Utility.GetOrCreateUser(context.User, _soraContext);
             userDb.Notified = !userDb.Notified;
-            _soraContext.SaveChanges();
+            _soraContext.SaveChangesThreadSafe();
             if (userDb.Notified)
             {
                 await context.Channel.SendMessageAsync("",
@@ -57,7 +57,7 @@ namespace SoraBot_v2.Services
                 return;
             }
             userDb.HasBg = false;
-            _soraContext.SaveChanges();
+            _soraContext.SaveChangesThreadSafe();
             if (File.Exists($"ProfileData/{context.User.Id}BGF.png"))
             {
                 File.Delete($"ProfileData/{context.User.Id}BGF.png");
@@ -130,7 +130,7 @@ namespace SoraBot_v2.Services
                 }
 
                 userDb.HasBg = true;
-                _soraContext.SaveChanges();
+                _soraContext.SaveChangesThreadSafe();
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                         "Successfully set new BG!"));
@@ -153,7 +153,7 @@ namespace SoraBot_v2.Services
             if (requesterDb.ShowProfileCardAgain.CompareTo(DateTime.UtcNow) < 0)
             {
                 requesterDb.ShowProfileCardAgain = DateTime.UtcNow.AddSeconds(30);
-                _soraContext.SaveChanges();
+                _soraContext.SaveChangesThreadSafe();
             }
             else
             {
@@ -356,7 +356,7 @@ namespace SoraBot_v2.Services
                 };
                 await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("" ,embed: eb);
             }
-            _soraContext.SaveChanges();
+            _soraContext.SaveChangesThreadSafe();
         }
     }
 }

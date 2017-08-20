@@ -184,6 +184,10 @@ namespace SoraBot_v2.Services
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
+                if(reminders == null)
+                    reminders = new List<Reminders>();
+                result.Reminders = reminders;
                 result.Interactions = inter;
                 result.Afk = afk;
             }
@@ -199,10 +203,10 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(), HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
-                    soraContext.SaveChanges();
+                    soraContext.SaveChangesThreadSafe();
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
@@ -214,14 +218,18 @@ namespace SoraBot_v2.Services
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
+                if(reminders == null)
+                    reminders = new List<Reminders>();
                 result.Interactions = inter;
                 result.Afk = afk;
+                result.Reminders = reminders;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
             return result;
         }
 
@@ -241,7 +249,7 @@ namespace SoraBot_v2.Services
                 {
                     //Guild not found => Create
                     var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
-                    soraContext.SaveChanges();
+                    soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
             
@@ -257,7 +265,7 @@ namespace SoraBot_v2.Services
             }
             
             //guild found
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
             return result;
 
         }

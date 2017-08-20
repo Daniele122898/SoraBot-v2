@@ -51,7 +51,7 @@ namespace SoraBot_v2.Services
                             break;
             }
 
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
         }
         
         public async Task InteractMultiple(InteractionType type, List<SocketUser> usersT, SocketCommandContext context, SoraContext soraContext)
@@ -119,7 +119,7 @@ namespace SoraBot_v2.Services
                     break;
             }
 
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
         }
 
         public async Task CheckAffinity(SocketUser user, SocketCommandContext context, SoraContext soraContext)

@@ -83,7 +83,7 @@ namespace SoraBot_v2.Services
                 await Context.Channel.SendMessageAsync("", embed: eb);
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find TheMovieDb entry."));
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Dynamic;
@@ -24,5 +25,6 @@ namespace SoraBot_v2.Data.Entities
         
         public virtual Interactions Interactions { get; set; }
         public virtual Afk Afk { get; set; }
+        public virtual List<Reminders> Reminders { get; set; }
     }
 }
