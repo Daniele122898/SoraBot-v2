@@ -40,7 +40,7 @@ namespace SoraBot_v2.Services
 
         public async Task ShowReminders(SocketCommandContext context)
         {
-            var userDb = Utility.OnlyGetUser(context.User, _soraContext);
+            var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
             if (userDb == null || userDb.Reminders.Count == 0)
             {
                 await context.Channel.SendMessageAsync("",
@@ -72,7 +72,7 @@ namespace SoraBot_v2.Services
 
         public async Task RemoveReminder(SocketCommandContext context)
         {
-            var userDb = Utility.OnlyGetUser(context.User, _soraContext);
+            var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
             if (userDb == null || userDb.Reminders.Count == 0)
             {
                 await context.Channel.SendMessageAsync("",

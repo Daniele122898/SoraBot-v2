@@ -170,27 +170,27 @@ namespace SoraBot_v2.Services
             return true;
         }
 
-        public static User OnlyGetUser(SocketUser user, SoraContext soraContext)
+        public static User OnlyGetUser(ulong Id, SoraContext soraContext)
         {
-            var result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+            var result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
             if (result != null)
             {
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id);
                 if(inter == null)
                     inter= new Interactions();
                 
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
                 if (afk == null)
                 {
                     afk = new Afk {IsAfk = false};
                 }
                 
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
                 if(marriages == null)
                     marriages = new List<Marriage>();
                 
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
                 if(reminders == null)
                     reminders = new List<Reminders>();
                 

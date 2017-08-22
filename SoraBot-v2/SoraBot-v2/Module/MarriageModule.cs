@@ -20,7 +20,26 @@ namespace SoraBot_v2.Module
             await _marriageService.Marry(Context, user);
         }
 
-        [Command("marrylimit"), Alias("checklimit"), Summary("Checks your marriage limit")]
+        [Command("divorce")]
+        public async Task Divorce(SocketUser user)
+        {
+            await _marriageService.Divorce(Context, user.Id);
+        }
+        
+        [Command("divorce")]
+        public async Task Divorce(ulong Id)
+        {
+            await _marriageService.Divorce(Context, Id);
+        }
+
+        [Command("marriages"), Alias("marrylist"), Summary("Shows all your marriages")]
+        public async Task ShowMarriages(SocketUser userT = null)
+        {
+            var user = userT ?? Context.User;
+            await _marriageService.ShowMarriages(Context, user);
+        }
+
+        [Command("marrylimit"), Alias("checklimit", "marriagelimit"), Summary("Checks your marriage limit")]
         public async Task MarriageLimit(SocketUser userT = null)
         {
             var user = userT ?? Context.User;

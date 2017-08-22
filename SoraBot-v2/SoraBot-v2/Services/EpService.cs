@@ -188,7 +188,7 @@ namespace SoraBot_v2.Services
             List<User> users = new List<User>();
             foreach (var guildUser in context.Guild.Users)
             {
-                var uDb = Utility.OnlyGetUser(guildUser, _soraContext);
+                var uDb = Utility.OnlyGetUser(guildUser.Id, _soraContext);
                 if(uDb != null)
                     users.Add(uDb);
             }
@@ -255,7 +255,7 @@ namespace SoraBot_v2.Services
             List<User> users = new List<User>();
             foreach (var guildUser in context.Guild.Users)
             {
-                var uDb = Utility.OnlyGetUser(guildUser, _soraContext);
+                var uDb = Utility.OnlyGetUser(guildUser.Id, _soraContext);
                 if(uDb != null)
                     users.Add(uDb);
             }

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Addons.InteractiveCommands;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Extensions;
@@ -26,7 +29,7 @@ namespace SoraBot_v2.Services
 
         public async Task CheckLimit(SocketCommandContext context, SocketUser user)
         {
-            var userDb = Utility.OnlyGetUser(user, _soraContext);
+            var userDb = Utility.OnlyGetUser(user.Id, _soraContext);
             if (userDb == null)
             {
                 await context.Channel.SendMessageAsync("", embed:
@@ -38,8 +41,85 @@ namespace SoraBot_v2.Services
                 Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of {marryLimit}. Married to {userDb.Marriages.Count} users"));
         }
 
+        public async Task ShowMarriages(SocketCommandContext context, SocketUser user)
+        {
+            var userDb = Utility.OnlyGetUser(user.Id, _soraContext);
+            if (userDb == null || userDb.Marriages.Count == 0)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} has no marriages yet!"));
+                return;
+            }
+
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.PurpleEmbed,
+                Title = $"💕 Marriages of {Utility.GiveUsernameDiscrimComb(user)}",
+                ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                Footer = Utility.RequestedBy(context.User)
+            };
+            foreach (var marriage in userDb.Marriages)
+            {
+                var partner = context.Client.GetUser(marriage.PartnerId);
+                eb.AddField(x =>
+                {
+                    x.Name = $"{(partner == null ? $"Unknown({marriage.Id})" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
+                    x.IsInline = true;
+                    x.Value = $"*Since {marriage.Since.ToString().Remove(marriage.Since.ToString().Length - 9)}*";
+                });
+            }
+
+            await context.Channel.SendMessageAsync("", embed: eb);
+
+        }
+
+        public async Task Divorce(SocketCommandContext context, ulong Id)
+        {
+            var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
+            if (userDb == null || userDb.Marriages.Count == 0)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have no marriages yet!"));
+                return;
+            }
+            var result = userDb.Marriages.FirstOrDefault(x => x.PartnerId == Id);
+            if (result == null)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not married to that person"));
+                return;
+            }
+            var parterDb = Utility.OnlyGetUser(Id, _soraContext);
+            userDb.Marriages.Remove(result);
+            var remove = parterDb.Marriages.FirstOrDefault(x => x.PartnerId == context.User.Id);
+            if(remove != null)
+                parterDb.Marriages.Remove(remove);
+
+            _soraContext.SaveChangesThreadSafe();
+            
+            await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You have been successfully divorced"));
+
+            var divorced = context.Client.GetUser(Id);
+            if (divorced != null)
+            {
+                await (await divorced.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed:Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"{Utility.GiveUsernameDiscrimComb(context.User)} has divorced you 😞"));
+            }
+
+        }
+
         public async Task Marry(SocketCommandContext context, SocketUser user)
         {
+            //Check if its urself
+            if (user.Id == context.User.Id)
+            {
+                await context.Channel.SendMessageAsync("", embed: 
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], 
+                        $"You can't and shouldn't marry yourself ;_;"));
+                return; 
+            }
+            
             var requestorDb = Utility.GetOrCreateUser(context.User, _soraContext);
             var askedDb = Utility.GetOrCreateUser(user, _soraContext);
             int allowedMarriagesRequestor = ((int)(Math.Floor((double) (EpService.CalculateLevel(requestorDb.Exp) / 10)))) +1;
@@ -93,6 +173,7 @@ namespace SoraBot_v2.Services
                 PartnerId = user.Id,
                 Since = DateTime.UtcNow
             });
+            //_soraContext.SaveChangesThreadSafe();
             askedDb.Marriages.Add(new Marriage()
             {
                 PartnerId = context.User.Id,

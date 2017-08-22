@@ -77,7 +77,7 @@ namespace SoraBot_v2.Module
                     x.Value =
                         $"{user?.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int) DateTime.Now.Subtract(((DateTimeOffset) user?.JoinedAt).DateTime).TotalDays} days ago)*";
             });
-            var dbUser = Utility.OnlyGetUser(user, _soraContext);
+            var dbUser = Utility.OnlyGetUser(user.Id, _soraContext);
             string icon="";
             double aff = 0;
             if (dbUser != null)
@@ -217,7 +217,7 @@ namespace SoraBot_v2.Module
 
             Func<long, string> formatRamUnit = d =>
             {
-                var units = new string[] { "B", "kB", "mB", "gB"};
+                var units = new string[] { "B", "kB", "mB", "gB", "tB", "pB"};
                 var unitCount = 0;
                 while (d>1024)
                 {
@@ -258,7 +258,7 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Used RAM";
                 x.IsInline = true;
-                x.Value = $"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} mB / {VSZ:f1} mB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.VirtualMemorySize64):f2} {formatRamUnit(proc.VirtualMemorySize64)}")}";
+                x.Value = $"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} mB / {VSZ:f1} mB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}")}";
             });
             eb.AddField(x =>
             {
