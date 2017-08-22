@@ -317,7 +317,7 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync("", embed: eb);
         }
 
-        private int CalculateLevel(float exp)
+        public static int CalculateLevel(float exp)
         {
             return (int) Math.Round(0.15F * Math.Sqrt(exp));
         }

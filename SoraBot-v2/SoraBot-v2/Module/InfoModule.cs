@@ -11,6 +11,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Google.Apis.Util;
 using Humanizer;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -18,10 +19,12 @@ namespace SoraBot_v2.Module
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         private CommandHandler _commandHandler;
+        private SoraContext _soraContext;
 
-        public InfoModule(CommandHandler commandHandler)
+        public InfoModule(CommandHandler commandHandler, SoraContext soraContext)
         {
             _commandHandler = commandHandler;
+            _soraContext = soraContext;
         }
 
         [Command("userinfo"), Alias("whois", "uinfo"),
@@ -36,7 +39,11 @@ namespace SoraBot_v2.Module
                 ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
                 Title = $"{Utility.SuccessLevelEmoji[3]} {user.Username}",
                 Description = $"Joined Discord on {user.CreatedAt.ToString().Remove(user.CreatedAt.ToString().Length - 6)}. That is {(int)(DateTime.Now.Subtract(user.CreatedAt.DateTime).TotalDays)} days ago!",
-                Footer = Utility.RequestedBy(user)
+                Footer = new EmbedFooterBuilder()
+                {
+                    IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                    Text = $"Requested by {Utility.GiveUsernameDiscrimComb(Context.User)} | User ID: {user.Id}"
+                }
             };
             eb.AddField(x =>
             {
@@ -70,11 +77,19 @@ namespace SoraBot_v2.Module
                     x.Value =
                         $"{user?.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int) DateTime.Now.Subtract(((DateTimeOffset) user?.JoinedAt).DateTime).TotalDays} days ago)*";
             });
+            var dbUser = Utility.OnlyGetUser(user, _soraContext);
+            string icon="";
+            double aff = 0;
+            if (dbUser != null)
+            {
+                aff = Utility.CalculateAffinity(dbUser.Interactions);
+                icon = InteractionsService.MySwitch.First(sw => sw.Key((int) Math.Round(aff))).Value;
+            }
             eb.AddField(x =>
             {
                 x.IsInline = true;
-                x.Name = $"ID";
-                x.Value =$"{user.Id}";
+                x.Name = $"Affinity";
+                x.Value =$"{(dbUser == null ? "-" : $"{aff}/100 {icon}")}";
             });
             eb.AddField(x =>
             {

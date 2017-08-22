@@ -179,17 +179,25 @@ namespace SoraBot_v2.Services
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
                 if(inter == null)
                     inter= new Interactions();
+                
                 var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
                 if (afk == null)
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
+                if(marriages == null)
+                    marriages = new List<Marriage>();
+                
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
                 if(reminders == null)
                     reminders = new List<Reminders>();
+                
                 result.Reminders = reminders;
                 result.Interactions = inter;
                 result.Afk = afk;
+                result.Marriages = marriages;
             }
             return result;
         }
@@ -203,7 +211,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
                     soraContext.SaveChangesThreadSafe();
@@ -218,11 +226,15 @@ namespace SoraBot_v2.Services
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
+                if(marriages == null)
+                    marriages = new List<Marriage>();
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
                 if(reminders == null)
                     reminders = new List<Reminders>();
                 result.Interactions = inter;
                 result.Afk = afk;
+                result.Marriages = marriages;
                 result.Reminders = reminders;
             }
             catch (Exception e)

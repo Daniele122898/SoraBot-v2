@@ -13,6 +13,7 @@ namespace SoraBot_v2.Data
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Afk> Afk { get; set; }
         public DbSet<Reminders> Reminders { get; set; }
+        public DbSet<Marriage> Marriages{ get; set; }
         
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -23,7 +24,7 @@ namespace SoraBot_v2.Data
         
         private string _connectionString;
 
-        private static volatile object padlock = new Object();
+        private static volatile object _padlock = new Object();
 
         public SoraContext(string con)
         {
@@ -41,7 +42,7 @@ namespace SoraBot_v2.Data
 
         public int SaveChangesThreadSafe()
         {
-            lock (padlock)
+            lock (_padlock)
             {
                 return SaveChanges();
             }
@@ -67,6 +68,13 @@ namespace SoraBot_v2.Data
             {
                 x.HasOne(g => g.User)
                     .WithMany(p => p.Reminders)
+                    .HasForeignKey(g => g.UserForeignId);
+            });
+            
+            modelBuilder.Entity<Marriage>(x =>
+            {
+                x.HasOne(g => g.User)
+                    .WithMany(p => p.Marriages)
                     .HasForeignKey(g => g.UserForeignId);
             });
         }
