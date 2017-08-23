@@ -11,7 +11,7 @@ namespace SoraBot_v2.Services
         {
             var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
             guildDb.Prefix = prefix;
-            soraContext.SaveChangesThreadSafe();
+            await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     $"Prefix in this Guild was changed to `{prefix}`"));

@@ -17,6 +17,13 @@ namespace SoraBot_v2.Module
         [Command("marry", RunMode = RunMode.Async), Summary("Marries specified person if agreed")]
         public async Task Marry(SocketUser user)
         {
+            if (user.IsBot)
+            {
+                await Context.Channel.SendMessageAsync("", embed:
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "I'm sorry. You can't marry bots :/"));
+                return;
+            }
             await _marriageService.Marry(Context, user);
         }
 

@@ -9,6 +9,7 @@ using Discord.Addons.InteractiveCommands;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 
@@ -20,12 +21,19 @@ namespace SoraBot_v2.Services
         private SoraContext _soraContext;
         private DiscordSocketClient _client;
         private InteractiveService _interactive;
+        private IServiceProvider _services;
 
-        public ReminderService(SoraContext context, DiscordSocketClient client, InteractiveService interactiveService)
-        {
-            _soraContext = context;
+        public ReminderService(DiscordSocketClient client, InteractiveService interactiveService)
+        {;
             _client = client;
             _interactive = interactiveService;
+
+        }
+        
+        public async Task InitializeAsync(IServiceProvider services)
+        {
+            _services = services;
+            _soraContext = _services.GetService<SoraContext>();
             SetTimer();
         }
         
@@ -35,7 +43,7 @@ namespace SoraBot_v2.Services
         {
             _timer = new Timer(CheckReminders, null, TimeSpan.FromSeconds(INITIAL_DELAY),
                 TimeSpan.FromSeconds(INITIAL_DELAY));
-            ChangeToClosestInterval();
+            //ChangeToClosestInterval();
         }
 
         public async Task ShowReminders(SocketCommandContext context)
@@ -121,7 +129,7 @@ namespace SoraBot_v2.Services
             }
             index -= 1;
             _soraContext.Reminders.Remove(orderedReminders[index]);
-            _soraContext.SaveChangesThreadSafe();
+            await _soraContext.SaveChangesAsync();
             ChangeToClosestInterval();
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
@@ -167,7 +175,7 @@ namespace SoraBot_v2.Services
                     _soraContext.Reminders.Remove(reminder);
                 }
             }
-            _soraContext.SaveChangesThreadSafe();
+            await _soraContext.SaveChangesAsync();
             if(triggered)
                 ChangeToClosestInterval();
         }
@@ -193,9 +201,12 @@ namespace SoraBot_v2.Services
             userDb.Reminders.Add(new Reminders()
             {
                 Message = msg,
-                Time = DateTime.UtcNow.AddSeconds(time)
+                Time = DateTime.UtcNow.AddSeconds(time),
+                //Id = _soraContext.Reminders.Count()+1
             });
-            _soraContext.SaveChangesThreadSafe();
+
+            await _soraContext.SaveChangesAsync();
+
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Successfully set Reminder!")
                     .WithDescription($"I will remind you to `{msg}` in `{message.Substring(message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase) + " in ".Length)}`!"));
@@ -275,12 +286,17 @@ namespace SoraBot_v2.Services
         {
             if (_soraContext.Reminders.ToList().Count == 0)
             {
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 Console.WriteLine("TIMER HAS BEEN HALTED!");
                 return;
             }
             
             var sortedReminders = _soraContext.Reminders.ToList().OrderBy(x => x.Time).ToList();
             var time = sortedReminders[0].Time.Subtract(DateTime.UtcNow).TotalSeconds;
+            if (time < 0)
+            {
+                time = 0;
+            }
             _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
             Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
         }

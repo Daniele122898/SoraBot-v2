@@ -14,7 +14,7 @@ namespace SoraBot_v2.Module
             _reminderService = reminderService;
         }
 
-        [Command("remind"), Alias("rem", "remind me"), Summary("Sets a reminder for you")]
+        [Command("remind"), Alias("rem", "remind me", "rm"), Summary("Sets a reminder for you")]
         public async Task SetReminder([Remainder] string message)
         {
             await _reminderService.SetReminder(Context, message);

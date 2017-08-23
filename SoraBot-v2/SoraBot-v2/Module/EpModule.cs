@@ -38,14 +38,14 @@ namespace SoraBot_v2.Module
             await _epService.RemoveBg(Context);
         }
 
-        [Command("top10"), Alias("top", "localtop", "localtop10", "t10"),
+        [Command("top10"), Alias("top", "localtop", "localtop10", "t10", "leaderboard"),
          Summary("Shows the top 10 users in this guild by EXP")]
         public async Task LocalTop10()
         {
             await _epService.GetLocalTop10List(Context);
         }
         
-        [Command("globaltop10"), Alias("globaltop", "globalt", "top10globally", "gt10", "global top10", "gtop10"),
+        [Command("globaltop10"), Alias("globaltop", "globalt", "top10globally", "gt10", "global top10", "gtop10", "globalleaderboard", "gleaderboard"),
          Summary("Shows the top 10 users globally")]
         public async Task GlobalTop10()
         {

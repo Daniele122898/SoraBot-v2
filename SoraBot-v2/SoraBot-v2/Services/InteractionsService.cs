@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using SoraBotv2.Migrations;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 
@@ -66,7 +65,7 @@ namespace SoraBot_v2.Services
                             break;
             }
 
-            soraContext.SaveChangesThreadSafe();
+            await soraContext.SaveChangesAsync();
         }
         
         public async Task InteractMultiple(InteractionType type, List<SocketUser> usersT, SocketCommandContext context, SoraContext soraContext)
@@ -134,14 +133,19 @@ namespace SoraBot_v2.Services
                     break;
             }
 
-            soraContext.SaveChangesThreadSafe();
+            await soraContext.SaveChangesAsync();
         }
 
         public async Task CheckAffinity(SocketUser user, SocketCommandContext context, SoraContext soraContext)
         {
             //FindUserMentioned
-            var dbUser = Utility.GetOrCreateUser(user, soraContext);
-            var interactions = dbUser.Interactions;
+            var dbUser = Utility.OnlyGetUser(user.Id, soraContext);
+            if (dbUser == null)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} has no Interactions yet!"));
+                return;
+            }
             var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,

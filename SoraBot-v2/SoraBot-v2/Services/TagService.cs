@@ -33,7 +33,7 @@ namespace SoraBot_v2.Services
             }
             //delete Tag
             guildDb.Tags.Remove(result);
-            soraContext.SaveChangesThreadSafe();
+            await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully removed!"));
         }
@@ -133,7 +133,7 @@ namespace SoraBot_v2.Services
             
             //If not ADD
             guildDb.Tags.Add(new Tags(){Name = name, Value = (attachMent ? $"{value}\n{attachmentUrls}":value??""), CreatorId = context.User.Id, PictureAttachment = picAttachment, AttachmentString = (picAttachment ? picAttach: ""), ForceEmbed = forceEmbed});
-            soraContext.SaveChangesThreadSafe();
+            await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully created!"));
         }

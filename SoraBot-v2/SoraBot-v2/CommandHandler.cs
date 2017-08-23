@@ -45,13 +45,29 @@ namespace SoraBot_v2
             {
                 guild.RestrictTags = socketGuild.MemberCount > 100;
             }
-            _soraContext.SaveChangesThreadSafe();
+            await _soraContext.SaveChangesAsync();
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler()
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService)
         {
+            _client = client;
+            _commands = commandService;
+            _afkService = afkService;
+            _epService = epService;
+            _services = provider;
             
+            _client.MessageReceived += HandleCommandsAsync;
+            _commands.Log += CommandsOnLog;
+            _client.JoinedGuild += ClientOnJoinedGuild;
+            _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+        }
+
+        public async Task InitializeAsync(IServiceProvider provider)
+        {
+            _services = provider;
+            _soraContext = provider.GetService<SoraContext>();
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
         public void ConfigureCommandHandler(IServiceProvider services)
@@ -96,7 +112,12 @@ namespace SoraBot_v2
                 var context = new SocketCommandContext(_client,message);
             
                 //prefix ends and command starts
-                string prefix = Utility.GetGuildPrefix(context.Guild, _soraContext);
+                string prefix = "";//Utility.GetGuildPrefix(context.Guild, _soraContext);
+                
+                using (var cont = _services.GetService<SoraContext>())
+                {
+                    prefix = Utility.GetGuildPrefix(context.Guild, cont);
+                }
                 int argPos = prefix.Length-1;
                 if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                     return;
@@ -126,8 +147,9 @@ namespace SoraBot_v2
                     case CommandError.Exception:
                         if (exception != null)
                         {
+                        
                             await SentryService.SendMessage(
-                                $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException.StackTrace}```");
+                                $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");
                         }
                         break;
                     case CommandError.BadArgCount:

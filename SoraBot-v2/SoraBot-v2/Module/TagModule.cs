@@ -99,7 +99,7 @@ namespace SoraBot_v2.Module
             
             
             guildDb.RestrictTags = !guildDb.RestrictTags;
-            _soraContext.SaveChangesThreadSafe();
+            await _soraContext.SaveChangesAsync();
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"{(guildDb.RestrictTags ? $"Set the Tag Restriction to TRUE!\n=> Users need the {Utility.SORA_ADMIN_ROLE_NAME} Role to create Tags":$"Set the Tag Restriction to FALSE!\n=> Everyone can create Tags")}"));
         }
