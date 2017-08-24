@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace SoraBot_v2.Extensions
 {
@@ -18,6 +19,11 @@ namespace SoraBot_v2.Extensions
             if (self.ContainsKey(key))
                 self.TryGetValue(key, out value);
             return value;
+        }
+
+        public static bool Contains(this string source, string toCheck, StringComparison comp) //this string source makes "string".contains possible
+        {
+            return source.IndexOf(toCheck, comp) >= 0;
         }
     }
 }

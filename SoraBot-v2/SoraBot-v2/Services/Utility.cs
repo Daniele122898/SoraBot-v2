@@ -170,22 +170,34 @@ namespace SoraBot_v2.Services
             return true;
         }
 
-        public static User OnlyGetUser(SocketUser user, SoraContext soraContext)
+        public static User OnlyGetUser(ulong Id, SoraContext soraContext)
         {
-            var result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+            var result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
             if (result != null)
             {
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id);
                 if(inter == null)
                     inter= new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
+                
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
                 if (afk == null)
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
+                if(marriages == null)
+                    marriages = new List<Marriage>();
+                
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
+                if(reminders == null)
+                    reminders = new List<Reminders>();
+                
+                result.Reminders = reminders;
                 result.Interactions = inter;
                 result.Afk = afk;
+                result.Marriages = marriages;
             }
             return result;
         }
@@ -199,10 +211,10 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(), HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
-                    soraContext.SaveChanges();
+                    soraContext.SaveChangesThreadSafe();
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
@@ -214,14 +226,22 @@ namespace SoraBot_v2.Services
                 {
                     afk = new Afk {IsAfk = false};
                 }
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
+                if(marriages == null)
+                    marriages = new List<Marriage>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
+                if(reminders == null)
+                    reminders = new List<Reminders>();
                 result.Interactions = inter;
                 result.Afk = afk;
+                result.Marriages = marriages;
+                result.Reminders = reminders;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
             return result;
         }
 
@@ -241,12 +261,12 @@ namespace SoraBot_v2.Services
                 {
                     //Guild not found => Create
                     var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
-                    soraContext.SaveChanges();
+                    soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
             
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id).ToList();
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
                 if(foundTags == null)
                     foundTags = new List<Tags>();
                 result.Tags = foundTags;
@@ -257,7 +277,7 @@ namespace SoraBot_v2.Services
             }
             
             //guild found
-            soraContext.SaveChanges();
+            soraContext.SaveChangesThreadSafe();
             return result;
 
         }

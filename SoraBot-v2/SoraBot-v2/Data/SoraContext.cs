@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
+using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Data
 {
@@ -12,6 +15,8 @@ namespace SoraBot_v2.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Afk> Afk { get; set; }
+        public DbSet<Reminders> Reminders { get; set; }
+        public DbSet<Marriage> Marriages{ get; set; }
         
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -19,21 +24,70 @@ namespace SoraBot_v2.Data
         
         //Song list
         public DbSet<Song> Songs { get; set; }
-        
-        private string _connectionString;
 
+        private static volatile object _padlock = new Object();
+
+        /*
         public SoraContext(string con)
         {
-            _connectionString = con;
+            _connectionString =con;
+        }*/
+        public SoraContext(DbContextOptions<SoraContext> options) : base(options)
+        {
+            
         }
-        
+        /*
         public SoraContext()
         {
         }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(@""+_connectionString);
-            //optionsBuilder.UseMySql(@"");
+            optionsBuilder.UseMySql(@"");
+        }*/
+
+        public int SaveChangesThreadSafe()
+        {
+            lock (_padlock)
+            {
+                try
+                {
+                    return this.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                    {
+                        //REMINDERS
+                        if (entry.Entity is Reminders)
+                        {
+                            var databaseEntity = this.Reminders.AsNoTracking()
+                                .Single(x => x.Id == ((Reminders) entry.Entity).Id);
+                            var databaseEntry = this.Entry(databaseEntity);
+
+                            foreach (var property in entry.Metadata.GetProperties())
+                            {
+                                var proposedValue = entry.Property(property.Name).CurrentValue;
+                                var originalValue = entry.Property(property.Name).OriginalValue;
+                                var databaseValue = entry.Property(property.Name).CurrentValue;
+
+                                // TODO: Logic to decide which value should be written to database
+                                // entry.Property(property.Name).CurrentValue = <value to be saved>;
+
+                                entry.Property(property.Name).OriginalValue =
+                                    databaseEntry.Property(property.Name).CurrentValue;
+                            }
+
+                        }
+                        else
+                        {
+                            throw new NotSupportedException("Don't know how to handle concurrency conflicts for "+ entry.Metadata.Name);
+                        }
+                    }
+                    //retry the save operation
+                    return this.SaveChanges();
+                }
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +104,20 @@ namespace SoraBot_v2.Data
                 x.HasOne(g => g.Guild)
                     .WithMany(p => p.Tags)
                     .HasForeignKey(g => g.GuildForeignId);
+            });
+
+            modelBuilder.Entity<Reminders>(x =>
+            {
+                x.HasOne(g => g.User)
+                    .WithMany(p => p.Reminders)
+                    .HasForeignKey(g => g.UserForeignId);
+            });
+            
+            modelBuilder.Entity<Marriage>(x =>
+            {
+                x.HasOne(g => g.User)
+                    .WithMany(p => p.Marriages)
+                    .HasForeignKey(g => g.UserForeignId);
             });
         }
     }

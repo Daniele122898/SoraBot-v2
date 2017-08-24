@@ -21,62 +21,47 @@ namespace SoraBot_v2
         private DiscordSocketClient _client;
         private CommandService _commands;
         private AfkService _afkService;
-        private SoraContext _soraContext;
         private EpService _epService;
-
-        public CommandHandler(IServiceProvider services)
-        {
-            _client = services.GetService<DiscordSocketClient>();
-            _commands = services.GetService<CommandService>();
-            _afkService = services.GetService<AfkService>();
-            _soraContext = services.GetService<SoraContext>();
-            _services = services;
-            
-            //DO NOT USE THIS FOR EVENTS USE CONFIGURE COMMANDHANDLER!!!
-        }
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
-            Console.WriteLine("GOT HERE");
-            var guild = Utility.GetOrCreateGuild(socketGuild, _soraContext);
-            //AUTO CREATE SORA ADMIN ROLE
-            var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, _soraContext);
-            if (created)
+            using (var soraContext = _services.GetService<SoraContext>())
             {
-                guild.RestrictTags = socketGuild.MemberCount > 100;
+                var guild = Utility.GetOrCreateGuild(socketGuild, soraContext);
+                //AUTO CREATE SORA ADMIN ROLE
+                var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext);
+                if (created)
+                {
+                    guild.RestrictTags = socketGuild.MemberCount > 100;
+                }
+                await soraContext.SaveChangesAsync();
             }
-            await _soraContext.SaveChangesAsync();
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler()
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService)
         {
+            _client = client;
+            _commands = commandService;
+            _afkService = afkService;
+            _epService = epService;
+            _services = provider;
             
-        }
-
-        public void ConfigureCommandHandler(IServiceProvider services)
-        {
-            _client = services.GetService<DiscordSocketClient>();
-            _commands = services.GetService<CommandService>();
-            _afkService = services.GetService<AfkService>();
-            _soraContext = services.GetService<SoraContext>();
-            _epService = services.GetService<EpService>();
-            _services = services;
-            
+            _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
         }
 
+        public async Task InitializeAsync(IServiceProvider provider)
+        {
+            _services = provider;
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+        }
+
         private Task CommandsOnLog(LogMessage logMessage)
         {
             return HandleErrorAsync(logMessage);
-        }
-
-        public async Task InstallAsync()
-        {
-            _client.MessageReceived += HandleCommandsAsync;
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
         public async Task HandleCommandsAsync(SocketMessage m)
@@ -88,30 +73,36 @@ namespace SoraBot_v2
                 if (message == null) return;
                 if (message.Author.IsBot) return;
                 if (!(message.Channel is SocketGuildChannel)) return;
-            
-                //Hand to AFK service
-                await _afkService.Client_MessageReceived(m, _soraContext);
-            
-                //create Context
-                var context = new SocketCommandContext(_client,message);
-            
-                //prefix ends and command starts
-                string prefix = Utility.GetGuildPrefix(context.Guild, _soraContext);
-                int argPos = prefix.Length-1;
-                if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                    return;
-            
-            
-
-                var result = await _commands.ExecuteAsync(context, argPos, _services);
-
-                if (!result.IsSuccess)
+                using (var soraContext = _services.GetService<SoraContext>())
                 {
-                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                    await HandleErrorAsync(result, context);
+                    //Hand to AFK service
+                    await _afkService.Client_MessageReceived(m, soraContext);
+                
+                    //create Context
+                    var context = new SocketCommandContext(_client,message);
+                
+                    //prefix ends and command starts
+                    string prefix = "";//Utility.GetGuildPrefix(context.Guild, _soraContext);
+                    
+                   
+                    prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
+                    
+                    int argPos = prefix.Length-1;
+                    if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+                        return;
+                
+                
+    
+                    var result = await _commands.ExecuteAsync(context, argPos, _services);
+    
+                    if (!result.IsSuccess)
+                    {
+                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                        await HandleErrorAsync(result, context);
+                    }
+                    else if (result.IsSuccess)
+                        CommandsExecuted++;
                 }
-                else if (result.IsSuccess)
-                    CommandsExecuted++;
             }
             catch (Exception e)
             {
@@ -126,15 +117,15 @@ namespace SoraBot_v2
                     case CommandError.Exception:
                         if (exception != null)
                         {
+                        
                             await SentryService.SendMessage(
-                                $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException.StackTrace}```");
+                                $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");
                         }
                         break;
                     case CommandError.BadArgCount:
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
                         break;
                     case CommandError.UnknownCommand:
-                        return;
                         break;
                     default:
                         await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));

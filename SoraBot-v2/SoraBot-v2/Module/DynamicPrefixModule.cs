@@ -28,6 +28,13 @@ namespace SoraBot_v2.Module
                         "You don't have permission to set the prefix! You need Administrator permissions!"));
                 return;
             }
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                await ReplyAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "Prefix can't be null or whitespace!"));
+                return;
+            }
             await _prefixService.UpdateGuildPrefix(Context, _soraContext, prefix);
         }
 

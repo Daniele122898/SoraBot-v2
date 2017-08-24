@@ -45,7 +45,9 @@ namespace SoraBot_v2.Services
                 {"client_secret", _clientSecret},
             };
             _formContent = new FormUrlEncodedContent(headers);
+#pragma warning disable 4014
             RequestAuth();
+#pragma warning restore 4014
         }
 
         private async Task RequestAuth()
@@ -164,7 +166,7 @@ namespace SoraBot_v2.Services
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find anything. Sorry"));
             }

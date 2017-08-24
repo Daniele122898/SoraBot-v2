@@ -11,6 +11,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Google.Apis.Util;
 using Humanizer;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -18,10 +19,12 @@ namespace SoraBot_v2.Module
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         private CommandHandler _commandHandler;
+        private SoraContext _soraContext;
 
-        public InfoModule(CommandHandler commandHandler)
+        public InfoModule(CommandHandler commandHandler, SoraContext soraContext)
         {
             _commandHandler = commandHandler;
+            _soraContext = soraContext;
         }
 
         [Command("userinfo"), Alias("whois", "uinfo"),
@@ -36,7 +39,11 @@ namespace SoraBot_v2.Module
                 ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
                 Title = $"{Utility.SuccessLevelEmoji[3]} {user.Username}",
                 Description = $"Joined Discord on {user.CreatedAt.ToString().Remove(user.CreatedAt.ToString().Length - 6)}. That is {(int)(DateTime.Now.Subtract(user.CreatedAt.DateTime).TotalDays)} days ago!",
-                Footer = Utility.RequestedBy(user)
+                Footer = new EmbedFooterBuilder()
+                {
+                    IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                    Text = $"Requested by {Utility.GiveUsernameDiscrimComb(Context.User)} | User ID: {user.Id}"
+                }
             };
             eb.AddField(x =>
             {
@@ -70,11 +77,19 @@ namespace SoraBot_v2.Module
                     x.Value =
                         $"{user?.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int) DateTime.Now.Subtract(((DateTimeOffset) user?.JoinedAt).DateTime).TotalDays} days ago)*";
             });
+            var dbUser = Utility.OnlyGetUser(user.Id, _soraContext);
+            string icon="";
+            double aff = 0;
+            if (dbUser != null)
+            {
+                aff = Utility.CalculateAffinity(dbUser.Interactions);
+                icon = InteractionsService.MySwitch.First(sw => sw.Key((int) Math.Round(aff))).Value;
+            }
             eb.AddField(x =>
             {
                 x.IsInline = true;
-                x.Name = $"ID";
-                x.Value =$"{user.Id}";
+                x.Name = $"Affinity";
+                x.Value =$"{(dbUser == null ? "-" : $"{aff}/100 {icon}")}";
             });
             eb.AddField(x =>
             {
@@ -202,7 +217,7 @@ namespace SoraBot_v2.Module
 
             Func<long, string> formatRamUnit = d =>
             {
-                var units = new string[] { "B", "kB", "mB", "gB"};
+                var units = new string[] { "B", "kB", "mB", "gB", "tB", "pB"};
                 var unitCount = 0;
                 while (d>1024)
                 {
@@ -243,7 +258,7 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Used RAM";
                 x.IsInline = true;
-                x.Value = $"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} mB / {VSZ:f1} mB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.VirtualMemorySize64):f2} {formatRamUnit(proc.VirtualMemorySize64)}")}";
+                x.Value = $"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} mB / {VSZ:f1} mB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}")}";
             });
             eb.AddField(x =>
             {
@@ -286,7 +301,7 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Playing music for";
                 x.IsInline = true;
-                x.Value = $"0 guilds"; //TODO COUNT MUSIC STREAMS
+                x.Value = $"Disactivated"; //TODO COUNT MUSIC STREAMS
             });
             eb.AddField((x) =>
             {

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using SoraBotv2.Migrations;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 
@@ -18,6 +17,21 @@ namespace SoraBot_v2.Services
     }
     public class InteractionsService
     {
+        public static  Dictionary<Func<int, bool>, string> MySwitch = new Dictionary<Func<int, bool>, string>
+        {
+            {x=>x <10,"☢"},
+            {x=>x <20,"👹"},
+            {x=>x <30,"🤢"},
+            {x=>x <40,"👺"},
+            {x=>x <50,"⚠"},
+            {x=>x <60,"🤔"},
+            {x=>x <70,"😒"},
+            {x=>x <80,"😀"},
+            {x=>x <90,"♥"},
+            {x=>x <100,"💕"},
+            {x=>x ==100,"💯"},
+        };
+        
         public async Task Interact(InteractionType type, SocketUser user, SocketCommandContext context, SoraContext soraContext)
         {
             //FindUserMentioned
@@ -51,7 +65,7 @@ namespace SoraBot_v2.Services
                             break;
             }
 
-            soraContext.SaveChanges();
+            await soraContext.SaveChangesAsync();
         }
         
         public async Task InteractMultiple(InteractionType type, List<SocketUser> usersT, SocketCommandContext context, SoraContext soraContext)
@@ -119,14 +133,19 @@ namespace SoraBot_v2.Services
                     break;
             }
 
-            soraContext.SaveChanges();
+            await soraContext.SaveChangesAsync();
         }
 
         public async Task CheckAffinity(SocketUser user, SocketCommandContext context, SoraContext soraContext)
         {
             //FindUserMentioned
-            var dbUser = Utility.GetOrCreateUser(user, soraContext);
-            var interactions = dbUser.Interactions;
+            var dbUser = Utility.OnlyGetUser(user.Id, soraContext);
+            if (dbUser == null)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} has no Interactions yet!"));
+                return;
+            }
             var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,
@@ -192,7 +211,9 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = $"Affinity";
-                x.Value= $"{Utility.CalculateAffinity(dbUser.Interactions)}/100 ⚜";
+                double aff = Utility.CalculateAffinity(dbUser.Interactions);
+                string icon = MySwitch.First(sw => sw.Key((int) Math.Round(aff))).Value;
+                x.Value= $"{aff}/100 {icon}";
                 
             });
             await context.Channel.SendMessageAsync("",false,eb);
