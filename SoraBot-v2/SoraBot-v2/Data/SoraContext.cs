@@ -43,7 +43,7 @@ namespace SoraBot_v2.Data
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(@"***REMOVED***");
+            optionsBuilder.UseMySql(@"");
         }*/
 
         public int SaveChangesThreadSafe()

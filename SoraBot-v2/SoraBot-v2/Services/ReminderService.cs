@@ -18,7 +18,6 @@ namespace SoraBot_v2.Services
     public class ReminderService
     {
         private Timer _timer;
-        private SoraContext _soraContext;
         private DiscordSocketClient _client;
         private InteractiveService _interactive;
         private IServiceProvider _services;
@@ -33,7 +32,6 @@ namespace SoraBot_v2.Services
         public async Task InitializeAsync(IServiceProvider services)
         {
             _services = services;
-            _soraContext = _services.GetService<SoraContext>();
             SetTimer();
         }
         
@@ -48,92 +46,107 @@ namespace SoraBot_v2.Services
 
         public async Task ShowReminders(SocketCommandContext context)
         {
-            var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
-            if (userDb == null || userDb.Reminders.Count == 0)
+            using (var _soraContext = _services.GetService<SoraContext>())
             {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no reminders!"));
-                return;
-            }
-
-            var eb = new EmbedBuilder()
-            {
-                Color = Utility.PurpleEmbed,
-                Title = "Reminders ⏰",
-                ThumbnailUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
-            };
-
-            var sortedReminders = userDb.Reminders.OrderBy(x => x.Time).ToList();
-
-            for (int i = 0; i < (sortedReminders.Count > 10 ? 10 : sortedReminders.Count); i++)
-            {
-                eb.AddField(x =>
+                var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
+                if (userDb == null || userDb.Reminders.Count == 0)
                 {
-                    x.Name =
-                        $"Reminder #{i + 1} in {ConvertTime(sortedReminders[i].Time.Subtract(DateTime.UtcNow).TotalSeconds)}";
-                    x.IsInline = false;
-                    x.Value = $"{(sortedReminders[i].Message.Length > 80 ? sortedReminders[i].Message.Remove(80)+"..." : sortedReminders[i].Message)}";
-                });
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "You have no reminders!"));
+                    return;
+                }
+
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.PurpleEmbed,
+                    Title = "Reminders ⏰",
+                    ThumbnailUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
+                };
+
+                var sortedReminders = userDb.Reminders.OrderBy(x => x.Time).ToList();
+
+                for (int i = 0; i < (sortedReminders.Count > 10 ? 10 : sortedReminders.Count); i++)
+                {
+                    eb.AddField(x =>
+                    {
+                        x.Name =
+                            $"Reminder #{i + 1} in {ConvertTime(sortedReminders[i].Time.Subtract(DateTime.UtcNow).TotalSeconds)}";
+                        x.IsInline = false;
+                        x.Value =
+                            $"{(sortedReminders[i].Message.Length > 80 ? sortedReminders[i].Message.Remove(80) + "..." : sortedReminders[i].Message)}";
+                    });
+                }
+
+                await context.Channel.SendMessageAsync("", embed: eb);
             }
-            await context.Channel.SendMessageAsync("", embed: eb);
         }
 
         public async Task RemoveReminder(SocketCommandContext context)
         {
-            var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
-            if (userDb == null || userDb.Reminders.Count == 0)
+            using (var _soraContext = _services.GetService<SoraContext>())
             {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no reminders!"));
-                return;
-            }
-            
-            var eb = new EmbedBuilder()
-            {
-                Color = Utility.PurpleEmbed,
-                Title = "Enter index of reminder to remove",
-                ThumbnailUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
-            };
-            var orderedReminders = _soraContext.Reminders.Where(x => x.UserForeignId == context.User.Id).ToList();
-            for (int i = 0; i < (orderedReminders.Count > 24 ? 24 : orderedReminders.Count); i++)
-            {
-                eb.AddField(x =>
+                var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
+                if (userDb == null || userDb.Reminders.Count == 0)
                 {
-                    x.Name =
-                        $"Reminder #{i + 1} in {ConvertTime(orderedReminders[i].Time.Subtract(DateTime.UtcNow).TotalSeconds)}";
-                    x.IsInline = false;
-                    x.Value = $"{(orderedReminders[i].Message.Length > 80 ? orderedReminders[i].Message.Remove(80)+"..." : orderedReminders[i].Message)}";
-                });
-            }
-            var msg = await context.Channel.SendMessageAsync("", embed: eb);
-            var response = await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
-            await msg.DeleteAsync();
-            if (response == null)
-            {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "You have no reminders!"));
+                    return;
+                }
+
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.PurpleEmbed,
+                    Title = "Enter index of reminder to remove",
+                    ThumbnailUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
+                };
+                var orderedReminders = _soraContext.Reminders.Where(x => x.UserForeignId == context.User.Id).ToList();
+                for (int i = 0; i < (orderedReminders.Count > 24 ? 24 : orderedReminders.Count); i++)
+                {
+                    eb.AddField(x =>
+                    {
+                        x.Name =
+                            $"Reminder #{i + 1} in {ConvertTime(orderedReminders[i].Time.Subtract(DateTime.UtcNow).TotalSeconds)}";
+                        x.IsInline = false;
+                        x.Value =
+                            $"{(orderedReminders[i].Message.Length > 80 ? orderedReminders[i].Message.Remove(80) + "..." : orderedReminders[i].Message)}";
+                    });
+                }
+                var msg = await context.Channel.SendMessageAsync("", embed: eb);
+                var response =
+                    await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
+                await msg.DeleteAsync();
+                if (response == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            $"{Utility.GiveUsernameDiscrimComb(context.User)} didn't reply in time :<"));
+                    return;
+                }
+                int index = 0;
+                if (!Int32.TryParse(response.Content, out index))
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "Only add the Index!"));
+                    return;
+                }
+                if (index > (orderedReminders.Count + 1) || index < 1)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "Invalid Number"));
+                    return;
+                }
+                index -= 1;
+                _soraContext.Reminders.Remove(orderedReminders[index]);
+                await _soraContext.SaveChangesAsync();
+                ChangeToClosestInterval();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} didn't reply in time :<"));
-                return;
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
+                        "Successfully removed reminder"));
             }
-            int index = 0;
-            if (!Int32.TryParse(response.Content, out index))
-            {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Only add the Index!"));
-                return;
-            }
-            if (index > (orderedReminders.Count + 1) || index < 1)
-            {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Invalid Number"));
-                return;
-            }
-            index -= 1;
-            _soraContext.Reminders.Remove(orderedReminders[index]);
-            await _soraContext.SaveChangesAsync();
-            ChangeToClosestInterval();
-            await context.Channel.SendMessageAsync("",
-                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    "Successfully removed reminder"));
         }
         
         private string ConvertTime(double value)
@@ -156,61 +169,72 @@ namespace SoraBot_v2.Services
         
         private async void CheckReminders(Object stateInfo)
         {
-            List<Reminders> rems = new List<Reminders>();
-            rems = _soraContext.Reminders.ToList();
-            bool triggered = false;
-            foreach (var reminder in rems)
+            using (var _soraContext = _services.GetService<SoraContext>())
             {
-                if (reminder.Time.CompareTo(DateTime.UtcNow) <= 0)
+                List<Reminders> rems = new List<Reminders>();
+                rems = _soraContext.Reminders.ToList();
+                bool triggered = false;
+                foreach (var reminder in rems)
                 {
-                    triggered = true;
-                    var userToRemind = _client.GetUser(reminder.UserForeignId);
-                    if (userToRemind == null)
+                    if (reminder.Time.CompareTo(DateTime.UtcNow) <= 0)
                     {
+                        triggered = true;
+                        var userToRemind = _client.GetUser(reminder.UserForeignId);
+                        if (userToRemind == null)
+                        {
+                            _soraContext.Reminders.Remove(reminder);
+                            continue;
+                        }
+                        await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                            embed: Utility
+                                .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
+                                .WithDescription($"{reminder.Message}"));
                         _soraContext.Reminders.Remove(reminder);
-                        continue;
                     }
-                    await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰").WithDescription($"{reminder.Message}"));
-                    _soraContext.Reminders.Remove(reminder);
                 }
+                await _soraContext.SaveChangesAsync();
+                if (triggered)
+                    ChangeToClosestInterval();
             }
-            await _soraContext.SaveChangesAsync();
-            if(triggered)
-                ChangeToClosestInterval();
         }
 
         public async Task SetReminder(SocketCommandContext context, string message)
         {
             var time = GetTime(message);
-            if (time == 0)
+            using (var _soraContext = _services.GetService<SoraContext>())
             {
+                if (time == 0)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Either the message or the time format was incorrect!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins"));
+                    return;
+                }
+                if (time == -1)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You need to add a message to your Reminder!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins"));
+                    return;
+                }
+            
+                var userDb = Utility.GetOrCreateUser(context.User, _soraContext);
+
+                var msg = message.Substring(0, message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase));
+                userDb.Reminders.Add(new Reminders()
+                {
+                    Message = msg,
+                    Time = DateTime.UtcNow.AddSeconds(time),
+                    //Id = _soraContext.Reminders.Count()+1
+                });
+
+                await _soraContext.SaveChangesAsync();
+
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Either the message or the time format was incorrect!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins"));
-                return;
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
+                            "Successfully set Reminder!")
+                        .WithDescription(
+                            $"I will remind you to `{msg}` in `{message.Substring(message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase) + " in ".Length)}`!"));
+                ChangeToClosestInterval();
             }
-            if (time == -1)
-            {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You need to add a message to your Reminder!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins"));
-                return;
-            }
-            var userDb = Utility.GetOrCreateUser(context.User, _soraContext);
-
-            var msg = message.Substring(0, message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase));
-            userDb.Reminders.Add(new Reminders()
-            {
-                Message = msg,
-                Time = DateTime.UtcNow.AddSeconds(time),
-                //Id = _soraContext.Reminders.Count()+1
-            });
-
-            await _soraContext.SaveChangesAsync();
-
-            await context.Channel.SendMessageAsync("",
-                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Successfully set Reminder!")
-                    .WithDescription($"I will remind you to `{msg}` in `{message.Substring(message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase) + " in ".Length)}`!"));
-            ChangeToClosestInterval();
         }
 
         private double GetTime(string message)
@@ -284,21 +308,24 @@ namespace SoraBot_v2.Services
 
         private void ChangeToClosestInterval()
         {
-            if (_soraContext.Reminders.ToList().Count == 0)
+            using (var _soraContext = _services.GetService<SoraContext>())
             {
-                _timer.Change(Timeout.Infinite, Timeout.Infinite);
-                Console.WriteLine("TIMER HAS BEEN HALTED!");
-                return;
+                if (_soraContext.Reminders.ToList().Count == 0)
+                {
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    Console.WriteLine("TIMER HAS BEEN HALTED!");
+                    return;
+                }
+
+                var sortedReminders = _soraContext.Reminders.ToList().OrderBy(x => x.Time).ToList();
+                var time = sortedReminders[0].Time.Subtract(DateTime.UtcNow).TotalSeconds;
+                if (time < 0)
+                {
+                    time = 0;
+                }
+                _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
+                Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
             }
-            
-            var sortedReminders = _soraContext.Reminders.ToList().OrderBy(x => x.Time).ToList();
-            var time = sortedReminders[0].Time.Subtract(DateTime.UtcNow).TotalSeconds;
-            if (time < 0)
-            {
-                time = 0;
-            }
-            _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
-            Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
         }
     }
 }

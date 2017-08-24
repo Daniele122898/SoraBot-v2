@@ -266,7 +266,7 @@ namespace SoraBot_v2.Services
                 }
             
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id).ToList();
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
                 if(foundTags == null)
                     foundTags = new List<Tags>();
                 result.Tags = foundTags;
