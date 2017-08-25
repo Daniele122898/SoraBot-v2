@@ -286,14 +286,12 @@ namespace SoraBot_v2.Services
         {
             try
             {
-                Console.WriteLine("GOT HERE2");
                 if (guild.GetUser(client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
                 {
                     //NEEDED FOR SORAS ADMIN ROLE
                     await guild.CreateRoleAsync(SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
                     return true;
                 }
-                Console.WriteLine("GOT HERE3");
                 await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"I do not have \"Manage Roles\" permissions in {guild.Name}!")
                     .WithDescription($"Because of that i couldn't create the \"Sora-Admin\" role which is needed for MANY commands " +
                                      $"so that you as a Guild owner can restrict certain commands to be only used by users " +
