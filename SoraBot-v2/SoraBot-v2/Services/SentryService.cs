@@ -13,7 +13,7 @@ namespace SoraBot_v2.Services
         public static async Task Install(DiscordSocketClient client)
         {
             _client = client;
-            _serenity = _client.GetUser(192750776005689344);
+            _serenity = _client.GetUser(Utility.OWNER_ID);
             Console.WriteLine($"Got user {Utility.GiveUsernameDiscrimComb(_serenity)}");
         }
 

@@ -108,7 +108,12 @@ namespace SoraBot_v2.Services
                         var ebC = new EmbedBuilder()
                         {
                             Color = Utility.PurpleEmbed,
-                            Title = "Just enter the index for more info"
+                            Title = "Just enter the index for more info",
+                            Author = new EmbedAuthorBuilder()
+                            {
+                                IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                                Name = Utility.GiveUsernameDiscrimComb(context.User)
+                            }
                         };
                         for (int i = 0; i < results.Count; i++)
                         {

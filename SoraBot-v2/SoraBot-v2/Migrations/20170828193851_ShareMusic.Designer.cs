@@ -11,9 +11,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170828193851_ShareMusic")]
+    partial class ShareMusic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,8 +41,6 @@ namespace SoraBotv2.Migrations
                     b.Property<ulong>("CreatorId");
 
                     b.Property<int>("Downvotes");
-
-                    b.Property<bool>("IsPrivate");
 
                     b.Property<string>("Tags");
 

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Google.Apis.YouTube.v3.Data;
 using SoraBot_v2.Data;
 
 namespace SoraBot_v2.Services

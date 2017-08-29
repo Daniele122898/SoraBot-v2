@@ -50,26 +50,49 @@ namespace SoraBot_v2.Module
                     amountLeft -= 15;
                     addToJ += 15;
                 }
-                var pmsg = new PaginatedMessage()
+                if (pageAmount > 1)
                 {
-                    Author = new EmbedAuthorBuilder()
+                    var pmsg = new PaginatedMessage()
                     {
-                        IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
-                        Name = Context.User.Username
-                    },
-                    Color = Utility.PurpleEmbed,
-                    Title = $"Taglist of {Context.Guild.Name}",
-                    Options = new PaginatedAppearanceOptions()
-                    {
-                        DisplayInformationIcon = false,
-                        Timeout = TimeSpan.FromSeconds(30),
-                        InfoTimeout = TimeSpan.FromSeconds(30)
-                    },
-                    Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
-                    Pages = tagList
-                };
+                        Author = new EmbedAuthorBuilder()
+                        {
+                            IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                            Name = Context.User.Username
+                        },
+                        Color = Utility.PurpleEmbed,
+                        Title = $"Taglist of {Context.Guild.Name}",
+                        Options = new PaginatedAppearanceOptions()
+                        {
+                            DisplayInformationIcon = false,
+                            Timeout = TimeSpan.FromSeconds(30),
+                            InfoTimeout = TimeSpan.FromSeconds(30)
+                        },
+                        Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
+                        Pages = tagList
+                    };
 
-                await PagedReplyAsync(pmsg);
+                    await PagedReplyAsync(pmsg);
+                }
+                else
+                {
+                    var eb = new EmbedBuilder()
+                    {
+                        Author = new EmbedAuthorBuilder()
+                        {
+                            IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                            Name = Context.User.Username
+                        },
+                        Color = Utility.PurpleEmbed,
+                        Title = $"Taglist of {Context.Guild.Name}",
+                        Description = tagList[0],
+                        Footer = new EmbedFooterBuilder()
+                        {
+                            Text = "Page 1/1"
+                        }
+                    };
+
+                    await Context.Channel.SendMessageAsync("", embed: eb);
+                }
             }
             catch (Exception e)
             {

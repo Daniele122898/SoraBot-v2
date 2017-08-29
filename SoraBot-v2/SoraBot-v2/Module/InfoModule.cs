@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Google.Apis.Util;
 using Humanizer;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
@@ -299,9 +298,9 @@ namespace SoraBot_v2.Module
             });
             eb.AddField((x) =>
             {
-                x.Name = "Playing music for";
+                x.Name = "Music";
                 x.IsInline = true;
-                x.Value = $"Disactivated"; //TODO COUNT MUSIC STREAMS
+                x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}msys` for music stats"; //TODO COUNT MUSIC STREAMS
             });
             eb.AddField((x) =>
             {

@@ -17,6 +17,8 @@ namespace SoraBot_v2.Data
         public DbSet<Afk> Afk { get; set; }
         public DbSet<Reminders> Reminders { get; set; }
         public DbSet<Marriage> Marriages{ get; set; }
+        public DbSet<ShareCentral> ShareCentrals { get; set; }
+        public DbSet<Voting> Votings { get; set; }
         
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -97,6 +99,21 @@ namespace SoraBot_v2.Data
                 x.HasOne(d => d.User)
                     .WithOne(p => p.Interactions)
                     .HasForeignKey<Interactions>(g => g.UserForeignId);
+            });
+
+            modelBuilder.Entity<ShareCentral>(x =>
+            {
+                x.HasOne(d => d.User)
+                    .WithMany(p => p.ShareCentrals)
+                    .HasForeignKey(p => p.CreatorId);
+            });
+
+            modelBuilder.Entity<Voting>(x =>
+            {
+                x.HasOne(d => d.User)
+                    .WithMany(p => p.Votings)
+                    .HasForeignKey(p => p.ShareLink)
+                    .HasForeignKey(p => p.VoterId);
             });
 
             modelBuilder.Entity<Tags>(x =>

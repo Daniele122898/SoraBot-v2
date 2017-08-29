@@ -24,6 +24,7 @@ namespace SoraBot_v2.Services
     {
         private DiscordSocketClient _client;
         private IServiceProvider _services;
+        private const int SETBG_LEVEL = 15;
 
         public EpService(DiscordSocketClient client)
         {
@@ -84,12 +85,12 @@ namespace SoraBot_v2.Services
             using (var soraContext = _services.GetService<SoraContext>())
             {
                 var userDb = Utility.GetOrCreateUser(context.User, soraContext);
-                int userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
-                if (userLevel < 20)
+                int userLevel = CalculateLevel(userDb.Exp);
+                if (userLevel < SETBG_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You need to be level 20 to use custom BGs!"));
+                            $"You need to be level {SETBG_LEVEL} to use custom BGs!"));
                     return;
                 }
                 //cooldown

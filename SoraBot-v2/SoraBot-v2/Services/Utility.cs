@@ -15,7 +15,8 @@ namespace SoraBot_v2.Services
 {
     public static class Utility
     {
-
+        public const ulong OWNER_ID = 192750776005689344;
+        
         public static Discord.Color PurpleEmbed = new Discord.Color(109, 41, 103);
         public static Discord.Color YellowWarningEmbed = new Discord.Color(255,204,77);
         public static Discord.Color GreenSuccessEmbed = new Discord.Color(119,178,85);
@@ -194,6 +195,16 @@ namespace SoraBot_v2.Services
                 if(reminders == null)
                     reminders = new List<Reminders>();
                 
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
+                if(shareCentral == null)
+                    shareCentral = new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
+                if(votings == null)
+                    votings = new List<Voting>();
+
+                result.Votings = votings;
+                result.ShareCentrals = shareCentral;
                 result.Reminders = reminders;
                 result.Interactions = inter;
                 result.Afk = afk;
@@ -211,7 +222,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), ShareCentrals = new List<ShareCentral>(), Votings = new List<Voting>(),Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
                     soraContext.SaveChangesThreadSafe();
@@ -232,6 +243,17 @@ namespace SoraBot_v2.Services
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
                 if(reminders == null)
                     reminders = new List<Reminders>();
+
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id).ToList();
+                if(shareCentral == null)
+                    shareCentral = new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id).ToList();
+                if(votings == null)
+                    votings = new List<Voting>();
+
+                result.Votings = votings;
+                result.ShareCentrals = shareCentral;
                 result.Interactions = inter;
                 result.Afk = afk;
                 result.Marriages = marriages;

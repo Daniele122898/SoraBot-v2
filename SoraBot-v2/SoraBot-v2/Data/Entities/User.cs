@@ -27,5 +27,7 @@ namespace SoraBot_v2.Data.Entities
         public virtual Afk Afk { get; set; }
         public virtual List<Reminders> Reminders { get; set; }
         public virtual List<Marriage> Marriages { get; set; }
+        public virtual List<ShareCentral> ShareCentrals { get; set; }
+        public virtual List<Voting> Votings { get; set; }
     }
 }
