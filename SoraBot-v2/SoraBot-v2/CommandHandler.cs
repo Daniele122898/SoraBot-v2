@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -29,13 +30,25 @@ namespace SoraBot_v2
             {
                 var guild = Utility.GetOrCreateGuild(socketGuild, soraContext);
                 //AUTO CREATE SORA ADMIN ROLE
-                var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext);
+                //var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext).ConfigureAwait(false);
+                /*
                 if (created)
                 {
                     guild.RestrictTags = socketGuild.MemberCount > 100;
-                }
+                }*/
                 await soraContext.SaveChangesAsync();
+                await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
+                    .WithDescription($"I'm glad you invited me over :)\n" +
+                                     $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot/wikis/sora-help)\n"+
+                                     $"To restrict tag creation and Sora's mod functions you must create\n" +
+                                     $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
+                                     $"tags or use Sora's mod functionality. You can make him create one with: "+
+                                     $"`{Utility.GetGuildPrefix(socketGuild,soraContext)}createAdmin`\n" +
+                                     $"You can leave tag creation unrestricted if you want but its not\n" +
+                                     $"recommended on larger servers as it will be spammed.\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", "You can find the [support guild here](https://discordapp.com/invite/Pah4yj5)"));
             }
+            //inform me of joining
+            await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
             //TODO WELCOME MESSAGE
         }
 
@@ -50,7 +63,13 @@ namespace SoraBot_v2
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
+            _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+        }
+
+        private async Task ClientOnLeftGuild(SocketGuild socketGuild)
+        {
+            await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
         }
 
         public async Task InitializeAsync(IServiceProvider provider)

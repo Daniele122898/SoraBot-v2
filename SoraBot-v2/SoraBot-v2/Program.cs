@@ -74,6 +74,7 @@ namespace SoraBot_v2
             await serviceProvider.GetRequiredService<ReminderService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<EpService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<MarriageService>().InitializeAsync(serviceProvider);
+            await serviceProvider.GetRequiredService<MusicShareService>().InitializeAsync(serviceProvider);
             
             //Set up an event handler to execute some state-reliant startup tasks
             _client.Ready += async () =>
@@ -102,6 +103,7 @@ namespace SoraBot_v2
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
+            services.AddSingleton<MusicShareService>();
             services.AddSingleton<WeatherService>();
             services.AddSingleton<MarriageService>();
             services.AddSingleton<GiphyService>();
@@ -111,7 +113,6 @@ namespace SoraBot_v2
             services.AddSingleton<EpService>();
             services.AddSingleton<TagService>();
             services.AddSingleton(new AnimeSearchService(_interactiveCommands));
-            //services.AddSingleton(new AudioService(_soraContext)); TODO ADD WHEN FIXED
 
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);

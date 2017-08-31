@@ -15,13 +15,16 @@ namespace SoraBot_v2.Services
 {
     public static class Utility
     {
-
+        public const ulong OWNER_ID = 192750776005689344;
+        
         public static Discord.Color PurpleEmbed = new Discord.Color(109, 41, 103);
         public static Discord.Color YellowWarningEmbed = new Discord.Color(255,204,77);
         public static Discord.Color GreenSuccessEmbed = new Discord.Color(119,178,85);
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
+
+        public static string SORA_VERSION = "2.0.0-alpha.1";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
 
@@ -93,6 +96,8 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/lX4CbNN.gif",
             "http://i.imgur.com/dmAp3z4.gif",
             "http://i.imgur.com/0E0KfZa.gif",
+            "http://i.imgur.com/Ih9RyRL.gif",
+            "http://i.imgur.com/OFYn2hU.gif"
 
         };
 
@@ -120,6 +125,8 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/Pxom6ma.gif",
             "http://i.imgur.com/6AnlHwX.gif",
             "http://i.imgur.com/yEL7bpC.gif",
+            "http://i.imgur.com/K4boPM9.gif",
+            "http://i.imgur.com/0DbTtr6.gif",
             "http://i.imgur.com/3rHE4Ee.gif",
             "http://i.imgur.com/ihkVAis.gif",
             "https://images-ext-2.discordapp.net/external/w-qSUKPfkppjOocMTt0SFvrkNKhsPfUbPL7X2C_9REM/http/i.imgur.com/d9thUdx.gif"
@@ -194,6 +201,16 @@ namespace SoraBot_v2.Services
                 if(reminders == null)
                     reminders = new List<Reminders>();
                 
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
+                if(shareCentral == null)
+                    shareCentral = new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
+                if(votings == null)
+                    votings = new List<Voting>();
+
+                result.Votings = votings;
+                result.ShareCentrals = shareCentral;
                 result.Reminders = reminders;
                 result.Interactions = inter;
                 result.Afk = afk;
@@ -211,7 +228,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), ShareCentrals = new List<ShareCentral>(), Votings = new List<Voting>(),Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
                     //Set Default action to be false!
                     addedUser.Entity.Afk.IsAfk = false;
                     soraContext.SaveChangesThreadSafe();
@@ -232,6 +249,17 @@ namespace SoraBot_v2.Services
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
                 if(reminders == null)
                     reminders = new List<Reminders>();
+
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id).ToList();
+                if(shareCentral == null)
+                    shareCentral = new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id).ToList();
+                if(votings == null)
+                    votings = new List<Voting>();
+
+                result.Votings = votings;
+                result.ShareCentrals = shareCentral;
                 result.Interactions = inter;
                 result.Afk = afk;
                 result.Marriages = marriages;
@@ -286,14 +314,12 @@ namespace SoraBot_v2.Services
         {
             try
             {
-                Console.WriteLine("GOT HERE2");
                 if (guild.GetUser(client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
                 {
                     //NEEDED FOR SORAS ADMIN ROLE
                     await guild.CreateRoleAsync(SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
                     return true;
                 }
-                Console.WriteLine("GOT HERE3");
                 await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"I do not have \"Manage Roles\" permissions in {guild.Name}!")
                     .WithDescription($"Because of that i couldn't create the \"Sora-Admin\" role which is needed for MANY commands " +
                                      $"so that you as a Guild owner can restrict certain commands to be only used by users " +

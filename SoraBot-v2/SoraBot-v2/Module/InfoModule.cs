@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Google.Apis.Util;
 using Humanizer;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
@@ -109,7 +108,7 @@ namespace SoraBot_v2.Module
             {
                 x.IsInline = true;
                 x.Name = $"Avatar";
-                x.Value =$"[Click to View]({user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar})";
+                x.Value =$"[Click to View]({user.GetAvatarUrl().Replace(".png?size=128" , ".webp?size=1024") ?? Utility.StandardDiscordAvatar})";
             });
             eb.AddField(x =>
             {
@@ -299,15 +298,21 @@ namespace SoraBot_v2.Module
             });
             eb.AddField((x) =>
             {
-                x.Name = "Playing music for";
+                x.Name = "Music";
                 x.IsInline = true;
-                x.Value = $"Disactivated"; //TODO COUNT MUSIC STREAMS
+                x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}msys` for music stats"; //TODO COUNT MUSIC STREAMS
             });
             eb.AddField((x) =>
             {
                 x.Name = "Ping";
                 x.IsInline = true;
                 x.Value = $"{Context.Client.Latency} ms";
+            });
+            eb.AddField((x) =>
+            {
+                x.Name = "Sora Version";
+                x.IsInline = true;
+                x.Value = $"{Utility.SORA_VERSION}";
             });
             eb.AddField((x) =>
             {

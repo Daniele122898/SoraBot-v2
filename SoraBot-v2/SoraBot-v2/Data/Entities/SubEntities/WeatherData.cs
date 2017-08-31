@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Discord;
-using Google.Apis.Util;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Data.Entities.SubEntities
