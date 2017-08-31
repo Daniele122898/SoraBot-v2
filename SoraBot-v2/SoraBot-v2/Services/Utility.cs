@@ -23,6 +23,8 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
+
+        public static string SORA_VERSION = "2.0.0-alpha.1";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
 
@@ -94,6 +96,8 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/lX4CbNN.gif",
             "http://i.imgur.com/dmAp3z4.gif",
             "http://i.imgur.com/0E0KfZa.gif",
+            "http://i.imgur.com/Ih9RyRL.gif",
+            "http://i.imgur.com/OFYn2hU.gif"
 
         };
 
@@ -121,6 +125,8 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/Pxom6ma.gif",
             "http://i.imgur.com/6AnlHwX.gif",
             "http://i.imgur.com/yEL7bpC.gif",
+            "http://i.imgur.com/K4boPM9.gif",
+            "http://i.imgur.com/0DbTtr6.gif",
             "http://i.imgur.com/3rHE4Ee.gif",
             "http://i.imgur.com/ihkVAis.gif",
             "https://images-ext-2.discordapp.net/external/w-qSUKPfkppjOocMTt0SFvrkNKhsPfUbPL7X2C_9REM/http/i.imgur.com/d9thUdx.gif"

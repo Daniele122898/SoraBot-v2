@@ -47,6 +47,8 @@ namespace SoraBot_v2
                                      $"You can leave tag creation unrestricted if you want but its not\n" +
                                      $"recommended on larger servers as it will be spammed.\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", "You can find the [support guild here](https://discordapp.com/invite/Pah4yj5)"));
             }
+            //inform me of joining
+            await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
             //TODO WELCOME MESSAGE
         }
 
@@ -61,7 +63,13 @@ namespace SoraBot_v2
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
+            _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+        }
+
+        private async Task ClientOnLeftGuild(SocketGuild socketGuild)
+        {
+            await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
         }
 
         public async Task InitializeAsync(IServiceProvider provider)

@@ -501,6 +501,13 @@ namespace SoraBot_v2.Services
                             "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`"));
                     return;
                 }
+                if (betterTags.Count > 10)
+                {
+                    await context.Channel.SendMessageAsync("", embed:
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "Please dont exceed 10 tags!"));
+                    return;
+                }
                 
                 string joinedTags = String.Join(";", betterTags);
 
@@ -641,6 +648,13 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                             "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`"));
+                    return;
+                }
+                if (betterTags.Count > 10)
+                {
+                    await context.Channel.SendMessageAsync("", embed:
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "Please dont exceed 10 tags!"));
                     return;
                 }
                 string joinedTags = String.Join(";", betterTags);

@@ -14,8 +14,10 @@
 *.opus
 *.mp3
 *.checksums
+*.properties
 
 /SoraBot-v2/SoraBot-v2/ProfileData
+/SoraMusic/target
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

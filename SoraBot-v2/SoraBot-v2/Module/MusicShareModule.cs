@@ -54,6 +54,13 @@ namespace SoraBot_v2.Module
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Title or Tags are empty! Add them!"));
                 return;
             }
+            
+            if (title.Length > 100)
+            {
+                await Context.Channel.SendMessageAsync("", embed:
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Title too long! Please don't exceed 100 chars for the title!"));
+                return;
+            }
             await _service.SharePlaylist(context, url.Trim(), title.Trim(), tags.Trim(), isPrivate);
         }
 
@@ -130,6 +137,13 @@ namespace SoraBot_v2.Module
             {
                 await Context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Title or Tags are empty! Add them!"));
+                return;
+            }
+
+            if (title.Length > 100)
+            {
+                await Context.Channel.SendMessageAsync("", embed:
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Title too long! Please don't exceed 100 chars for the title!"));
                 return;
             }
             await _service.UpdateEntry(Context, url.Trim(), title.Trim(), tags.Trim());

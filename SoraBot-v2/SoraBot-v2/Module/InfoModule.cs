@@ -108,7 +108,7 @@ namespace SoraBot_v2.Module
             {
                 x.IsInline = true;
                 x.Name = $"Avatar";
-                x.Value =$"[Click to View]({user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar})";
+                x.Value =$"[Click to View]({user.GetAvatarUrl().Replace(".png?size=128" , ".webp?size=1024") ?? Utility.StandardDiscordAvatar})";
             });
             eb.AddField(x =>
             {
@@ -307,6 +307,12 @@ namespace SoraBot_v2.Module
                 x.Name = "Ping";
                 x.IsInline = true;
                 x.Value = $"{Context.Client.Latency} ms";
+            });
+            eb.AddField((x) =>
+            {
+                x.Name = "Sora Version";
+                x.IsInline = true;
+                x.Value = $"{Utility.SORA_VERSION}";
             });
             eb.AddField((x) =>
             {

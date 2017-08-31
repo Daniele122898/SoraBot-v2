@@ -35,12 +35,7 @@ namespace SoraBot_v2.Services
                 message2 = message.Substring(2000, 2000);
                 message3 = message.Substring(4000);
             }
-            else
-            {
-                await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync("SOMETHING WENT BOOM AND I COULDN'T SEND IT");
-                return;
-            }
-           
+
             await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message1);
             if (!string.IsNullOrWhiteSpace(message2))
                 await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message2);
