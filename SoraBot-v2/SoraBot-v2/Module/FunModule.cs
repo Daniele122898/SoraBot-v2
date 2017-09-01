@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -9,6 +11,46 @@ namespace SoraBot_v2.Module
 {
     public class FunModule : ModuleBase<SocketCommandContext>
     {
+
+        private string[] ball = new[]
+        {
+            "Signs point to yes. ",
+            "Yes.",
+            "Reply hazy, try again.",
+            "Without a doubt. ",
+            "My sources say no. ",
+            "As I see it, yes. ",
+            "You may rely on it.",
+            "Concentrate and ask again.",
+            "Outlook not so good. ",
+            "It is decidedly so.",
+            "Better not tell you now.",
+            "Very doubtful. ",
+            "Yes - definitely. ",
+            "It is certain. ",
+            "Cannot predict now. ",
+            "Most likely. ",
+            "Ask again later. ",
+            "My reply is no. ",
+            "Outlook good. ",
+            "Don't count on it."
+        };
+
+        [Command("8ball"), Alias("8b"), Summary("Ask and get an 8ball answer")]
+        public async Task Ball([Summary("Question"), Remainder] string question)
+        {
+            Random r = new Random();
+            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎱 "+ball[r.Next(ball.Length)]));
+        } 
+
+        [Command("roll"), Alias("dice"), Summary("Roll a dice")]
+        public async Task RollDice()
+        {
+            Random r = new Random();
+            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)));
+        }
 
         [Command("lenny"), Summary("Lenny's the Chat")]
         public async Task Lenny()

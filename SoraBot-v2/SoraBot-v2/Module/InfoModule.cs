@@ -110,12 +110,28 @@ namespace SoraBot_v2.Module
                 x.Name = $"Avatar";
                 x.Value =$"[Click to View]({user.GetAvatarUrl().Replace(".png?size=128" , ".webp?size=1024") ?? Utility.StandardDiscordAvatar})";
             });
-            eb.AddField(x =>
+            
+
+            if (dbUser != null && dbUser.Marriages.Count > 0)
             {
-                x.IsInline = true;
-                x.Name = $"Marriages";
-                x.Value =$"ToDo";
-            });
+                string marriages = "";
+                foreach (var marriage in dbUser.Marriages)
+                {
+                    SocketUser partner = Context.Client.GetUser(marriage.PartnerId);
+                    if(partner == null)
+                        continue;
+                    marriages += $"{Utility.GiveUsernameDiscrimComb(partner)}, ";
+                }
+                if (!string.IsNullOrWhiteSpace(marriages))
+                {
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = true;
+                        x.Name = $"Marriages";
+                        x.Value = marriages.Remove(marriages.Length-2);
+                    });
+                }
+            }
 
             await ReplyAsync("", embed: eb);
         }

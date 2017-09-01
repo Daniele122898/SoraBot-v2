@@ -53,7 +53,7 @@ namespace SoraBot_v2.Module
             }
             var r = new Random();
             
-            eb.ImageUrl = $"{Utility.Pats[r.Next(0, Utility.Pats.Length - 1)]}";
+            eb.ImageUrl = $"{Utility.Pats[r.Next(0, Utility.Pats.Length)]}";
             string patted ="";
             users.ForEach(x=>patted += Utility.GiveUsernameDiscrimComb(x)+", ");
             patted = (patted.Length > 200 ? $"{patted.Remove(200)}..." : patted);
@@ -96,7 +96,7 @@ namespace SoraBot_v2.Module
             }
             await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
             var r = new Random();
-            eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length - 1)]}";
+            eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length)]}";
             string hugged = "";
             users.ForEach(x=> hugged+= Utility.GiveUsernameDiscrimComb(x)+", ");
             hugged = (hugged.Length > 200 ? $"{hugged.Remove(200)}..." : hugged);
@@ -128,7 +128,7 @@ namespace SoraBot_v2.Module
                 {
                     eb.Title =
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)} no friends to high five? (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂ ";
-                    eb.ImageUrl = $"{Utility.Self5[r.Next(0, Utility.Self5.Length - 1)]}";
+                    eb.ImageUrl = $"{Utility.Self5[r.Next(0, Utility.Self5.Length)]}";
                     await Context.Channel.SendMessageAsync("", embed: eb);
                     return;
                 }
@@ -138,7 +138,7 @@ namespace SoraBot_v2.Module
             users.ForEach(x=>high5ed+= Utility.GiveUsernameDiscrimComb(x)+", ");
             high5ed = (high5ed.Length > 200 ? $"{high5ed.Remove(200)}..." : high5ed);
 
-            eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length - 1)]}";
+            eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length)]}";
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} high fived {high5ed.Remove(high5ed.Length -2)} °˖✧◝(⁰▿⁰)◜✧˖°";
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
@@ -170,7 +170,7 @@ namespace SoraBot_v2.Module
             {
                 Color = Utility.PurpleEmbed,
                 Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} poked {poked.Remove(poked.Length-2)} ( ≧Д≦)",
-                ImageUrl = $"{Utility.Pokes[r.Next(0, Utility.Pokes.Length - 1)]}"
+                ImageUrl = $"{Utility.Pokes[r.Next(0, Utility.Pokes.Length )]}"
             };
             if(sameAsInvoker!= null)
                 users.Remove(sameAsInvoker);
@@ -214,7 +214,7 @@ namespace SoraBot_v2.Module
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} kissed {kissed.Remove(kissed.Length-2)} (✿ ♥‿♥)♥";
-            eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length - 1)]}";
+            eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length)]}";
             await ReplyAsync("", embed: eb);
         }
 
@@ -260,7 +260,7 @@ namespace SoraBot_v2.Module
             users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");
             slapped = (slapped.Length > 200 ? $"{slapped.Remove(200)}..." : slapped);
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} slapped {slapped.Remove(slapped.Length-2)} (ᗒᗩᗕ)՞ ";
-            eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length - 1)]}"; 
+            eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length)]}"; 
             await ReplyAsync("", embed: eb);
         }
         
@@ -299,7 +299,7 @@ namespace SoraBot_v2.Module
             punched = (punched.Length > 200 ? $"{punched.Remove(200)}..." : punched);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} punched {punched} (ᗒᗩᗕ)՞";
-            eb.ImageUrl= $"{Utility.Punches[r.Next(0, Utility.Punches.Length - 1)]}";
+            eb.ImageUrl= $"{Utility.Punches[r.Next(0, Utility.Punches.Length)]}";
             await ReplyAsync("", embed: eb);
         }
 

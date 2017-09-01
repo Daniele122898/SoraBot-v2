@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml.Linq;
 using Discord;
 using Discord.Commands;
@@ -46,6 +47,23 @@ namespace SoraBot_v2.Module
                     .WithUrl("https://discordapp.com/oauth2/authorize?client_id=341935134787764226&scope=bot&permissions=305523831")
                     .WithDescription("Sora needs all the perms if you intend to use all of his features. Unchecking certain perms will inhibit some of Soras' functions\n" +
                                      "[Click to Invite](https://discordapp.com/oauth2/authorize?client_id=341935134787764226&scope=bot&permissions=305523831)"));
+        }
+
+        [Command("minecraft"), Alias("skin", "minecraftskin"), Summary("Get the skin of your minecraft avatar")]
+        public async Task Minecraft([Summary("Name of your minecraft account")] string name)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.PurpleEmbed,
+                Author = new EmbedAuthorBuilder()
+                {
+                    IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                    Name = Utility.GiveUsernameDiscrimComb(Context.User)
+                },
+                ImageUrl = $"https://minotar.net/body/{HttpUtility.UrlEncode(name)}/300.png",
+            };
+
+            await Context.Channel.SendMessageAsync("", embed: eb);
         }
 
         [Command("about"), Summary("Some info on Sora himself")]
