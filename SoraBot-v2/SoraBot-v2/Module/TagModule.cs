@@ -65,7 +65,7 @@ namespace SoraBot_v2.Module
                         {
                             DisplayInformationIcon = false,
                             Timeout = TimeSpan.FromSeconds(30),
-                            InfoTimeout = TimeSpan.FromSeconds(30)
+                            InfoTimeout = TimeSpan.FromSeconds(30),
                         },
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = tagList

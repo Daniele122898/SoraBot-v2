@@ -33,7 +33,7 @@ import java.util.*;
 public class CommandHandler {
 
     // A static map of commands mapping from command string to the functional impl
-    private static Map<String, Command> commandMap= new HashMap<>();
+    private static Map<CommandKey, Command> commandMap= new HashMap<>();
 
     private static final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
     private static Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
@@ -359,6 +359,11 @@ public class CommandHandler {
             return;
 
         if(args.size() ==0 || args.size() > 1){
+            if(args.size() ==0 && getGuildAudioPlayer(event.getGuild()).getScheduler().getPlayer().isPaused()){
+                Utility.sendMessage(event.getChannel(), "",
+                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Unpaused player.").build());
+                return;
+            }
             Utility.sendMessage(event.getChannel(), "",
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Add only 1 URL to play from!").build());
             return;
@@ -508,45 +513,39 @@ public class CommandHandler {
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
 
-        commandMap.put("join",joinVc);
-        commandMap.put("joinvoice",joinVc);
-        commandMap.put("leave",leaveVc);
-        commandMap.put("leavevoice",leaveVc);
-        commandMap.put("play",playAndLoad);
-        commandMap.put("playsong",playAndLoad);
-        commandMap.put("skip",skipSong);
-        commandMap.put("next",skipSong);
-        commandMap.put("np",nowPlaying);
-        commandMap.put("musicsys",soraSystem);
-        commandMap.put("msys",soraSystem);
-        commandMap.put("queue",queueList);
-        commandMap.put("list",queueList);
-        commandMap.put("pause",pausePlayer);
-        commandMap.put("continue",playPlayer);
-        commandMap.put("export",exportPlaylist);
-        commandMap.put("import",importPlaylist);
-        commandMap.put("clear",clearList);
-        commandMap.put("listen",listenMoe);
-        commandMap.put("listenmoe",listenMoe);
-        commandMap.put("listen.moe",listenMoe);
-        commandMap.put("moe",listenMoe);
-        commandMap.put("shuffle",shufflePlaylist);
-        commandMap.put("repeatsong",repeatSong);
-        commandMap.put("replaysong",repeatSong);
-        commandMap.put("rsong",repeatSong);
-        commandMap.put("repeatplaylist",repeatPlaylist);
-        commandMap.put("replayplaylist",repeatPlaylist);
-        commandMap.put("repeatqueue",repeatPlaylist);
-        commandMap.put("rqueue",repeatPlaylist);
-        commandMap.put("rplaylist",repeatPlaylist);
-        commandMap.put("setvolume",changeVolume);
-        commandMap.put("volume",changeVolume);
-        commandMap.put("vol",changeVolume);
-        commandMap.put("yt",ytSearch);
-        commandMap.put("youtube",ytSearch);
-        commandMap.put("sc",soundcloudSearch);
-        commandMap.put("soundcloud",soundcloudSearch);
-        commandMap.put("choose",choose);
+        commandMap.put(new CommandKey(new String[]{"join", "joinvoice"}, true),joinVc);
+        commandMap.put(new CommandKey(new String[]{"leave", "leavevoice"}, true),leaveVc);
+        commandMap.put(new CommandKey(new String[]{"play", "playsong"}, true),playAndLoad);
+        commandMap.put(new CommandKey(new String[]{"skip", "next"}, true),skipSong);
+        commandMap.put(new CommandKey(new String[]{"np"}, false),nowPlaying);
+        commandMap.put(new CommandKey(new String[]{"musicsys", "msys"}, false),soraSystem);
+        commandMap.put(new CommandKey(new String[]{"queue", "list"}, false),queueList);
+        commandMap.put(new CommandKey(new String[]{"pause"}, true),pausePlayer);
+        commandMap.put(new CommandKey(new String[]{"continue"}, true),playPlayer);
+        commandMap.put(new CommandKey(new String[]{"export"}, false),exportPlaylist);
+        commandMap.put(new CommandKey(new String[]{"import"}, true),importPlaylist);
+        commandMap.put(new CommandKey(new String[]{"clear"}, true),clearList);
+        commandMap.put(new CommandKey(new String[]{"listen", "listenmoe", "listen.moe","moe"}, true),listenMoe);
+        commandMap.put(new CommandKey(new String[]{"shuffle"}, true),shufflePlaylist);
+        commandMap.put(new CommandKey(new String[]{"repeatsong", "replaysong", "rsong"}, true),repeatSong);
+        commandMap.put(new CommandKey(new String[]{"repeatplaylist", "replayplaylist", "repeatqueue","rqueue","rplaylist"}, true),repeatSong);
+        commandMap.put(new CommandKey(new String[]{"setvolume", "volume", "vol"}, true),changeVolume);
+        commandMap.put(new CommandKey(new String[]{"yt", "youtube"}, true),ytSearch);
+        commandMap.put(new CommandKey(new String[]{"sc", "soundcloud"}, true),soundcloudSearch);
+        commandMap.put(new CommandKey(new String[]{"choose"}, true),choose);
+    }
+
+    private static boolean checkIfDj(MessageReceivedEvent event){
+        if(!Database.getInstance().isInDjMode(event.getGuild()))
+            return true;
+        List<IRole> roles= event.getAuthor().getRolesForGuild(event.getGuild());
+        for (IRole role:roles) {
+            if(role.getName() == Utility.DJ_ROLE_NAME)
+                return true;
+        }
+        Utility.sendMessage(event.getChannel(), "" ,
+                Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This guild locked the music commands. You need the "+Utility.DJ_ROLE_NAME + " role to use them!").build());
+        return false;
     }
 
     private static boolean checkBotAndSame(MessageReceivedEvent event){
@@ -841,13 +840,42 @@ public class CommandHandler {
         argList.remove(0);//remove the command
 
         // Instead of delegating the work to a switch, automatically do it via calling the mapping if it exists
+        boolean found = false;
+        for (Map.Entry<CommandKey, Command> command:commandMap.entrySet()) {
+            for (String name:command.getKey().getName()) {
+                if(name.equalsIgnoreCase(commandStr)){
+                    if(command.getKey().isDjRestricted()) {
+                        if (checkIfDj(event)) {
+                            try {
+                                command.getValue().runCommand(event, argList);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }else{
+                        try {
+                            command.getValue().runCommand(event, argList);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if(found)
+                break;
+        }
+
+        //OLD
+        /*
         if(commandMap.containsKey(commandStr)) {
             try {
                 commandMap.get(commandStr).runCommand(event, argList);
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
 }

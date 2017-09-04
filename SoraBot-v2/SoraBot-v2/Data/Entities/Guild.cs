@@ -13,6 +13,7 @@ namespace SoraBot_v2.Data.Entities
         
         public string Prefix { get; set; }
         public bool RestrictTags { get; set; }
+        public bool DjRole { get; set; }
         
         public virtual List<Tags> Tags { get; set; }
     }

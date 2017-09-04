@@ -106,6 +106,23 @@ public class Database {
         return null;
     }
 
+    public Boolean isInDjMode(IGuild guild){
+        try (Connection con = ds.getConnection()){
+            String query = "SELECT `DjRole` FROM `Guilds` WHERE `GuildId` = ?";
+            try(PreparedStatement preparedStatement = con.prepareStatement(query)) {
+                preparedStatement.setString(1, guild.getStringID());
+                preparedStatement.execute();
+                ResultSet resultSet = preparedStatement.getResultSet();
+                List<Map<String, Object>> results = convertResultSet(resultSet);
+                Boolean isDj = (Boolean) results.get(0).get("DjRole");
+                return isDj;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public String getPrefix(IGuild guild){
         try (Connection con = ds.getConnection()){

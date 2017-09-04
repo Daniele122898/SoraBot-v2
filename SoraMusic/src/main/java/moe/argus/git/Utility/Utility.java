@@ -16,6 +16,7 @@ import java.util.Properties;
 public class Utility {
 
     public static String BOT_PREFIX = ">";
+    public static String DJ_ROLE_NAME = "SoraDJ";
 
     public static Color PurpleEmbed = new Color(109,41,103);
     public static Color YellowWarningEmbed = new Color(255,204,77);
