@@ -108,13 +108,13 @@ public class Database {
 
     public Boolean isInDjMode(IGuild guild){
         try (Connection con = ds.getConnection()){
-            String query = "SELECT `DjRole` FROM `Guilds` WHERE `GuildId` = ?";
+            String query = "SELECT `IsDjRestricted` FROM `Guilds` WHERE `GuildId` = ?";
             try(PreparedStatement preparedStatement = con.prepareStatement(query)) {
                 preparedStatement.setString(1, guild.getStringID());
                 preparedStatement.execute();
                 ResultSet resultSet = preparedStatement.getResultSet();
                 List<Map<String, Object>> results = convertResultSet(resultSet);
-                Boolean isDj = (Boolean) results.get(0).get("DjRole");
+                Boolean isDj = (Boolean) results.get(0).get("IsDjRestricted");
                 return isDj;
             }
         } catch (SQLException e) {

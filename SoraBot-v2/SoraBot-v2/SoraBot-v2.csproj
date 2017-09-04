@@ -40,4 +40,13 @@
   <ItemGroup>
     <None Remove="ProfileCreation\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Shipping\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Shipping\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Shipping\**" />
+  </ItemGroup>
 </Project>

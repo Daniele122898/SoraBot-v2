@@ -27,6 +27,7 @@ namespace SoraBot_v2.Services
         public static string SORA_VERSION = "2.0.0-alpha.1";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
+        public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
@@ -176,6 +177,7 @@ namespace SoraBot_v2.Services
                 return false;
             return true;
         }
+
 
         public static User OnlyGetUser(ulong Id, SoraContext soraContext)
         {

@@ -9,7 +9,7 @@ public class CommandKey {
         this.isDjRestricted = isDjRestricted;
     }
 
-    public String[] getName(){
+    public String[] getNames(){
         return name;
     }
 

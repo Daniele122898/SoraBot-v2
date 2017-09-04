@@ -23,10 +23,9 @@ namespace SoraBot_v2.Services
         private IServiceProvider _services;
 
         public ReminderService(DiscordSocketClient client, InteractiveService interactiveService)
-        {;
+        {
             _client = client;
             _interactive = interactiveService;
-
         }
         
         public async Task InitializeAsync(IServiceProvider services)

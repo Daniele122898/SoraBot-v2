@@ -536,13 +536,21 @@ public class CommandHandler {
     }
 
     private static boolean checkIfDj(MessageReceivedEvent event){
-        if(!Database.getInstance().isInDjMode(event.getGuild()))
-            return true;
-        List<IRole> roles= event.getAuthor().getRolesForGuild(event.getGuild());
-        for (IRole role:roles) {
-            if(role.getName() == Utility.DJ_ROLE_NAME)
+        //IF HE IS ADMIN JUST PROCEED ANYWAY
+        if(event.getAuthor().getPermissionsForGuild(event.getGuild()).contains(Permissions.ADMINISTRATOR))
+            return true; //do this before even looking at the DB.
+        try {
+            if(!Database.getInstance().isInDjMode(event.getGuild()))
                 return true;
+            List<IRole> roles= event.getAuthor().getRolesForGuild(event.getGuild());
+            for (IRole role:roles) {
+                if(role.getName().equals(Utility.DJ_ROLE_NAME))
+                    return true;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
+
         Utility.sendMessage(event.getChannel(), "" ,
                 Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This guild locked the music commands. You need the "+Utility.DJ_ROLE_NAME + " role to use them!").build());
         return false;
@@ -841,32 +849,35 @@ public class CommandHandler {
 
         // Instead of delegating the work to a switch, automatically do it via calling the mapping if it exists
         boolean found = false;
-        for (Map.Entry<CommandKey, Command> command:commandMap.entrySet()) {
-            for (String name:command.getKey().getName()) {
-                if(name.equalsIgnoreCase(commandStr)){
-                    if(command.getKey().isDjRestricted()) {
-                        if (checkIfDj(event)) {
-                            try {
-                                command.getValue().runCommand(event, argList);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }else{
-                        try {
-                            command.getValue().runCommand(event, argList);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    found = true;
-                    break;
+        for(Map.Entry<CommandKey, Command> command : commandMap.entrySet()){
+            for (String name:command.getKey().getNames()) {
+                //check if the name amtches. Use an if not to reduce code indentation
+                if(!name.equalsIgnoreCase(commandStr)){
+                    continue;
                 }
-            }
-            if(found)
+                //make sure found == true to not keep iterating
+                found = true;
+                //Name matches. Check if it is a DJ command
+                if(command.getKey().isDjRestricted()){
+                    //it is a DJ command
+                    //if the user has no access just exit the loop (causing found to stay false)
+                    if(!checkIfDj(event)){
+                        break;
+                    }
+                }
+                //try to run the command
+                try {
+                    command.getValue().runCommand(event, argList);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                //exit out of the loop since we finished business
                 break;
+            }
+            if(found){
+                break;
+            }
         }
-
         //OLD
         /*
         if(commandMap.containsKey(commandStr)) {
