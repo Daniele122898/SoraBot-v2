@@ -515,7 +515,7 @@ public class CommandHandler {
 
         commandMap.put(new CommandKey(new String[]{"join", "joinvoice"}, true),joinVc);
         commandMap.put(new CommandKey(new String[]{"leave", "leavevoice"}, true),leaveVc);
-        commandMap.put(new CommandKey(new String[]{"play", "playsong"}, true),playAndLoad);
+        commandMap.put(new CommandKey(new String[]{"play", "playsong", "add"}, true),playAndLoad);
         commandMap.put(new CommandKey(new String[]{"skip", "next"}, true),skipSong);
         commandMap.put(new CommandKey(new String[]{"np"}, false),nowPlaying);
         commandMap.put(new CommandKey(new String[]{"musicsys", "msys"}, false),soraSystem);

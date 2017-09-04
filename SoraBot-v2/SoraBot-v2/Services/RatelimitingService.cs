@@ -27,7 +27,6 @@ namespace SoraBot_v2.Services
         {
             _client = client;
         }
-        
             
         public void SetTimer()
         {
@@ -86,7 +85,7 @@ namespace SoraBot_v2.Services
             {
                 if (!bucket.SendMessage)
                 {
-                    //send Message
+                    //Send Message
                     await SendMessage(userId);
                     bucket.SendMessage = true;
                     _bucketDict.TryUpdate(userId, bucket);
