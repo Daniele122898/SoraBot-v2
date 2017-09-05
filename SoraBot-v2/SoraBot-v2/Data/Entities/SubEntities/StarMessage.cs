@@ -12,6 +12,7 @@ namespace SoraBot_v2.Data.Entities.SubEntities
         public int StarCount { get; set; }
         public byte HitZeroCount { get; set; }
         public bool IsPosted { get; set; }
+        public ulong PostedMsgId { get; set; }
         
         public ulong GuildForeignId { get; set; }
         [ForeignKey("GuildForeignId")]

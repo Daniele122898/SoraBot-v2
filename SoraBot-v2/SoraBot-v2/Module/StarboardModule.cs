@@ -23,8 +23,6 @@ namespace SoraBot_v2.Module
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) &&
                 !invoker.GuildPermissions.Has(GuildPermission.ManageChannels))
             {
-                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starboard channel!"));
                 return false;
             }
             return true;
@@ -35,7 +33,11 @@ namespace SoraBot_v2.Module
         {
             var starChannel = channel ?? Context.Channel;
             if (await CheckPerms(Context) == false)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starboard channel!"));
                 return;
+            }
 
             var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
             guildDb.StarChannelId = starChannel.Id;
@@ -44,12 +46,39 @@ namespace SoraBot_v2.Module
                 Utility.SuccessLevelEmoji[0], "Successfully set starboard channel").WithDescription($"<#{starChannel.Id}>"));
         }
 
+        [Command("starremove"), Alias("rmstar", "starrm"),
+         Summary("Removes the Starboard channel if not already removed")]
+        public async Task RemoveStarChannel()
+        {
+            if (await CheckPerms(Context) == false)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to remove the starboard channel"));
+                return;
+            }
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            if (guildDb.StarChannelId == 0)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "No Starboard channel set!"));
+                return;
+            }
+            guildDb.StarChannelId = 0;
+            await _soraContext.SaveChangesAsync();
+            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                Utility.SuccessLevelEmoji[0], $"Successfully removed the starboard channel"));
+        }
+
         [Command("starlimit"), Alias("starminimum"),
          Summary("Specify the lowest amount of stars needed to a message until it gets posted to the starboard")]
         public async Task SetStarLimit([Summary("WHOLE number of amount needed")] int amount)
         {
             if (await CheckPerms(Context) == false)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starlimit!"));
                 return;
+            }
             if (amount > 100)
                 amount = 100;
             if (amount < 1)

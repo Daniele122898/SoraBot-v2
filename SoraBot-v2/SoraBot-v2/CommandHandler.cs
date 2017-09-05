@@ -71,9 +71,8 @@ namespace SoraBot_v2
             _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
             _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
+            _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
         }
-
-        
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
