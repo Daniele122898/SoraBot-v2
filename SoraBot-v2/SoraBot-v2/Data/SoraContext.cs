@@ -23,6 +23,7 @@ namespace SoraBot_v2.Data
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Tags> Tags { get; set; }
+        public DbSet<StarMessage> StarMessages { get; set; }
         
         //Song list
         public DbSet<Song> Songs { get; set; }
@@ -120,6 +121,13 @@ namespace SoraBot_v2.Data
             {
                 x.HasOne(g => g.Guild)
                     .WithMany(p => p.Tags)
+                    .HasForeignKey(g => g.GuildForeignId);
+            });
+
+            modelBuilder.Entity<StarMessage>(x =>
+            {
+                x.HasOne(g => g.Guild)
+                    .WithMany(s => s.StarMessages)
                     .HasForeignKey(g => g.GuildForeignId);
             });
 

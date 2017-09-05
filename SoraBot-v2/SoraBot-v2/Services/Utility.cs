@@ -290,7 +290,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
@@ -299,7 +299,14 @@ namespace SoraBot_v2.Services
                 var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
                 if(foundTags == null)
                     foundTags = new List<Tags>();
+                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guild.Id)?.ToList();
+                if (foundStars == null)
+                {
+                    foundStars = new List<StarMessage>();
+                    result.StarMinimum = 1;
+                }
                 result.Tags = foundTags;
+                result.StarMessages = foundStars;
             }
             catch (Exception e)
             {

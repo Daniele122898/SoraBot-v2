@@ -24,6 +24,7 @@ namespace SoraBot_v2
         private CommandService _commands;
         private AfkService _afkService;
         private EpService _epService;
+        private StarboardService _starboardService;
         private RatelimitingService _ratelimitingService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
@@ -54,7 +55,7 @@ namespace SoraBot_v2
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService, RatelimitingService ratelimitingService)
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService)
         {
             _client = client;
             _commands = commandService;
@@ -62,13 +63,17 @@ namespace SoraBot_v2
             _epService = epService;
             _services = provider;
             _ratelimitingService = ratelimitingService;
+            _starboardService = starboardService;
             
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+            _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
         }
+
+        
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {

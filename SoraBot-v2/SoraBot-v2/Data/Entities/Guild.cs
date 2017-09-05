@@ -14,7 +14,10 @@ namespace SoraBot_v2.Data.Entities
         public string Prefix { get; set; }
         public bool RestrictTags { get; set; }
         public bool IsDjRestricted { get; set; }
+        public ulong StarChannelId { get; set; }
+        public int StarMinimum { get; set; }
         
         public virtual List<Tags> Tags { get; set; }
+        public virtual List<StarMessage> StarMessages { get; set; }
     }
 }
