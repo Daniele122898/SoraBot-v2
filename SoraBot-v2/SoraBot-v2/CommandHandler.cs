@@ -159,6 +159,9 @@ namespace SoraBot_v2
                         break;
                     case CommandError.UnknownCommand:
                         break;
+                    case CommandError.ParseFailed:
+                        await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one etc."));
+                        break;
                     default:
                         await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));
                         break;

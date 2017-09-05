@@ -26,18 +26,16 @@ namespace SoraBot_v2.Services
         {
             _services = services;
         }
-        
-        private readonly List<string> _acceptedStars = new List<string>()
+        /*private readonly List<string> _acceptedStars = new List<string>()
         {
             "⭐", "🌟", "🌠"
-        };
-        
+        };*/
         public async Task ClientOnReactionAdded(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
         {
             try
             {
             //Reaction doesn't match a star
-            if(!_acceptedStars.Contains(reaction.Emote.Name))
+            if(!reaction.Emote.Name.Equals("⭐"))
                 return;
             //Reaction was a star
             using (SoraContext soraContext = _services.GetService<SoraContext>())
