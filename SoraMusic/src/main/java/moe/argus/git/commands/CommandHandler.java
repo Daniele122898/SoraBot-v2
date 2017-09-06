@@ -397,19 +397,19 @@ public class CommandHandler {
                 Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Repeating current song is "+(repeat ? "ON": "OFF")).build());
     };
 
-    private static Command choose = (event, args) -> {
+    private static Command select = (event, args) -> {
         if(!checkBotAndSame(event))
             return;
 
         if(args.size() != 1){
             Utility.sendMessage(event.getChannel(), "",
-                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Add whole number of which track to choose!").build());
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Add whole number of which track to select!").build());
             return;
         }
 
         if(!Utility.tryParseInt(args.get(0))){
             Utility.sendMessage(event.getChannel(), "",
-                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Add whole number of which track to choose!").build());
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Add whole number of which track to select!").build());
             return;
         }
         GuildMusicManager manager = getGuildAudioPlayer(event.getGuild());
@@ -532,7 +532,7 @@ public class CommandHandler {
         commandMap.put(new CommandKey(new String[]{"setvolume", "volume", "vol"}, true),changeVolume);
         commandMap.put(new CommandKey(new String[]{"yt", "youtube"}, true),ytSearch);
         commandMap.put(new CommandKey(new String[]{"sc", "soundcloud"}, true),soundcloudSearch);
-        commandMap.put(new CommandKey(new String[]{"choose"}, true),choose);
+        commandMap.put(new CommandKey(new String[]{"select"}, true),select);
     }
 
     private static boolean checkIfDj(MessageReceivedEvent event){
@@ -725,7 +725,7 @@ public class CommandHandler {
             builder.withAuthorIcon((event.getAuthor().getAvatarURL() == null ?  Utility.StandardDiscordAvatar : event.getAuthor().getAvatarURL()));
             builder.withAuthorName(event.getAuthor().getName()+"#"+event.getAuthor().getDiscriminator());
             builder.withTitle("Search Results");
-            builder.withDescription("Use `"+Database.getInstance().getPrefix(event.getGuild())+"choose IndexOfSong` to choose");
+            builder.withDescription("Use `"+Database.getInstance().getPrefix(event.getGuild())+"select IndexOfSong` to select");
 
             int i = 1;
             for (AudioTrack track:selectable) {
