@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
             "⭐", "🌟", "🌠"
         };*/
         
-        private DiscordSocketClient _client;
+        private readonly DiscordSocketClient _client;
         private IServiceProvider _services;
         private Timer _timer;
         
@@ -45,7 +45,6 @@ namespace SoraBot_v2.Services
             {
                 using (SoraContext soraContext = _services.GetService<SoraContext>())
                 {
-                    //TODO BUILD CACHE TO MINIMIZE GET CALLS!
                     var starMessages = soraContext.StarMessages.ToList();
                     
                     foreach (var starMessage in starMessages)
@@ -63,7 +62,6 @@ namespace SoraBot_v2.Services
                             continue;
                         }
                         //GET MESSAGE
-                        //var starMsg = (IUserMessage)await starChannel.GetMessageAsync(starMessage.PostedMsgId);
                         var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId);
                         //if not found no change happened 
                         if (starMsg == null)
@@ -80,7 +78,6 @@ namespace SoraBot_v2.Services
                         });
                         await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
                             TimeSpan.FromDays(10));
-
                     }
                     await soraContext.SaveChangesAsync();
                 }
