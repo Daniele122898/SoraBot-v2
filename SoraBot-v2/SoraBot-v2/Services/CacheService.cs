@@ -10,40 +10,40 @@ namespace SoraBot_v2.Services
     {
         private static readonly ConcurrentDictionary<string, Item> _cacheDict = new ConcurrentDictionary<string, Item>();
 
-        public const string DISCORD_SOCKET_MESSAGE = "discord::socketmessage::";
+        public const string DISCORD_USER_MESSAGE = "discord::usermessage::";
 
-        public static async Task<SocketUserMessage> GetSocketMessage(ulong id, RequestOptions options = null)
+        public static async Task<IUserMessage> GetUserMessage(ulong id, RequestOptions options = null)
         {
-            string sId = DISCORD_SOCKET_MESSAGE + id;
+            string sId = DISCORD_USER_MESSAGE + id;
             Object msgObj = Get(sId);
-            SocketUserMessage msg = null;
+            IUserMessage msg = null;
             if (msgObj == null && options != null)
             {
                 //Mesage isn't cached so check if request options are valid
-                var channel = options.GetFrom as SocketTextChannel;
+                var channel = options.GetFrom as ITextChannel;
                 if (channel != null)
                 {
                     //If the message isn't cachged get it (if Request options are given)
-                    msg = await SetDiscordSocketMessage(channel, id, options.Timeout);
+                    msg = await SetDiscordUserMessage(channel, id, options.Timeout);
                 }
             }
-            else
+            else if(msgObj != null)
             {
-                msg = msgObj as SocketUserMessage;
+                msg = msgObj as IUserMessage;
             }
             return msg;
         }
 
-        public static async Task<SocketUserMessage> SetDiscordSocketMessage(SocketTextChannel channel, ulong msgId, TimeSpan timeout)
+        public static async Task<IUserMessage> SetDiscordUserMessage(ITextChannel channel, ulong msgId, TimeSpan timeout)
         {
-            var msg = await channel.GetMessageAsync(msgId) as SocketUserMessage;
+            var msg = await channel.GetMessageAsync(msgId) as IUserMessage;
             if (msg == null)
                 return null;
-            Set(DISCORD_SOCKET_MESSAGE+msgId, new Item(msg, DateTime.UtcNow.Add(timeout)));
+            Set(DISCORD_USER_MESSAGE+msgId, new Item(msg, DateTime.UtcNow.Add(timeout)));
             return msg;
         }
 
-        public static void Set(string id, Item item)
+        private static void Set(string id, Item item)
         {
             _cacheDict.AddOrUpdate(id, item, (key, oldValue) => item);
         }

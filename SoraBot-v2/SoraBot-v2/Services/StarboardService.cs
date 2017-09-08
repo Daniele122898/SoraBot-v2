@@ -48,12 +48,8 @@ namespace SoraBot_v2.Services
                     //TODO BUILD CACHE TO MINIMIZE GET CALLS!
                     var starMessages = soraContext.StarMessages.ToList();
                     
-                    var stopWatch = Stopwatch.StartNew();
-                    int laps = 0;
-                    
                     foreach (var starMessage in starMessages)
                     {
-                        stopWatch.Restart();
                         var guild = _client.GetGuild(starMessage.GuildForeignId);
                         if (guild == null)
                             continue;
@@ -68,15 +64,12 @@ namespace SoraBot_v2.Services
                         }
                         //GET MESSAGE
                         //var starMsg = (IUserMessage)await starChannel.GetMessageAsync(starMessage.PostedMsgId);
-                        var starMsg = await CacheService.GetSocketMessage(starMessage.PostedMsgId,
-                            new RequestOptions(starChannel, TimeSpan.MaxValue));
-                        Console.WriteLine($"#{laps} : {stopWatch.ElapsedMilliseconds} ms");
-                        laps++;
+                        var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId,
+                           new RequestOptions(starChannel, TimeSpan.FromDays(10)));
                         if (starMsg == null)
                         {
                             starMessage.IsPosted = false;
                             starMessage.StarCount = 0;
-                            starMessage.HitZeroCount++;
                             continue;
                         }
                         int amount;
@@ -89,8 +82,8 @@ namespace SoraBot_v2.Services
                         {
                             x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
                         });
-                        await CacheService.SetDiscordSocketMessage(starChannel, starMessage.PostedMsgId,
-                            TimeSpan.MaxValue);
+                        await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
+                            TimeSpan.FromDays(10));
 
                     }
                     await soraContext.SaveChangesAsync();
