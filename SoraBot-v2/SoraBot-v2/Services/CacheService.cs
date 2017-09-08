@@ -12,25 +12,35 @@ namespace SoraBot_v2.Services
 
         public const string DISCORD_SOCKET_MESSAGE = "discord::socketmessage::";
 
-        public static bool TryGetSocketMessage(long id, out SocketUserMessage msg)
+        public static async Task<SocketUserMessage> GetSocketMessage(ulong id, RequestOptions options = null)
         {
             string sId = DISCORD_SOCKET_MESSAGE + id;
             Object msgObj = Get(sId);
-            msg = msgObj as SocketUserMessage;
-            return msg != null;
+            SocketUserMessage msg = null;
+            if (msgObj == null && options != null)
+            {
+                //Mesage isn't cached so check if request options are valid
+                var channel = options.GetFrom as SocketTextChannel;
+                if (channel != null)
+                {
+                    //If the message isn't cachged get it (if Request options are given)
+                    msg = await SetDiscordSocketMessage(channel, id, options.Timeout);
+                }
+            }
+            else
+            {
+                msg = msgObj as SocketUserMessage;
+            }
+            return msg;
         }
 
-        public static async Task<bool> SetDiscordSocketMessage(SocketTextChannel channel, ulong msgId, TimeSpan timout)
+        public static async Task<SocketUserMessage> SetDiscordSocketMessage(SocketTextChannel channel, ulong msgId, TimeSpan timeout)
         {
             var msg = await channel.GetMessageAsync(msgId) as SocketUserMessage;
             if (msg == null)
-                return false;
-            Set(DISCORD_SOCKET_MESSAGE+msgId, new Item()
-            {
-                Content = msg,
-                Timeout = DateTime.UtcNow.Add(timout)
-            });
-            return true;
+                return null;
+            Set(DISCORD_SOCKET_MESSAGE+msgId, new Item(msg, DateTime.UtcNow.Add(timeout)));
+            return msg;
         }
 
         public static void Set(string id, Item item)
@@ -45,9 +55,27 @@ namespace SoraBot_v2.Services
         }
     }
 
+    public class RequestOptions
+    {
+        public Object GetFrom { get; }
+        public TimeSpan Timeout { get; }
+
+        public RequestOptions(Object getFrom, TimeSpan timeout)
+        {
+            GetFrom = getFrom;
+            Timeout = timeout;
+        }
+    }
+
     public class Item
     {
-        public Object Content { get; set; }
-        public DateTime Timeout { get; set; }
+        public Object Content { get; }
+        public DateTime Timeout { get; }
+
+        public Item(Object content, DateTime timeout)
+        {
+            Content = content;
+            Timeout = timeout;
+        }
     }
 }

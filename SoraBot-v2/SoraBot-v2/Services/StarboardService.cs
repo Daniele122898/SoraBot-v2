@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -46,8 +47,13 @@ namespace SoraBot_v2.Services
                 {
                     //TODO BUILD CACHE TO MINIMIZE GET CALLS!
                     var starMessages = soraContext.StarMessages.ToList();
+                    
+                    var stopWatch = Stopwatch.StartNew();
+                    int laps = 0;
+                    
                     foreach (var starMessage in starMessages)
                     {
+                        stopWatch.Restart();
                         var guild = _client.GetGuild(starMessage.GuildForeignId);
                         if (guild == null)
                             continue;
@@ -60,7 +66,12 @@ namespace SoraBot_v2.Services
                             guildDb.StarChannelId = 0;
                             continue;
                         }
-                        var starMsg = (IUserMessage)await starChannel.GetMessageAsync(starMessage.PostedMsgId);
+                        //GET MESSAGE
+                        //var starMsg = (IUserMessage)await starChannel.GetMessageAsync(starMessage.PostedMsgId);
+                        var starMsg = await CacheService.GetSocketMessage(starMessage.PostedMsgId,
+                            new RequestOptions(starChannel, TimeSpan.MaxValue));
+                        Console.WriteLine($"#{laps} : {stopWatch.ElapsedMilliseconds} ms");
+                        laps++;
                         if (starMsg == null)
                         {
                             starMessage.IsPosted = false;
@@ -77,6 +88,7 @@ namespace SoraBot_v2.Services
                         {
                             x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
                         });
+                        
                     }
                     await soraContext.SaveChangesAsync();
                 }
