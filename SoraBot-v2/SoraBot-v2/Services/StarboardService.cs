@@ -64,14 +64,10 @@ namespace SoraBot_v2.Services
                         }
                         //GET MESSAGE
                         //var starMsg = (IUserMessage)await starChannel.GetMessageAsync(starMessage.PostedMsgId);
-                        var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId,
-                           new RequestOptions(starChannel, TimeSpan.FromDays(10)));
+                        var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId);
+                        //if not found no change happened 
                         if (starMsg == null)
-                        {
-                            starMessage.IsPosted = false;
-                            starMessage.StarCount = 0;
                             continue;
-                        }
                         int amount;
                         if(!int.TryParse(starMsg.Content.Substring(0,starMsg.Content.IndexOf(" ", StringComparison.Ordinal)).Replace("**", ""), out amount))
                             continue;
@@ -165,6 +161,7 @@ namespace SoraBot_v2.Services
                     if(wasNull)
                         guildDb.StarMessages.Add(starMsg);
                     await soraContext.SaveChangesAsync();
+                    await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
                 }
             }
             catch (Exception e)
@@ -217,6 +214,7 @@ namespace SoraBot_v2.Services
                     starMsg.IsPosted = false;
                 }
                 await soraContext.SaveChangesAsync();
+                await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
             }
         }
 
