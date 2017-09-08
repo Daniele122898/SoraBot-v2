@@ -8,7 +8,7 @@ namespace SoraBot_v2.Services
 {
     public static class CacheService
     {
-        private static ConcurrentDictionary<string, Item> _cacheDict = new ConcurrentDictionary<string, Item>();
+        private static readonly ConcurrentDictionary<string, Item> _cacheDict = new ConcurrentDictionary<string, Item>();
 
         public const string DISCORD_SOCKET_MESSAGE = "discord::socketmessage::";
 

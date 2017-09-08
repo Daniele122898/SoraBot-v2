@@ -84,11 +84,14 @@ namespace SoraBot_v2.Services
                             continue;
                         if(amount == starMessage.StarCount)
                             continue;
+                        //star amount did change and message got modified so update cache
                         await starMsg.ModifyAsync(x =>
                         {
                             x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
                         });
-                        
+                        await CacheService.SetDiscordSocketMessage(starChannel, starMessage.PostedMsgId,
+                            TimeSpan.MaxValue);
+
                     }
                     await soraContext.SaveChangesAsync();
                 }
