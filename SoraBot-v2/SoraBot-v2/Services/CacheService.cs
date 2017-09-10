@@ -34,6 +34,11 @@ namespace SoraBot_v2.Services
             return msg;
         }
 
+        public static async Task<bool> RemoveUserMessage(ulong id)
+        {
+            return _cacheDict.TryRemove(DISCORD_USER_MESSAGE+id, out _);
+        }
+
         public static async Task<IUserMessage> SetDiscordUserMessage(ITextChannel channel, ulong msgId, TimeSpan timeout)
         {
             var msg = await channel.GetMessageAsync(msgId) as IUserMessage;

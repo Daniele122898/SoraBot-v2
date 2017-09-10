@@ -61,6 +61,9 @@ namespace SoraBot_v2.Services
                             guildDb.StarChannelId = 0;
                             continue;
                         }
+                        //CHECK PERMS
+                        if(await Utility.CheckReadWritePerms(guild, starChannel) == false)
+                            continue;
                         //GET MESSAGE
                         var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId);
                         //if not found no change happened 
@@ -72,10 +75,19 @@ namespace SoraBot_v2.Services
                         if(amount == starMessage.StarCount)
                             continue;
                         //star amount did change and message got modified so update cache
-                        await starMsg.ModifyAsync(x =>
+                        try
                         {
-                            x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
-                        });
+                            await starMsg.ModifyAsync(x =>
+                            {
+                                x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
+                            });
+                        }
+                        catch (Discord.Net.HttpException e)
+                        {
+                            //if this was cought the cached message isnt valid anymore so remove it. 
+                            await CacheService.RemoveUserMessage(starMsg.Id);
+                            continue;
+                        }
                         await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
                             TimeSpan.FromDays(10));
                     }
