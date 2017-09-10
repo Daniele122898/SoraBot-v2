@@ -24,14 +24,17 @@ namespace SoraBot_v2.Services
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
-        public static string SORA_VERSION = "2.0.0-alpha.1";
+        public static string SORA_VERSION = "2.0.0-beta.3";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
+        public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
 
         public static string[] SuccessLevelEmoji = new string[]
         {
             "✅","⚠","❌","ℹ",""
         };
+
+        private static List<ulong> _ownersNotified = new List<ulong>();
         
         #region Gifs
         public static string[] Pats = new string[]
@@ -177,6 +180,39 @@ namespace SoraBot_v2.Services
             return true;
         }
 
+        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel)
+        {
+            var guildPerms = guild.CurrentUser.GuildPermissions;
+            var chanPerms = guild.CurrentUser.GetPermissions(channel);
+            
+            if(!guildPerms.Has(GuildPermission.SendMessages) ||
+               !guildPerms.Has(GuildPermission.ReadMessages) || 
+               !guildPerms.Has(GuildPermission.ReadMessageHistory)||
+               !chanPerms.ReadMessages ||
+               !chanPerms.ReadMessageHistory ||
+               !chanPerms.SendMessages)
+            {
+                //Send message to owner if not done already. 
+                if (!_ownersNotified.Contains(guild.OwnerId))
+                {
+                    await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                        embed: Utility.ResultFeedback(
+                                Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Sora lacks permissions!")
+                            .WithDescription(
+                                "Sora needs global SendMessage, ReadMessage and ReadMessageHistory Permissons! He also requires " +
+                                "those permissions in every channel he shall operate. This might be the starboard or Punishlogs!\n" +
+                                "This message was sent because he tried to post or edit something and lacked permissions. Thus either the " +
+                                "starboard or punish logs or every functionality is malfunctioning!\n\n" +
+                                $"Guild Affected: {guild.Name} / {guild.Id}\n" +
+                                $"Channel Affected: {channel.Name} / {channel.Id}"));
+                    _ownersNotified.Add(guild.OwnerId);
+                }
+                return false;
+            }
+            return true;
+        }
+
+
         public static User OnlyGetUser(ulong Id, SoraContext soraContext)
         {
             var result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
@@ -288,7 +324,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>()});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
@@ -297,7 +333,14 @@ namespace SoraBot_v2.Services
                 var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
                 if(foundTags == null)
                     foundTags = new List<Tags>();
+                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guild.Id)?.ToList();
+                if (foundStars == null)
+                {
+                    foundStars = new List<StarMessage>();
+                    result.StarMinimum = 1;
+                }
                 result.Tags = foundTags;
+                result.StarMessages = foundStars;
             }
             catch (Exception e)
             {

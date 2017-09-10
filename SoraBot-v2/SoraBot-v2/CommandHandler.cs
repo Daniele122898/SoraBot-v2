@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
@@ -23,6 +24,8 @@ namespace SoraBot_v2
         private CommandService _commands;
         private AfkService _afkService;
         private EpService _epService;
+        private StarboardService _starboardService;
+        private RatelimitingService _ratelimitingService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -52,19 +55,23 @@ namespace SoraBot_v2
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService)
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService)
         {
             _client = client;
             _commands = commandService;
             _afkService = afkService;
             _epService = epService;
             _services = provider;
+            _ratelimitingService = ratelimitingService;
+            _starboardService = starboardService;
             
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+            _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
+            _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -96,7 +103,7 @@ namespace SoraBot_v2
                 {
                     //Hand to AFK service
                     await _afkService.Client_MessageReceived(m, soraContext);
-                
+                    
                     //create Context
                     var context = new SocketCommandContext(_client,message);
                 
@@ -110,7 +117,9 @@ namespace SoraBot_v2
                     if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                         return;
                 
-                
+                    //Check ratelimit
+                    if(await _ratelimitingService.IsRatelimited(message.Author.Id))
+                        return;
     
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
     
@@ -120,7 +129,10 @@ namespace SoraBot_v2
                         await HandleErrorAsync(result, context);
                     }
                     else if (result.IsSuccess)
+                    {
                         CommandsExecuted++;
+                        _ratelimitingService.RateLimitMain(context.User.Id);
+                    }
                 }
             }
             catch (Exception e)
@@ -145,6 +157,9 @@ namespace SoraBot_v2
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
                         break;
                     case CommandError.UnknownCommand:
+                        break;
+                    case CommandError.ParseFailed:
+                        await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one etc."));
                         break;
                     default:
                         await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));

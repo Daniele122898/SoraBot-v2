@@ -166,7 +166,16 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = _services.GetService<SoraContext>())
             {
-                var userDb = Utility.GetOrCreateUser(user, soraContext);
+                var userDb = Utility.OnlyGetUser(user.Id, soraContext);
+
+                if (userDb == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"User has to first gain EP before i can draw his profile card!"));
+                    return;
+                }
+                
                 var requesterDb = Utility.GetOrCreateUser(context.User, soraContext);
                 int userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
                 //Check for cooldown!

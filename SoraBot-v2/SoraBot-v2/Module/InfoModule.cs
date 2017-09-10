@@ -108,14 +108,30 @@ namespace SoraBot_v2.Module
             {
                 x.IsInline = true;
                 x.Name = $"Avatar";
-                x.Value =$"[Click to View]({user.GetAvatarUrl().Replace(".png?size=128" , ".webp?size=1024") ?? Utility.StandardDiscordAvatar})";
+                x.Value =$"[Click to View]({user.GetAvatarUrl().Replace("?size=128" , "?size=1024") ?? Utility.StandardDiscordAvatar})";
             });
-            eb.AddField(x =>
+            
+
+            if (dbUser != null && dbUser.Marriages.Count > 0)
             {
-                x.IsInline = true;
-                x.Name = $"Marriages";
-                x.Value =$"ToDo";
-            });
+                string marriages = "";
+                foreach (var marriage in dbUser.Marriages)
+                {
+                    SocketUser partner = Context.Client.GetUser(marriage.PartnerId);
+                    if(partner == null)
+                        continue;
+                    marriages += $"{Utility.GiveUsernameDiscrimComb(partner)}, ";
+                }
+                if (!string.IsNullOrWhiteSpace(marriages))
+                {
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = true;
+                        x.Name = $"Marriages";
+                        x.Value = marriages.Remove(marriages.Length-2);
+                    });
+                }
+            }
 
             await ReplyAsync("", embed: eb);
         }
@@ -178,7 +194,7 @@ namespace SoraBot_v2.Module
             {
                 x.IsInline = true;
                 x.Name = "Avatar URL";
-                x.Value = $"[Click to view]({Context.Guild.IconUrl ?? Utility.StandardDiscordAvatar})";
+                x.Value = $"[Click to view]({Context.Guild.IconUrl+"?size=1024" ?? Utility.StandardDiscordAvatar})";
             });
             eb.AddField(x =>
             {
@@ -198,6 +214,12 @@ namespace SoraBot_v2.Module
 
             await ReplyAsync("", embed: eb);
 
+        }
+
+        [Command("support"), Summary("link to support server")]
+        public async Task Support()
+        {
+            await Context.Channel.SendMessageAsync("**Get support here**\nhttps://discord.gg/Pah4yj5");
         }
         
         [Command("sys"), Alias("info"), Summary("Gives stats about Sora")]

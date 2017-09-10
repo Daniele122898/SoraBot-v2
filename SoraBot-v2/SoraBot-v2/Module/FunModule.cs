@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Humanizer;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Services;
 
@@ -9,6 +12,128 @@ namespace SoraBot_v2.Module
 {
     public class FunModule : ModuleBase<SocketCommandContext>
     {
+
+        private string[] ball = new[]
+        {
+            "Signs point to yes. ",
+            "Yes.",
+            "Reply hazy, try again.",
+            "Without a doubt. ",
+            "My sources say no. ",
+            "As I see it, yes. ",
+            "You may rely on it.",
+            "Concentrate and ask again.",
+            "Outlook not so good. ",
+            "It is decidedly so.",
+            "Better not tell you now.",
+            "Very doubtful. ",
+            "Yes - definitely. ",
+            "It is certain. ",
+            "Cannot predict now. ",
+            "Most likely. ",
+            "Ask again later. ",
+            "My reply is no. ",
+            "Outlook good. ",
+            "Don't count on it."
+        };
+
+        private string[] rpsChoose = new[] {"paper", "scissor", "rock"};
+
+        [Command("8ball"), Alias("8b"), Summary("Ask and get an 8ball answer")]
+        public async Task Ball([Summary("Question"), Remainder] string question)
+        {
+            Random r = new Random();
+            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎱 "+ball[r.Next(ball.Length)]));
+        }
+
+
+        [Command("rps"), Alias("rockpaperscissor"), Summary("Play rock paper scissor with Sora")]
+        public async Task RPS([Remainder]string chose)
+        {
+            chose = chose.ToLower();
+            Random r= new Random();
+            string botRps = rpsChoose[r.Next(rpsChoose.Length)];
+            
+            switch (chose)
+            {
+                case ("paper"):
+                    if (botRps == "rock")
+                    {
+                        //win
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else if (botRps == "paper")
+                    {
+                        //Draw
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else
+                    {
+                        //lost
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                        
+                    }
+                    break;
+                case ("scissor"):
+                case ("scissors"):
+                    if (botRps == "rock")
+                    {
+                        //lost
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else if (botRps == "paper")
+                    {
+                        //win
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else
+                    {
+                        //Draw
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    break;
+                case ("rock"):
+                case ("rocks"):
+                    if (botRps == "rock")
+                    {
+                        //Draw
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else if (botRps == "paper")
+                    {
+                        //lost
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    else
+                    {
+                        //win
+                        await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                    }
+                    break;
+                default:
+                    await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must enter a valid RPS option"));
+                    return;
+            }
+        }
+
+        [Command("roll"), Alias("dice"), Summary("Roll a dice")]
+        public async Task RollDice()
+        {
+            Random r = new Random();
+            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)));
+        }
 
         [Command("lenny"), Summary("Lenny's the Chat")]
         public async Task Lenny()

@@ -11,9 +11,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170904163637_DJRestriction")]
+    partial class DJRestriction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +30,6 @@ namespace SoraBotv2.Migrations
                     b.Property<string>("Prefix");
 
                     b.Property<bool>("RestrictTags");
-
-                    b.Property<ulong>("StarChannelId");
-
-                    b.Property<int>("StarMinimum");
 
                     b.HasKey("GuildId");
 
@@ -181,27 +178,6 @@ namespace SoraBotv2.Migrations
                     b.ToTable("Songs");
                 });
 
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.StarMessage", b =>
-                {
-                    b.Property<ulong>("MessageId");
-
-                    b.Property<ulong>("GuildForeignId");
-
-                    b.Property<byte>("HitZeroCount");
-
-                    b.Property<bool>("IsPosted");
-
-                    b.Property<ulong>("PostedMsgId");
-
-                    b.Property<int>("StarCount");
-
-                    b.HasKey("MessageId");
-
-                    b.HasIndex("GuildForeignId");
-
-                    b.ToTable("StarMessages");
-                });
-
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.Tags", b =>
                 {
                     b.Property<int>("TagId")
@@ -308,14 +284,6 @@ namespace SoraBotv2.Migrations
                     b.HasOne("SoraBot_v2.Data.Entities.User", "User")
                         .WithMany("Reminders")
                         .HasForeignKey("UserForeignId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.StarMessage", b =>
-                {
-                    b.HasOne("SoraBot_v2.Data.Entities.Guild", "Guild")
-                        .WithMany("StarMessages")
-                        .HasForeignKey("GuildForeignId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

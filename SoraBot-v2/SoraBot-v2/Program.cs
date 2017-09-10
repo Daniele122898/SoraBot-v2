@@ -75,6 +75,9 @@ namespace SoraBot_v2
             await serviceProvider.GetRequiredService<EpService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<MarriageService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<MusicShareService>().InitializeAsync(serviceProvider);
+            await serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(serviceProvider);
+            serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
+
             
             //Set up an event handler to execute some state-reliant startup tasks
             _client.Ready += async () =>
@@ -103,9 +106,11 @@ namespace SoraBot_v2
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
+            services.AddSingleton<RatelimitingService>();
             services.AddSingleton<MusicShareService>();
             services.AddSingleton<WeatherService>();
             services.AddSingleton<MarriageService>();
+            services.AddSingleton<StarboardService>();
             services.AddSingleton<GiphyService>();
             services.AddSingleton<ReminderService>();
             services.AddSingleton<UbService>();

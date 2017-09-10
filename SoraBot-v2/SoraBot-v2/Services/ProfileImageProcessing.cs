@@ -15,6 +15,7 @@ namespace SoraBot_v2.Services
         private static Image<Rgba32> _bgMaskImage;
         private static Image<Rgba32> _noBgMask;
         private static Image<Rgba32> _noBgMaskOverlay;
+        private static Image<Rgba32> _shippingMask;
 
         public static void Initialize()
         {
@@ -23,6 +24,18 @@ namespace SoraBot_v2.Services
             _bgMaskImage = Image.Load("ProfileCreation/newBGProfile.png");
             _noBgMask = Image.Load("ProfileCreation/profilecardtemplate.png");
             _noBgMaskOverlay = Image.Load("ProfileCreation/ProfileMASK.png");
+            _shippingMask = Image.Load("Shipping/shippingMask.png");
+        }
+
+        public static async Task GenerateShipping(string avatarUrl1, string avatarUrl2, string outPath)
+        {
+            using (var output = new Image<Rgba32>(384, 128))
+            {
+                DrawMask(_shippingMask, output, new Size(384,128));
+                DrawAvatar(avatarUrl1, output, new Rectangle(5,5,118,118));
+                DrawAvatar(avatarUrl2, output, new Rectangle(261,5,118,118));
+                output.Save(outPath);
+            }
         }
 
         public static async Task GenerateProfileWithBg(string avatarUrl, string backgroundUrl, string name, int rank,
@@ -62,6 +75,7 @@ namespace SoraBot_v2.Services
                 output.Save(outputPath);
             }//dispose of output to help save memory
         }
+       
 
 
         private static void DrawMask(Image<Rgba32> mask, Image<Rgba32>output, Size size)

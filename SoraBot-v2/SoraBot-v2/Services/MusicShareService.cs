@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
+using SoraBot_v2.Extensions;
 
 namespace SoraBot_v2.Services
 {
@@ -62,7 +63,7 @@ namespace SoraBot_v2.Services
 
                 var orderedList = results.OrderByDescending(x=> (x.Upvotes- x.Downvotes)).ToList();
                 
-                await PaginateResult(context, "Search Results", orderedList);
+                await PaginateResult(context, "🔍 Search Results", orderedList);
             }
         }
 
@@ -120,8 +121,11 @@ namespace SoraBot_v2.Services
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = playlistsString
                     };
+                    
+                    Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
+                    criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
 
-                    await _interactive.SendPaginatedMessageAsync(context, pmsg);
+                    await _interactive.SendPaginatedMessageAsync(context, pmsg, criteria);
                 }
                 else
                 {
@@ -352,7 +356,7 @@ namespace SoraBot_v2.Services
                             Name = context.User.Username
                         },
                         Color = Utility.PurpleEmbed,
-                        Title = $"Search Results",
+                        Title = $"🔍 Search Results",
                         Options = new PaginatedAppearanceOptions()
                         {
                             DisplayInformationIcon = false,
@@ -362,8 +366,11 @@ namespace SoraBot_v2.Services
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = playlistsString
                     };
+                    
+                    Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
+                    criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
 
-                    await _interactive.SendPaginatedMessageAsync(context, pmsg);
+                    await _interactive.SendPaginatedMessageAsync(context, pmsg, criteria);
                 }
                 else
                 {
@@ -524,7 +531,7 @@ namespace SoraBot_v2.Services
                 };
                 eb.AddField(x =>
                 {
-                    x.IsInline = true;
+                    x.IsInline = false;
                     x.Name = "Title";
                     x.Value = title;
                 });
@@ -672,7 +679,7 @@ namespace SoraBot_v2.Services
                 };
                 eb.AddField(x =>
                 {
-                    x.IsInline = true;
+                    x.IsInline = false;
                     x.Name = "Title";
                     x.Value = title;
                 });
