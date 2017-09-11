@@ -21,11 +21,12 @@ namespace SoraBot_v2.Module
         [Command("prefix"), Summary("Changes the prefix of the bot for this guild")]
         public async Task ChangeGuildPrefix([Summary("Prefix to change to")] string prefix)
         {
-            if (!((SocketGuildUser) Context.User).GuildPermissions.Has(GuildPermission.Administrator))
+            var user = ((SocketGuildUser) Context.User);
+            if (!user.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(user))
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "You don't have permission to set the prefix! You need Administrator permissions!"));
+                        $"You don't have permission to set the prefix! You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
                 return;
             }
             if (string.IsNullOrWhiteSpace(prefix))

@@ -180,6 +180,11 @@ namespace SoraBot_v2.Services
             return true;
         }
 
+        public static bool IsSoraAdmin(SocketGuildUser user)
+        {
+            return user.Roles.Any(x => x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.Ordinal));
+        }
+
         public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel)
         {
             var guildPerms = guild.CurrentUser.GuildPermissions;
@@ -219,31 +224,17 @@ namespace SoraBot_v2.Services
             if (result != null)
             {
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id);
-                if(inter == null)
-                    inter= new Interactions();
-                
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
-                if (afk == null)
-                {
-                    afk = new Afk {IsAfk = false};
-                }
-                
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
-                if(marriages == null)
-                    marriages = new List<Marriage>();
-                
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
-                if(reminders == null)
-                    reminders = new List<Reminders>();
-                
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
-                if(shareCentral == null)
-                    shareCentral = new List<ShareCentral>();
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
-                if(votings == null)
-                    votings = new List<Voting>();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
+
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
+
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
 
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
@@ -271,28 +262,14 @@ namespace SoraBot_v2.Services
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
-                if(inter == null)
-                    inter= new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
-                if (afk == null)
-                {
-                    afk = new Afk {IsAfk = false};
-                }
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
-                if(marriages == null)
-                    marriages = new List<Marriage>();
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
-                if(reminders == null)
-                    reminders = new List<Reminders>();
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Afk {IsAfk = false};
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Marriage>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Reminders>();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id).ToList();
-                if(shareCentral == null)
-                    shareCentral = new List<ShareCentral>();
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id)?.ToList() ?? new List<ShareCentral>();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id).ToList();
-                if(votings == null)
-                    votings = new List<Voting>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id)?.ToList() ?? new List<Voting>();
 
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
@@ -324,21 +301,24 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
             
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
-                if(foundTags == null)
-                    foundTags = new List<Tags>();
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Tags>();
                 var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guild.Id)?.ToList();
+                
                 if (foundStars == null)
                 {
                     foundStars = new List<StarMessage>();
                     result.StarMinimum = 1;
                 }
+                
+                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Role>();
+                
+                result.SelfAssignableRoles = foundRoles;
                 result.Tags = foundTags;
                 result.StarMessages = foundStars;
             }
@@ -351,31 +331,6 @@ namespace SoraBot_v2.Services
             soraContext.SaveChangesThreadSafe();
             return result;
 
-        }
-
-        public static async Task<bool> CreateSoraRoleOnJoinAsync(SocketGuild guild,DiscordSocketClient client, SoraContext soraContext)
-        {
-            try
-            {
-                if (guild.GetUser(client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
-                {
-                    //NEEDED FOR SORAS ADMIN ROLE
-                    await guild.CreateRoleAsync(SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
-                    return true;
-                }
-                await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"I do not have \"Manage Roles\" permissions in {guild.Name}!")
-                    .WithDescription($"Because of that i couldn't create the \"Sora-Admin\" role which is needed for MANY commands " +
-                                     $"so that you as a Guild owner can restrict certain commands to be only used by users " +
-                                     $"carrying that role. \nFor example => Tag creation should not be open to everyone on big servers!\n" +
-                                     $"You can either create the role yourself or let Sora do it with\n" +
-                                     $"\"{Utility.GetGuildPrefix(guild,soraContext)}createAdmin\""));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            
-            return false;
         }
 
         public static double CalculateAffinity(Interactions interactions)

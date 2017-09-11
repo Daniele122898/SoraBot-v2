@@ -24,6 +24,7 @@ namespace SoraBot_v2.Data
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<StarMessage> StarMessages { get; set; }
+        public DbSet<Role> SelfAssignableRoles { get; set; }
         
         //Song list
         public DbSet<Song> Songs { get; set; }
@@ -121,6 +122,13 @@ namespace SoraBot_v2.Data
             {
                 x.HasOne(g => g.Guild)
                     .WithMany(p => p.Tags)
+                    .HasForeignKey(g => g.GuildForeignId);
+            });
+
+            modelBuilder.Entity<Role>(x =>
+            {
+                x.HasOne(g => g.Guild)
+                    .WithMany(p => p.SelfAssignableRoles)
                     .HasForeignKey(g => g.GuildForeignId);
             });
 

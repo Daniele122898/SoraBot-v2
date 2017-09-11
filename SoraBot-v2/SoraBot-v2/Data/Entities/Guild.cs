@@ -19,5 +19,6 @@ namespace SoraBot_v2.Data.Entities
         
         public virtual List<Tags> Tags { get; set; }
         public virtual List<StarMessage> StarMessages { get; set; }
+        public virtual List<Role> SelfAssignableRoles { get; set; }
     }
 }
