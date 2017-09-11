@@ -115,8 +115,8 @@ namespace SoraBot_v2.Services
                         Options = new PaginatedAppearanceOptions()
                         {
                             DisplayInformationIcon = false,
-                            Timeout = TimeSpan.FromSeconds(30),
-                            InfoTimeout = TimeSpan.FromSeconds(30)
+                            Timeout = TimeSpan.FromSeconds(60),
+                            InfoTimeout = TimeSpan.FromSeconds(60)
                         },
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = playlistsString

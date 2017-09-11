@@ -11,9 +11,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170911151345_Sar")]
+    partial class Sar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,7 +175,7 @@ namespace SoraBotv2.Migrations
 
                     b.Property<int>("Cost");
 
-                    b.Property<TimeSpan>("Duration");
+                    b.Property<DateTime>("ExpirationDate");
 
                     b.Property<ulong>("GuildForeignId");
 
