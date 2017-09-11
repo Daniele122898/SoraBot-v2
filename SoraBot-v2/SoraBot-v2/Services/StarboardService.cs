@@ -160,8 +160,17 @@ namespace SoraBot_v2.Services
                         starMsg.PostedMsgId =  await PostStarMessage(starChannel, msg);
                         if (starMsg.PostedMsgId == 0)
                         {
-                            await socketMessageChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
-                                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified"));
+                            try
+                            {
+                                await socketMessageChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified"));
+                            }
+                            catch (Exception e)
+                            {
+                                await SentryService.SendMessage("EVEN FAILED WITH ERROR MESSAGEEEEEEEEEEEEE :C\n" + e);
+                                return;
+                            }
+
                             return;
                         }
                         starMsg.IsPosted = true;
@@ -299,7 +308,7 @@ namespace SoraBot_v2.Services
             }
             catch (Exception e)
             {
-                await SentryService.SendMessage(e.ToString());
+                await SentryService.SendMessage("STARBOARD ERROR\n"+e);
             }
             return 0;
         }

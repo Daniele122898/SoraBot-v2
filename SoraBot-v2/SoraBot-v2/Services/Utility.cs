@@ -246,29 +246,17 @@ namespace SoraBot_v2.Services
             if (result != null)
             {
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id);
-                if(inter == null)
-                    inter= new Interactions();
-                
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
-                if (afk == null)
-                    afk = new Afk {IsAfk = false};
-                
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
-                if(marriages == null)
-                    marriages = new List<Marriage>();
-                
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
-                if(reminders == null)
-                    reminders = new List<Reminders>();
-                
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
-                if(shareCentral == null)
-                    shareCentral = new List<ShareCentral>();
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
-                if(votings == null)
-                    votings = new List<Voting>();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
+
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
+
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
+
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
 
 
                 result.Votings = votings;
@@ -297,28 +285,14 @@ namespace SoraBot_v2.Services
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id);
-                if(inter == null)
-                    inter= new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id);
-                if (afk == null)
-                {
-                    afk = new Afk {IsAfk = false};
-                }
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id).ToList();
-                if(marriages == null)
-                    marriages = new List<Marriage>();
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id).ToList();
-                if(reminders == null)
-                    reminders = new List<Reminders>();
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Afk {IsAfk = false};
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Marriage>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Reminders>();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id).ToList();
-                if(shareCentral == null)
-                    shareCentral = new List<ShareCentral>();
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id)?.ToList() ?? new List<ShareCentral>();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id).ToList();
-                if(votings == null)
-                    votings = new List<Voting>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id)?.ToList() ?? new List<Voting>();
 
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
@@ -356,9 +330,7 @@ namespace SoraBot_v2.Services
                 }
             
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList();
-                if(foundTags == null)
-                    foundTags = new List<Tags>();
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Tags>();
                 var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guild.Id)?.ToList();
                 if (foundStars == null)
                 {
@@ -366,10 +338,8 @@ namespace SoraBot_v2.Services
                     result.StarMinimum = 1;
                 }
 
-                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList();
-                if(foundRoles == null)
-                    foundRoles = new List<Role>();
-                
+                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Role>();
+
                 result.SelfAssignableRoles = foundRoles;
                 result.Tags = foundTags;
                 result.StarMessages = foundStars;
