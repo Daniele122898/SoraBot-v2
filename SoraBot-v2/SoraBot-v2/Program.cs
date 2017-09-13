@@ -53,6 +53,8 @@ namespace SoraBot_v2
                     Source = "COULDNT FIND CONNECTION STRING FOR DB!"
                 };
             }
+
+            
             //_soraContext = new SoraContext(_connectionString);
             //await _soraContext.Database.EnsureCreatedAsync();
             
@@ -77,6 +79,7 @@ namespace SoraBot_v2
             await serviceProvider.GetRequiredService<MusicShareService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<SelfAssignableRolesService>().InitializeAsync(serviceProvider);
+            await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
             
@@ -114,6 +117,7 @@ namespace SoraBot_v2
             services.AddSingleton<MarriageService>();
             services.AddSingleton<StarboardService>();
             services.AddSingleton<GiphyService>();
+            services.AddSingleton<WeebService>();
             services.AddSingleton<ReminderService>();
             services.AddSingleton<UbService>();
             services.AddSingleton(new ImdbService(_interactiveCommands));
