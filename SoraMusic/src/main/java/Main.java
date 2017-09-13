@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args){
         Utility.loadConfig();
+        Utility.StartTime = System.currentTimeMillis();
         IDiscordClient client = new ClientBuilder()
                 .withToken(Utility.properties.getProperty("token"))
                 .withRecommendedShardCount()

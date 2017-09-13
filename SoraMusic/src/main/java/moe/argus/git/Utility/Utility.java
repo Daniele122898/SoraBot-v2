@@ -26,6 +26,8 @@ public class Utility {
 
     public static String StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
+    public static long StartTime;
+
 
     public static Properties properties = new Properties();
 

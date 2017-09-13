@@ -106,11 +106,13 @@ public class CommandHandler {
         float allocatedRam = Math.round(runtime.freeMemory() / 1048576F);
         float maxRam = Math.round(runtime.maxMemory() / 1048576F); //Max ram for JAVA
 
+        String uptime = DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - Utility.StartTime);
+        uptime = uptime.substring(0, uptime.indexOf('.'));
+
         EmbedBuilder builder = new EmbedBuilder();
         builder.withTitle(Utility.SuccessLevelEmoji[3]+" Sora Music Stats");
         builder.withColor(Utility.BlueInfoEmbed);
         builder.withThumbnail(event.getClient().getApplicationIconURL());
-        builder.withDescription(allocatedRamUse+"mB RAM used");
         GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild());
         int playingFor = 0;
         int queueLength = 0;
@@ -122,6 +124,8 @@ public class CommandHandler {
             if(manager.getScheduler().getPlayer().getPlayingTrack() != null)
                 queueLength++;
         }
+        builder.appendField("Uptime", uptime, true);
+        builder.appendField("Used RAM", allocatedRam + " mB", true);
         builder.appendField("Playing music for",playingFor+" "+(playingFor == 1 ? "guild" : "guilds"), true);
         builder.appendField("Total queue length",queueLength+"", true);
 
