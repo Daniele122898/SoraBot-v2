@@ -20,6 +20,18 @@ namespace SoraBot_v2.Module
             await _sarService.AddSarToList(Context, roleName.Trim()); //TODO EXPAND THIS
         }
 
+        [Command("defaultrole"), Alias("drole", "default"), Summary("Sets a default role for when users join")]
+        public async Task AddDefaultRole([Remainder] string roleName)
+        {
+            await _sarService.AddDefaultRole(Context, roleName.Trim());
+        }
+
+        [Command("toggledefault"), Alias("toggledef"), Summary("Toggles if default role is on or off")]
+        public async Task ToggleDefault()
+        {
+            await _sarService.ToggleDefaultRole(Context);
+        }
+
         [Command("rmsar"), Alias("rsar", "rmrole", "delrole"), Summary("Removes a self-assignable role")]
         public async Task RemoveSar([Remainder] string roleName)
         {

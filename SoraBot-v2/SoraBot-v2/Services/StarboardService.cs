@@ -175,11 +175,16 @@ namespace SoraBot_v2.Services
                         }
                         starMsg.IsPosted = true;
                     }
+
                     //save changes made
                     if(wasNull)
                         guildDb.StarMessages.Add(starMsg);
                     await soraContext.SaveChangesAsync();
-                    await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                    //check if starpostedmsg == 0
+                    if (starMsg.PostedMsgId != 0)
+                    {
+                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                    }
                 }
             }
             catch (Exception e)

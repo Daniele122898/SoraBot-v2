@@ -25,7 +25,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
-        public static string SORA_VERSION = "2.0.0-beta.3";
+        public const string SORA_VERSION = "2.0.0-beta.3";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
@@ -104,7 +104,10 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/Ih9RyRL.gif",
             "http://i.imgur.com/OFYn2hU.gif",
             "https://i.imgur.com/PV8bWpp.gif",
-            "https://i.imgur.com/8smF7N2.gif"
+            "https://i.imgur.com/8smF7N2.gif",
+            "https://cdn.weeb.sh/images/BkZngAYtb.gif",
+            "https://cdn.weeb.sh/images/Hk3ox0tYW.gif",
+            "https://cdn.weeb.sh/images/ryPix0Ft-.gif"
 
         };
 
@@ -118,7 +121,9 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/1NzLne8.gif",
             "http://i.imgur.com/VtWJ8ak.gif",
             "http://i.imgur.com/rasGw2Z.gif",
-            "http://i.imgur.com/g8k3KkH.gif"
+            "http://i.imgur.com/g8k3KkH.gif",
+            "https://cdn.weeb.sh/images/SyQzRaFFb.gif",
+            "https://cdn.weeb.sh/images/rkeaUeJKD-.gif"
         };
 
         public static string[] Slaps= new string[]
