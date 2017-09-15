@@ -80,6 +80,7 @@ namespace SoraBot_v2
             await serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<SelfAssignableRolesService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<AnnouncementService>().InitializeAsync(serviceProvider);
+            await serviceProvider.GetRequiredService<ModService>().InitializeAsync(serviceProvider);
             await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
@@ -120,6 +121,7 @@ namespace SoraBot_v2
             services.AddSingleton<StarboardService>();
             services.AddSingleton<GiphyService>();
             services.AddSingleton<WeebService>();
+            services.AddSingleton<ModService>();
             services.AddSingleton<ReminderService>();
             services.AddSingleton<UbService>();
             services.AddSingleton(new ImdbService(_interactiveCommands));

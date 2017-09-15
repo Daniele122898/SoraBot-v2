@@ -24,9 +24,11 @@ namespace SoraBot_v2.Data.Entities
         public string LeaveMessage { get; set; }
         public bool EmbedWelcome { get; set; }
         public bool EmbedLeave { get; set; }
+        public ulong PunishLogsId { get; set; }
         
         public virtual List<Tags> Tags { get; set; }
         public virtual List<StarMessage> StarMessages { get; set; }
         public virtual List<Role> SelfAssignableRoles { get; set; }
+        public virtual List<ModCase> Cases { get; set; }
     }
 }

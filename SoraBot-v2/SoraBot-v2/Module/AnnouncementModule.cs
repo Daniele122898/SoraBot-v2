@@ -73,6 +73,18 @@ namespace SoraBot_v2.Module
                 }
             }
         }
+
+        [Command("rmwelcome"), Alias("removewelcome", "rmw"), Summary("Removes the welcome channel.")]
+        public async Task RmWelcome()
+        {
+            await _announcement.RemoveWelcomeChannel(Context);
+        }
+        
+        [Command("rmleave"), Alias("removeleave", "rml"), Summary("Removes the leave channel.")]
+        public async Task RmLeave()
+        {
+            await _announcement.RemoveLeaveChannel(Context);
+        }
         
         [Command("leave"), Alias("setleave"), Summary("Sets the leave message and channel")]
         public async Task SetLeave(SocketChannel channel, [Remainder] string message)

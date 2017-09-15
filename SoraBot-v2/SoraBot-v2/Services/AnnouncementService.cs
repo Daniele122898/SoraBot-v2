@@ -205,6 +205,36 @@ namespace SoraBot_v2.Services
             }
             return true;
         }
+
+        public async Task RemoveWelcomeChannel(SocketCommandContext context)
+        {
+            //check perms
+            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+                return;
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                guildDb.WelcomeChannelId = 0;
+                await soraContext.SaveChangesAsync();
+            }
+            await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                Utility.SuccessLevelEmoji[0], "Successfully removed Welcome channel. No join announcements will be done anymore"));
+        }
+        
+        public async Task RemoveLeaveChannel(SocketCommandContext context)
+        {
+            //check perms
+            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+                return;
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                guildDb.LeaveChannelId = 0;
+                await soraContext.SaveChangesAsync();
+            }
+            await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                Utility.SuccessLevelEmoji[0], "Successfully removed Leave channel. No leave announcements will be done anymore"));
+        }
         
         public async Task<bool> SetLeaveChannel(SocketCommandContext context, SocketChannel channel)
         {

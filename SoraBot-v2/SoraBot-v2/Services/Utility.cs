@@ -329,7 +329,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
@@ -345,6 +345,10 @@ namespace SoraBot_v2.Services
 
                 var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Role>();
 
+                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guild.Id)?.ToList() ??
+                               new List<ModCase>();
+
+                result.Cases = modCases;
                 result.SelfAssignableRoles = foundRoles;
                 result.Tags = foundTags;
                 result.StarMessages = foundStars;
