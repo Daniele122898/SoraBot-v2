@@ -49,10 +49,10 @@ namespace SoraBot_v2.Module
         [Command("restrictdj"), Alias("forcedj", "djonly"), Summary("Restricts most of the music commands to members carrying the Sora-DJ role")]
         public async Task RestrictDj()
         {
-            var invoker = Context.User as SocketGuildUser;
-            if (!invoker.GuildPermissions.Has(GuildPermission.Administrator))
+            var invoker = (SocketGuildUser)Context.User;
+            if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(invoker))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions to restrict music usage!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to restrict music usage!"));
                 return;
             }
 

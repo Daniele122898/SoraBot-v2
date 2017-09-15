@@ -322,8 +322,17 @@ namespace SoraBot_v2.Services
                 {
                     time = 0;
                 }
-                _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
-                Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
+                if (time > 86400)
+                {
+                    //just set timer to 1 day
+                    _timer.Change(TimeSpan.FromDays(1), TimeSpan.FromDays(1));
+                    Console.WriteLine($"CHANGED TIMER INTERVAL TO: 1 day bcs the timer was too long");
+                }
+                else
+                {
+                    _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));  
+                    Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
+                }
             }
         }
     }

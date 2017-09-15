@@ -105,10 +105,10 @@ namespace SoraBot_v2.Module
          Summary("Restricts the Tagusage to Sora-Admin only!")]
         public async Task RestrictTagCreation()
         {
-            var invoker = Context.User as SocketGuildUser;
-            if (!invoker.GuildPermissions.Has(GuildPermission.Administrator))
+            var invoker = (SocketGuildUser)Context.User;
+            if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(invoker))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions to change these settings!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to change these settings!"));
                 return;
             }
             var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
@@ -169,7 +169,8 @@ namespace SoraBot_v2.Module
         [Command("removetag"), Alias("deletetag", "dt", "rt"), Summary("Deletes the specified tag!")]
         public async Task RemoveTag([Remainder]string tag)
         {
-            bool admin = ((SocketGuildUser) Context.User).GuildPermissions.Has(GuildPermission.Administrator);
+            var user = (SocketGuildUser) Context.User;
+            bool admin = (user.GuildPermissions.Has(GuildPermission.Administrator) || Utility.IsSoraAdmin(user));
             await _tagService.RemoveTag(Context, _soraContext, tag, admin);
         }
     }

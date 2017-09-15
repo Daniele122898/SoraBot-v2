@@ -11,9 +11,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170911192643_AddTimeSpan")]
+    partial class AddTimeSpan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,10 +24,6 @@ namespace SoraBotv2.Migrations
             modelBuilder.Entity("SoraBot_v2.Data.Entities.Guild", b =>
                 {
                     b.Property<ulong>("GuildId");
-
-                    b.Property<ulong>("DefaultRoleId");
-
-                    b.Property<bool>("HasDefaultRole");
 
                     b.Property<bool>("IsDjRestricted");
 

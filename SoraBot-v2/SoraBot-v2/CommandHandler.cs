@@ -20,12 +20,13 @@ namespace SoraBot_v2
         public int CommandsExecuted;
         
         private IServiceProvider _services;
-        private DiscordSocketClient _client;
-        private CommandService _commands;
-        private AfkService _afkService;
+        private readonly DiscordSocketClient _client;
+        private readonly CommandService _commands;
+        private readonly AfkService _afkService;
         private EpService _epService;
         private StarboardService _starboardService;
-        private RatelimitingService _ratelimitingService;
+        private readonly RatelimitingService _ratelimitingService;
+        private SelfAssignableRolesService _selfAssignableRolesService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -55,7 +56,8 @@ namespace SoraBot_v2
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService, AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService)
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,EpService epService, 
+            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService)
         {
             _client = client;
             _commands = commandService;
@@ -64,6 +66,7 @@ namespace SoraBot_v2
             _services = provider;
             _ratelimitingService = ratelimitingService;
             _starboardService = starboardService;
+            _selfAssignableRolesService = selfService;
             
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
@@ -72,7 +75,9 @@ namespace SoraBot_v2
             _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
             _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
             _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
+            _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
         }
+
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
@@ -121,6 +126,10 @@ namespace SoraBot_v2
                     if(await _ratelimitingService.IsRatelimited(message.Author.Id))
                         return;
     
+                    //Check essential perms
+                    if(await Utility.CheckReadWritePerms(context.Guild, context.Channel as IGuildChannel) == false)
+                        return;
+                    
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
     
                     if (!result.IsSuccess)

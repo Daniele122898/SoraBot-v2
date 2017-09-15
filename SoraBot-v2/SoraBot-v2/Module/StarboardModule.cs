@@ -19,9 +19,9 @@ namespace SoraBot_v2.Module
 
         private async Task<bool> CheckPerms(SocketCommandContext context)
         {
-            var invoker = context.User as SocketGuildUser;
+            var invoker = (SocketGuildUser)context.User;
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) &&
-                !invoker.GuildPermissions.Has(GuildPermission.ManageChannels))
+                !invoker.GuildPermissions.Has(GuildPermission.ManageChannels) && !Utility.IsSoraAdmin(invoker))
             {
                 return false;
             }
@@ -53,7 +53,7 @@ namespace SoraBot_v2.Module
             if (await CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to remove the starboard channel"));
+                    Utility.SuccessLevelEmoji[2], $"You need Administrator or Mange Channels permission or the {Utility.SORA_ADMIN_ROLE_NAME} role to remove the starboard channel"));
                 return;
             }
             var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
