@@ -14,8 +14,10 @@ namespace SoraBot_v2.Data.Entities.SubEntities
         public int CaseNr { get; set; }
         public ulong ModId{ get; set; }
         public ulong UserId { get; set; }
+        public string UserNameDisc { get; set; }
         public string Reason { get; set; }
         public ulong PunishMsgId { get; set; }
+        public int WarnNr { get; set; }
         
         public ulong GuildForeignId { get; set; }
         [ForeignKey("GuildForeignId")]

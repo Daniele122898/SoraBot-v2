@@ -32,6 +32,56 @@ namespace SoraBot_v2.Module
             await _modService.WarnUser(Context, user, reason);
         }
 
+        [Command("cases"), Alias("listcases"), Summary("Lists all cases a user has been part of")]
+        public async Task Cases(SocketGuildUser user)
+        {
+            await _modService.ListAllCasesWithUser(Context, user);
+        }
+
+        [Command("rmwarn"), Alias("removewarning", "rmwarning"), Summary("Removes a warning")]
+        public async Task RemoveWarning(SocketGuildUser user, int warnNr)
+        {
+            await _modService.RemoveWarnings(Context, user, warnNr, false);
+        }
+
+        [Command("rmallwarn"), Alias("removeallwarnings", "rmallwarnings", "rmwarns"),
+         Summary("Removes all Warnings of user")]
+        public async Task RemoveAllWarnigns(SocketGuildUser user)
+        {
+            await _modService.RemoveWarnings(Context, user, 0, true);
+        }
+
+        [Command("pardon"), Summary("Pardons a user and removes all his cases")]
+        public async Task PardonUser(SocketGuildUser user)
+        {
+            //CHECK PERMS
+            if (await _modService.CheckPermissions(Context, ModService.Case.Ban, Context.Guild.CurrentUser, user) == false)
+                return;
+            
+            if (await _modService.PardonUser(user, Context.Guild, Context.User))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0], "Successfully pardoned user"));
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                Utility.SuccessLevelEmoji[2], "Can't pardon user"));
+        }
+
+        [Command("reason"), Summary("Updates the reason on a case")]
+        public async Task UpdateReason([Remainder]string reason)
+        {
+            var splitted = reason.Split(' ', 2);
+            int caseNr;
+            if (!int.TryParse(splitted[0], out caseNr))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "Format is incorrect. Please follow the instructions!").WithDescription("the format is `caseNr YourReason`"));
+                return;
+            }
+            await _modService.AddReason(Context, caseNr, splitted[1]);
+        }
+
         [Command("punishlogs"), Alias("punish", "logs", "setlogs", "setpunish"), Summary("Sets the punishlogs channel")]
         public async Task SetPunishLogs(SocketTextChannel channelT = null)
         {

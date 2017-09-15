@@ -29,8 +29,31 @@ namespace SoraBot_v2.Services
             Kick = 1,
             Ban = 2
         }
+        
+        
+        public async Task ClientOnUserBanned(SocketUser socketUser, SocketGuild socketGuild)
+        {
+            //Make sure we dont logg twice
+            Task.Run(async () =>
+            {
+                await Task.Delay(1000);
+                //Check if case is already present
+                using (SoraContext soraContext = _services.GetService<SoraContext>())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(socketGuild, soraContext);
+                    if(guildDb.Cases.Any(x=> x.Type == Case.Ban && x.UserId == socketUser.Id))
+                        return;
+                }
+                await Log(socketGuild, socketUser, Case.Ban); 
+            });
+        }
+        
+        public async Task ClientOnUserUnbanned(SocketUser socketUser, SocketGuild socketGuild)
+        {
+            await PardonUser(socketUser, socketGuild);
+        }
 
-        private async Task<bool> CheckPermissions(SocketCommandContext context, Case modCase, SocketGuildUser sora
+        public async Task<bool> CheckPermissions(SocketCommandContext context, Case modCase, SocketGuildUser sora
             ,SocketGuildUser user)
         {
             var mod = (SocketGuildUser)context.User;
@@ -150,7 +173,16 @@ namespace SoraBot_v2.Services
             if (await CheckPermissions(context, Case.Kick, sora, user) == false)
                 return;
             //Everything alright so kick that mofo
-            await user.KickAsync(reason);
+            try
+            {
+                await user.KickAsync(reason);
+            }
+            catch (Exception)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!"));
+                return;
+            }
             //log
             bool logged = await Log(context.Guild, user, Case.Kick, context.User as SocketGuildUser, reason);
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
@@ -164,11 +196,312 @@ namespace SoraBot_v2.Services
             if (await CheckPermissions(context, Case.Ban, sora, user) == false)
                 return;
             //Everything alright so ban that mofo
-            await context.Guild.AddBanAsync(user, 7, reason);
+            try
+            {
+                await context.Guild.AddBanAsync(user, 7, reason);
+            }
+            catch (Exception)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!"));
+                return;
+            }
             bool logged = await Log(context.Guild, user, Case.Ban, context.User as SocketGuildUser, reason);
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully banned user {Utility.GiveUsernameDiscrimComb(user)}")
                 .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}{(logged ? "":"\nThis action wasn't logged nor saved bcs the Punishlogs channel isn't set up!")}"));
+        }
+
+        public async Task<bool> PardonUser(SocketUser user, SocketGuild guild ,SocketUser mod = null)
+        {
+            //MAKE SURE YOU CHECK PERMS IN MODULE U CUCK ♥
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                var cases = guildDb.Cases.Where(x => x.UserId == user.Id)?.ToList();
+                if (cases == null || cases.Count == 0)
+                    return false;
+                cases.ForEach(x=> guildDb.Cases.Remove(x));
+                
+                //Check if punishlogs exists
+                var channel = guild.GetTextChannel(guildDb.PunishLogsId);
+                if (channel == null)
+                {
+                    guildDb.PunishLogsId = 0;
+                    await soraContext.SaveChangesAsync();
+                    return true;
+                }
+                await soraContext.SaveChangesAsync();
+                //check readwrite perms of sora
+                if (await Utility.CheckReadWritePerms(guild, channel) == false)
+                    return true;
+                
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.PurpleEmbed,
+                    Timestamp = DateTime.UtcNow,
+                    Title = "User Pardoned 🎈",
+                    Description = "All cases this user was involved with where removed from the guild's database. He starts fresh again."
+                };
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "User";
+                    x.Value = $"**{Utility.GiveUsernameDiscrimComb(user)}** ({user.Id})";
+                });
+
+                if (mod != null)
+                {
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = false;
+                        x.Name = "Moderator";
+                        x.Value = $"**{Utility.GiveUsernameDiscrimComb(mod)}** ({mod.Id})";
+                    });
+                    eb.ThumbnailUrl = mod.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
+                }
+
+                await channel.SendMessageAsync("", embed: eb);
+
+            }
+            return true;
+        }
+
+        private async Task PostWarningRemovalLog(SocketTextChannel channel, SocketGuildUser user, SocketUser mod, int amountDeleted, int initialAmount)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.PurpleEmbed,
+                Timestamp = DateTime.UtcNow,
+                Title = "Warnings Removed 📂"
+            };
+            eb.AddField(x=>
+            {
+                x.IsInline = false;
+                x.Name = "User";
+                x.Value = $"**{Utility.GiveUsernameDiscrimComb(user)}** ({user.Id})";
+            });
+            eb.AddField(x=>
+            {
+                x.IsInline = false;
+                x.Name = "Moderator";
+                x.Value = $"**{Utility.GiveUsernameDiscrimComb(mod)}** ({mod.Id})";
+            });
+            eb.AddField(x=>
+            {
+                x.IsInline = false;
+                x.Name = "Warnings";
+                x.Value = $"{amountDeleted} out of {initialAmount} were removed";
+            });
+
+            await channel.SendMessageAsync("", embed: eb);
+        }
+        
+        public async Task RemoveWarnings(SocketCommandContext context, SocketGuildUser user, int warnNr, bool all)
+        {
+            var sora = context.Guild.CurrentUser;
+            //Check if user has at least some perms
+            if (await CheckPermissions(context, Case.Warning, sora, user) == false)
+                return;
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                //make sure punish logs channel is still available
+                var channel = context.Guild.GetTextChannel(guildDb.PunishLogsId);
+                if (channel == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "Can't remove warnings without a punishlogs channel! Please set one up"));
+                    return;
+                }
+                if (await Utility.CheckReadWritePerms(context.Guild, channel) == false)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "Sora is missing crucial perms. Owner has been notified!"));
+                    return;
+                }
+                //search for warnings with him
+                if (all)
+                {
+                    var userCases = guildDb.Cases.Where(x => x.UserId == user.Id && x.Type == Case.Warning)?.ToList();
+                    if (userCases == null || userCases.Count == 0)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2], "User has no logged warnings!"));
+                        return;
+                    }
+                    userCases.ForEach(x=> guildDb.Cases.Remove(x));
+                    await soraContext.SaveChangesAsync();
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                        Utility.SuccessLevelEmoji[0], "Removed all warnings from user"));
+                    await PostWarningRemovalLog(channel, user, context.User, userCases.Count,userCases.Count);
+                    return;
+                }
+                    var warning = guildDb.Cases.FirstOrDefault(x => x.UserId == user.Id && x.WarnNr == warnNr);
+                    if (warning == null)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2], "Couldn't find specified warning!"));
+                        return;
+                    }
+                    guildDb.Cases.Remove(warning);
+                    await soraContext.SaveChangesAsync();
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0], "Removed specified warning"));
+                await PostWarningRemovalLog(channel, user, context.User, 1,guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning));
+            }
+        }
+
+        public async Task ListAllCasesWithUser(SocketCommandContext context, SocketGuildUser user)
+        {
+            var sora = context.Guild.CurrentUser;
+            //Check if user has at least some perms
+            if (await CheckPermissions(context, Case.Kick, sora, user) == false)
+                return;
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                //search for cases with him
+                var userCases = guildDb.Cases.Where(x => x.UserId == user.Id)?.ToList();
+                if (userCases == null || userCases.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "User has no logged cases!"));
+                    return;
+                }
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.PurpleEmbed,
+                    Footer = Utility.RequestedBy(context.User),
+                    ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                    Title = $"Cases of {Utility.GiveUsernameDiscrimComb(user)}"
+                };
+                int count = 0;
+                foreach (var userCase in userCases)
+                {
+                    if (count >= 22)
+                    {
+                        eb.AddField(x =>
+                        {
+                            x.IsInline = false;
+                            x.Name = "Can't show more";
+                            x.Value = "Honestly... You should ban him...";
+                        });
+                        break;
+                    }
+                    string title ="";
+                    switch (userCase.Type)
+                    {
+                        case Case.Ban:
+                            title = $"Case #{userCase.CaseNr} | Ban 🔨";
+                            break;
+                        case Case.Kick:
+                            title = $"Case #{userCase.CaseNr} | Kick 👢";
+                            break;
+                        case Case.Warning:
+                            title = $"Case #{userCase.CaseNr} | Warning #{userCase.WarnNr} ⚠";
+                            break;
+                        default:
+                            title = "Undefined";
+                            break;
+                    }
+                    var mod = context.Guild.GetUser(userCase.ModId);
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = false;
+                        x.Name = title;
+                        x.Value = $"{(string.IsNullOrWhiteSpace(userCase.Reason) ? "Undefined" : userCase.Reason)}\n" +
+                                  $"*by {(mod == null ? "Undefined" : $"{Utility.GiveUsernameDiscrimComb(mod)}")}*";
+                    });
+                }
+                await context.Channel.SendMessageAsync("", embed: eb);
+            }
+        }
+
+        public async Task AddReason(SocketCommandContext context, int caseNr, string reason)
+        {
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var foundCase = guildDb.Cases.FirstOrDefault(x => x.CaseNr == caseNr);
+                //check if case nr is valid
+                if (foundCase == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "Couldn't find case"));
+                    return;
+                }
+                //check if punishlogs channel exists
+                var channel = context.Guild.GetTextChannel(guildDb.PunishLogsId);
+                if (channel == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "There is no punishlogs channel set up!"));
+                    return;
+                }
+                
+                //Check sora's perms
+                if (await Utility.CheckReadWritePerms(context.Guild, channel) == false)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "Sora laggs major permissions. Owner was notified"));
+                    return;
+                }
+
+                //Get old message
+                var msg = (IUserMessage)await channel.GetMessageAsync(foundCase.PunishMsgId);
+                if (msg == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2], "Log doesn't exist anymore!"));
+                    return;
+                }
+                
+                var mod = (SocketGuildUser)context.User;
+                //if the case has a mod already check if its the same
+                if (foundCase.ModId != 0)
+                {
+                    //his case he can edit
+                    if (foundCase.ModId == mod.Id)
+                    {
+                        foundCase.Reason = reason;
+                    }
+                    else
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2], "This is not your case! You can't update the reason!"));
+                        return;
+                    }
+                }
+                else
+                {
+                    //the log was auto generated and thus we must check if the user has the specific perms to claim this reason
+                    //the only autologged cases are bans. so we can hardcode
+                    if (!mod.GuildPermissions.Has(GuildPermission.BanMembers) && !Utility.IsSoraAdmin(mod))
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            $"You don't have ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                        return;
+                    }
+                    foundCase.ModId = mod.Id;
+                    foundCase.Reason = reason;
+                }
+                //reason was updated to change the post
+
+                var eb = CreateLogReason(foundCase.CaseNr, foundCase.Type, foundCase.UserNameDisc, foundCase.UserId,
+                    mod, reason, foundCase.WarnNr);
+                
+                await msg.ModifyAsync(x =>
+                {
+                    x.Embed = eb.Build();
+                });
+                
+                await soraContext.SaveChangesAsync();
+            }
+            await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                Utility.SuccessLevelEmoji[0], $"Successfully updated reason on case {caseNr}"));
         }
 
         public async Task WarnUser(SocketCommandContext context, SocketGuildUser user, string reason)
@@ -184,12 +517,64 @@ namespace SoraBot_v2.Services
                     Utility.SuccessLevelEmoji[2], "Can't warn without a punish logs channel! Please set one up!"));
                 return;
             }
+            int warnNr = 0;
+            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            {
+                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                //get warn nr.
+                warnNr = guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning);
+            }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], $"Successfully warned user {Utility.GiveUsernameDiscrimComb(user)}")
+                    Utility.SuccessLevelEmoji[0], $"Successfully warned user {Utility.GiveUsernameDiscrimComb(user)}, this is his {warnNr} warning")
                 .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}"));
         }
+        
+        private EmbedBuilder CreateLogReason(int caseNr, Case modCase, string user, ulong userId,SocketGuildUser mod , string reason, int warnNr)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Timestamp = DateTime.UtcNow,
+            };
 
-        private EmbedBuilder CreateLog(int caseNr, Case modCase, SocketGuildUser user, SocketGuildUser mod = null, string reason = null, int warnNr = 0)
+            switch (modCase)
+            {
+                case Case.Ban:
+                    eb.Title = $"Case #{caseNr} | Ban 🔨";
+                    eb.Color = _redBan;
+                    break;
+                case Case.Kick:
+                    eb.Title = $"Case #{caseNr} | Kick 👢";
+                    eb.Color = _orangeKick;
+                    break;
+                case Case.Warning:
+                    eb.Title = $"Case #{caseNr} | Warning #{warnNr} ⚠";
+                    eb.Color = _yellowWarning;
+                    break;
+            }
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "User";
+                x.Value = $"**{user}** ({userId})";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Moderator";
+                x.Value = $"**{Utility.GiveUsernameDiscrimComb(mod)}** ({mod.Id})";
+                eb.ThumbnailUrl = mod.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
+
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Reason";
+                x.Value = reason;
+            });
+            return eb;
+        }
+
+        private EmbedBuilder CreateLog(int caseNr, Case modCase, SocketUser user, SocketGuild guild ,SocketGuildUser mod = null, string reason = null, int warnNr = 0)
         {
             var eb = new EmbedBuilder()
             {
@@ -240,7 +625,7 @@ namespace SoraBot_v2.Services
                     using (SoraContext soraCon = _services.GetService<SoraContext>())
                     {
                         x.Value =
-                            $"Type `{Utility.GetGuildPrefix(user.Guild, soraCon)}reason {caseNr} YourReason` to add it";
+                            $"Type `{Utility.GetGuildPrefix(guild, soraCon)}reason {caseNr} YourReason` to add it";
                     }
                     
                 }
@@ -257,7 +642,7 @@ namespace SoraBot_v2.Services
             return guildDb.Cases.OrderByDescending(x => x.CaseNr).FirstOrDefault().CaseNr + 1;
         }
 
-        private async Task<bool> Log(SocketGuild guild, SocketGuildUser user,Case modCase, SocketGuildUser mod = null,string reason= null)
+        private async Task<bool> Log(SocketGuild guild, SocketUser user,Case modCase, SocketGuildUser mod = null,string reason= null)
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
@@ -288,7 +673,7 @@ namespace SoraBot_v2.Services
                     warnNr = guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning) + 1;
                 }
                 //log final result
-                var eb =  CreateLog(caseNr, modCase, user, mod, reason, warnNr);
+                var eb =  CreateLog(caseNr, modCase, user,guild ,mod, reason, warnNr);
                 var msg = await channel.SendMessageAsync("", embed: eb);
                 guildDb.Cases.Add(new ModCase(){
                     CaseNr = caseNr,
@@ -297,7 +682,9 @@ namespace SoraBot_v2.Services
                     Reason = reason,
                     Type = modCase,
                     UserId = user.Id,
-                    ModId = mod?.Id ?? 0
+                    ModId = mod?.Id ?? 0,
+                    UserNameDisc = Utility.GiveUsernameDiscrimComb(user),
+                    WarnNr = warnNr
                 });
                 await soraContext.SaveChangesAsync();
             }
