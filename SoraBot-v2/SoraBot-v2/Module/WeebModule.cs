@@ -18,5 +18,24 @@ namespace SoraBot_v2.Module
         {
             await _weebService.GetTypes(Context);
         }
+
+        [Command("weebtags")]
+        public async Task WeebTags()
+        {
+            await _weebService.GetTags(Context);
+        }
+
+        [Command("weebrantype")]
+        public async Task WeebRandomType(string type)
+        {
+            await _weebService.GetImages(Context, type, new string[]{});
+        }
+        
+        [Command("weebrantag")]
+        public async Task WeebRandomTag(string tag)
+        {
+            string[] tags = tag.Split(',');
+            await _weebService.GetImages(Context, "", tags);
+        }
     }
 }
