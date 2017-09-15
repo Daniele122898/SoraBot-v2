@@ -232,11 +232,11 @@ namespace SoraBot_v2.Services
                                 Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Sora lacks permissions!")
                             .WithDescription(
                                 "Sora needs global SendMessage, ReadMessage and ReadMessageHistory Permissons! He also requires " +
-                                "those permissions in every channel he shall operate. This might be the starboard or Punishlogs!\n" +
+                                "those permissions in every channel he shall operate. This might be the starboard, user Announcements or Punishlogs!\n" +
                                 "This message was sent because he tried to post or edit something and lacked permissions. Thus either the " +
-                                "starboard or punish logs or every functionality is malfunctioning!\n\n" +
+                                "starboard, punish logs, User announcements (join/leave) or every functionality is malfunctioning!\n\n" +
                                 $"Guild Affected: {guild.Name} / {guild.Id}\n" +
-                                $"Channel Affected: {channel.Name} / {channel.Id}"));
+                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>"));
                     _ownersNotified.Add(guild.OwnerId);
                 }
                 return false;
