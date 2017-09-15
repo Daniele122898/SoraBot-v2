@@ -27,6 +27,8 @@ namespace SoraBot_v2
         private StarboardService _starboardService;
         private readonly RatelimitingService _ratelimitingService;
         private SelfAssignableRolesService _selfAssignableRolesService;
+        private AnnouncementService _announcementService;
+        private ModService _modService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -57,7 +59,8 @@ namespace SoraBot_v2
         }
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,EpService epService, 
-            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService)
+            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
+            ModService modService)
         {
             _client = client;
             _commands = commandService;
@@ -67,6 +70,8 @@ namespace SoraBot_v2
             _ratelimitingService = ratelimitingService;
             _starboardService = starboardService;
             _selfAssignableRolesService = selfService;
+            _announcementService = announcementService;
+            _modService = modService;
             
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
@@ -76,8 +81,13 @@ namespace SoraBot_v2
             _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
             _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
             _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
+            _client.UserJoined += _announcementService.ClientOnUserJoined;
+            _client.UserLeft += _announcementService.ClientOnUserLeft;
+            
+            //mod Service
+            _client.UserBanned += _modService.ClientOnUserBanned;
+            _client.UserUnbanned += _modService.ClientOnUserUnbanned;
         }
-
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {

@@ -25,7 +25,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
-        public const string SORA_VERSION = "2.0.0-beta.3";
+        public const string SORA_VERSION = "2.0.0-beta.4";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
@@ -232,11 +232,11 @@ namespace SoraBot_v2.Services
                                 Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Sora lacks permissions!")
                             .WithDescription(
                                 "Sora needs global SendMessage, ReadMessage and ReadMessageHistory Permissons! He also requires " +
-                                "those permissions in every channel he shall operate. This might be the starboard or Punishlogs!\n" +
+                                "those permissions in every channel he shall operate. This might be the starboard, user Announcements or Punishlogs!\n" +
                                 "This message was sent because he tried to post or edit something and lacked permissions. Thus either the " +
-                                "starboard or punish logs or every functionality is malfunctioning!\n\n" +
+                                "starboard, punish logs, User announcements (join/leave) or every functionality is malfunctioning!\n\n" +
                                 $"Guild Affected: {guild.Name} / {guild.Id}\n" +
-                                $"Channel Affected: {channel.Name} / {channel.Id}"));
+                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>"));
                     _ownersNotified.Add(guild.OwnerId);
                 }
                 return false;
@@ -329,7 +329,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     soraContext.SaveChangesThreadSafe();
                     return addGuild.Entity;
                 }
@@ -345,6 +345,10 @@ namespace SoraBot_v2.Services
 
                 var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Role>();
 
+                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guild.Id)?.ToList() ??
+                               new List<ModCase>();
+
+                result.Cases = modCases;
                 result.SelfAssignableRoles = foundRoles;
                 result.Tags = foundTags;
                 result.StarMessages = foundStars;

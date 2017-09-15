@@ -18,10 +18,17 @@ namespace SoraBot_v2.Data.Entities
         public int StarMinimum { get; set; }
         public bool HasDefaultRole { get; set; }
         public ulong DefaultRoleId { get; set; }
-        
+        public ulong WelcomeChannelId { get; set; }
+        public ulong LeaveChannelId { get; set; }
+        public string WelcomeMessage { get; set; }
+        public string LeaveMessage { get; set; }
+        public bool EmbedWelcome { get; set; }
+        public bool EmbedLeave { get; set; }
+        public ulong PunishLogsId { get; set; }
         
         public virtual List<Tags> Tags { get; set; }
         public virtual List<StarMessage> StarMessages { get; set; }
         public virtual List<Role> SelfAssignableRoles { get; set; }
+        public virtual List<ModCase> Cases { get; set; }
     }
 }

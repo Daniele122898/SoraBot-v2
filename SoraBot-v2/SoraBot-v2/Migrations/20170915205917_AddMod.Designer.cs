@@ -12,9 +12,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170915205917_AddMod")]
+    partial class AddMod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,10 +186,6 @@ namespace SoraBotv2.Migrations
                     b.Property<int>("Type");
 
                     b.Property<ulong>("UserId");
-
-                    b.Property<string>("UserNameDisc");
-
-                    b.Property<int>("WarnNr");
 
                     b.HasKey("CaseId");
 

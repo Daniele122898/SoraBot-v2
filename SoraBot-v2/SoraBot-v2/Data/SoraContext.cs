@@ -25,6 +25,7 @@ namespace SoraBot_v2.Data
         public DbSet<Tags> Tags { get; set; }
         public DbSet<StarMessage> StarMessages { get; set; }
         public DbSet<Role> SelfAssignableRoles { get; set; }
+        public DbSet<ModCase> Cases { get; set; }
         
         //Song list
         public DbSet<Song> Songs { get; set; }

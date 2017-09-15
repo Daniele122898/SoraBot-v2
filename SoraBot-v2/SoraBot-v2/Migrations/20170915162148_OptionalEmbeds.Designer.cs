@@ -6,15 +6,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SoraBot_v2.Data;
-using SoraBot_v2.Services;
 using System;
 
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20170915162148_OptionalEmbeds")]
+    partial class OptionalEmbeds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,8 +40,6 @@ namespace SoraBotv2.Migrations
                     b.Property<string>("LeaveMessage");
 
                     b.Property<string>("Prefix");
-
-                    b.Property<ulong>("PunishLogsId");
 
                     b.Property<bool>("RestrictTags");
 
@@ -164,37 +162,6 @@ namespace SoraBotv2.Migrations
                     b.HasIndex("UserForeignId");
 
                     b.ToTable("Marriages");
-                });
-
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.ModCase", b =>
-                {
-                    b.Property<int>("CaseId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CaseNr");
-
-                    b.Property<ulong>("GuildForeignId");
-
-                    b.Property<ulong>("ModId");
-
-                    b.Property<ulong>("PunishMsgId");
-
-                    b.Property<string>("Reason");
-
-                    b.Property<int>("Type");
-
-                    b.Property<ulong>("UserId");
-
-                    b.Property<string>("UserNameDisc");
-
-                    b.Property<int>("WarnNr");
-
-                    b.HasKey("CaseId");
-
-                    b.HasIndex("GuildForeignId");
-
-                    b.ToTable("Cases");
                 });
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.Reminders", b =>
@@ -371,14 +338,6 @@ namespace SoraBotv2.Migrations
                     b.HasOne("SoraBot_v2.Data.Entities.User", "User")
                         .WithMany("Marriages")
                         .HasForeignKey("UserForeignId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.ModCase", b =>
-                {
-                    b.HasOne("SoraBot_v2.Data.Entities.Guild", "Guild")
-                        .WithMany("Cases")
-                        .HasForeignKey("GuildForeignId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
