@@ -70,7 +70,7 @@ namespace SoraBot_v2.Services
             await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(
             Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "You have been ratelimited by Sora!").WithDescription(
                 "Please refrain from spamming Sora. Please use him normally or a permanent ban will be issued if repeated often.\n" +
-                "If you think you did not spam then join [this guild and open a ratelimit appeal](https://discordapp.com/invite/Pah4yj5)!"));
+                $"If you think you did not spam then join [this guild and open a ratelimit appeal]({Utility.DISCORD_INVITE})!"));
             await SentryService.SendMessage(
                 $"**USER RATELIMITED**\nUser: {Utility.GiveUsernameDiscrimComb(user)} ({userId})");
         }

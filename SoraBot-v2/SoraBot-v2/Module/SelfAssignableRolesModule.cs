@@ -44,7 +44,7 @@ namespace SoraBot_v2.Module
             await _sarService.IAmSar(Context, roleName.Trim());
         }
 
-        [Command("iamnot"), Alias("rmsar", "rsar", "nsar"), Summary("Removes specified self assignable role from you")]
+        [Command("iamnot"), Summary("Removes specified self assignable role from you")]
         public async Task IAmNotSar([Summary("Role name"), Remainder] string roleName)
         {
             await _sarService.IAmNotSar(Context, roleName.Trim());

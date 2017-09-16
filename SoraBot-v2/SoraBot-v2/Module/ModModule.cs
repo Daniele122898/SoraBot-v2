@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Services;
@@ -49,6 +53,54 @@ namespace SoraBot_v2.Module
         public async Task RemoveAllWarnigns(SocketGuildUser user)
         {
             await _modService.RemoveWarnings(Context, user, 0, true);
+        }
+
+        [Command("purge", RunMode = RunMode.Async), Alias("prune"), Summary("Purges some amount of messages")]
+        public async Task PurgeMessages(int amount)
+        {
+            //check perms
+            var user = (SocketGuildUser)Context.User;
+            if (!user.GuildPermissions.Has(GuildPermission.ManageMessages) && !Utility.IsSoraAdmin(user))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], $"You either need ManageMessages perms or the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                return;
+            }
+            //Check if sora has manageMessages perms
+            var sora = Context.Guild.CurrentUser;
+            if (!sora.GuildPermissions.Has(GuildPermission.ManageMessages))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], $"Sore needs Manage Messages permissions!"));
+                return;
+            }
+            if (amount > 500)
+                amount = 500;
+            if(amount < 0)
+                return;
+            //he has the perms to prune
+            IEnumerable<IMessage> msgs = new List<IMessage>();
+            try
+            {
+                msgs = await Context.Channel.GetMessagesAsync(amount).Flatten();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            try
+            {
+                msgs = msgs.Except(msgs.Where(x => (DateTime.UtcNow - x.CreatedAt.DateTime).TotalDays > 13));
+                await Context.Channel.DeleteMessagesAsync(msgs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            int count = amount - (amount - msgs.Count());
+
+            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
+                Utility.SuccessLevelEmoji[0], $"Successfully removed {count} messages").WithDescription((count < amount ? "Discord allows bots to only bulk delete messages 2 weeks in the past." : "")));
         }
 
         [Command("pardon"), Summary("Pardons a user and removes all his cases")]

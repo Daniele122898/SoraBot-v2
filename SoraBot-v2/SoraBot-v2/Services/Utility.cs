@@ -25,7 +25,9 @@ namespace SoraBot_v2.Services
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
 
-        public const string SORA_VERSION = "2.0.0-beta.4";
+        public static string SORA_VERSION = ConfigService.GetConfigData("version");
+
+        public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";

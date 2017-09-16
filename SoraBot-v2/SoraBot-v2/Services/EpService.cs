@@ -24,7 +24,7 @@ namespace SoraBot_v2.Services
     {
         private DiscordSocketClient _client;
         private IServiceProvider _services;
-        private const int SETBG_LEVEL = 15;
+        private const int SETBG_LEVEL = 10;
 
         public EpService(DiscordSocketClient client)
         {
@@ -261,7 +261,7 @@ namespace SoraBot_v2.Services
                         embed: Utility
                             .ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                                 "Failed to create profile card! Maybe try to get a new Background? Or contact the creator here")
-                            .WithUrl("https://discord.gg/Pah4yj5"));
+                            .WithUrl(Utility.DISCORD_INVITE));
                 }
             }
 

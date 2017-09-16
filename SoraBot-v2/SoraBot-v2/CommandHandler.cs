@@ -51,7 +51,7 @@ namespace SoraBot_v2
                                      $"tags or use Sora's mod functionality. You can make him create one with: "+
                                      $"`{Utility.GetGuildPrefix(socketGuild,soraContext)}createAdmin`\n" +
                                      $"You can leave tag creation unrestricted if you want but its not\n" +
-                                     $"recommended on larger servers as it will be spammed.\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", "You can find the [support guild here](https://discordapp.com/invite/Pah4yj5)"));
+                                     $"recommended on larger servers as it will be spammed.\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
             }
             //inform me of joining
             await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");

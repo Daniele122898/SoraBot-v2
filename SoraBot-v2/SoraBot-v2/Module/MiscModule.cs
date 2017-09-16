@@ -116,7 +116,7 @@ namespace SoraBot_v2.Module
                 Footer = Utility.RequestedBy(Context.User),
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
                 Description = $"Hei there (｡･ω･)ﾉﾞ\n" +
-                              $"I was created by Serenity#0783. You can find him [here](https://discord.gg/Pah4yj5)"
+                              $"I was created by Serenity#0783. You can find him [here]({Utility.DISCORD_INVITE})"
             };
 
             eb.AddField(x =>
