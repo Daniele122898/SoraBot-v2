@@ -219,7 +219,7 @@ namespace SoraBot_v2.Module
         [Command("support"), Summary("link to support server")]
         public async Task Support()
         {
-            await Context.Channel.SendMessageAsync("**Get support here**\nhttps://discord.gg/Pah4yj5");
+            await Context.Channel.SendMessageAsync($"**Get support here**\n{Utility.DISCORD_INVITE}");
         }
         
         [Command("sys"), Alias("info"), Summary("Gives stats about Sora")]
@@ -340,7 +340,7 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Sora's Official Guild";
                 x.IsInline = false;
-                x.Value = $"[Feedback and Suggestions here](https://discord.gg/Pah4yj5)";
+                x.Value = $"[Feedback and Suggestions here]({Utility.DISCORD_INVITE})";
             });
             await ReplyAsync("", embed: eb);
         }

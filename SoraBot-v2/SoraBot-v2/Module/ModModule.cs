@@ -55,7 +55,7 @@ namespace SoraBot_v2.Module
             await _modService.RemoveWarnings(Context, user, 0, true);
         }
 
-        [Command("purge", RunMode = RunMode.Async), Alias("clear"), Summary("Purges some amount of messages")]
+        [Command("purge", RunMode = RunMode.Async), Alias("prune"), Summary("Purges some amount of messages")]
         public async Task PurgeMessages(int amount)
         {
             //check perms

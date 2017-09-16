@@ -62,7 +62,7 @@ namespace SoraBot_v2.Services
             {
                 case Case.Ban:
                     //Check sora's perms
-                    if (!sora.GuildPermissions.Has(GuildPermission.BanMembers))
+                    if (!sora.GuildPermissions.Has(GuildPermission.BanMembers) && !sora.GuildPermissions.Has(GuildPermission.Administrator))
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
@@ -70,7 +70,7 @@ namespace SoraBot_v2.Services
                         return false;
                     }
                     //Check user perms
-                    if (!mod.GuildPermissions.Has(GuildPermission.BanMembers) && !Utility.IsSoraAdmin(mod))
+                    if (!mod.GuildPermissions.Has(GuildPermission.BanMembers) && !Utility.IsSoraAdmin(mod) && !mod.GuildPermissions.Has(GuildPermission.Administrator))
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
@@ -81,7 +81,7 @@ namespace SoraBot_v2.Services
                     break;
                 case Case.Kick:
                     //Check sora's perms
-                    if (!sora.GuildPermissions.Has(GuildPermission.KickMembers))
+                    if (!sora.GuildPermissions.Has(GuildPermission.KickMembers) && !sora.GuildPermissions.Has(GuildPermission.Administrator))
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
@@ -89,7 +89,7 @@ namespace SoraBot_v2.Services
                         return false;
                     }
                     //Check user perms
-                    if (!mod.GuildPermissions.Has(GuildPermission.KickMembers) && !Utility.IsSoraAdmin(mod))
+                    if (!mod.GuildPermissions.Has(GuildPermission.KickMembers) && !Utility.IsSoraAdmin(mod)&& !mod.GuildPermissions.Has(GuildPermission.Administrator))
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
@@ -100,7 +100,7 @@ namespace SoraBot_v2.Services
                     break;
                 case Case.Warning:
                     //Check user perms
-                    if (!mod.GuildPermissions.Has(GuildPermission.KickMembers) && !mod.GuildPermissions.Has(GuildPermission.BanMembers) && !Utility.IsSoraAdmin(mod))
+                    if (!mod.GuildPermissions.Has(GuildPermission.KickMembers) && !mod.GuildPermissions.Has(GuildPermission.BanMembers) && !Utility.IsSoraAdmin(mod)&& !mod.GuildPermissions.Has(GuildPermission.Administrator))
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
@@ -356,7 +356,7 @@ namespace SoraBot_v2.Services
         {
             var sora = context.Guild.CurrentUser;
             //Check if user has at least some perms
-            if (await CheckPermissions(context, Case.Kick, sora, user) == false)
+            if (await CheckPermissions(context, Case.Warning, sora, user) == false)
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
