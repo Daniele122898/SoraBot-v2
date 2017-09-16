@@ -84,22 +84,23 @@ namespace SoraBot_v2.Module
             {
                 msgs = await Context.Channel.GetMessagesAsync(amount).Flatten();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                Console.WriteLine(e);
             }
             try
             {
+                msgs = msgs.Except(msgs.Where(x => (DateTime.UtcNow - x.CreatedAt.DateTime).TotalDays > 13));
                 await Context.Channel.DeleteMessagesAsync(msgs);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                Console.WriteLine(e);
             }
             int count = amount - (amount - msgs.Count());
 
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], $"Successfully removed {count} messages"));
+                Utility.SuccessLevelEmoji[0], $"Successfully removed {count} messages").WithDescription((count < amount ? "Discord allows bots to only bulk delete messages 2 weeks in the past." : "")));
         }
 
         [Command("pardon"), Summary("Pardons a user and removes all his cases")]
