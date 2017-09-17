@@ -10,8 +10,8 @@ namespace SoraBot_v2.Services
 {
     public class RatelimitingService
     {
-        private const int INITIAL_FILL= 8;
-        private const int MAX_FILL = 16;
+        private const int INITIAL_FILL= 12;
+        private const int MAX_FILL = 24;
         private const int SIZE_PER_DROP = 1;
         private const int INITIAL_DELAY = 20;
         private const int BUCKET_DROP_INTERVAL = 10;
