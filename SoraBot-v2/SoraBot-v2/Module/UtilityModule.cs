@@ -56,7 +56,7 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
             if (guildDb.IsDjRestricted)
             {
                 //MAKE IT UNRESTRICTED

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
+using Weeb.net;
 
 namespace SoraBot_v2.Module
 {
@@ -14,17 +14,20 @@ namespace SoraBot_v2.Module
     {
         
         private SoraContext _soraContext;
-        private InteractionsService _interactions;
+        private readonly InteractionsService _interactions;
+        private readonly WeebService _weebService;
 
-        public InteractionModule(SoraContext soracontext, InteractionsService interactionsService)
+        public InteractionModule(SoraContext soracontext, InteractionsService interactionsService, WeebService weebService)
         {
             _soraContext = soracontext;
             _interactions = interactionsService;
+            _weebService = weebService;
         }
         
-        [Command("pat"), Summary("Pats the specified person")]
-        public async Task Pat(params SocketUser[] usersT)
+        [Command("pat",RunMode = RunMode.Async), Summary("Pats the specified person")]
+        public async Task Pat([Summary("Mention the users you want to pat and maybe add a reason"), Remainder] string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -45,15 +48,24 @@ namespace SoraBot_v2.Module
                 {
                     eb.Title =
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)}, why are you patting yourself? Are you okay? ｡ﾟ･（>﹏<）･ﾟ｡";
-                    eb.ImageUrl = "https://media.giphy.com/media/wUArrd4mE3pyU/giphy.gif";
+                    eb.ImageUrl = "https://i.imgur.com/QFtH3Gl.gif";
 
                     await Context.Channel.SendMessageAsync("", embed: eb);
                     return;
                 }
             }
+            /*
             var r = new Random();
             
             eb.ImageUrl = $"{Utility.Pats[r.Next(0, Utility.Pats.Length)]}";
+            */
+
+            eb.Footer = new EmbedFooterBuilder()
+            {
+                Text = "Powered by weeb.sh and the weeb.net wrapper"
+            };
+            var image = await _weebService.GetRandImage("pat", new string[] { }, FileType.Gif, NsfwSearch.False);
+            eb.ImageUrl = image.Url;
             string patted ="";
             users.ForEach(x=>patted += Utility.GiveUsernameDiscrimComb(x)+", ");
             patted = (patted.Length > 200 ? $"{patted.Remove(200)}..." : patted);
@@ -65,9 +77,10 @@ namespace SoraBot_v2.Module
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
         
-        [Command("hug"), Summary("Hugs the specified person")]
-        public async Task Hug([Summary("Person to hug")]params SocketUser[] usersT)
+        [Command("hug",RunMode = RunMode.Async), Summary("Hugs the specified person")]
+        public async Task Hug([Summary("Mention the users you want to hug and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -95,8 +108,17 @@ namespace SoraBot_v2.Module
                 }
             }
             await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
+            /*
             var r = new Random();
-            eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length)]}";
+            eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length)]}";*/
+            
+            eb.Footer = new EmbedFooterBuilder()
+            {
+                Text = "Powered by weeb.sh and the weeb.net wrapper"
+            };
+            var image = await _weebService.GetRandImage("hug", new string[] { }, FileType.Gif, NsfwSearch.False);
+            eb.ImageUrl = image.Url;
+            
             string hugged = "";
             users.ForEach(x=> hugged+= Utility.GiveUsernameDiscrimComb(x)+", ");
             hugged = (hugged.Length > 200 ? $"{hugged.Remove(200)}..." : hugged);
@@ -106,8 +128,9 @@ namespace SoraBot_v2.Module
         }
         
         [Command("high5"), Alias("h5"), Summary("High5 the specified person")]
-        public async Task High5([Summary("Person to High5")]params SocketUser[] usersT)
+        public async Task High5([Summary("Mention the users you want to high5 and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -150,9 +173,10 @@ namespace SoraBot_v2.Module
             await ReplyAsync("Under construction");
         }
 
-        [Command("poke"), Summary("Pokes the specified person")]
-        public async Task Poke([Summary("Person to poke")]params SocketUser[] usersT)
+        [Command("poke",RunMode = RunMode.Async), Summary("Pokes the specified person")]
+        public async Task Poke([Summary("Mention the users you want to poke and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -165,12 +189,18 @@ namespace SoraBot_v2.Module
             string poked = "";
             users.ForEach(x=> poked+=Utility.GiveUsernameDiscrimComb(x)+", ");
             poked = (poked.Length > 200 ? $"{poked.Remove(200)}..." : poked);
+            
+            var image = await _weebService.GetRandImage("poke", new string[] { }, FileType.Gif, NsfwSearch.False);
 
             var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,
                 Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} poked {poked.Remove(poked.Length-2)} ( ≧Д≦)",
-                ImageUrl = $"{Utility.Pokes[r.Next(0, Utility.Pokes.Length )]}"
+                ImageUrl = image.Url,//$"{Utility.Pokes[r.Next(0, Utility.Pokes.Length )]}"
+                Footer = new EmbedFooterBuilder()
+                {
+                    Text = "Powered by weeb.sh and the weeb.net wrapper"
+                }
             };
             if(sameAsInvoker!= null)
                 users.Remove(sameAsInvoker);
@@ -180,9 +210,10 @@ namespace SoraBot_v2.Module
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
 
-        [Command("kiss"), Summary("Kiss the specified person")]
-        public async Task Kiss([Summary("Person to kiss")]params SocketUser[] usersT)
+        [Command("kiss",RunMode = RunMode.Async), Summary("Kiss the specified person")]
+        public async Task Kiss([Summary("Mention the users you want to kiss and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -214,7 +245,15 @@ namespace SoraBot_v2.Module
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} kissed {kissed.Remove(kissed.Length-2)} (✿ ♥‿♥)♥";
-            eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length)]}";
+            
+            eb.Footer = new EmbedFooterBuilder()
+            {
+                Text = "Powered by weeb.sh and the weeb.net wrapper"
+            };
+            var image = await _weebService.GetRandImage("kiss", new string[] { }, FileType.Gif, NsfwSearch.False);
+            eb.ImageUrl = image.Url;
+            
+            //eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length)]}";
             await ReplyAsync("", embed: eb);
         }
 
@@ -225,9 +264,10 @@ namespace SoraBot_v2.Module
             await _interactions.CheckAffinity(user, Context, _soraContext);
         }
 
-        [Command("slap"), Summary("Slaps the specified person <.<")]
-        public async Task Slap([Summary("Person to slap")]params SocketUser[] usersT)
+        [Command("slap",RunMode = RunMode.Async), Summary("Slaps the specified person <.<")]
+        public async Task Slap([Summary("Mention the users you want to slap and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -260,13 +300,22 @@ namespace SoraBot_v2.Module
             users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");
             slapped = (slapped.Length > 200 ? $"{slapped.Remove(200)}..." : slapped);
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} slapped {slapped.Remove(slapped.Length-2)} (ᗒᗩᗕ)՞ ";
-            eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length)]}"; 
+            
+            eb.Footer = new EmbedFooterBuilder()
+            {
+                Text = "Powered by weeb.sh and the weeb.net wrapper"
+            };
+            var image = await _weebService.GetRandImage("slap", new string[] { }, FileType.Gif, NsfwSearch.False);
+            eb.ImageUrl = image.Url;
+            
+            //eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length)]}"; 
             await ReplyAsync("", embed: eb);
         }
         
         [Command("Punch"), Summary("Punches the specified person o.O")]
-        public async Task Punch([Summary("Person to Punch")]params SocketUser[] usersT)
+        public async Task Punch([Summary("Mention the users you want to punch and maybe add a reason"), Remainder]string reason)
         {
+            SocketUser[] usersT = Context.Message.MentionedUsers.ToArray();
             if (usersT.Length < 1)
             {
                 await AtLeast1Param(Context);
@@ -308,7 +357,7 @@ namespace SoraBot_v2.Module
             var eb = new EmbedBuilder()
             {
                 Color = Utility.RedFailiureEmbed,
-                Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with!"
+                Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with! (@Mention them)"
             };
             await context.Channel.SendMessageAsync("", embed: eb);
         }

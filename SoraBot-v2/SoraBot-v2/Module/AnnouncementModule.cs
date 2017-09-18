@@ -86,7 +86,7 @@ namespace SoraBot_v2.Module
             await _announcement.RemoveLeaveChannel(Context);
         }
         
-        [Command("leave"), Alias("setleave"), Summary("Sets the leave message and channel")]
+        [Command("setleave"), Summary("Sets the leave message and channel")]
         public async Task SetLeave(SocketChannel channel, [Remainder] string message)
         {
             if (await _announcement.SetLeaveChannel(Context, channel))

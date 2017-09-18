@@ -136,7 +136,7 @@ public class Database {
                 return prefix;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return "$";
     }

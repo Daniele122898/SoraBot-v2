@@ -39,7 +39,7 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
             guildDb.StarChannelId = starChannel.Id;
             await _soraContext.SaveChangesAsync();
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
@@ -56,7 +56,7 @@ namespace SoraBot_v2.Module
                     Utility.SuccessLevelEmoji[2], $"You need Administrator or Mange Channels permission or the {Utility.SORA_ADMIN_ROLE_NAME} role to remove the starboard channel"));
                 return;
             }
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
             if (guildDb.StarChannelId == 0)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
@@ -84,7 +84,7 @@ namespace SoraBot_v2.Module
             if (amount < 1)
                 amount = 1;
             
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
             guildDb.StarMinimum = amount;
             await _soraContext.SaveChangesAsync();
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,

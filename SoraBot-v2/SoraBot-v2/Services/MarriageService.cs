@@ -141,8 +141,8 @@ namespace SoraBot_v2.Services
             }
             using (var soraContext = _services.GetService<SoraContext>())
             {
-                var requestorDb = Utility.GetOrCreateUser(context.User, soraContext);
-                var askedDb = Utility.GetOrCreateUser(user, soraContext);
+                var requestorDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
+                var askedDb = Utility.GetOrCreateUser(user.Id, soraContext);
                 int allowedMarriagesRequestor =
                     ((int) (Math.Floor((double) (EpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
                 int allowedMarriagesAsked =

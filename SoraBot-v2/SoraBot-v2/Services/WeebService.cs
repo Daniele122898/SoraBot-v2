@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
 using Weeb.net;
+using Weeb.net.Data;
 
 namespace SoraBot_v2.Services
 {
@@ -42,9 +43,14 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync($"```\n{tags}\n```");
         }
 
+        public async Task<RandomData> GetRandImage(string type, string[] tags, FileType fileType, NsfwSearch nsfw)
+        {
+            return await _weebClient.GetRandomAsync(type, tags, fileType, false, nsfw);
+        }
+
         public async Task GetImages(SocketCommandContext context, string type, string[] tags)
         {
-            var result = await _weebClient.GetRandomAsync(type, tags);
+            var result = await _weebClient.GetRandomAsync(type, tags, FileType.Gif);
 
             if (result == null)
             {

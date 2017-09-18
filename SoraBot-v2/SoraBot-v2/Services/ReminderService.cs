@@ -215,7 +215,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
             
-                var userDb = Utility.GetOrCreateUser(context.User, _soraContext);
+                var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
 
                 var msg = message.Substring(0, message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase));
                 userDb.Reminders.Add(new Reminders()

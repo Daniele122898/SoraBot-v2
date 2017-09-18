@@ -40,7 +40,7 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = _services.GetService<SoraContext>())
             {
-                var userDb = Utility.GetOrCreateUser(context.User, soraContext);
+                var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 userDb.Notified = !userDb.Notified;
                 await soraContext.SaveChangesAsync();
                 if (userDb.Notified)
@@ -60,7 +60,7 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = _services.GetService<SoraContext>())
             {
-                var userDb = Utility.GetOrCreateUser(context.User, soraContext);
+                var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 if (!userDb.HasBg)
                 {
                     await context.Channel.SendMessageAsync("",
@@ -84,7 +84,7 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = _services.GetService<SoraContext>())
             {
-                var userDb = Utility.GetOrCreateUser(context.User, soraContext);
+                var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 int userLevel = CalculateLevel(userDb.Exp);
                 if (userLevel < SETBG_LEVEL)
                 {
@@ -176,7 +176,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 
-                var requesterDb = Utility.GetOrCreateUser(context.User, soraContext);
+                var requesterDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 int userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
                 //Check for cooldown!
                 if (requesterDb.ShowProfileCardAgain.CompareTo(DateTime.UtcNow) < 0)
@@ -381,7 +381,7 @@ namespace SoraBot_v2.Services
                 if (context.IsPrivate) return;
                 if (context.User.IsBot) return;
 
-                var userDb = Utility.GetOrCreateUser(context.User, _soraContext);
+                var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
                 //Check for cooldown
                 if (userDb.CanGainAgain.CompareTo(DateTime.UtcNow) > 0)
                     return;
