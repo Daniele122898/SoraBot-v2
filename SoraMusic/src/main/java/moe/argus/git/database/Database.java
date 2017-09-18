@@ -118,7 +118,6 @@ public class Database {
                 return isDj;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return false;
     }

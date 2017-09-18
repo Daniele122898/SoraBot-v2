@@ -157,7 +157,6 @@ public class CommandHandler {
                 }
                 progressStatus += "▬";
             }
-
             long posDur = player.getPlayingTrack().getPosition() / 1000;
             long posMins = posDur / 60;
             long posSec = posDur % 60;
