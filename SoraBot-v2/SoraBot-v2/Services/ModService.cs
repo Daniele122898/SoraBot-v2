@@ -18,7 +18,7 @@ namespace SoraBot_v2.Services
         private readonly Color _redBan = new Color(221,46,68);
         private readonly Color _orangeKick = new Color(219, 132, 19);
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }

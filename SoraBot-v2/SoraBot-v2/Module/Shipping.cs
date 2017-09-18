@@ -37,7 +37,7 @@ namespace SoraBot_v2.Module
             user2 = user2 ?? Context.User;
             await GetAvatar(user1);
             await GetAvatar(user2);
-            await ProfileImageProcessing.GenerateShipping($"Shipping/{user1.Id}Avatar.png",
+            ProfileImageProcessing.GenerateShipping($"Shipping/{user1.Id}Avatar.png",
                 $"Shipping/{user2.Id}Avatar.png", $"Shipping/ship{user1.Id}{user2.Id}.png");
 
             int distance = LevenshteinDistance.Compute(Utility.GiveUsernameDiscrimComb(user1),

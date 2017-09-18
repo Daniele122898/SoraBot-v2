@@ -50,4 +50,13 @@
   <ItemGroup>
     <None Remove="Shipping\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="transfer\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="transfer\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="transfer\**" />
+  </ItemGroup>
 </Project>

@@ -82,10 +82,10 @@ namespace SoraBot_v2.Services
                                 x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
                             });
                         }
-                        catch (Discord.Net.HttpException e)
+                        catch (Discord.Net.HttpException)
                         {
                             //if this was cought the cached message isnt valid anymore so remove it. 
-                            await CacheService.RemoveUserMessage(starMsg.Id);
+                            CacheService.RemoveUserMessage(starMsg.Id);
                             continue;
                         }
                         await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,

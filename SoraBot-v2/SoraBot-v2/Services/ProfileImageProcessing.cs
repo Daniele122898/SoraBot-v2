@@ -27,7 +27,7 @@ namespace SoraBot_v2.Services
             _shippingMask = Image.Load("Shipping/shippingMask.png");
         }
 
-        public static async Task GenerateShipping(string avatarUrl1, string avatarUrl2, string outPath)
+        public static void GenerateShipping(string avatarUrl1, string avatarUrl2, string outPath)
         {
             using (var output = new Image<Rgba32>(384, 128))
             {
@@ -38,7 +38,7 @@ namespace SoraBot_v2.Services
             }
         }
 
-        public static async Task GenerateProfileWithBg(string avatarUrl, string backgroundUrl, string name, int rank,
+        public static void GenerateProfileWithBg(string avatarUrl, string backgroundUrl, string name, int rank,
             int level, int exp, string outputPath)
         {
             using (var output = new Image<Rgba32>(960,540))
@@ -57,7 +57,7 @@ namespace SoraBot_v2.Services
             }//dispose of output to help save memory
         }
 
-        public static async Task GenerateProfile(string avatarUrl, string name, int rank, int level, int ep,
+        public static void GenerateProfile(string avatarUrl, string name, int rank, int level, int ep,
             string outputPath)
         {
             using (var output = new Image<Rgba32>(890, 150))

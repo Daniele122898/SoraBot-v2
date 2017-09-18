@@ -28,7 +28,7 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
             SetTimer();
@@ -298,7 +298,6 @@ namespace SoraBot_v2.Services
                         default:
                             Console.WriteLine("SWITCH FAILED");
                             return 0;
-                            break;
                     }
                 }
                 return timeToAdd;

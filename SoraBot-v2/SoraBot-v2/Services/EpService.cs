@@ -31,7 +31,7 @@ namespace SoraBot_v2.Services
             _client = client;
         }
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }
@@ -175,22 +175,27 @@ namespace SoraBot_v2.Services
                         $"User has to first gain EP before i can draw his profile card!"));
                     return;
                 }
-                
-                var requesterDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
-                int userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
-                //Check for cooldown!
-                if (requesterDb.ShowProfileCardAgain.CompareTo(DateTime.UtcNow) < 0)
+                int userLevel;
+                using (var soraContextTemp = _services.GetService<SoraContext>())
                 {
-                    requesterDb.ShowProfileCardAgain = DateTime.UtcNow.AddSeconds(30);
-                    await soraContext.SaveChangesAsync();
-                }
-                else
-                {
-                    var remainingSeconds = requesterDb.ShowProfileCardAgain.Subtract(DateTime.UtcNow.TimeOfDay).Second;
-                    await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Dont break me >.< Please wait another {remainingSeconds} seconds!"));
-                    return;
+                    var requesterDb = Utility.GetOrCreateUser(context.User.Id, soraContextTemp);
+
+                    userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
+                    //Check for cooldown!
+                    if (requesterDb.ShowProfileCardAgain.CompareTo(DateTime.UtcNow) < 0)
+                    {
+                        requesterDb.ShowProfileCardAgain = DateTime.UtcNow.AddSeconds(30);
+                        await soraContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var remainingSeconds =
+                            requesterDb.ShowProfileCardAgain.Subtract(DateTime.UtcNow.TimeOfDay).Second;
+                        await context.Channel.SendMessageAsync("",
+                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                $"Dont break me >.< Please wait another {remainingSeconds} seconds!"));
+                        return;
+                    }
                 }
 
                 Uri requestUri = new Uri(user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar);
@@ -231,7 +236,7 @@ namespace SoraBot_v2.Services
                 //draw profile image
                 if (userDb.HasBg)
                 {
-                    await ProfileImageProcessing.GenerateProfileWithBg($"ProfileData/{user.Id}Avatar.png",
+                         ProfileImageProcessing.GenerateProfileWithBg($"ProfileData/{user.Id}Avatar.png",
                         $"ProfileData/{user.Id}BGF.png", username, rank, userLevel, (int) userDb.Exp,
                         $"ProfileData/{user.Id}.png");
                 }
@@ -239,7 +244,7 @@ namespace SoraBot_v2.Services
                 {
                     try
                     {
-                        await ProfileImageProcessing.GenerateProfile($"ProfileData/{user.Id}Avatar.png", username, rank,
+                             ProfileImageProcessing.GenerateProfile($"ProfileData/{user.Id}Avatar.png", username, rank,
                             userLevel, (int) userDb.Exp, $"ProfileData/{user.Id}.png");
 
                     }
@@ -339,14 +344,25 @@ namespace SoraBot_v2.Services
             using (var soraContext = _services.GetService<SoraContext>())
             {
                 var sortedUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
-
+                //ghetto fix to make sure it doesnt run indefenetly
+                int max = 50;
                 for (int index = 0; index < 10; index++)
                 {
+                    var user = _client.GetUser(sortedUsers[index].UserId);
+                    if (user == null)
+                    {
+                        //to not run indefenetly
+                        if(max <= 0)
+                            break;
+                        max--;
+                        index--;
+                        continue;
+                    }
                     eb.AddField(x =>
                     {
                         x.IsInline = false;
                         x.Name =
-                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(_client.GetUser(sortedUsers[index].UserId))}"; //TODO WHAT IF USER ISNT IN REACH OF SORA ANYMORE
+                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}"; 
                         x.Value =
                             $"Lvl. {CalculateLevel(sortedUsers[index].Exp)} \tEXP: {sortedUsers[index].Exp}";
                     });

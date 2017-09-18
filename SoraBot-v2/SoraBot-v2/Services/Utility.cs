@@ -255,7 +255,7 @@ namespace SoraBot_v2.Services
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
 
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
 
                 var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
 
@@ -295,7 +295,7 @@ namespace SoraBot_v2.Services
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
                 var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
 
@@ -403,7 +403,7 @@ namespace SoraBot_v2.Services
 
         public static string GiveUsernameDiscrimComb(SocketUser user)
         {
-            return $"{user.Username}#{user.Discriminator}";
+            return user == null ? "User Unknown" : $"{user.Username}#{user.Discriminator}";
         }
     }
 }

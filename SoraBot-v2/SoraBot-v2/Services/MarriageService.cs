@@ -17,7 +17,7 @@ namespace SoraBot_v2.Services
 {
     public class MarriageService
     {
-        private InteractiveService _interactive;
+        private readonly InteractiveService _interactive;
         private IServiceProvider _services;
         
         private const int MARRIAGE_SCALE = 10;
@@ -27,7 +27,7 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
 
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }

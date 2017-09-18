@@ -83,7 +83,7 @@ namespace SoraBot_v2.Module
                 {
                     await Context.Guild.CreateRoleAsync(Utility.SORA_DJ_ROLE_NAME, GuildPermissions.None);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't Create role for some reason. Check perms!"));
                     return;

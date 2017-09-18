@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
             _interactive = service;
         }
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }

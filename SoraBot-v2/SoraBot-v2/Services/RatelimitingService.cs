@@ -34,7 +34,7 @@ namespace SoraBot_v2.Services
             TimeSpan.FromSeconds(BUCKET_DROP_INTERVAL));
         }
 
-        private async void FillBuckets(Object stateInfo)
+        private void FillBuckets(Object stateInfo)
         {
             var temp = _bucketDict.ToArray();
             foreach (var bucket in temp)

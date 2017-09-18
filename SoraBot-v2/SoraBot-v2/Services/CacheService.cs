@@ -34,7 +34,7 @@ namespace SoraBot_v2.Services
             return msg;
         }
 
-        public static async Task<bool> RemoveUserMessage(ulong id)
+        public static bool RemoveUserMessage(ulong id)
         {
             return _cacheDict.TryRemove(DISCORD_USER_MESSAGE+id, out _);
         }
