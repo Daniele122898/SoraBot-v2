@@ -52,7 +52,7 @@ namespace SoraBot_v2.Services
                         var guild = _client.GetGuild(starMessage.GuildForeignId);
                         if (guild == null)
                             continue;
-                        var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                        var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                         if(guildDb.StarChannelId == 0)
                             continue;
                         var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
@@ -116,7 +116,7 @@ namespace SoraBot_v2.Services
                 using (SoraContext soraContext = _services.GetService<SoraContext>())
                 {
                     var guild = ((SocketGuildChannel) socketMessageChannel).Guild;   
-                    var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                    var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                     //Either the starboard wasn't set up or the channel doesnt exist anymore.
                     if(guildDb.StarChannelId == 0)
                         return;
@@ -204,7 +204,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 var guild = ((SocketGuildChannel) socketMessageChannel).Guild;
-                var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 //Either the starboard wasn't set up or the channel doesnt exist anymore.
                 if (guildDb.StarChannelId == 0)
                     return;

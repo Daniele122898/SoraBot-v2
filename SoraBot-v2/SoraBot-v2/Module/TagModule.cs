@@ -26,7 +26,7 @@ namespace SoraBot_v2.Module
         {
             try
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
 
                 if (guildDb.Tags.Count < 1)
                 {
@@ -111,7 +111,7 @@ namespace SoraBot_v2.Module
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to change these settings!"));
                 return;
             }
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild, _soraContext);
+            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
             //Check if the sora admin role even exists!
             if (!Utility.CheckIfSoraAdminExists(Context.Guild)&& !guildDb.RestrictTags)
             {

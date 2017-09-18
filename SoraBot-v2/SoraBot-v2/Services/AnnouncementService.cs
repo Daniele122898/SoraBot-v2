@@ -24,7 +24,7 @@ namespace SoraBot_v2.Services
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
                 //check if channel is initialized
                 if(guildDb.LeaveChannelId == 0)
                     return;
@@ -67,7 +67,7 @@ namespace SoraBot_v2.Services
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
                 //check if channel is initialized
                 if(guildDb.WelcomeChannelId == 0)
                     return;
@@ -121,7 +121,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.EmbedWelcome = !guildDb.EmbedWelcome;
                 await soraContext.SaveChangesAsync();
                 if (guildDb.EmbedWelcome)
@@ -146,7 +146,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.EmbedLeave = !guildDb.EmbedLeave;
                 await soraContext.SaveChangesAsync();
                 if (guildDb.EmbedLeave)
@@ -171,7 +171,7 @@ namespace SoraBot_v2.Services
                 return false;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeMessage = message;
                 await soraContext.SaveChangesAsync();
             }
@@ -185,7 +185,7 @@ namespace SoraBot_v2.Services
                 return false;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveMessage = message;
                 await soraContext.SaveChangesAsync();
             }
@@ -199,7 +199,7 @@ namespace SoraBot_v2.Services
                 return false;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeChannelId = channel.Id;
                 await soraContext.SaveChangesAsync();
             }
@@ -213,7 +213,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeChannelId = 0;
                 await soraContext.SaveChangesAsync();
             }
@@ -228,7 +228,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveChannelId = 0;
                 await soraContext.SaveChangesAsync();
             }
@@ -243,7 +243,7 @@ namespace SoraBot_v2.Services
                 return false;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveChannelId = channel.Id;
                 await soraContext.SaveChangesAsync();
             }

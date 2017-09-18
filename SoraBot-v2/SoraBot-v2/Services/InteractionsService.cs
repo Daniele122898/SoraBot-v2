@@ -35,7 +35,7 @@ namespace SoraBot_v2.Services
         public async Task Interact(InteractionType type, SocketUser user, SocketCommandContext context, SoraContext soraContext)
         {
             //FindUserMentioned
-            var dbUser = Utility.GetOrCreateUser(user, soraContext);
+            var dbUser = Utility.GetOrCreateUser(user.Id, soraContext);
 
             switch (type)
             {
@@ -72,9 +72,9 @@ namespace SoraBot_v2.Services
         {
             //FindUserMentioned
             List<User> users = new List<User>();
-            usersT.ForEach(x=> users.Add(Utility.GetOrCreateUser(x, soraContext)));
+            usersT.ForEach(x=> users.Add(Utility.GetOrCreateUser(x.Id, soraContext)));
 
-            User giver = Utility.GetOrCreateUser(context.User, soraContext);
+            User giver = Utility.GetOrCreateUser(context.User.Id, soraContext);
             //var dbUser = Utility.GetOrCreateUser(user, soraContext);
 
             switch (type)

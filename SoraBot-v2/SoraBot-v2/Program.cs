@@ -123,6 +123,7 @@ namespace SoraBot_v2
             services.AddSingleton<WeebService>();
             services.AddSingleton<ModService>();
             services.AddSingleton<ReminderService>();
+            services.AddSingleton<GuildCountUpdaterService>();
             services.AddSingleton<UbService>();
             services.AddSingleton(new ImdbService(_interactiveCommands));
             services.AddSingleton<EpService>();

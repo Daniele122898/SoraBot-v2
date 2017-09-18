@@ -15,7 +15,7 @@ namespace SoraBot_v2.Services
 
         public async Task RemoveTag(SocketCommandContext context, SoraContext soraContext, string name, bool admin)
         {
-            var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+            var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
             //Check if tag exists
             var result = guildDb.Tags.FirstOrDefault(x => x.Name == name);
             if (result == null)
@@ -40,7 +40,7 @@ namespace SoraBot_v2.Services
         
         public async Task CreateTag(SocketCommandContext context, SoraContext soraContext, string name, string value, bool forceEmbed)
         {
-            var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+            var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
             //Check if guild restricted tag creation and if the user has the admin role!
             if (guildDb.RestrictTags)
             {
@@ -141,7 +141,7 @@ namespace SoraBot_v2.Services
 
         public async Task FindAndDisplayTag(SocketCommandContext context, SoraContext soraContext, string name)
         {
-            var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+            var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
 
             var result = guildDb.Tags.FirstOrDefault(x => x.Name == name);
             if (result == null)

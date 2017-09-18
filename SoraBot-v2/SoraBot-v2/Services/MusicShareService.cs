@@ -341,7 +341,7 @@ namespace SoraBot_v2.Services
                     {
                         var sharedPlaylist = orderedList[j + addToJ].SharedPlaylist;
                         addToList += $"**[{sharedPlaylist.Titel}]({sharedPlaylist.ShareLink})**\nVotes: {sharedPlaylist.Upvotes} / {sharedPlaylist.Downvotes}  \tTags: {sharedPlaylist.Tags.Replace(";", " - ")}\n\n";
-                    }//TODO REMOVE MATCHES UPON RELEASE
+                    }
                     playlistsString.Add(addToList);
                     amountLeft -= 7;
                     addToJ += 7;

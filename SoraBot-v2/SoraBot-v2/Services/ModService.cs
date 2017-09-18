@@ -40,7 +40,7 @@ namespace SoraBot_v2.Services
                 //Check if case is already present
                 using (SoraContext soraContext = _services.GetService<SoraContext>())
                 {
-                    var guildDb = Utility.GetOrCreateGuild(socketGuild, soraContext);
+                    var guildDb = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
                     if(guildDb.Cases.Any(x=> x.Type == Case.Ban && x.UserId == socketUser.Id))
                         return;
                 }
@@ -138,7 +138,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 if (guildDb.PunishLogsId == channel.Id)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
@@ -159,7 +159,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.PunishLogsId = 0;
                 await soraContext.SaveChangesAsync();
             }
@@ -217,7 +217,7 @@ namespace SoraBot_v2.Services
             //MAKE SURE YOU CHECK PERMS IN MODULE U CUCK ♥
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 var cases = guildDb.Cases.Where(x => x.UserId == user.Id)?.ToList();
                 if (cases == null || cases.Count == 0)
                     return false;
@@ -305,7 +305,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 //make sure punish logs channel is still available
                 var channel = context.Guild.GetTextChannel(guildDb.PunishLogsId);
                 if (channel == null)
@@ -360,7 +360,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 //search for cases with him
                 var userCases = guildDb.Cases.Where(x => x.UserId == user.Id)?.ToList();
                 if (userCases == null || userCases.Count == 0)
@@ -422,7 +422,7 @@ namespace SoraBot_v2.Services
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 var foundCase = guildDb.Cases.FirstOrDefault(x => x.CaseNr == caseNr);
                 //check if case nr is valid
                 if (foundCase == null)
@@ -520,7 +520,7 @@ namespace SoraBot_v2.Services
             int warnNr = 0;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 //get warn nr.
                 warnNr = guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning);
             }
@@ -646,7 +646,7 @@ namespace SoraBot_v2.Services
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 //check if punishlogs are initialized!
                 if (guildDb.PunishLogsId == 0)
                     return false;

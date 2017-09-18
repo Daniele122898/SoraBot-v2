@@ -4,6 +4,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities;
+using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Services
 {
@@ -11,18 +13,16 @@ namespace SoraBot_v2.Services
     {
         private const int SECONDS_AFTER_REPOST = 30;
 
-        private async Task AddAfk(SocketCommandContext context, SoraContext soraContext,string message, bool updated)
+        private async Task AddAfk(SocketCommandContext context, User userDb ,string message, bool updated)
         {
             if (message == null)
                 message = "";
             message = message.Length < 80 ? message : message.Substring(0, 80) + "...";
             DateTime timeToTriggerAgain = DateTime.UtcNow;
 
-            var userDb = Utility.GetOrCreateUser(context.User, soraContext);
             userDb.Afk.IsAfk = true;
             userDb.Afk.Message = message;
             userDb.Afk.TimeToTriggerAgain = timeToTriggerAgain;
-            await soraContext.SaveChangesAsync();
 
             var eb = new EmbedBuilder()
             {
@@ -34,11 +34,19 @@ namespace SoraBot_v2.Services
 
         public async Task ToggleAFK(SocketCommandContext context, string message, SoraContext soraContext)
         {
-            var userDb = Utility.GetOrCreateUser(context.User, soraContext);
+            var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
+            if (userDb.Afk == null)
+            {
+                userDb.Afk = new Afk()
+                {
+                    IsAfk = false,
+                    UserForeignId = context.User.Id
+                };
+            }
             if (!userDb.Afk.IsAfk)
             {
                 //ADD AFK
-                await AddAfk(context, soraContext, message, false);
+                await AddAfk(context, userDb, message, false);
             }
             else
             {
@@ -56,7 +64,7 @@ namespace SoraBot_v2.Services
                 else
                 {
                     //UPDATE
-                    await AddAfk(context, soraContext, message, true);
+                    await AddAfk(context, userDb, message, true);
                 }
             }
             await soraContext.SaveChangesAsync();
@@ -76,7 +84,9 @@ namespace SoraBot_v2.Services
 
             foreach (var user in msg.MentionedUsers)
             {
-                var userDb = Utility.GetOrCreateUser(user, soraContext);
+                var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
+                if(userDb.Afk == null)
+                    return; //if null none was set up
                 if (userDb.Afk.IsAfk)
                 {
                     //CAN TRIGGER AGAIN?

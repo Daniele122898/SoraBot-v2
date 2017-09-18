@@ -276,30 +276,32 @@ namespace SoraBot_v2.Services
             return result;
         }
         
-        public static User GetOrCreateUser(SocketUser user, SoraContext soraContext)
+        
+        public static User GetOrCreateUser(ulong Id, SoraContext soraContext)
         {
             User result = new User();
             try
             {
-                result = soraContext.Users.FirstOrDefault(x => x.UserId == user.Id);
+                result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = user.Id, Interactions = new Interactions(), ShareCentrals = new List<ShareCentral>(), Votings = new List<Voting>(),Afk = new Afk(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
-                    //Set Default action to be false!
-                    addedUser.Entity.Afk.IsAfk = false;
-                    soraContext.SaveChangesThreadSafe();
+                    var addedUser = soraContext.Users.Add(new User() {UserId = Id, ShareCentrals = new List<ShareCentral>(), Interactions = new Interactions(),Votings = new List<Voting>(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
+                    //Set Default action to be false! // Interactions = new Interactions() , Afk = new Afk()
+                    //addedUser.Entity.Afk.IsAfk = false; CHANGED
+                    //soraContext.SaveChangesThreadSafe();
+                    soraContext.SaveChanges();
                     return addedUser.Entity;
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == user.Id) ?? new Afk {IsAfk = false};
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Marriage>();
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == user.Id)?.ToList() ?? new List<Reminders>();
+                var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == user.Id)?.ToList() ?? new List<ShareCentral>();
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == user.Id)?.ToList() ?? new List<Voting>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
 
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
@@ -312,42 +314,44 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
-            soraContext.SaveChangesThreadSafe();
+            //soraContext.SaveChangesThreadSafe();
+            soraContext.SaveChanges();
             return result;
         }
 
         public static string GetGuildPrefix(SocketGuild guild, SoraContext soraContext)
         {
-            var guildDb = GetOrCreateGuild(guild, soraContext);
+            var guildDb = GetOrCreateGuild(guild.Id, soraContext);
             return guildDb.Prefix;
         }
 
-        public static Guild GetOrCreateGuild(SocketGuild guild, SoraContext soraContext)
+        public static Guild GetOrCreateGuild(ulong guildId, SoraContext soraContext)
         {
             Guild result = new Guild();
             try
             {
-                result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guild.Id);
+                result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guildId);
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guild.Id, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
-                    soraContext.SaveChangesThreadSafe();
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    //soraContext.SaveChangesThreadSafe();
+                    soraContext.SaveChanges();
                     return addGuild.Entity;
                 }
             
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Tags>();
-                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guild.Id)?.ToList();
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guildId)?.ToList() ?? new List<Tags>();
+                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guildId)?.ToList();
                 if (foundStars == null)
                 {
                     foundStars = new List<StarMessage>();
                     result.StarMinimum = 1;
                 }
 
-                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guild.Id)?.ToList() ?? new List<Role>();
+                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guildId)?.ToList() ?? new List<Role>();
 
-                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guild.Id)?.ToList() ??
+                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guildId)?.ToList() ??
                                new List<ModCase>();
 
                 result.Cases = modCases;
@@ -361,7 +365,8 @@ namespace SoraBot_v2.Services
             }
             
             //guild found
-            soraContext.SaveChangesThreadSafe();
+            //soraContext.SaveChangesThreadSafe();
+            soraContext.SaveChanges();
             return result;
 
         }

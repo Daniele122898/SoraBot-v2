@@ -34,7 +34,7 @@ namespace SoraBot_v2.Services
             var guild = socketGuildUser.Guild;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 
                 //Check if default role is even on
                 if(!guildDb.HasDefaultRole)
@@ -90,7 +90,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 //Check if its self-assignable
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 var sarRole = guildDb.SelfAssignableRoles.FirstOrDefault(x => x.RoleId == role.Id);
                 if (sarRole == null)
                 {
@@ -115,7 +115,7 @@ namespace SoraBot_v2.Services
                 return;
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 //if he plans to turn it on check if role exists
                 if (!guildDb.HasDefaultRole)
                 {
@@ -197,7 +197,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 //check if it already exists
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 if (guildDb.DefaultRoleId == role.Id)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
@@ -254,7 +254,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 //check if it already exists
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 if (guildDb.SelfAssignableRoles.Count >0 &&  guildDb.SelfAssignableRoles.Any(x => x.RoleId == role.Id))
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
@@ -303,7 +303,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 //check if the role is self assignable
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 if (guildDb.SelfAssignableRoles.All(x => x.RoleId != role.Id))
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
@@ -323,7 +323,7 @@ namespace SoraBot_v2.Services
         {
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 
                 int roleCount = guildDb.SelfAssignableRoles.Count;
                 if (roleCount == 0)
@@ -452,7 +452,7 @@ namespace SoraBot_v2.Services
             using (SoraContext soraContext = _services.GetService<SoraContext>())
             {
                 //check if the role is self assignable
-                var guildDb = Utility.GetOrCreateGuild(context.Guild, soraContext);
+                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 if (guildDb.SelfAssignableRoles.All(x => x.RoleId != role.Id))
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
