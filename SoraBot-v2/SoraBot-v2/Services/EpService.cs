@@ -344,18 +344,25 @@ namespace SoraBot_v2.Services
             using (var soraContext = _services.GetService<SoraContext>())
             {
                 var sortedUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
-                //ghetto fix to make sure it doesnt run indefenetly
-                int max = 50;
-                for (int index = 0; index < 10; index++)
+                var sortedShort = sortedUsers.Take((sortedUsers.Count < 50? sortedUsers.Count : 50)).ToList();
+                List<User> remove = new List<User>();
+                foreach (User userT in sortedShort)
                 {
-                    var user = _client.GetUser(sortedUsers[index].UserId);
+                    var user = _client.GetUser(userT.UserId);
+                    if(user == null)
+                        remove.Add(userT);
+                }
+                foreach (var user in remove)
+                {
+                    sortedShort.Remove(user);
+                    sortedUsers.Remove(user);
+                }
+                for (int index = 0; index < (sortedShort.Count <10? sortedShort.Count : 10); index++)
+                {
+                    var user = _client.GetUser(sortedShort[index].UserId);
                     if (user == null)
                     {
-                        //to not run indefenetly
-                        if(max <= 0)
-                            break;
-                        max--;
-                        index--;
+                        index -= 1;
                         continue;
                     }
                     eb.AddField(x =>
@@ -364,7 +371,7 @@ namespace SoraBot_v2.Services
                         x.Name =
                             $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}"; 
                         x.Value =
-                            $"Lvl. {CalculateLevel(sortedUsers[index].Exp)} \tEXP: {sortedUsers[index].Exp}";
+                            $"Lvl. {CalculateLevel(sortedShort[index].Exp)} \tEXP: {sortedShort[index].Exp}";
                     });
                 }
                 eb.AddField(x =>

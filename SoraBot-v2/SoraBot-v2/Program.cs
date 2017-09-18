@@ -35,7 +35,7 @@ namespace SoraBot_v2
             //setup discord client
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
-                LogLevel = LogSeverity.Warning            
+                LogLevel = LogSeverity.Info            
             });
 
             _client.Log += Log;
