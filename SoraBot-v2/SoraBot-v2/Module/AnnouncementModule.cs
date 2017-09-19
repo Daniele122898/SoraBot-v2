@@ -111,7 +111,7 @@ namespace SoraBot_v2.Module
             await _announcement.ToggleWelcomeEmbed(Context);
         }
         
-        [Command("toggleleave"), Alias("togglel", "tl"),
+        [Command("toggleleave"), Alias("togglel"),
          Summary("Toggles if leave announcements are in or out of embeds")]
         public async Task ToggleLeaveEmbed()
         {
