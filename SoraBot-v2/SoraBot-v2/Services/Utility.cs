@@ -214,7 +214,7 @@ namespace SoraBot_v2.Services
             return true;
         }
 
-        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel)
+        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel, bool sendMessage = true)
         {
             var guildPerms = guild.CurrentUser.GuildPermissions;
             var chanPerms = guild.CurrentUser.GetPermissions(channel);
@@ -227,7 +227,7 @@ namespace SoraBot_v2.Services
                !chanPerms.SendMessages)
             {
                 //Send message to owner if not done already. 
-                if (!_ownersNotified.Contains(guild.OwnerId))
+                if (sendMessage && !_ownersNotified.Contains(guild.OwnerId))
                 {
                     await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
                         embed: Utility.ResultFeedback(

@@ -164,8 +164,9 @@ namespace SoraBot_v2
                     if(await _ratelimitingService.IsRatelimited(message.Author.Id))
                         return;
     
-                    //Check essential perms
-                    if(await Utility.CheckReadWritePerms(context.Guild, context.Channel as IGuildChannel) == false)
+                    //Check essential perms, set send message to false here to prevent spam from normal failiure. 
+                    //darwinism :P
+                    if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
                         return;
                     
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
