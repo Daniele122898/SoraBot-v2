@@ -20,14 +20,14 @@ namespace SoraBot_v2.Services
         private string _clientId = "";
         private string _clientSecret = "";
         private readonly FormUrlEncodedContent _formContent;
-        private Discord.Addons.InteractiveCommands.InteractiveService _interactive;
+        private readonly InteractiveService _interactive;
         
         public enum AnimeType
         {
             Anime, Manga, Char
         }
         
-        public AnimeSearchService(Discord.Addons.InteractiveCommands.InteractiveService interactiveService)
+        public AnimeSearchService(InteractiveService interactiveService)
         {
             _interactive = interactiveService;
             _timeToRequestAgain = DateTime.UtcNow;
@@ -122,7 +122,7 @@ namespace SoraBot_v2.Services
                         ebC.Description = choose;
                         var msg = await context.Channel.SendMessageAsync("", embed: ebC);
                         var response =
-                            await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
+                            await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                         await msg.DeleteAsync();
                         if (response == null)
                         {

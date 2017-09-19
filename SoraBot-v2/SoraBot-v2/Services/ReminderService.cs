@@ -114,7 +114,8 @@ namespace SoraBot_v2.Services
                 }
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
                 //var response = await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
-                var response = await _interactive.NextMessageAsync(context);//TODO test if this listens only to source user and source channel
+                
+                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));//TODO test if this listens only to source user and source channel
                 await msg.DeleteAsync();
                 if (response == null)
                 {

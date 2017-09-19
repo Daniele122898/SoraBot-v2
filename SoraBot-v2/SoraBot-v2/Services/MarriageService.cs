@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.InteractiveCommands;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -175,7 +175,7 @@ namespace SoraBot_v2.Services
                 var msg = await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
                         $"{Utility.GiveUsernameDiscrimComb(user)}, do you want to marry {Utility.GiveUsernameDiscrimComb(context.User)}? 💍"));
-                var response = await _interactive.WaitForMessage(user, context.Channel, TimeSpan.FromSeconds(45));
+                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                 if (response == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:

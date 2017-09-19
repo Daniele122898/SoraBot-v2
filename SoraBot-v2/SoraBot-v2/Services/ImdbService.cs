@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.InteractiveCommands;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Newtonsoft.Json;
 
@@ -10,24 +10,24 @@ namespace SoraBot_v2.Services
 {
     public class ImdbService
     {
-        private InteractiveService _interactive;
+        private readonly InteractiveService _interactive;
 
         public ImdbService(InteractiveService interactiveService)
         {
             _interactive = interactiveService;
         }
         
-        public async Task GetImdb(SocketCommandContext Context, string target)
+        public async Task GetImdb(SocketCommandContext context, string target)
         {
             try
             {
-                await Context.Channel.TriggerTypingAsync();
+                await context.Channel.TriggerTypingAsync();
 
                 var movieSimple = await TheMovieDbProvider.FindMovie(target);
                 
                 if(movieSimple == null || movieSimple.Length < 1)
                 {
-                    await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find movie/series"));
+                    await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find movie/series"));
                     return;
                 }
 
@@ -48,24 +48,24 @@ namespace SoraBot_v2.Services
                         count++;
                     }
                     ebC.Description = choose;
-                    var msg = await Context.Channel.SendMessageAsync("", embed: ebC);
+                    var msg = await context.Channel.SendMessageAsync("", embed: ebC);
                     var response =
-                        await _interactive.WaitForMessage(Context.User, Context.Channel, TimeSpan.FromSeconds(20));
+                        await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                     await msg.DeleteAsync();
                     if (response == null)
                     {
-                        await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(Context.User)} didn't answer in time (≧д≦ヾ)"));
+                        await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} didn't answer in time (≧д≦ヾ)"));
                         return;
                     }
                     if (!Int32.TryParse(response.Content, out index))
                     {
-                        await Context.Channel.SendMessageAsync("", embed:
+                        await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Only send the Index!"));
                         return;
                     }
                     if (index > (movieSimple.Length) || index < 1)
                     {
-                        await Context.Channel.SendMessageAsync("", embed:
+                        await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Invalid Index!"));
                         return;
                     }
@@ -79,13 +79,13 @@ namespace SoraBot_v2.Services
                 
 
                 var eb = finalMovie.GetEmbed();
-                eb.WithFooter(Utility.RequestedBy(Context.User));
-                await Context.Channel.SendMessageAsync("", embed: eb);
+                eb.WithFooter(Utility.RequestedBy(context.User));
+                await context.Channel.SendMessageAsync("", embed: eb);
 
             }
             catch (Exception)
             {
-                await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find TheMovieDb entry."));
+                await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find TheMovieDb entry."));
             }
         }
     }

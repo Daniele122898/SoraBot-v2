@@ -26,7 +26,6 @@ namespace SoraBot_v2
         //private CommandHandler _commands;
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
-        private Discord.Addons.InteractiveCommands.InteractiveService _interactiveCommands;
         private string _connectionString;
         #endregion
 
@@ -60,7 +59,6 @@ namespace SoraBot_v2
             //Setup Services
             ProfileImageProcessing.Initialize();
             _interactive = new InteractiveService(_client);
-            _interactiveCommands = new Discord.Addons.InteractiveCommands.InteractiveService(_client);
             //Create dummy commandHandler for dependency Injection
             //_commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
@@ -107,7 +105,6 @@ namespace SoraBot_v2
             services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
-            services.AddSingleton(_interactiveCommands);
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
@@ -124,10 +121,10 @@ namespace SoraBot_v2
             services.AddSingleton<ReminderService>();
             services.AddSingleton<GuildCountUpdaterService>();
             services.AddSingleton<UbService>();
-            services.AddSingleton(new ImdbService(_interactiveCommands));
+            services.AddSingleton<ImdbService>();
             services.AddSingleton<EpService>();
             services.AddSingleton<TagService>();
-            services.AddSingleton(new AnimeSearchService(_interactiveCommands));
+            services.AddSingleton<AnimeSearchService>();
 
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
