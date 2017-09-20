@@ -227,7 +227,7 @@ namespace SoraBot_v2.Module
         {
             var proc = System.Diagnostics.Process.GetCurrentProcess();
 
-            Func<double, double> formatRamValue = d =>
+            Func<long, long> formatRamValue = d =>
             {
                 while (d>1024)
                 {
@@ -238,7 +238,7 @@ namespace SoraBot_v2.Module
 
             Func<long, string> formatRamUnit = d =>
             {
-                var units = new string[] { "B", "kB", "mB", "gB", "tB", "pB"};
+                var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB"};
                 var unitCount = 0;
                 while (d>1024)
                 {
@@ -279,7 +279,9 @@ namespace SoraBot_v2.Module
             {
                 x.Name = "Used RAM";
                 x.IsInline = true;
-                x.Value = $"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} mB / {VSZ:f1} mB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}")}";
+                var mem = GC.GetTotalMemory(false);
+                x.Value = $"{formatRamValue(mem):f2} {formatRamUnit(mem)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}";
+                //$"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} MB / {VSZ:f1} MB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}")}\n" +
             });
             eb.AddField(x =>
             {

@@ -175,7 +175,11 @@ namespace SoraBot_v2.Services
                 var msg = await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
                         $"{Utility.GiveUsernameDiscrimComb(user)}, do you want to marry {Utility.GiveUsernameDiscrimComb(context.User)}? 💍"));
-                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
+
+                Criteria<SocketMessage> criteria = new Criteria<SocketMessage>();
+                criteria.AddCriterion(new EnsureFromUserInChannel(user.Id, context.Channel.Id));
+                
+                var response = await _interactive.NextMessageAsync(context, criteria, TimeSpan.FromSeconds(45));
                 if (response == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:

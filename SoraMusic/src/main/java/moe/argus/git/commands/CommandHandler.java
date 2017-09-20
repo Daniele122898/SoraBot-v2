@@ -101,10 +101,7 @@ public class CommandHandler {
 
     private static Command soraSystem = ((event, args) -> {
         Runtime runtime = Runtime.getRuntime();
-        float totalRam = Math.round(runtime.totalMemory()/ 1048576F); // all it is using rn as a proccess
         float allocatedRamUse = Math.round((runtime.totalMemory() - runtime.freeMemory()) / 1048576F); //java programm itself is using
-        float allocatedRam = Math.round(runtime.freeMemory() / 1048576F);
-        float maxRam = Math.round(runtime.maxMemory() / 1048576F); //Max ram for JAVA
 
         String uptime = DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - Utility.StartTime);
         uptime = uptime.substring(0, uptime.indexOf('.'));
@@ -113,7 +110,6 @@ public class CommandHandler {
         builder.withTitle(Utility.SuccessLevelEmoji[3]+" Sora Music Stats");
         builder.withColor(Utility.BlueInfoEmbed);
         builder.withThumbnail(event.getClient().getApplicationIconURL());
-        GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild());
         int playingFor = 0;
         int queueLength = 0;
         for (GuildMusicManager manager:
@@ -125,7 +121,7 @@ public class CommandHandler {
                 queueLength++;
         }
         builder.appendField("Uptime", uptime, true);
-        builder.appendField("Used RAM", allocatedRam + " mB", true);
+        builder.appendField("Used RAM", allocatedRamUse + " mB", true);
         builder.appendField("Playing music for",playingFor+" "+(playingFor == 1 ? "guild" : "guilds"), true);
         builder.appendField("Total queue length",queueLength+"", true);
 
@@ -531,7 +527,7 @@ public class CommandHandler {
         commandMap.put(new CommandKey(new String[]{"listen", "listenmoe", "listen.moe","moe"}, true),listenMoe);
         commandMap.put(new CommandKey(new String[]{"shuffle"}, true),shufflePlaylist);
         commandMap.put(new CommandKey(new String[]{"repeatsong", "replaysong", "rsong"}, true),repeatSong);
-        commandMap.put(new CommandKey(new String[]{"repeatplaylist", "replayplaylist", "repeatqueue","rqueue","rplaylist"}, true),repeatSong);
+        commandMap.put(new CommandKey(new String[]{"repeatplaylist", "replayplaylist", "repeatqueue","rqueue","rplaylist"}, true),repeatPlaylist);
         commandMap.put(new CommandKey(new String[]{"setvolume", "volume", "vol"}, true),changeVolume);
         commandMap.put(new CommandKey(new String[]{"yt", "youtube"}, true),ytSearch);
         commandMap.put(new CommandKey(new String[]{"sc", "soundcloud"}, true),soundcloudSearch);
