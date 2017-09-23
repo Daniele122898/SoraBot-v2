@@ -23,10 +23,9 @@ namespace SoraBot_v2
         #region Private Fields
 
         private DiscordSocketClient _client;
-        private CommandHandler _commands;
+        //private CommandHandler _commands;
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
-        private Discord.Addons.InteractiveCommands.InteractiveService _interactiveCommands;
         private string _connectionString;
         #endregion
 
@@ -35,8 +34,7 @@ namespace SoraBot_v2
             //setup discord client
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
-                LogLevel = LogSeverity.Verbose,
-                MessageCacheSize = 75
+                LogLevel = LogSeverity.Info            
             });
 
             _client.Log += Log;
@@ -61,7 +59,6 @@ namespace SoraBot_v2
             //Setup Services
             ProfileImageProcessing.Initialize();
             _interactive = new InteractiveService(_client);
-            _interactiveCommands = new Discord.Addons.InteractiveCommands.InteractiveService(_client);
             //Create dummy commandHandler for dependency Injection
             //_commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
@@ -73,14 +70,14 @@ namespace SoraBot_v2
             //await _commands.InstallAsync();
             
             //SETUP other dependency injection services
-            await serviceProvider.GetRequiredService<ReminderService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<EpService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<MarriageService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<MusicShareService>().InitializeAsync(serviceProvider);
+            serviceProvider.GetRequiredService<ReminderService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<EpService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<MarriageService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<MusicShareService>().Initialize(serviceProvider);
             await serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<SelfAssignableRolesService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<AnnouncementService>().InitializeAsync(serviceProvider);
-            await serviceProvider.GetRequiredService<ModService>().InitializeAsync(serviceProvider);
+            serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<AnnouncementService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<ModService>().Initialize(serviceProvider);
             await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
@@ -88,7 +85,7 @@ namespace SoraBot_v2
             //Set up an event handler to execute some state-reliant startup tasks
             _client.Ready += async () =>
             {
-                await SentryService.Install(_client);
+                SentryService.Install(_client);
             };
             string token = "";
             ConfigService.GetConfig().TryGetValue("token2", out token);
@@ -108,7 +105,6 @@ namespace SoraBot_v2
             services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
-            services.AddSingleton(_interactiveCommands);
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
@@ -125,10 +121,10 @@ namespace SoraBot_v2
             services.AddSingleton<ReminderService>();
             services.AddSingleton<GuildCountUpdaterService>();
             services.AddSingleton<UbService>();
-            services.AddSingleton(new ImdbService(_interactiveCommands));
+            services.AddSingleton<ImdbService>();
             services.AddSingleton<EpService>();
             services.AddSingleton<TagService>();
-            services.AddSingleton(new AnimeSearchService(_interactiveCommands));
+            services.AddSingleton<AnimeSearchService>();
 
             
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);

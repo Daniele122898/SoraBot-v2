@@ -19,19 +19,17 @@ namespace SoraBot_v2.Services
     public class MusicShareService
     {
         private InteractiveService _interactive;
-        private Discord.Addons.InteractiveCommands.InteractiveService _interactiveCommands;
         private IServiceProvider _services;
 
         private const int MIN_LEVEL = 7;
         private const int NEED_FOR_EXTRA_PLAYLIST = 2;
         
-        public MusicShareService(InteractiveService interactiveService, Discord.Addons.InteractiveCommands.InteractiveService interactiveCommands)
+        public MusicShareService(InteractiveService interactiveService)
         {
             _interactive = interactiveService;
-            _interactiveCommands = interactiveCommands;
         }
 
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }
@@ -543,9 +541,7 @@ namespace SoraBot_v2.Services
                 });
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
 
-                var response =
-                    await _interactiveCommands.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
-
+                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                 await msg.DeleteAsync();
                 if (response == null)
                 {
@@ -670,7 +666,8 @@ namespace SoraBot_v2.Services
                 {
                     Color = Utility.BlueInfoEmbed,
                     Title = $"{Utility.SuccessLevelEmoji[3]} Are you sure you want share this? y/n",
-                    Description = $"{shareUrl}",
+                    Description = $"{shareUrl}\n" +
+                                  $"You can change the Title and Tags afterwards but never the playlist link!",
                     Author = new EmbedAuthorBuilder()
                     {
                         IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
@@ -698,8 +695,7 @@ namespace SoraBot_v2.Services
 
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
 
-                var response =
-                    await _interactiveCommands.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
+                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
 
                 await msg.DeleteAsync();
                 if (response == null)

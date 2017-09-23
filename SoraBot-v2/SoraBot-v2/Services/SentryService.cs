@@ -10,7 +10,7 @@ namespace SoraBot_v2.Services
         private static DiscordSocketClient _client;
         private static SocketUser _serenity;
 
-        public static async Task Install(DiscordSocketClient client)
+        public static void Install(DiscordSocketClient client)
         {
             _client = client;
             _serenity = _client.GetUser(Utility.OWNER_ID);

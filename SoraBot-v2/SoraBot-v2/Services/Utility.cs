@@ -28,6 +28,9 @@ namespace SoraBot_v2.Services
         public static string SORA_VERSION = ConfigService.GetConfigData("version");
 
         public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";
+
+        public const string SORA_INVITE =
+            "https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
@@ -214,7 +217,7 @@ namespace SoraBot_v2.Services
             return true;
         }
 
-        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel)
+        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel, bool sendMessage = true)
         {
             var guildPerms = guild.CurrentUser.GuildPermissions;
             var chanPerms = guild.CurrentUser.GetPermissions(channel);
@@ -227,7 +230,7 @@ namespace SoraBot_v2.Services
                !chanPerms.SendMessages)
             {
                 //Send message to owner if not done already. 
-                if (!_ownersNotified.Contains(guild.OwnerId))
+                if (sendMessage && !_ownersNotified.Contains(guild.OwnerId))
                 {
                     await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
                         embed: Utility.ResultFeedback(
@@ -255,7 +258,7 @@ namespace SoraBot_v2.Services
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
 
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
 
                 var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
 
@@ -295,7 +298,7 @@ namespace SoraBot_v2.Services
                 }
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
-                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id) ?? new Afk {IsAfk = false};
+                var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
                 var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
 
@@ -403,7 +406,7 @@ namespace SoraBot_v2.Services
 
         public static string GiveUsernameDiscrimComb(SocketUser user)
         {
-            return $"{user.Username}#{user.Discriminator}";
+            return user == null ? "User Unknown" : $"{user.Username}#{user.Discriminator}";
         }
     }
 }

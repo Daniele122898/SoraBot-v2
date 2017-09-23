@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Discord.Addons.InteractiveCommands;
 using Discord.Commands;
 using SoraBot_v2.Services;
 

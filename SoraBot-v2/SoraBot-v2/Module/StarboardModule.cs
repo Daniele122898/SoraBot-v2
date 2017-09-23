@@ -17,7 +17,7 @@ namespace SoraBot_v2.Module
             _soraContext = soraContext;
         }
 
-        private async Task<bool> CheckPerms(SocketCommandContext context)
+        private bool CheckPerms(SocketCommandContext context)
         {
             var invoker = (SocketGuildUser)context.User;
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) &&
@@ -32,7 +32,7 @@ namespace SoraBot_v2.Module
         public async Task AddStarChannel([Summary("Channel for starboard. Leave blank to use current channel")] ISocketMessageChannel channel = null)
         {
             var starChannel = channel ?? Context.Channel;
-            if (await CheckPerms(Context) == false)
+            if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starboard channel!"));
@@ -50,7 +50,7 @@ namespace SoraBot_v2.Module
          Summary("Removes the Starboard channel if not already removed")]
         public async Task RemoveStarChannel()
         {
-            if (await CheckPerms(Context) == false)
+            if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2], $"You need Administrator or Mange Channels permission or the {Utility.SORA_ADMIN_ROLE_NAME} role to remove the starboard channel"));
@@ -73,7 +73,7 @@ namespace SoraBot_v2.Module
          Summary("Specify the lowest amount of stars needed to a message until it gets posted to the starboard")]
         public async Task SetStarLimit([Summary("WHOLE number of amount needed")] int amount)
         {
-            if (await CheckPerms(Context) == false)
+            if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starlimit!"));

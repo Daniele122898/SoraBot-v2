@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.InteractiveCommands;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -28,7 +28,7 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
             SetTimer();
@@ -113,8 +113,9 @@ namespace SoraBot_v2.Services
                     });
                 }
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
-                var response =
-                    await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
+                //var response = await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
+                
+                var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));//TODO test if this listens only to source user and source channel
                 await msg.DeleteAsync();
                 if (response == null)
                 {
@@ -298,7 +299,6 @@ namespace SoraBot_v2.Services
                         default:
                             Console.WriteLine("SWITCH FAILED");
                             return 0;
-                            break;
                     }
                 }
                 return timeToAdd;

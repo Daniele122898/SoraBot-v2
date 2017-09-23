@@ -26,14 +26,6 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync($"Pong! {Context.Client.Latency} ms :ping_pong:");
         }
-
-        [Command("exc")]
-        [RequireOwner]
-        public async Task ThrowException()
-        {
-            int i2 = 0;
-            int i = 10 / i2;
-        }
         
         [Command("git"), Alias("gitlab", "github"), Summary("Posts the link to Github")]
         public async Task GithubPage()
@@ -47,9 +39,9 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Invite Sora to Your Guild")
-                    .WithUrl("https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831")
+                    .WithUrl(Utility.SORA_INVITE)
                     .WithDescription("Sora needs all the perms if you intend to use all of his features. Unchecking certain perms will inhibit some of Soras' functions\n" +
-                                     "[Click to Invite](https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831)"));
+                                     $"[Click to Invite]({Utility.SORA_INVITE})"));
         }
 
         [Command("choose"), Summary("Give sora a list of which he shall choose one.")]

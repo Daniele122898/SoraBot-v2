@@ -117,8 +117,7 @@ public class Database {
                 Boolean isDj = (Boolean) results.get(0).get("IsDjRestricted");
                 return isDj;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
         }
         return false;
     }
@@ -135,7 +134,7 @@ public class Database {
                 String prefix = (String) results.get(0).get("Prefix");
                 return prefix;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             //e.printStackTrace();
         }
         return "$";

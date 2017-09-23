@@ -57,8 +57,8 @@ namespace SoraBot_v2.Services
         
         private List<ulong> lvlSubsriberList = new List<ulong>();
 */
-        
-        public async Task InitializeAsync(IServiceProvider services)
+        /*
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
             /*
@@ -81,7 +81,7 @@ namespace SoraBot_v2.Services
             //JSON INITIALIZER
             jSerializer.Converters.Add(new JavaScriptDateTimeConverter());
             jSerializer.NullValueHandling = NullValueHandling.Ignore;
-            */
+            
         }
 
         public async Task MessageAllGuildOwners(SocketCommandContext context)

@@ -12,7 +12,7 @@ namespace SoraBot_v2.Services
     {
         private IServiceProvider _services;
         
-        public async Task InitializeAsync(IServiceProvider services)
+        public void Initialize(IServiceProvider services)
         {
             _services = services;
         }
