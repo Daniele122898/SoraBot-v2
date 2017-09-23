@@ -666,7 +666,8 @@ namespace SoraBot_v2.Services
                 {
                     Color = Utility.BlueInfoEmbed,
                     Title = $"{Utility.SuccessLevelEmoji[3]} Are you sure you want share this? y/n",
-                    Description = $"{shareUrl}",
+                    Description = $"{shareUrl}\n" +
+                                  $"You can change the Title and Tags afterwards but never the playlist link!",
                     Author = new EmbedAuthorBuilder()
                     {
                         IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,

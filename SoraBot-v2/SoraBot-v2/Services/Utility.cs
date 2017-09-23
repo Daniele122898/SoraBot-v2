@@ -28,6 +28,9 @@ namespace SoraBot_v2.Services
         public static string SORA_VERSION = ConfigService.GetConfigData("version");
 
         public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";
+
+        public const string SORA_INVITE =
+            "https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831";
         
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";

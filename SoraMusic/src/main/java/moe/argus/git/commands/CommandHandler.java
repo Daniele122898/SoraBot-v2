@@ -138,6 +138,12 @@ public class CommandHandler {
             return;
         }
 
+        if(player.isPaused()){
+            Utility.sendMessage(event.getChannel(), "",
+                    Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "Player is currently paused!").build());
+            return;
+        }
+
         if(!player.getPlayingTrack().getInfo().isStream) {
             long npDur = player.getPlayingTrack().getDuration() / 1000;
             long npMins = npDur / 60;

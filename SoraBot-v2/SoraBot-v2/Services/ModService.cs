@@ -330,11 +330,12 @@ namespace SoraBot_v2.Services
                             Utility.SuccessLevelEmoji[2], "User has no logged warnings!"));
                         return;
                     }
+                    int initialCount = userCases.Count;
                     userCases.ForEach(x=> guildDb.Cases.Remove(x));
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                         Utility.SuccessLevelEmoji[0], "Removed all warnings from user"));
-                    await PostWarningRemovalLog(channel, user, context.User, userCases.Count,userCases.Count);
+                    await PostWarningRemovalLog(channel, user, context.User, userCases.Count,initialCount);
                     return;
                 }
                     var warning = guildDb.Cases.FirstOrDefault(x => x.UserId == user.Id && x.WarnNr == warnNr);
@@ -344,11 +345,12 @@ namespace SoraBot_v2.Services
                             Utility.SuccessLevelEmoji[2], "Couldn't find specified warning!"));
                         return;
                     }
-                    guildDb.Cases.Remove(warning);
-                    await soraContext.SaveChangesAsync();
+                int totalWarnings = guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning);
+                guildDb.Cases.Remove(warning);
+                await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], "Removed specified warning"));
-                await PostWarningRemovalLog(channel, user, context.User, 1,guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning));
+                await PostWarningRemovalLog(channel, user, context.User, 1,totalWarnings);
             }
         }
 

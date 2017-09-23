@@ -341,8 +341,14 @@ namespace SoraBot_v2.Module
             eb.AddField((x) =>
             {
                 x.Name = "Sora's Official Guild";
-                x.IsInline = false;
-                x.Value = $"[Feedback and Suggestions here]({Utility.DISCORD_INVITE})";
+                x.IsInline = true;
+                x.Value = $"[Join here]({Utility.DISCORD_INVITE})";
+            });
+            eb.AddField((x) =>
+            {
+                x.Name = "Invite me";
+                x.IsInline = true;
+                x.Value = $"[Click here to invite]({Utility.SORA_INVITE})";
             });
             await ReplyAsync("", embed: eb);
         }

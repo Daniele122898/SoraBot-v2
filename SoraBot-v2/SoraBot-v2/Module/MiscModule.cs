@@ -39,9 +39,9 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Invite Sora to Your Guild")
-                    .WithUrl("https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831")
+                    .WithUrl(Utility.SORA_INVITE)
                     .WithDescription("Sora needs all the perms if you intend to use all of his features. Unchecking certain perms will inhibit some of Soras' functions\n" +
-                                     "[Click to Invite](https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831)"));
+                                     $"[Click to Invite]({Utility.SORA_INVITE})"));
         }
 
         [Command("choose"), Summary("Give sora a list of which he shall choose one.")]
