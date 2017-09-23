@@ -10,6 +10,11 @@ body {
     border-radius: 50%;
 }
 
+.botIcon{
+    max-width: 75px;
+    border-radius: 50%;
+}
+
 .show{
     /*border:1px solid red;*/
     min-height: 300px;
@@ -72,6 +77,40 @@ html{
     margin-bottom:200px;
 }
 
+.aboutHr{
+    margin-left: 80px;
+    margin-top: 0px;
+}
+
+.aboutH1Right{
+    margin-bottom: 0px;
+    text-align: right;
+}
+
+.aboutHrRight{
+    margin-right: 80px;
+    margin-top: 0px;
+}
+
+.aboutH1{
+    margin-bottom: 0px;
+}
+
+.aboutLeft, .aboutRight{
+    font-size:18px;
+}
+
+.aboutRight{
+    padding-left:40%;
+    margin-right:80px;
+    text-align: right;
+}
+
+.aboutLeft{
+    padding-right:40%;
+    margin-left:80px;
+}
+
 hr{
     width:400px;
     border-top:1px solid #f8f8f8;
@@ -131,6 +170,12 @@ a:visited{
     padding-right:40%;
 }
 
+#thanks{
+    padding-left: 20%;
+    padding-right: 20%;
+    margin-top:20px;
+}
+
 .quoteRight{
     text-align: right;
     padding-left:40%;
@@ -146,4 +191,8 @@ a:visited{
 
 p{
     font-size: 16px;
+}
+
+.contributors{
+    text-align: center;
 }
