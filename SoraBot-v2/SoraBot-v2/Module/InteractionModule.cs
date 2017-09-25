@@ -10,7 +10,7 @@ using Weeb.net;
 
 namespace SoraBot_v2.Module
 {
-    public class InteractionModule : ModuleBase<SocketCommandContext>
+    public class InteractionModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         
         private SoraContext _soraContext;
@@ -360,6 +360,11 @@ namespace SoraBot_v2.Module
                 Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with! (@Mention them)"
             };
             await context.Channel.SendMessageAsync("", embed: eb);
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

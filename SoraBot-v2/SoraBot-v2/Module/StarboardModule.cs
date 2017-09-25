@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -8,7 +9,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class StarboardModule : ModuleBase<SocketCommandContext>
+    public class StarboardModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         private SoraContext _soraContext;
 
@@ -89,6 +90,11 @@ namespace SoraBot_v2.Module
             await _soraContext.SaveChangesAsync();
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                 Utility.SuccessLevelEmoji[0], $"Successfully changed minimum Star requirement to {amount}"));
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

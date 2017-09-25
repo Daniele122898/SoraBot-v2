@@ -58,7 +58,7 @@ namespace SoraBot_v2.Services
                         var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                         if (starChannel == null)
                         {
-                            guildDb.StarChannelId = 0;
+                            //guildDb.StarChannelId = 0; //TODO TEMPORARILY DISABLED.
                             continue;
                         }
                         //CHECK PERMS
@@ -123,8 +123,8 @@ namespace SoraBot_v2.Services
                     var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                     if (starChannel == null)
                     {
-                        guildDb.StarChannelId = 0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
-                        await soraContext.SaveChangesAsync();
+                        //guildDb.StarChannelId = 0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
+                        //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED DUE TO SOME ERROR
                         return;
                     }
                     //Check if reaction is from author
@@ -211,8 +211,8 @@ namespace SoraBot_v2.Services
                 var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                 if (starChannel == null)
                 {
-                    guildDb.StarChannelId =0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
-                    await soraContext.SaveChangesAsync();
+                    //guildDb.StarChannelId =0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
+                    //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED AS IT BREAKS THE FUCKING STARBOARD
                     return;
                 }
                 //Check if reaction is from author

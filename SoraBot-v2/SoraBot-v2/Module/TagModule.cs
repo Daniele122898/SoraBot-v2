@@ -10,7 +10,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class TagModule : InteractiveBase<SocketCommandContext>
+    public class TagModule : InteractiveBase<SocketCommandContext>, IDisposable
     {
         private TagService _tagService;
         private SoraContext _soraContext;
@@ -27,7 +27,7 @@ namespace SoraBot_v2.Module
             try
             {
                 var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
-
+                
                 if (guildDb.Tags.Count < 1)
                 {
                     await ReplyAsync("",
@@ -70,7 +70,6 @@ namespace SoraBot_v2.Module
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = tagList
                     };
-
                     await PagedReplyAsync(pmsg);
                 }
                 else
@@ -90,7 +89,6 @@ namespace SoraBot_v2.Module
                             Text = "Page 1/1"
                         }
                     };
-
                     await Context.Channel.SendMessageAsync("", embed: eb);
                 }
             }
@@ -172,6 +170,11 @@ namespace SoraBot_v2.Module
             var user = (SocketGuildUser) Context.User;
             bool admin = (user.GuildPermissions.Has(GuildPermission.Administrator) || Utility.IsSoraAdmin(user));
             await _tagService.RemoveTag(Context, _soraContext, tag, admin);
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

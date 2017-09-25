@@ -12,7 +12,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class MiscModule : ModuleBase<SocketCommandContext>
+    public class MiscModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         private SoraContext _soraContext;
 
@@ -135,6 +135,11 @@ namespace SoraBot_v2.Module
                           "Blank never loses.";
             });
             await ReplyAsync("", embed: eb);
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

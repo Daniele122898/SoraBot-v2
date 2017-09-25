@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -149,7 +150,6 @@ namespace SoraBot_v2
                 {
                     //create Context
                     var context = new SocketCommandContext(_client,message);
-                    
                     //Check essential perms, set send message to false here to prevent spam from normal failiure. 
                     //darwinism :P
                     if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
@@ -173,7 +173,8 @@ namespace SoraBot_v2
                         return;
                     
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
-    
+                    //LOG
+                    Logger.WriteRamLog(context);
                     if (!result.IsSuccess)
                     {
                         //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
