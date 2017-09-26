@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
 namespace SoraBot_v2.Services
 {
@@ -10,7 +14,31 @@ namespace SoraBot_v2.Services
     {
         private static readonly ConcurrentDictionary<string, Item> _cacheDict = new ConcurrentDictionary<string, Item>();
 
+        private static Timer _timer;
+
+        private const int CACHE_DELAY = 60;
+        
         public const string DISCORD_USER_MESSAGE = "discord::usermessage::";
+
+        public static void Initialize()
+        {
+            _timer = new Timer(ClearCache, null, TimeSpan.FromSeconds(CACHE_DELAY),
+                TimeSpan.FromSeconds(CACHE_DELAY));
+        }
+
+        private static void ClearCache(Object stateInfo)
+        {
+            Dictionary<string, Item> temp = new Dictionary<string, Item>(_cacheDict);
+            foreach (var item in temp)
+            {
+                //timeout is earlier or equal to value
+                if (item.Value.Timeout.CompareTo(DateTime.UtcNow) <= 0)
+                {
+                    //remove entry.
+                    _cacheDict.TryRemove(item.Key, out _);
+                }
+            }
+        }
 
         public static async Task<IUserMessage> GetUserMessage(ulong id, RequestOptions options = null)
         {

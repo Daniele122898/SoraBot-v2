@@ -89,7 +89,7 @@ namespace SoraBot_v2.Services
                             continue;
                         }
                         await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
-                            TimeSpan.FromDays(10));
+                            TimeSpan.FromHours(1));
                     }
                     await soraContext.SaveChangesAsync();
                 }
@@ -183,7 +183,7 @@ namespace SoraBot_v2.Services
                     //check if starpostedmsg == 0
                     if (starMsg.PostedMsgId != 0)
                     {
-                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
                     }
                 }
             }
@@ -237,7 +237,7 @@ namespace SoraBot_v2.Services
                     starMsg.IsPosted = false;
                 }
                 await soraContext.SaveChangesAsync();
-                await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
             }
         }
 

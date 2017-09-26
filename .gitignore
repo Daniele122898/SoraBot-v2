@@ -13,6 +13,7 @@
 *.dll
 *.opus
 *.mp3
+*.txt
 *.checksums
 *.properties
 

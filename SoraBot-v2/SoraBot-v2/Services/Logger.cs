@@ -6,7 +6,7 @@ namespace SoraBot_v2.Services
 {
     public static class Logger
     {
-        private const string FileName = "logs/RAMLogging.txt";
+        public const string RAMLog = "logs/RAMLogging.txt";
         private static long _lastRam;
         private const int MAX_JUMP = 20;
 
@@ -42,7 +42,7 @@ namespace SoraBot_v2.Services
             var jump = (mem - _lastRam)/1000000; //1000000 bytes are 1 MB
             //convert from bytes to MB check if its above 10 mb
             bool bigJump = ((jump) > MAX_JUMP);
-            File.AppendAllText(FileName, $"{(bigJump ? "!!! - " : "")}[{DateTime.UtcNow}] : RAM {FormatRamValue(mem):f2} {FormatRamUnit(mem)} JUMP: {jump} MB MESSAGE: {context.Message.Content}\n");
+            File.AppendAllText(RAMLog, $"{(bigJump ? "!!! - " : "")}[{DateTime.UtcNow}] : RAM {FormatRamValue(mem):f2} {FormatRamUnit(mem)} JUMP: {jump} MB MESSAGE: {context.Message.Content}\n");
             _lastRam = mem;
         }
     }

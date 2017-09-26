@@ -350,6 +350,13 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: eb);
         }
 
+        [Command("ram")]
+        [RequireOwner]
+        public async Task GetRam()
+        {
+            await Context.Channel.SendFileAsync(Logger.RAMLog);
+        }
+
         public void Dispose()
         {
             _soraContext.Dispose();

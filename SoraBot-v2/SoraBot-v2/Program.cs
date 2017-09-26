@@ -94,6 +94,9 @@ namespace SoraBot_v2
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
             
+            //INITIALIZE CACHE
+            CacheService.Initialize();
+            
             //Hang indefinitely
             await Task.Delay(-1);
         }
