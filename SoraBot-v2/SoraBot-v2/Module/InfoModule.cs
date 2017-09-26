@@ -15,7 +15,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class InfoModule : ModuleBase<SocketCommandContext>
+    public class InfoModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         private CommandHandler _commandHandler;
         private SoraContext _soraContext;
@@ -211,7 +211,6 @@ namespace SoraBot_v2.Module
                     val = "No Custom Emotes";
                 x.Value = val;
             });
-
             await ReplyAsync("", embed: eb);
 
         }
@@ -225,39 +224,37 @@ namespace SoraBot_v2.Module
         [Command("sys"), Alias("info"), Summary("Gives stats about Sora")]
         public async Task GetSysInfo()
         {
-            var proc = System.Diagnostics.Process.GetCurrentProcess();
+            var proc = Process.GetCurrentProcess();
 
-            Func<long, long> formatRamValue = d =>
+            long FormatRamValue(long d)
             {
-                while (d>1024)
+                while (d > 1000)
                 {
-                    d /= 1024;
+                    d /= 1000;
                 }
                 return d;
-            };
+            }
 
-            Func<long, string> formatRamUnit = d =>
+            string FormatRamUnit(long d)
             {
-                var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB"};
+                var units = new string[] {"B", "KB", "MB", "GB", "TB", "PB"};
                 var unitCount = 0;
-                while (d>1024)
+                while (d > 1000)
                 {
-                    d /= 1024;
+                    d /= 1000;
                     unitCount++;
                 }
                 return units[unitCount];
-            };
+            }
 
-            double VSZ = 0;
-            double RSS = 0;
             if (File.Exists($"/proc/{proc.Id}/statm"))
             {
                 var ramUsageInitial = File.ReadAllText($"/proc/{proc.Id}/statm");
                 var ramUsage = ramUsageInitial.Split(' ')[0];
-                VSZ = double.Parse(ramUsage);
+                var VSZ = double.Parse(ramUsage);
                 VSZ = VSZ * 4069 / 1048576;
                 ramUsage = ramUsageInitial.Split(' ')[1];
-                RSS = double.Parse(ramUsage);
+                var RSS = double.Parse(ramUsage);
                 RSS = RSS*4069 / 1048576;
             }
 
@@ -280,7 +277,7 @@ namespace SoraBot_v2.Module
                 x.Name = "Used RAM";
                 x.IsInline = true;
                 var mem = GC.GetTotalMemory(false);
-                x.Value = $"{formatRamValue(mem):f2} {formatRamUnit(mem)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}";
+                x.Value = $"{FormatRamValue(mem):f2} {FormatRamUnit(mem)} / {FormatRamValue(proc.WorkingSet64):f2} {FormatRamUnit(proc.WorkingSet64)}";
                 //$"{(proc.PagedMemorySize64 == 0 ? $"{RSS:f1} MB / {VSZ:f1} MB" : $"{formatRamValue(proc.PagedMemorySize64):f2} {formatRamUnit(proc.PagedMemorySize64)} / {formatRamValue(proc.WorkingSet64):f2} {formatRamUnit(proc.WorkingSet64)}")}\n" +
             });
             eb.AddField(x =>
@@ -351,6 +348,18 @@ namespace SoraBot_v2.Module
                 x.Value = $"[Click here to invite]({Utility.SORA_INVITE})";
             });
             await ReplyAsync("", embed: eb);
+        }
+
+        [Command("ram")]
+        [RequireOwner]
+        public async Task GetRam()
+        {
+            await Context.Channel.SendFileAsync(Logger.RAMLog);
+        }
+
+        public void Dispose()
+        {
+            _soraContext.Dispose();
         }
     }
 }

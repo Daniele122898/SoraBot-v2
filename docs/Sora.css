@@ -31,8 +31,8 @@ body {
 #background{
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://i.imgur.com/MSxLtRB.png");/*http://i.imgur.com/zQ0TbYP.jpg*/
     background-repeat: no-repeat;
-    background-size: 100%;
     background-position: top;
+    background-size: cover;
 }
 
 #invite{

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -7,7 +8,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class DynamicPrefixModule: ModuleBase<SocketCommandContext>
+    public class DynamicPrefixModule: ModuleBase<SocketCommandContext>, IDisposable
     {
         private DynamicPrefixService _prefixService;
         private SoraContext _soraContext;
@@ -43,6 +44,11 @@ namespace SoraBot_v2.Module
         public async Task CheckPrefix()
         {
             await _prefixService.ReturnGuildPrefix(Context, _soraContext);
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

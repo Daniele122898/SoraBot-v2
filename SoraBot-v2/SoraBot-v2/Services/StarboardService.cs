@@ -58,7 +58,7 @@ namespace SoraBot_v2.Services
                         var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                         if (starChannel == null)
                         {
-                            guildDb.StarChannelId = 0;
+                            //guildDb.StarChannelId = 0; //TODO TEMPORARILY DISABLED.
                             continue;
                         }
                         //CHECK PERMS
@@ -89,7 +89,7 @@ namespace SoraBot_v2.Services
                             continue;
                         }
                         await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
-                            TimeSpan.FromDays(10));
+                            TimeSpan.FromHours(1));
                     }
                     await soraContext.SaveChangesAsync();
                 }
@@ -123,8 +123,8 @@ namespace SoraBot_v2.Services
                     var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                     if (starChannel == null)
                     {
-                        guildDb.StarChannelId = 0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
-                        await soraContext.SaveChangesAsync();
+                        //guildDb.StarChannelId = 0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
+                        //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED DUE TO SOME ERROR
                         return;
                     }
                     //Check if reaction is from author
@@ -183,7 +183,7 @@ namespace SoraBot_v2.Services
                     //check if starpostedmsg == 0
                     if (starMsg.PostedMsgId != 0)
                     {
-                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
                     }
                 }
             }
@@ -211,8 +211,8 @@ namespace SoraBot_v2.Services
                 var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                 if (starChannel == null)
                 {
-                    guildDb.StarChannelId =0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
-                    await soraContext.SaveChangesAsync();
+                    //guildDb.StarChannelId =0; //Reset the channelID to 0 so in the future we dont have to save anything anymore :D
+                    //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED AS IT BREAKS THE FUCKING STARBOARD
                     return;
                 }
                 //Check if reaction is from author
@@ -237,7 +237,7 @@ namespace SoraBot_v2.Services
                     starMsg.IsPosted = false;
                 }
                 await soraContext.SaveChangesAsync();
-                await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromDays(10));
+                await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
             }
         }
 

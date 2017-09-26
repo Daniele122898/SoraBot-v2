@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class AfkModule : ModuleBase<SocketCommandContext>
+    public class AfkModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         private AfkService _afkService;
         private SoraContext _soraContext;
@@ -20,6 +21,11 @@ namespace SoraBot_v2.Module
         public async Task ToggleAFK([Summary("Message to deliver when you get mentioned"), Remainder]string msg = "")
         {
             await _afkService.ToggleAFK(Context, msg, _soraContext);
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }

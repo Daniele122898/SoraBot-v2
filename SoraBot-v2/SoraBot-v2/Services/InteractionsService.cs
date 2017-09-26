@@ -134,6 +134,7 @@ namespace SoraBot_v2.Services
             }
 
             await soraContext.SaveChangesAsync();
+            soraContext.Dispose();
         }
 
         public async Task CheckAffinity(SocketUser user, SocketCommandContext context, SoraContext soraContext)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -29,14 +30,14 @@ namespace SoraBot_v2
         private SelfAssignableRolesService _selfAssignableRolesService;
         private AnnouncementService _announcementService;
         private ModService _modService;
-        private GuildCountUpdaterService _guildCount;
+        private readonly GuildCountUpdaterService _guildCount;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
             //Notify discordbots that we joined a new guild :P
             try
             {
-                await _guildCount.UpdateCount();
+                await _guildCount.UpdateCount(_client.Guilds.Count);
             }
             catch (Exception e)
             {
@@ -109,6 +110,9 @@ namespace SoraBot_v2
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
+            
+            //count 
+            _guildCount.UpdateCount(_client.Guilds.Count);
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -116,7 +120,7 @@ namespace SoraBot_v2
             //notify discordbots
             try
             {
-                await _guildCount.UpdateCount();
+                await _guildCount.UpdateCount(_client.Guilds.Count);
             }
             catch (Exception e)
             {
@@ -149,7 +153,6 @@ namespace SoraBot_v2
                 {
                     //create Context
                     var context = new SocketCommandContext(_client,message);
-                    
                     //Check essential perms, set send message to false here to prevent spam from normal failiure. 
                     //darwinism :P
                     if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
@@ -173,7 +176,8 @@ namespace SoraBot_v2
                         return;
                     
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
-    
+                    //LOG
+                    Logger.WriteRamLog(context);
                     if (!result.IsSuccess)
                     {
                         //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");

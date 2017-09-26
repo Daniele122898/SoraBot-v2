@@ -10,7 +10,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class UtilityModule : ModuleBase<SocketCommandContext>
+    public class UtilityModule : ModuleBase<SocketCommandContext>, IDisposable
     {
         private SoraContext _soraContext;
         public UtilityModule(SoraContext soraContext)
@@ -63,6 +63,7 @@ namespace SoraBot_v2.Module
                 guildDb.IsDjRestricted = false;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
                 return;
             }
             //Restrict them
@@ -95,6 +96,11 @@ namespace SoraBot_v2.Module
             await _soraContext.SaveChangesAsync();
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], 
                 $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!": "!")}"));
+        }
+
+        public void Dispose()
+        {
+            _soraContext?.Dispose();
         }
     }
 }
