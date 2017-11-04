@@ -17,6 +17,8 @@
 *.checksums
 *.properties
 
+RAMLogging.txt
+
 /SoraBot-v2/SoraBot-v2/ProfileData
 /SoraMusic/target
 

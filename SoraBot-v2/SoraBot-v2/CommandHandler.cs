@@ -24,25 +24,25 @@ namespace SoraBot_v2
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly AfkService _afkService;
-        private EpService _epService;
+        //private EpService _epService;
         private StarboardService _starboardService;
         private readonly RatelimitingService _ratelimitingService;
         private SelfAssignableRolesService _selfAssignableRolesService;
         private AnnouncementService _announcementService;
         private ModService _modService;
-        private readonly GuildCountUpdaterService _guildCount;
+        //private readonly GuildCountUpdaterService _guildCount;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
             //Notify discordbots that we joined a new guild :P
-            try
+            /*try
             {
                 await _guildCount.UpdateCount(_client.Guilds.Count);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-            }
+            }*/
             using (var soraContext = _services.GetService<SoraContext>())
             {
                 var guild = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
@@ -82,25 +82,26 @@ namespace SoraBot_v2
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,EpService epService, 
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildCountUpdaterService)
+            ModService modService, GuildCountUpdaterService guildUpdate)
         {
             _client = client;
             _commands = commandService;
             _afkService = afkService;
-            _epService = epService;
+            //_epService = epService;
             _services = provider;
             _ratelimitingService = ratelimitingService;
             _starboardService = starboardService;
             _selfAssignableRolesService = selfService;
             _announcementService = announcementService;
             _modService = modService;
-            _guildCount = guildCountUpdaterService;
+            //_guildCount = guildUpdate;
+            
             
             _client.MessageReceived += HandleCommandsAsync;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
-            _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+            //_client.MessageReceived += _epService.IncreaseEpOnMessageReceive; TODO maybe this fixes DB issues
             _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
             _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
             _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
@@ -110,22 +111,19 @@ namespace SoraBot_v2
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
-            
-            //count 
-            _guildCount.UpdateCount(_client.Guilds.Count);
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
             //notify discordbots
-            try
+            /*try
             {
                 await _guildCount.UpdateCount(_client.Guilds.Count);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-            }
+            }*/
             await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
         }
 
@@ -140,7 +138,7 @@ namespace SoraBot_v2
             return HandleErrorAsync(logMessage);
         }
 
-        public async Task HandleCommandsAsync(SocketMessage m)
+        private async Task HandleCommandsAsync(SocketMessage m)
         {
             try
             {
@@ -149,45 +147,50 @@ namespace SoraBot_v2
                 if (message == null) return;
                 if (message.Author.IsBot) return;
                 if (!(message.Channel is SocketGuildChannel)) return;
-                using (var soraContext = _services.GetService<SoraContext>())
+                
+                //create Context
+                var context = new SocketCommandContext(_client,message);
+                //Check essential perms, set send message to false here to prevent spam from normal failiure. 
+                //darwinism :P
+                if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
+                    return;
+                
+                //Hand to AFK service
+                Task.Run(async () =>
                 {
-                    //create Context
-                    var context = new SocketCommandContext(_client,message);
-                    //Check essential perms, set send message to false here to prevent spam from normal failiure. 
-                    //darwinism :P
-                    if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
-                        return;
-                    
-                    //Hand to AFK service
-                    await _afkService.Client_MessageReceived(m, soraContext);
-                
-                    //prefix ends and command starts
-                    string prefix = "";//Utility.GetGuildPrefix(context.Guild, _soraContext);
-                    
-                   
-                    prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
-                    
-                    int argPos = prefix.Length-1;
-                    if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                        return;
-                
-                    //Check ratelimit
-                    if(await _ratelimitingService.IsRatelimited(message.Author.Id))
-                        return;
-                    
-                    var result = await _commands.ExecuteAsync(context, argPos, _services);
-                    //LOG
-                    Logger.WriteRamLog(context);
-                    if (!result.IsSuccess)
+                    using (var soraContext = _services.GetService<SoraContext>())
                     {
-                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                        await HandleErrorAsync(result, context);
+                        await _afkService.Client_MessageReceived(m, soraContext);
                     }
-                    else if (result.IsSuccess)
-                    {
-                        CommandsExecuted++;
-                        _ratelimitingService.RateLimitMain(context.User.Id);
-                    }
+                });
+                
+            
+                //prefix ends and command starts
+                string prefix = "-";//Utility.GetGuildPrefix(context.Guild, _soraContext);
+                
+               
+                //prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
+                
+                int argPos = prefix.Length-1;
+                if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+                    return;
+            
+                //Check ratelimit
+                if(await _ratelimitingService.IsRatelimited(message.Author.Id))
+                    return;
+                
+                var result = await _commands.ExecuteAsync(context, argPos, _services);
+                //LOG
+                //Logger.WriteRamLog(context);
+                if (!result.IsSuccess)
+                {
+                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                    await HandleErrorAsync(result, context);
+                }
+                else if (result.IsSuccess)
+                {
+                    CommandsExecuted++;
+                    _ratelimitingService.RateLimitMain(context.User.Id);
                 }
             }
             catch (Exception e)

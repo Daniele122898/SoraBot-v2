@@ -17,6 +17,13 @@ namespace SoraBot_v2.Module
         {
             _soraContext = soraContext;
         }
+
+        [Command("gc")]
+        [RequireOwner]
+        public async Task ForceGC()
+        {
+            GC.Collect();
+        }
         
         [Command("createAdmin"), Alias("ca", "createsoraadmin", "csa"), Summary("Creates the Admin Role for Sora!")]
         public async Task CreateSoraAdminRole()
