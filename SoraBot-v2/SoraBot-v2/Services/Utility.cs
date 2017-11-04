@@ -24,7 +24,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
-
+        public static int TOTAL_SHARDS;
         public static string SORA_VERSION = ConfigService.GetConfigData("version");
 
         public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";
@@ -337,7 +337,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "-", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "s!", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     //soraContext.SaveChangesThreadSafe();
                     soraContext.SaveChanges();
                     return addGuild.Entity;

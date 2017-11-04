@@ -156,17 +156,18 @@ namespace SoraBot_v2
                     return;
                 
                 //Hand to AFK service
+                /*
                 Task.Run(async () =>
                 {
                     using (var soraContext = _services.GetService<SoraContext>())
                     {
                         await _afkService.Client_MessageReceived(m, soraContext);
                     }
-                });
+                });*/
                 
             
                 //prefix ends and command starts
-                string prefix = "-";//Utility.GetGuildPrefix(context.Guild, _soraContext);
+                string prefix = "s!";//Utility.GetGuildPrefix(context.Guild, _soraContext);
                 
                
                 //prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
