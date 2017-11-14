@@ -327,6 +327,21 @@ namespace SoraBot_v2.Services
             var guildDb = GetOrCreateGuild(guild.Id, soraContext);
             return guildDb.Prefix;
         }
+        
+        // Faster version of GetGuildPrefix.
+        // Tries to allocate as few stuff as possible.
+        // We only want the prefix and nothing else.
+        public static string GetGuildPrefixFast(SoraContext context, ulong gid, string fallback)
+        {
+            var guild = context.Guilds.FirstOrDefault(x => x.GuildId == gid);
+            if (guild == null)
+            {
+                return fallback;
+            }
+
+            return guild.Prefix;
+        }
+
 
         public static Guild GetOrCreateGuild(ulong guildId, SoraContext soraContext)
         {
@@ -337,7 +352,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "s!", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
                     //soraContext.SaveChangesThreadSafe();
                     soraContext.SaveChanges();
                     return addGuild.Entity;
