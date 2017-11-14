@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -70,47 +71,49 @@ namespace SoraBot_v2.Services
             await soraContext.SaveChangesAsync();
         }
 
-        public async Task Client_MessageReceived(SocketMessage msg, SoraContext soraContext)
+        public async Task Client_MessageReceived(SocketMessage msg, IServiceProvider _services)
         {
             if (msg.Author.Id == 270931284489011202 || msg.Author.Id == 276304865934704642)
                 return;
             if (msg.MentionedUsers.Count < 1)
                 return;
-            
-            //Get GUILD PREFIX
-            string prefix = Utility.GetGuildPrefix(((SocketGuildChannel)msg.Channel).Guild, soraContext);
-            if (msg.Content.StartsWith(prefix))
-                return;
 
-            foreach (var user in msg.MentionedUsers)
+            using (var soraContext = _services.GetService<SoraContext>())
             {
-                var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
-                if(userDb.Afk == null)
-                    return; //if null none was set up
-                if (userDb.Afk.IsAfk)
+                //Get GUILD PREFIX
+                string prefix = Utility.GetGuildPrefixFast(soraContext, ((SocketGuildChannel)msg.Channel).Guild.Id, "$");
+                if (msg.Content.StartsWith(prefix))
+                    return;
+
+                foreach (var user in msg.MentionedUsers)
                 {
-                    //CAN TRIGGER AGAIN?
-                    if(userDb.Afk.TimeToTriggerAgain.CompareTo(DateTime.UtcNow)>0)
-                        return;
-
-                    userDb.Afk.TimeToTriggerAgain = DateTime.UtcNow.AddSeconds(SECONDS_AFTER_REPOST);
-
-                    var eb = new EmbedBuilder()
+                    var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
+                    if(userDb.Afk == null)
+                        return; //if null none was set up
+                    if (userDb.Afk.IsAfk)
                     {
-                        Color = Utility.PurpleEmbed,
-                        Author = new EmbedAuthorBuilder()
-                        {
-                            IconUrl = user.GetAvatarUrl()?? Utility.StandardDiscordAvatar,
-                            Name = $"{user.Username} is currently AFK"
-                        },
-                        Description = userDb.Afk.Message
-                    };
+                        //CAN TRIGGER AGAIN?
+                        if(userDb.Afk.TimeToTriggerAgain.CompareTo(DateTime.UtcNow)>0)
+                            return;
 
-                    await soraContext.SaveChangesAsync();
-                    await msg.Channel.SendMessageAsync("", embed: eb);
+                        userDb.Afk.TimeToTriggerAgain = DateTime.UtcNow.AddSeconds(SECONDS_AFTER_REPOST);
+
+                        var eb = new EmbedBuilder()
+                        {
+                            Color = Utility.PurpleEmbed,
+                            Author = new EmbedAuthorBuilder()
+                            {
+                                IconUrl = user.GetAvatarUrl()?? Utility.StandardDiscordAvatar,
+                                Name = $"{user.Username} is currently AFK"
+                            },
+                            Description = userDb.Afk.Message
+                        };
+
+                        await soraContext.SaveChangesAsync();
+                        await msg.Channel.SendMessageAsync("", embed: eb);
+                    }
                 }
             }
-
         }
     }
 }

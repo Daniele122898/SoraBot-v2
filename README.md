@@ -1,4 +1,4 @@
-[![](http://i.imgur.com/6gQhMSB.png)](http://git.argus.moe/serenity/SoraBot-v2)
+[![](http://i.imgur.com/6gQhMSB.png)](https://subl.pw/Sora/)
 [![](http://i.imgur.com/nImGi6j.png)](https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831)
 [![](http://i.imgur.com/qR7CGSV.png)](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)
 

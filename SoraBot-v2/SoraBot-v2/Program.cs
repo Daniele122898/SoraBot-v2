@@ -31,17 +31,35 @@ namespace SoraBot_v2
 
         public async Task MainAsync(string[] args)
         {
-            //setup discord client
-            _client = new DiscordSocketClient(new DiscordSocketConfig()
+            Console.WriteLine(args.Join(", "));
+            int shardId;
+            if (!int.TryParse(args[0], out shardId))
             {
-                LogLevel = LogSeverity.Info            
-            });
-
-            _client.Log += Log;
+                throw new Exception("INVALID SHARD ARGUMENT");
+            }
             
             //Setup config
             ConfigService.InitializeLoader();
             ConfigService.LoadConfig();
+            
+            if (!int.TryParse(ConfigService.GetConfigData("shardCount"), out Utility.TOTAL_SHARDS))
+            {
+                throw new Exception("INVALID SHARD COUNT");
+            }
+            
+            //setup discord client
+            _client = new DiscordSocketClient(new DiscordSocketConfig()
+            {
+                LogLevel = LogSeverity.Info,
+                AlwaysDownloadUsers = false,
+                MessageCacheSize = 0,
+                TotalShards = Utility.TOTAL_SHARDS,
+                ShardId = shardId
+            });
+
+            _client.Log += Log;
+            
+            
             
             //setup DB
             if (!ConfigService.GetConfig().TryGetValue("connectionString", out _connectionString))
@@ -51,6 +69,8 @@ namespace SoraBot_v2
                     Source = "COULDNT FIND CONNECTION STRING FOR DB!"
                 };
             }
+            
+            Utility.SORA_VERSION = ConfigService.GetConfigData("version");
 
             
             //_soraContext = new SoraContext(_connectionString);

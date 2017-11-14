@@ -17,6 +17,44 @@ namespace SoraBot_v2.Module
         {
             _soraContext = soraContext;
         }
+
+        [Command("gc")]
+        [RequireOwner]
+        public async Task ForceGC()
+        {
+            GC.Collect();
+        }
+
+        [Command("oginfo")]
+        [RequireOwner]
+        public async Task Guildinfo(ulong id)
+        {
+            var guild = Context.Client.GetGuild(id);
+            if (guild == null)
+            {
+                await ReplyAsync("Guild not found");
+                return;
+            }
+            await ReplyAsync($"```\n" +
+                             $"Guild Name: {guild.Name}\n" +
+                             $"User Count: {guild.Users.Count}\n" +
+                             $"Owner: {Utility.GiveUsernameDiscrimComb(guild.Owner)}\n" +
+                             $"```");
+        }
+        
+        [Command("leaveguild")]
+        [RequireOwner]
+        public async Task LeaveGuild(ulong id)
+        {
+            var guild = Context.Client.GetGuild(id);
+            if (guild == null)
+            {
+                await ReplyAsync("Guild not found");
+                return;
+            }
+            await guild.LeaveAsync();
+            await ReplyAsync("Left guild.");
+        }
         
         [Command("createAdmin"), Alias("ca", "createsoraadmin", "csa"), Summary("Creates the Admin Role for Sora!")]
         public async Task CreateSoraAdminRole()

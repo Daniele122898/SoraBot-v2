@@ -24,7 +24,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
-
+        public static int TOTAL_SHARDS;
         public static string SORA_VERSION = ConfigService.GetConfigData("version");
 
         public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";
@@ -327,6 +327,21 @@ namespace SoraBot_v2.Services
             var guildDb = GetOrCreateGuild(guild.Id, soraContext);
             return guildDb.Prefix;
         }
+        
+        // Faster version of GetGuildPrefix.
+        // Tries to allocate as few stuff as possible.
+        // We only want the prefix and nothing else.
+        public static string GetGuildPrefixFast(SoraContext context, ulong gid, string fallback)
+        {
+            var guild = context.Guilds.FirstOrDefault(x => x.GuildId == gid);
+            if (guild == null)
+            {
+                return fallback;
+            }
+
+            return guild.Prefix;
+        }
+
 
         public static Guild GetOrCreateGuild(ulong guildId, SoraContext soraContext)
         {

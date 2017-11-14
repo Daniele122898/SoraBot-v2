@@ -263,8 +263,9 @@ namespace SoraBot_v2.Module
                 Color = Utility.BlueInfoEmbed,
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
                 Footer = Utility.RequestedBy(Context.User),
-                Title = $"{Utility.SuccessLevelEmoji[3]} **Sora Sys Info**",
-                Url = "http://git.argus.moe/serenity/SoraBot-v2"
+                Title = $"{Utility.SuccessLevelEmoji[3]} **Sora Shard Sys Info**",
+                Url = "http://git.argus.moe/serenity/SoraBot-v2",
+                Description = "These stats are limited to the shard you're running on"
             };
             eb.AddField((x) =>
             {
@@ -334,6 +335,18 @@ namespace SoraBot_v2.Module
                 x.Name = "Sora Version";
                 x.IsInline = true;
                 x.Value = $"{Utility.SORA_VERSION}";
+            });
+            eb.AddField((x) =>
+            {
+                x.Name = "Shard Id";
+                x.IsInline = true;
+                x.Value = $"{Context.Client.ShardId}";
+            });
+            eb.AddField((x) =>
+            {
+                x.Name = "Total Shards";
+                x.IsInline = true;
+                x.Value = $"{Utility.TOTAL_SHARDS}";
             });
             eb.AddField((x) =>
             {

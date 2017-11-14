@@ -19,28 +19,35 @@ namespace SoraBot_v2.Services
 
         public static async Task SendMessage(string message)
         {
-            Console.WriteLine(message);
-            string message1 = message;
-            string message2 = "";
-            string message3 = "";
-
-            if (message.Length > 2000 && message.Length < 4000)
+            try
             {
-                message1 = message.Remove(2000);
-                message2 = message.Substring(2000);
-            }
-            else if (message.Length > 4000 && message.Length < 6000)
-            {
-                message1 = message.Remove(2000);
-                message2 = message.Substring(2000, 2000);
-                message3 = message.Substring(4000);
-            }
+                Console.WriteLine(message);
+                string message1 = message;
+                string message2 = "";
+                string message3 = "";
 
-            await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message1);
-            if (!string.IsNullOrWhiteSpace(message2))
-                await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message2);
-            if (!string.IsNullOrWhiteSpace(message3))
-                await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message3);
+                if (message.Length > 2000 && message.Length < 4000)
+                {
+                    message1 = message.Remove(2000);
+                    message2 = message.Substring(2000);
+                }
+                else if (message.Length > 4000 && message.Length < 6000)
+                {
+                    message1 = message.Remove(2000);
+                    message2 = message.Substring(2000, 2000);
+                    message3 = message.Substring(4000);
+                }
+
+                await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message1);
+                if (!string.IsNullOrWhiteSpace(message2))
+                    await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message2);
+                if (!string.IsNullOrWhiteSpace(message3))
+                    await (await _serenity.GetOrCreateDMChannelAsync()).SendMessageAsync(message3);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
     }

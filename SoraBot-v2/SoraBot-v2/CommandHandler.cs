@@ -82,7 +82,7 @@ namespace SoraBot_v2
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,EpService epService, 
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildCountUpdaterService)
+            ModService modService, GuildCountUpdaterService guildUpdate)
         {
             _client = client;
             _commands = commandService;
@@ -94,9 +94,11 @@ namespace SoraBot_v2
             _selfAssignableRolesService = selfService;
             _announcementService = announcementService;
             _modService = modService;
-            _guildCount = guildCountUpdaterService;
+            _guildCount = guildUpdate;
+            
             
             _client.MessageReceived += HandleCommandsAsync;
+            //_client.MessageReceived += _afkService.Client_MessageReceived;
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
@@ -110,9 +112,6 @@ namespace SoraBot_v2
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
-            
-            //count 
-            _guildCount.UpdateCount(_client.Guilds.Count);
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -139,54 +138,86 @@ namespace SoraBot_v2
         {
             return HandleErrorAsync(logMessage);
         }
-
-        public async Task HandleCommandsAsync(SocketMessage m)
+        
+        private async Task HandleCommandsAsync(SocketMessage m)
         {
             try
             {
+                // Stats and stuff.
                 MessagesReceived++;
-                var message = m as SocketUserMessage;
-                if (message == null) return;
+
+                // Make sure that this object can be a SocketUserMessage before processing anything.
+                // Then store the cast in "message" with C# magic.
+                // Exit otherwise.
+                if (!(m is SocketUserMessage message)) return;
+
+                // Only continue if the author is not a bot.
                 if (message.Author.IsBot) return;
-                if (!(message.Channel is SocketGuildChannel)) return;
+
+                // Try to extract and upcast the channel.
+                // Same logic as before but without SocketContext overhead.
+                if (!(m.Channel is SocketGuildChannel channel))
+                {
+                    // TODO: Should we mock the D.NET behaviour here?
+                    // They seem to assign null if the cast is not possible.
+                    // This needs more investigation.
+
+                    // For now we'll just exit here.
+                    return;
+                }
+                
+                // Check the permissions of this channel 
+                if (await Utility.CheckReadWritePerms(channel.Guild, channel, false) == false)
+                    return;
+                
+                // Check the ratelimit of this author
+                if (await _ratelimitingService.IsRatelimited(message.Author.Id))
+                    return;
+                
+                // Permissions are present and author is eligible for commands.
+                // Get a database instance. 
                 using (var soraContext = _services.GetService<SoraContext>())
                 {
-                    //create Context
-                    var context = new SocketCommandContext(_client,message);
-                    //Check essential perms, set send message to false here to prevent spam from normal failiure. 
-                    //darwinism :P
-                    if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
+                    //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
+                    _afkService.Client_MessageReceived(m, _services);
+
+                    // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
+                    // TODO: Move this into the config file
+                    var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");
+
+                    // Check if the message starts with the prefix or mention before doing anything else.
+                    // Also rely on stdlib stuff for that because #performance.
+                    if (!(message.Content.StartsWith(prefix) || message.Content.StartsWith($"<@{_client.CurrentUser.Id}>")))
                         return;
-                    
-                    //Hand to AFK service
-                    await _afkService.Client_MessageReceived(m, soraContext);
-                
-                    //prefix ends and command starts
-                    string prefix = "";//Utility.GetGuildPrefix(context.Guild, _soraContext);
-                    
-                   
-                    prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
-                    
-                    int argPos = prefix.Length-1;
-                    if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                        return;
-                
-                    //Check ratelimit
-                    if(await _ratelimitingService.IsRatelimited(message.Author.Id))
-                        return;
-                    
-                    var result = await _commands.ExecuteAsync(context, argPos, _services);
-                    //LOG
-                    Logger.WriteRamLog(context);
-                    if (!result.IsSuccess)
-                    {
-                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                        await HandleErrorAsync(result, context);
-                    }
-                    else if (result.IsSuccess)
+
+                    // Detection finished.
+                    // We know it's *very likely* a command for us.
+                    // It's safe to create a context now.
+                    var context = new SocketCommandContext(_client, message);
+
+                    // Also allocate a default guild if needed since we skipped that part earlier.
+                    Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
+
+                    // Extract command + args from message
+                    var cmdParams = message.Content.Substring(prefix.Length).Trim();
+
+                    // Handoff control to D.NET
+                    var result = await _commands.ExecuteAsync(
+                        context,
+                        cmdParams,
+                        _services
+                    );
+
+                    // Handle errors if needed          
+                    if (result.IsSuccess)
                     {
                         CommandsExecuted++;
                         _ratelimitingService.RateLimitMain(context.User.Id);
+                    }
+                    else
+                    {
+                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                        await HandleErrorAsync(result, context);
                     }
                 }
             }
@@ -195,6 +226,69 @@ namespace SoraBot_v2
                 Console.WriteLine(e);
             }
         }
+
+
+        /*private async Task HandleCommandsAsync(SocketMessage m)
+        {
+            try
+            {
+                MessagesReceived++;
+                var message = m as SocketUserMessage;
+                if (message == null) return;
+                if (message.Author.IsBot) return;
+                if (!(message.Channel is SocketGuildChannel)) return;
+                
+                //create Context
+                var context = new SocketCommandContext(_client,message);
+                //Check essential perms, set send message to false here to prevent spam from normal failiure. 
+                //darwinism :P
+                if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
+                    return;
+                
+                //Hand to AFK service
+                
+                Task.Run(async () =>
+                {
+                    using (var soraContext = _services.GetService<SoraContext>())
+                    {
+                        await _afkService.Client_MessageReceived(m, soraContext);
+                    }
+                });*
+                
+            
+                //prefix ends and command starts
+                string prefix = Utility.GetGuildPrefix(context.Guild, _soraContext);
+                
+               
+                //prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
+                
+                int argPos = prefix.Length-1;
+                if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+                    return;
+            
+                //Check ratelimit
+                if(await _ratelimitingService.IsRatelimited(message.Author.Id))
+                    return;
+                
+                var result = await _commands.ExecuteAsync(context, argPos, _services);
+                //LOG
+                //Logger.WriteRamLog(context);
+                if (!result.IsSuccess)
+                {
+                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                    await HandleErrorAsync(result, context);
+                }
+                else if (result.IsSuccess)
+                {
+                    CommandsExecuted++;
+                    _ratelimitingService.RateLimitMain(context.User.Id);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }*/
 
         private async Task HandleErrorAsync(IResult result, SocketCommandContext context, CommandException exception = null)
         {
