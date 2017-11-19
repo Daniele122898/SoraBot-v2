@@ -187,7 +187,9 @@ namespace SoraBot_v2
 
                     // Check if the message starts with the prefix or mention before doing anything else.
                     // Also rely on stdlib stuff for that because #performance.
-                    if (!(message.Content.StartsWith(prefix) || message.Content.StartsWith($"<@{_client.CurrentUser.Id}>")))
+                    
+                    int argPos = prefix.Length-1;
+                    if(!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                         return;
 
                     // Detection finished.
@@ -198,13 +200,10 @@ namespace SoraBot_v2
                     // Also allocate a default guild if needed since we skipped that part earlier.
                     Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
 
-                    // Extract command + args from message
-                    var cmdParams = message.Content.Substring(prefix.Length).Trim();
-
                     // Handoff control to D.NET
                     var result = await _commands.ExecuteAsync(
                         context,
-                        cmdParams,
+                        argPos,
                         _services
                     );
 
