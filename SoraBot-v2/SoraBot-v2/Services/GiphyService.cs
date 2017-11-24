@@ -15,7 +15,7 @@ namespace SoraBot_v2.Services
             var query = System.Net.WebUtility.UrlEncode(search);
             using (var http = new HttpClient())
             {
-                var response = await http.GetStringAsync($"http://api.giphy.com/v1/gifs/search?q={Uri.EscapeUriString(query)}&api_key=dc6zaTOxFJmzC").ConfigureAwait(false);
+                var response = await http.GetStringAsync($"http://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q={Uri.EscapeUriString(query)}").ConfigureAwait(false);
                 var data = JsonConvert.DeserializeObject<GiphyData>(response);
                 var r = new Random();
                 if (data.data.Count == 0)
@@ -26,10 +26,12 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 var randomData = data.data[r.Next(data.data.Count)];
+                int index = randomData.images.original.url.IndexOf('?');
+                string url = (index == -1 ? randomData.images.original.url:randomData.images.original.url.Remove(index));
                 var eb = new EmbedBuilder()
                 {
                     Color = Utility.PurpleEmbed,
-                    ImageUrl = randomData.images.original.url.Remove(randomData.images.original.url.IndexOf('?'))
+                    ImageUrl = url
                 };
                 await context.Channel.SendMessageAsync("", embed: eb);
             }
