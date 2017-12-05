@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Services;
+using System.IO;
 
 namespace SoraBot_v2.Data
 {
@@ -16,31 +17,32 @@ namespace SoraBot_v2.Data
         public DbSet<Interactions> Interactions { get; set; }
         public DbSet<Afk> Afk { get; set; }
         public DbSet<Reminders> Reminders { get; set; }
-        public DbSet<Marriage> Marriages{ get; set; }
+        public DbSet<Marriage> Marriages { get; set; }
         public DbSet<ShareCentral> ShareCentrals { get; set; }
         public DbSet<Voting> Votings { get; set; }
-        
+
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<StarMessage> StarMessages { get; set; }
         public DbSet<Role> SelfAssignableRoles { get; set; }
         public DbSet<ModCase> Cases { get; set; }
-        
+
         //Song list
         public DbSet<Song> Songs { get; set; }
 
-        private static volatile object _padlock = new Object();
+        //private static volatile object _padlock = new Object();
 
         /*
         public SoraContext(string con)
         {
             _connectionString =con;
         }*/
-        public SoraContext(DbContextOptions<SoraContext> options) : base(options)
+        public SoraContext() : base()
         {
-            
+
         }
+
         /*
         public SoraContext()
         {
@@ -51,7 +53,25 @@ namespace SoraBot_v2.Data
             optionsBuilder.UseMySql(@"");
         }*/
 
-        public int SaveChangesThreadSafe()
+
+        //// Added by Catherine Renelle - Memory Leak Fix (also improves migration code)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            string connectionString;
+
+            if (!ConfigService.GetConfig().TryGetValue("connectionString", out connectionString))
+            {
+                throw new IOException
+                {
+                    Source = "Couldn't find a \"connectionString\" entry in the config.json file. Exiting."
+                };
+            }
+
+            optionsBuilder.UseMySql(connectionString);
+        }
+        ////
+
+        /*public int SaveChangesThreadSafe()
         {
             lock (_padlock)
             {
@@ -93,7 +113,7 @@ namespace SoraBot_v2.Data
                     return this.SaveChanges();
                 }
             }
-        }
+        }*/
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -146,7 +166,7 @@ namespace SoraBot_v2.Data
                     .WithMany(p => p.Reminders)
                     .HasForeignKey(g => g.UserForeignId);
             });
-            
+
             modelBuilder.Entity<Marriage>(x =>
             {
                 x.HasOne(g => g.User)

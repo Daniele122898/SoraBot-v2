@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
 
         private const int MIN_LEVEL = 7;
         private const int NEED_FOR_EXTRA_PLAYLIST = 2;
-        
+
         public MusicShareService(InteractiveService interactiveService)
         {
             _interactive = interactiveService;
@@ -33,8 +33,8 @@ namespace SoraBot_v2.Services
         {
             _services = services;
         }
-        
-        //using (var soraContext = _services.GetService<SoraContext>())
+
+        //using (var soraContext = new SoraContext())
 
         public struct SearchStruct
         {
@@ -44,37 +44,37 @@ namespace SoraBot_v2.Services
 
         public async Task SearchPlaylistsByName(SocketCommandContext context, string name)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var resultsQueryable = from soraContextShareCentral in soraContext.ShareCentrals
-                    where EF.Functions.Like(soraContextShareCentral.Titel, $"%{name}%") && soraContextShareCentral.IsPrivate == false
-                    select soraContextShareCentral;
+                                       where EF.Functions.Like(soraContextShareCentral.Titel, $"%{name}%") && soraContextShareCentral.IsPrivate == false
+                                       select soraContextShareCentral;
 
                 var results = resultsQueryable.ToList();
-                
+
                 if (results.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered Title").WithDescription("You can use SQL to search => Where you don't know what to write add `%`"));
-                    return;  
+                    return;
                 }
 
-                var orderedList = results.OrderByDescending(x=> (x.Upvotes- x.Downvotes)).ToList();
-                
+                var orderedList = results.OrderByDescending(x => (x.Upvotes - x.Downvotes)).ToList();
+
                 await PaginateResult(context, "🔍 Search Results", orderedList);
             }
         }
 
         public async Task GetAllPlaylists(SocketCommandContext context)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
-                var orderedList = soraContext.ShareCentrals.Where(x=> x.IsPrivate == false).OrderByDescending(x => (x.Upvotes - x.Downvotes)).ToList();
+                var orderedList = soraContext.ShareCentrals.Where(x => x.IsPrivate == false).OrderByDescending(x => (x.Upvotes - x.Downvotes)).ToList();
                 if (orderedList.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "There are no shared playlists yet! Add one!"));
-                    return;  
+                    return;
                 }
 
                 await PaginateResult(context, "Best Playlists by voting", orderedList);
@@ -84,71 +84,71 @@ namespace SoraBot_v2.Services
         private async Task PaginateResult(SocketCommandContext context, string title, List<ShareCentral> orderedList)
         {
             List<string> playlistsString = new List<string>();
-                int pageAmount = (int) Math.Ceiling(orderedList.Count/7.0);
-                int addToJ = 0;
-                int amountLeft = orderedList.Count;
-                for (int i = 0; i < pageAmount; i++)
+            int pageAmount = (int)Math.Ceiling(orderedList.Count / 7.0);
+            int addToJ = 0;
+            int amountLeft = orderedList.Count;
+            for (int i = 0; i < pageAmount; i++)
+            {
+                string addToList = "";
+                for (int j = 0; j < (amountLeft > 7 ? 7 : amountLeft); j++)
                 {
-                    string addToList = "";
-                    for (int j = 0; j < (amountLeft > 7? 7: amountLeft); j++)
-                    {
-                        var sharedPlaylist = orderedList[j + addToJ];
-                        addToList += $"{(sharedPlaylist.IsPrivate ? "[P] " : "")}**[{sharedPlaylist.Titel}]({sharedPlaylist.ShareLink})**\nVotes: {sharedPlaylist.Upvotes} / {sharedPlaylist.Downvotes}  \tTags: {sharedPlaylist.Tags.Replace(";", " - ")}\n\n";
-                    }
-                    playlistsString.Add(addToList);
-                    amountLeft -= 7;
-                    addToJ += 7;
+                    var sharedPlaylist = orderedList[j + addToJ];
+                    addToList += $"{(sharedPlaylist.IsPrivate ? "[P] " : "")}**[{sharedPlaylist.Titel}]({sharedPlaylist.ShareLink})**\nVotes: {sharedPlaylist.Upvotes} / {sharedPlaylist.Downvotes}  \tTags: {sharedPlaylist.Tags.Replace(";", " - ")}\n\n";
                 }
-                if (pageAmount > 1)
+                playlistsString.Add(addToList);
+                amountLeft -= 7;
+                addToJ += 7;
+            }
+            if (pageAmount > 1)
+            {
+                var pmsg = new PaginatedMessage()
                 {
-                    var pmsg = new PaginatedMessage()
+                    Author = new EmbedAuthorBuilder()
                     {
-                        Author = new EmbedAuthorBuilder()
-                        {
-                            IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
-                            Name = context.User.Username
-                        },
-                        Color = Utility.PurpleEmbed,
-                        Title = title,
-                        Options = new PaginatedAppearanceOptions()
-                        {
-                            DisplayInformationIcon = false,
-                            Timeout = TimeSpan.FromSeconds(60),
-                            InfoTimeout = TimeSpan.FromSeconds(60)
-                        },
-                        Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
-                        Pages = playlistsString
-                    };
-                    
-                    Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
-                    criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
+                        IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                        Name = context.User.Username
+                    },
+                    Color = Utility.PurpleEmbed,
+                    Title = title,
+                    Options = new PaginatedAppearanceOptions()
+                    {
+                        DisplayInformationIcon = false,
+                        Timeout = TimeSpan.FromSeconds(60),
+                        InfoTimeout = TimeSpan.FromSeconds(60)
+                    },
+                    Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
+                    Pages = playlistsString
+                };
 
-                    await _interactive.SendPaginatedMessageAsync(context, pmsg, criteria);
-                }
-                else
+                Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
+                criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
+
+                await _interactive.SendPaginatedMessageAsync(context, pmsg, criteria);
+            }
+            else
+            {
+                var eb = new EmbedBuilder()
                 {
-                    var eb = new EmbedBuilder()
+                    Author = new EmbedAuthorBuilder()
                     {
-                        Author = new EmbedAuthorBuilder()
-                        {
-                            IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
-                            Name = context.User.Username
-                        },
-                        Color = Utility.PurpleEmbed,
-                        Title = title,
-                        Description = playlistsString[0],
-                        Footer = new EmbedFooterBuilder()
-                        {
-                            Text = "Page 1/1"
-                        }
-                    };
-                    await context.Channel.SendMessageAsync("", embed: eb);
-                }
+                        IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                        Name = context.User.Username
+                    },
+                    Color = Utility.PurpleEmbed,
+                    Title = title,
+                    Description = playlistsString[0],
+                    Footer = new EmbedFooterBuilder()
+                    {
+                        Text = "Page 1/1"
+                    }
+                };
+                await context.Channel.SendMessageAsync("", embed: eb);
+            }
         }
 
         public async Task ShowAllMySharedPlaylists(SocketCommandContext context)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 if (userDb == null || userDb.ShareCentrals.Count == 0)
@@ -166,7 +166,7 @@ namespace SoraBot_v2.Services
 
         public async Task RemovePlaylist(SocketCommandContext context, string url)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 if (userDb == null || userDb.ShareCentrals.Count == 0)
@@ -201,7 +201,7 @@ namespace SoraBot_v2.Services
 
         public async Task VotePlaylist(SocketCommandContext context, string url, bool vote)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 if (userDb == null || EpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
@@ -213,7 +213,7 @@ namespace SoraBot_v2.Services
                 }
 
                 var playlistDb = soraContext.ShareCentrals.FirstOrDefault(x => x.ShareLink == url);
-                
+
                 if (playlistDb == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
@@ -221,7 +221,7 @@ namespace SoraBot_v2.Services
                             "There is no shared playlist with that Url!"));
                     return;
                 }
-                
+
                 //First check if it was ever voted on
                 var voteDb = soraContext.Votings.FirstOrDefault(x => x.ShareLink == url && x.VoterId == context.User.Id);
                 if (voteDb == null)
@@ -265,7 +265,7 @@ namespace SoraBot_v2.Services
                     {
                         playlistDb.Downvotes--;
                         playlistDb.Upvotes++;
-                        
+
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                                 "Successfully updated vote to UPVOTED!"));
@@ -274,7 +274,7 @@ namespace SoraBot_v2.Services
                     {
                         playlistDb.Downvotes++;
                         playlistDb.Upvotes--;
-                        
+
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                                 "Successfully updated vote to DOWNVOTED!"));
@@ -283,22 +283,22 @@ namespace SoraBot_v2.Services
                 }
             }
         }
-        
+
         public async Task SearchPlaylistByTags(SocketCommandContext context, string tags)
         {
             string[] seperatedTags;
             if (tags.IndexOf(";", StringComparison.Ordinal) < 1)
             {
-                seperatedTags = new[] {tags};
+                seperatedTags = new[] { tags };
             }
             else
             {
                 seperatedTags = tags.Split(";");
             }
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 List<SearchStruct> searchResult = new List<SearchStruct>();
-                foreach (var playlist in soraContext.ShareCentrals.Where(x=> x.IsPrivate == false))
+                foreach (var playlist in soraContext.ShareCentrals.Where(x => x.IsPrivate == false))
                 {
                     int matches = 0;
                     string[] playlistTags = playlist.Tags.Split(";");
@@ -324,18 +324,18 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered tags"));
-                    return;  
+                    return;
                 }
 
-                var orderedList = searchResult.OrderByDescending(x => x.Matches).ThenByDescending(x=> (x.SharedPlaylist.Upvotes - x.SharedPlaylist.Downvotes)).ToList(); 
+                var orderedList = searchResult.OrderByDescending(x => x.Matches).ThenByDescending(x => (x.SharedPlaylist.Upvotes - x.SharedPlaylist.Downvotes)).ToList();
                 List<string> playlistsString = new List<string>();
-                int pageAmount = (int) Math.Ceiling(orderedList.Count/7.0);
+                int pageAmount = (int)Math.Ceiling(orderedList.Count / 7.0);
                 int addToJ = 0;
                 int amountLeft = orderedList.Count;
                 for (int i = 0; i < pageAmount; i++)
                 {
                     string addToList = "";
-                    for (int j = 0; j < (amountLeft > 7? 7: amountLeft); j++)
+                    for (int j = 0; j < (amountLeft > 7 ? 7 : amountLeft); j++)
                     {
                         var sharedPlaylist = orderedList[j + addToJ].SharedPlaylist;
                         addToList += $"**[{sharedPlaylist.Titel}]({sharedPlaylist.ShareLink})**\nVotes: {sharedPlaylist.Upvotes} / {sharedPlaylist.Downvotes}  \tTags: {sharedPlaylist.Tags.Replace(";", " - ")}\n\n";
@@ -364,7 +364,7 @@ namespace SoraBot_v2.Services
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = playlistsString
                     };
-                    
+
                     Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
                     criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
 
@@ -394,21 +394,21 @@ namespace SoraBot_v2.Services
 
         public async Task SetPrivate(SocketCommandContext context, string url)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                if(userDb == null || userDb.ShareCentrals.Count == 0)
+                if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
-                    return;  
+                    return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == url);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
-                    return;  
+                    return;
                 }
                 if (shareResult.IsPrivate)
                 {
@@ -416,34 +416,34 @@ namespace SoraBot_v2.Services
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PRIVATE"));
                     return;
                 }
-                
+
                 shareResult.IsPrivate = true;
-                
+
                 await soraContext.SaveChangesAsync();
 
                 await context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PRIVATE")); 
-  
+                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PRIVATE"));
+
             }
         }
 
         public async Task SetPublic(SocketCommandContext context, string url)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                if(userDb == null || userDb.ShareCentrals.Count == 0)
+                if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
-                    return;  
+                    return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == url);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
-                    return;  
+                    return;
                 }
                 if (!shareResult.IsPrivate)
                 {
@@ -451,40 +451,40 @@ namespace SoraBot_v2.Services
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PUBLIC"));
                     return;
                 }
-                
+
                 shareResult.IsPrivate = false;
-                
+
                 await soraContext.SaveChangesAsync();
 
                 await context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PUBLIC")); 
+                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PUBLIC"));
             }
         }
 
-       
+
         public async Task UpdateEntry(SocketCommandContext context, string shareUrl, string title, string tags)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                if(userDb == null || userDb.ShareCentrals.Count == 0)
+                if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
-                    return;  
+                    return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == shareUrl);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
-                    return;  
+                    return;
                 }
-                
+
                 string[] seperatedTags;
                 if (tags.IndexOf(";", StringComparison.Ordinal) < 1)
                 {
-                    seperatedTags = new[] {tags};
+                    seperatedTags = new[] { tags };
                 }
                 else
                 {
@@ -494,9 +494,9 @@ namespace SoraBot_v2.Services
                 foreach (var tag in seperatedTags)
                 {
                     string finalTag = tag;
-                    if(finalTag.Contains(";"))
-                        finalTag =finalTag.Replace(";", "");
-                    if(!string.IsNullOrWhiteSpace(finalTag))
+                    if (finalTag.Contains(";"))
+                        finalTag = finalTag.Replace(";", "");
+                    if (!string.IsNullOrWhiteSpace(finalTag))
                         betterTags.Add(finalTag.Trim());
                 }
                 if (betterTags.Count < 1)
@@ -513,7 +513,7 @@ namespace SoraBot_v2.Services
                             "Please dont exceed 10 tags!"));
                     return;
                 }
-                
+
                 string joinedTags = String.Join(";", betterTags);
 
                 var eb = new EmbedBuilder()
@@ -564,7 +564,7 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes! Discarded changes"));
                 }
-                
+
             }
         }
 
@@ -572,42 +572,42 @@ namespace SoraBot_v2.Services
         {
             if (context.User.Id == Utility.OWNER_ID)//backdoor so i can add as many as i want
                 return true;
-            
+
             int level = EpService.CalculateLevel(userDb.Exp);
-            int amountGranted = (int) Math.Floor((double) ((level - (MIN_LEVEL - NEED_FOR_EXTRA_PLAYLIST)) / NEED_FOR_EXTRA_PLAYLIST));
+            int amountGranted = (int)Math.Floor((double)((level - (MIN_LEVEL - NEED_FOR_EXTRA_PLAYLIST)) / NEED_FOR_EXTRA_PLAYLIST));
             int amountLeft = amountGranted - userDb.ShareCentrals.Count;
-            
+
             if (amountLeft > 0)
                 return true;
-            
+
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You reached your playlist limit. You gain another slot every 2 levels!"));
             return false;
         }
 
-        
+
         public async Task SharePlaylist(SocketCommandContext context, string shareUrl, string title, string tags, bool isPrivate)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 if (userDb == null || EpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least lvl {MIN_LEVEL} to share playlists!"));
-                    return;  
+                    return;
                 }
-                
+
                 if (await CanAddNewPlaylist(context, userDb) == false)
                     return;
-                    
+
                 if (!shareUrl.StartsWith("https://hastebin.com/"))
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "The link must be a valid hastebin link!"));
                     return;
                 }
-            
+
                 if (!shareUrl.EndsWith(".sora") && !shareUrl.EndsWith(".fredboat"))
                 {
                     await context.Channel.SendMessageAsync("", embed:
@@ -631,7 +631,7 @@ namespace SoraBot_v2.Services
                 string[] seperatedTags;
                 if (tags.IndexOf(";", StringComparison.Ordinal) < 1)
                 {
-                    seperatedTags = new[] {tags};
+                    seperatedTags = new[] { tags };
                 }
                 else
                 {
@@ -641,9 +641,9 @@ namespace SoraBot_v2.Services
                 foreach (var tag in seperatedTags)
                 {
                     string finalTag = tag;
-                    if(finalTag.Contains(";"))
-                        finalTag =finalTag.Replace(";", "");
-                    if(!string.IsNullOrWhiteSpace(finalTag))
+                    if (finalTag.Contains(";"))
+                        finalTag = finalTag.Replace(";", "");
+                    if (!string.IsNullOrWhiteSpace(finalTag))
                         betterTags.Add(finalTag.Trim());
                 }
                 if (betterTags.Count < 1)
@@ -690,7 +690,7 @@ namespace SoraBot_v2.Services
                 {
                     x.IsInline = true;
                     x.Name = "Is Private?";
-                    x.Value = $"{(isPrivate ? "Yes": "No")}";
+                    x.Value = $"{(isPrivate ? "Yes" : "No")}";
                 });
 
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
@@ -720,7 +720,7 @@ namespace SoraBot_v2.Services
                     });
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully {(isPrivate ? "saved": "shared")} playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"));
+                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully {(isPrivate ? "saved" : "shared")} playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"));
                 }
                 else
                 {

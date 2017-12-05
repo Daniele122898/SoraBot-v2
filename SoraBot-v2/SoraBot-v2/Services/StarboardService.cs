@@ -22,17 +22,17 @@ namespace SoraBot_v2.Services
         {
             "⭐", "🌟", "🌠"
         };*/
-        
+
         private readonly DiscordSocketClient _client;
         private IServiceProvider _services;
         //private Timer _timer;
-        
-        
+
+
         public StarboardService(DiscordSocketClient client)
         {
             _client = client;
         }
-        
+
         public async Task InitializeAsync(IServiceProvider services)
         {
             _services = services;
@@ -43,17 +43,17 @@ namespace SoraBot_v2.Services
         {
             try
             {
-                using (SoraContext soraContext = _services.GetService<SoraContext>())
+                using (SoraContext soraContext = new SoraContext())
                 {
                     var starMessages = soraContext.StarMessages.ToList();
-                    
+
                     foreach (var starMessage in starMessages)
                     {
                         var guild = _client.GetGuild(starMessage.GuildForeignId);
                         if (guild == null)
                             continue;
                         var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
-                        if(guildDb.StarChannelId == 0)
+                        if (guildDb.StarChannelId == 0)
                             continue;
                         var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                         if (starChannel == null)
@@ -62,7 +62,7 @@ namespace SoraBot_v2.Services
                             continue;
                         }
                         //CHECK PERMS
-                        if(await Utility.CheckReadWritePerms(guild, starChannel) == false)
+                        if (await Utility.CheckReadWritePerms(guild, starChannel) == false)
                             continue;
                         //GET MESSAGE
                         var starMsg = await CacheService.GetUserMessage(starMessage.PostedMsgId);
@@ -70,9 +70,9 @@ namespace SoraBot_v2.Services
                         if (starMsg == null)
                             continue;
                         int amount;
-                        if(!int.TryParse(starMsg.Content.Substring(0,starMsg.Content.IndexOf(" ", StringComparison.Ordinal)).Replace("**", ""), out amount))
+                        if (!int.TryParse(starMsg.Content.Substring(0, starMsg.Content.IndexOf(" ", StringComparison.Ordinal)).Replace("**", ""), out amount))
                             continue;
-                        if(amount == starMessage.StarCount)
+                        if (amount == starMessage.StarCount)
                             continue;
                         //star amount did change and message got modified so update cache
                         try
@@ -99,26 +99,26 @@ namespace SoraBot_v2.Services
                 await SentryService.SendMessage(e.ToString());
             }
         }
-        
+
         public async Task ClientOnReactionAdded(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
         {
             try
             {
                 //Reaction doesn't match a star
-                if(!reaction.Emote.Name.Equals("⭐"))
+                if (!reaction.Emote.Name.Equals("⭐"))
                     return;
                 //get Message
                 var msg = await cacheable.GetOrDownloadAsync();
                 //Dont do anything if the msg originates from a bot
-                if(msg.Author.IsBot)
+                if (msg.Author.IsBot)
                     return;
                 //Reaction was a star
-                using (SoraContext soraContext = _services.GetService<SoraContext>())
+                using (SoraContext soraContext = new SoraContext())
                 {
-                    var guild = ((SocketGuildChannel) socketMessageChannel).Guild;   
+                    var guild = ((SocketGuildChannel)socketMessageChannel).Guild;
                     var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                     //Either the starboard wasn't set up or the channel doesnt exist anymore.
-                    if(guildDb.StarChannelId == 0)
+                    if (guildDb.StarChannelId == 0)
                         return;
                     var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
                     if (starChannel == null)
@@ -128,11 +128,11 @@ namespace SoraBot_v2.Services
                         return;
                     }
                     //Check if reaction is from author
-                    if(msg.Author.Id == reaction.UserId)
+                    if (msg.Author.Id == reaction.UserId)
                         return;
                     //check if it was added once before and if it was added too many times!
-                    var starMsg = guildDb.StarMessages.FirstOrDefault(x=> x.MessageId == msg.Id);
-                    if(starMsg != null &&  starMsg.HitZeroCount >=3)
+                    var starMsg = guildDb.StarMessages.FirstOrDefault(x => x.MessageId == msg.Id);
+                    if (starMsg != null && starMsg.HitZeroCount >= 3)
                     {
                         return;
                     }
@@ -150,19 +150,19 @@ namespace SoraBot_v2.Services
                         };
                         wasNull = true;
                     }
-                   
+
                     //Add star
                     starMsg.StarCount++;
                     //Check if its enough to post
                     if (starMsg.StarCount >= guildDb.StarMinimum && !starMsg.IsPosted)
                     {
                         //POST
-                        starMsg.PostedMsgId =  await PostStarMessage(starChannel, msg);
+                        starMsg.PostedMsgId = await PostStarMessage(starChannel, msg);
                         if (starMsg.PostedMsgId == 0)
                         {
                             try
                             {
-                                await socketMessageChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                                await socketMessageChannel.SendMessageAsync("", embed: Utility.ResultFeedback(
                                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified"));
                             }
                             catch (Exception e)
@@ -177,7 +177,7 @@ namespace SoraBot_v2.Services
                     }
 
                     //save changes made
-                    if(wasNull)
+                    if (wasNull)
                         guildDb.StarMessages.Add(starMsg);
                     await soraContext.SaveChangesAsync();
                     //check if starpostedmsg == 0
@@ -192,18 +192,18 @@ namespace SoraBot_v2.Services
                 await SentryService.SendMessage(e.ToString());
             }
         }
-        
-        
+
+
         public async Task ClientOnReactionRemoved(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
         {
             //Reaction doesn't match a star
-            if(!reaction.Emote.Name.Equals("⭐"))
+            if (!reaction.Emote.Name.Equals("⭐"))
                 return;
             //get Message
             var msg = await cacheable.GetOrDownloadAsync();
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
-                var guild = ((SocketGuildChannel) socketMessageChannel).Guild;
+                var guild = ((SocketGuildChannel)socketMessageChannel).Guild;
                 var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 //Either the starboard wasn't set up or the channel doesnt exist anymore.
                 if (guildDb.StarChannelId == 0)
@@ -300,7 +300,7 @@ namespace SoraBot_v2.Services
                     Name = Utility.GiveUsernameDiscrimComb(msg.Author as SocketUser)
                 },
                 Timestamp = DateTime.Now,
-                Description = (attachMent ? $"{messageContent}\n{attachmentUrls}": messageContent)
+                Description = (attachMent ? $"{messageContent}\n{attachmentUrls}" : messageContent)
             };
             if (picAttachment)
             {
@@ -313,7 +313,7 @@ namespace SoraBot_v2.Services
             }
             catch (Exception e)
             {
-                await SentryService.SendMessage("STARBOARD ERROR\n"+e);
+                await SentryService.SendMessage("STARBOARD ERROR\n" + e);
             }
             return 0;
         }

@@ -19,7 +19,7 @@ namespace SoraBot_v2.Services
     {
         private readonly InteractiveService _interactive;
         private IServiceProvider _services;
-        
+
         private const int MARRIAGE_SCALE = 10;
 
         public MarriageService(InteractiveService interactiveService)
@@ -34,7 +34,7 @@ namespace SoraBot_v2.Services
 
         public async Task CheckLimit(SocketCommandContext context, SocketUser user)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(user.Id, soraContext);
                 if (userDb == null)
@@ -44,7 +44,7 @@ namespace SoraBot_v2.Services
                             $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of 1. Married to 0 users"));
                     return;
                 }
-                int marryLimit = ((int) (Math.Floor((double) (EpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
+                int marryLimit = ((int)(Math.Floor((double)(EpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
 
                 await context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
@@ -54,7 +54,7 @@ namespace SoraBot_v2.Services
 
         public async Task ShowMarriages(SocketCommandContext context, SocketUser user)
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(user.Id, _soraContext);
                 if (userDb == null || userDb.Marriages.Count == 0)
@@ -91,7 +91,7 @@ namespace SoraBot_v2.Services
 
         public async Task Divorce(SocketCommandContext context, ulong Id)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 if (userDb == null || userDb.Marriages.Count == 0)
@@ -134,19 +134,19 @@ namespace SoraBot_v2.Services
             //Check if its urself
             if (user.Id == context.User.Id)
             {
-                await context.Channel.SendMessageAsync("", embed: 
-                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], 
+                await context.Channel.SendMessageAsync("", embed:
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         $"You can't and shouldn't marry yourself ;_;"));
-                return; 
+                return;
             }
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var requestorDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 var askedDb = Utility.GetOrCreateUser(user.Id, soraContext);
                 int allowedMarriagesRequestor =
-                    ((int) (Math.Floor((double) (EpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
+                    ((int)(Math.Floor((double)(EpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
                 int allowedMarriagesAsked =
-                    ((int) (Math.Floor((double) (EpService.CalculateLevel(askedDb.Exp) / 10)))) + 1;
+                    ((int)(Math.Floor((double)(EpService.CalculateLevel(askedDb.Exp) / 10)))) + 1;
                 //check both limits
                 if (requestorDb.Marriages.Count >= allowedMarriagesRequestor)
                 {
@@ -178,7 +178,7 @@ namespace SoraBot_v2.Services
 
                 Criteria<SocketMessage> criteria = new Criteria<SocketMessage>();
                 criteria.AddCriterion(new EnsureFromUserInChannel(user.Id, context.Channel.Id));
-                
+
                 var response = await _interactive.NextMessageAsync(context, criteria, TimeSpan.FromSeconds(45));
                 if (response == null)
                 {
@@ -212,10 +212,10 @@ namespace SoraBot_v2.Services
                 });
                 await soraContext.SaveChangesAsync();
             }
-            await context.Channel.SendMessageAsync("", embed: 
-                Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], 
+            await context.Channel.SendMessageAsync("", embed:
+                Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
                     $"You are now married 💑").WithImageUrl("https://media.giphy.com/media/iQ5rGja9wWB9K/giphy.gif"));
         }
-        
+
     }
 }
