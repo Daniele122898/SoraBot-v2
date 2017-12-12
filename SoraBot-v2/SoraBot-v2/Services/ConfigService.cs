@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
             {
                 throw new IOException("COULDN'T FIND AND LOAD CONFIG FILE!");
             }
-            
+
             using (StreamReader sr = File.OpenText("config.json"))
             using (JsonReader reader = new JsonTextReader(sr))
             {
@@ -40,6 +40,10 @@ namespace SoraBot_v2.Services
 
         public static ConcurrentDictionary<string, string> GetConfig()
         {
+            //// added by Catherine Renelle - Memory Leak Fix
+            if (_configDict.IsEmpty)
+                LoadConfig();
+
             return _configDict;
         }
     }

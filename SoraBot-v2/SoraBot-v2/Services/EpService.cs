@@ -30,7 +30,7 @@ namespace SoraBot_v2.Services
         {
             _client = client;
         }
-        
+
         public void Initialize(IServiceProvider services)
         {
             _services = services;
@@ -38,7 +38,7 @@ namespace SoraBot_v2.Services
 
         public async Task ToggleEpGain(SocketCommandContext context)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 userDb.Notified = !userDb.Notified;
@@ -48,9 +48,9 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You will now be notified on level up!"));
                     return;
-                }  
+                }
             }
-            
+
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     "You will NOT be notified on level up!"));
@@ -58,7 +58,7 @@ namespace SoraBot_v2.Services
 
         public async Task RemoveBg(SocketCommandContext context)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 if (!userDb.HasBg)
@@ -82,7 +82,7 @@ namespace SoraBot_v2.Services
 
         public async Task SetCustomBg(string url, SocketCommandContext context)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 int userLevel = CalculateLevel(userDb.Exp);
@@ -164,7 +164,7 @@ namespace SoraBot_v2.Services
 
         public async Task DrawProfileCard(SocketCommandContext context, SocketUser user)
         {
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(user.Id, soraContext);
 
@@ -176,11 +176,11 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 int userLevel;
-                using (var soraContextTemp = _services.GetService<SoraContext>())
+                using (var soraContextTemp = new SoraContext())
                 {
                     var requesterDb = Utility.GetOrCreateUser(context.User.Id, soraContextTemp);
 
-                    userLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
+                    userLevel = (int)Math.Round(0.15F * Math.Sqrt(userDb.Exp));
                     //Check for cooldown!
                     if (requesterDb.ShowProfileCardAgain.CompareTo(DateTime.UtcNow) < 0)
                     {
@@ -207,7 +207,7 @@ namespace SoraBot_v2.Services
 
                 using (var client = new HttpClient())
                 using (var request = new HttpRequestMessage(HttpMethod.Get, requestUri))
-                using (Stream contentStream = await(await client.SendAsync(request)).Content.ReadAsStreamAsync(),
+                using (Stream contentStream = await (await client.SendAsync(request)).Content.ReadAsStreamAsync(),
                     stream = new FileStream($"ProfileData/{user.Id}Avatar.png", FileMode.Create, FileAccess.Write,
                         FileShare.None, 3145728, true))
                 {
@@ -236,16 +236,16 @@ namespace SoraBot_v2.Services
                 //draw profile image
                 if (userDb.HasBg)
                 {
-                         ProfileImageProcessing.GenerateProfileWithBg($"ProfileData/{user.Id}Avatar.png",
-                        $"ProfileData/{user.Id}BGF.png", username, rank, userLevel, (int) userDb.Exp,
-                        $"ProfileData/{user.Id}.png");
+                    ProfileImageProcessing.GenerateProfileWithBg($"ProfileData/{user.Id}Avatar.png",
+                   $"ProfileData/{user.Id}BGF.png", username, rank, userLevel, (int)userDb.Exp,
+                   $"ProfileData/{user.Id}.png");
                 }
                 else
                 {
                     try
                     {
-                             ProfileImageProcessing.GenerateProfile($"ProfileData/{user.Id}Avatar.png", username, rank,
-                            userLevel, (int) userDb.Exp, $"ProfileData/{user.Id}.png");
+                        ProfileImageProcessing.GenerateProfile($"ProfileData/{user.Id}Avatar.png", username, rank,
+                       userLevel, (int)userDb.Exp, $"ProfileData/{user.Id}.png");
 
                     }
                     catch (Exception e)
@@ -292,10 +292,10 @@ namespace SoraBot_v2.Services
                 Footer = Utility.RequestedBy(context.User),
                 ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar
             };
-            
+
             //Feed list
             //GET RANK
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 List<User> users = new List<User>();
                 foreach (var guildUser in context.Guild.Users)
@@ -341,15 +341,15 @@ namespace SoraBot_v2.Services
                 ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar
             };
             //Feed list
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var sortedUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
-                var sortedShort = sortedUsers.Take((sortedUsers.Count < 50? sortedUsers.Count : 50)).ToList();
+                var sortedShort = sortedUsers.Take((sortedUsers.Count < 50 ? sortedUsers.Count : 50)).ToList();
                 List<User> remove = new List<User>();
                 foreach (User userT in sortedShort)
                 {
                     var user = _client.GetUser(userT.UserId);
-                    if(user == null)
+                    if (user == null)
                         remove.Add(userT);
                 }
                 foreach (var user in remove)
@@ -357,7 +357,7 @@ namespace SoraBot_v2.Services
                     sortedShort.Remove(user);
                     sortedUsers.Remove(user);
                 }
-                for (int index = 0; index < (sortedShort.Count <10? sortedShort.Count : 10); index++)
+                for (int index = 0; index < (sortedShort.Count < 10 ? sortedShort.Count : 10); index++)
                 {
                     var user = _client.GetUser(sortedShort[index].UserId);
                     if (user == null)
@@ -369,7 +369,7 @@ namespace SoraBot_v2.Services
                     {
                         x.IsInline = false;
                         x.Name =
-                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}"; 
+                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}";
                         x.Value =
                             $"Lvl. {CalculateLevel(sortedShort[index].Exp)} \tEXP: {sortedShort[index].Exp}";
                     });
@@ -387,13 +387,13 @@ namespace SoraBot_v2.Services
 
         public static int CalculateLevel(float exp)
         {
-            return (int) Math.Round(0.15F * Math.Sqrt(exp));
+            return (int)Math.Round(0.15F * Math.Sqrt(exp));
         }
-        
-        
+
+
         public async Task IncreaseEpOnMessageReceive(SocketMessage msg)
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 //Don't prcoess the command if it was a system message
                 var message = msg as SocketUserMessage;
@@ -410,12 +410,12 @@ namespace SoraBot_v2.Services
                     return;
 
                 userDb.CanGainAgain = DateTime.UtcNow.AddSeconds(10);
-                int previousLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
-                var epGain = (int) Math.Round(context.Message.Content.Length / 10F);
+                int previousLevel = (int)Math.Round(0.15F * Math.Sqrt(userDb.Exp));
+                var epGain = (int)Math.Round(context.Message.Content.Length / 10F);
                 if (epGain > 50)
                     epGain = 50;
                 userDb.Exp += epGain;
-                int currentLevel = (int) Math.Round(0.15F * Math.Sqrt(userDb.Exp));
+                int currentLevel = (int)Math.Round(0.15F * Math.Sqrt(userDb.Exp));
                 //Notifying
                 if (previousLevel != currentLevel && userDb.Notified)
                 {

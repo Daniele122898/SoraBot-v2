@@ -11,7 +11,7 @@ namespace SoraBot_v2.Services
     public class AnnouncementService
     {
         private IServiceProvider _services;
-        
+
         public void Initialize(IServiceProvider services)
         {
             _services = services;
@@ -19,14 +19,14 @@ namespace SoraBot_v2.Services
 
         private readonly string _defaultLeave = "{user#} left the guild";
         private readonly string _defaultJoin = "{user} Welcome to **{server}**";
-        
+
         public async Task ClientOnUserLeft(SocketGuildUser socketGuildUser)
         {
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
                 //check if channel is initialized
-                if(guildDb.LeaveChannelId == 0)
+                if (guildDb.LeaveChannelId == 0)
                     return;
                 //check if channel exists
                 var channel = socketGuildUser.Guild.GetTextChannel(guildDb.LeaveChannelId);
@@ -35,7 +35,7 @@ namespace SoraBot_v2.Services
                     guildDb.LeaveChannelId = 0;
                     await soraContext.SaveChangesAsync();
                     return;
-                } 
+                }
                 //check sendmessageperms perms
                 if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
                     return;
@@ -61,15 +61,15 @@ namespace SoraBot_v2.Services
                 }
             }
         }
-        
+
 
         public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
         {
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
                 //check if channel is initialized
-                if(guildDb.WelcomeChannelId == 0)
+                if (guildDb.WelcomeChannelId == 0)
                     return;
                 //check if channel exists
                 var channel = socketGuildUser.Guild.GetTextChannel(guildDb.WelcomeChannelId);
@@ -78,7 +78,7 @@ namespace SoraBot_v2.Services
                     guildDb.WelcomeChannelId = 0;
                     await soraContext.SaveChangesAsync();
                     return;
-                } 
+                }
                 //check sendmessageperms perms
                 if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
                     return;
@@ -119,7 +119,7 @@ namespace SoraBot_v2.Services
             //check perms
             if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.EmbedWelcome = !guildDb.EmbedWelcome;
@@ -138,13 +138,13 @@ namespace SoraBot_v2.Services
                 }
             }
         }
-        
+
         public async Task ToggleLeaveEmbed(SocketCommandContext context)
         {
             //check perms
             if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.EmbedLeave = !guildDb.EmbedLeave;
@@ -167,9 +167,9 @@ namespace SoraBot_v2.Services
         public async Task<bool> SetWelcomeMessage(SocketCommandContext context, string message)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return false;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeMessage = message;
@@ -181,9 +181,9 @@ namespace SoraBot_v2.Services
         public async Task<bool> SetLeaveMessage(SocketCommandContext context, string message)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return false;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveMessage = message;
@@ -195,9 +195,9 @@ namespace SoraBot_v2.Services
         public async Task<bool> SetWelcomeChannel(SocketCommandContext context, SocketChannel channel)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return false;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeChannelId = channel.Id;
@@ -209,9 +209,9 @@ namespace SoraBot_v2.Services
         public async Task RemoveWelcomeChannel(SocketCommandContext context)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.WelcomeChannelId = 0;
@@ -220,13 +220,13 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                 Utility.SuccessLevelEmoji[0], "Successfully removed Welcome channel. No join announcements will be done anymore"));
         }
-        
+
         public async Task RemoveLeaveChannel(SocketCommandContext context)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveChannelId = 0;
@@ -235,13 +235,13 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                 Utility.SuccessLevelEmoji[0], "Successfully removed Leave channel. No leave announcements will be done anymore"));
         }
-        
+
         public async Task<bool> SetLeaveChannel(SocketCommandContext context, SocketChannel channel)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return false;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 guildDb.LeaveChannelId = channel.Id;

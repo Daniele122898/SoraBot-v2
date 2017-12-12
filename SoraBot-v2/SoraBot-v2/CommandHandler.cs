@@ -19,7 +19,7 @@ namespace SoraBot_v2
     {
         public double MessagesReceived;
         public int CommandsExecuted;
-        
+
         private IServiceProvider _services;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
@@ -43,9 +43,10 @@ namespace SoraBot_v2
             {
                 Console.WriteLine(e);
             }
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 var guild = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
+
                 //AUTO CREATE SORA ADMIN ROLE
                 //var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext).ConfigureAwait(false);
                 /*
@@ -59,28 +60,29 @@ namespace SoraBot_v2
                     string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
                     await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
                         .WithDescription($"I'm glad you invited me over :)\n" +
-                                         $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n"+
+                                         $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n" +
                                          $"To restrict tag creation and Sora's mod functions you must create\n" +
                                          $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
-                                         $"tags or use Sora's mod functionality. You can make him create one with: "+
+                                         $"tags or use Sora's mod functionality. You can make him create one with: " +
                                          $"`{prefix}createAdmin`\n" +
                                          $"You can leave tag creation unrestricted if you want but its not\n" +
                                          $"recommended on larger servers as it will be spammed.\n" +
                                          $"PS: Standard Prefix is `$` but you can change it with:\n" +
                                          $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
-            
+
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
             }
+
             //inform me of joining
             await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,EpService epService, 
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService,
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
             ModService modService, GuildCountUpdaterService guildUpdate)
         {
@@ -95,8 +97,8 @@ namespace SoraBot_v2
             _announcementService = announcementService;
             _modService = modService;
             _guildCount = guildUpdate;
-            
-            
+
+
             _client.MessageReceived += HandleCommandsAsync;
             //_client.MessageReceived += _afkService.Client_MessageReceived;
             _commands.Log += CommandsOnLog;
@@ -108,7 +110,7 @@ namespace SoraBot_v2
             _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
             _client.UserJoined += _announcementService.ClientOnUserJoined;
             _client.UserLeft += _announcementService.ClientOnUserLeft;
-            
+
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
@@ -138,7 +140,7 @@ namespace SoraBot_v2
         {
             return HandleErrorAsync(logMessage);
         }
-        
+
         private async Task HandleCommandsAsync(SocketMessage m)
         {
             try
@@ -165,21 +167,21 @@ namespace SoraBot_v2
                     // For now we'll just exit here.
                     return;
                 }
-                
+
                 // Check the permissions of this channel 
                 if (await Utility.CheckReadWritePerms(channel.Guild, channel, false) == false)
                     return;
-                
+
                 // Check the ratelimit of this author
                 if (await _ratelimitingService.IsRatelimited(message.Author.Id))
                     return;
-                
+
                 // Permissions are present and author is eligible for commands.
                 // Get a database instance. 
-                using (var soraContext = _services.GetService<SoraContext>())
+                using (var soraContext = new SoraContext())
                 {
                     //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
-                    _afkService.Client_MessageReceived(m, _services);
+                    await _afkService.Client_MessageReceived(m, _services);
 
                     // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
                     // TODO: Move this into the config file
@@ -187,9 +189,9 @@ namespace SoraBot_v2
 
                     // Check if the message starts with the prefix or mention before doing anything else.
                     // Also rely on stdlib stuff for that because #performance.
-                    
-                    int argPos = prefix.Length-1;
-                    if(!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+
+                    int argPos = prefix.Length - 1;
+                    if (!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                         return;
 
                     // Detection finished.
@@ -248,7 +250,7 @@ namespace SoraBot_v2
                 
                 Task.Run(async () =>
                 {
-                    using (var soraContext = _services.GetService<SoraContext>())
+                    using (var soraContext = new SoraContext())
                     {
                         await _afkService.Client_MessageReceived(m, soraContext);
                     }
@@ -293,33 +295,33 @@ namespace SoraBot_v2
         {
             switch (result.Error)
             {
-                    case CommandError.Exception:
-                        if (exception != null)
-                        {
-                            await SentryService.SendMessage(
-                                $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");
-                        }
-                        break;
-                    case CommandError.BadArgCount:
-                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
-                        break;
-                    case CommandError.UnknownCommand:
-                        break;
-                    case CommandError.ParseFailed:
-                        await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one etc."));
-                        break;
-                    default:
-                        await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));
-                        break;
+                case CommandError.Exception:
+                    if (exception != null)
+                    {
+                        await SentryService.SendMessage(
+                            $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");
+                    }
+                    break;
+                case CommandError.BadArgCount:
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
+                    break;
+                case CommandError.UnknownCommand:
+                    break;
+                case CommandError.ParseFailed:
+                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one etc."));
+                    break;
+                default:
+                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));
+                    break;
             }
         }
 
         private async Task HandleErrorAsync(LogMessage logMessage)
         {
             var commandException = logMessage.Exception as CommandException;
-            if(commandException == null) return;
+            if (commandException == null) return;
             await HandleErrorAsync(ExecuteResult.FromError(commandException),
-                (SocketCommandContext) commandException.Context, commandException);
+                (SocketCommandContext)commandException.Context, commandException);
         }
     }
 }

@@ -10,12 +10,10 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class UtilityModule : ModuleBase<SocketCommandContext>, IDisposable
+    public class UtilityModule : ModuleBase<SocketCommandContext>
     {
-        private SoraContext _soraContext;
-        public UtilityModule(SoraContext soraContext)
+        public UtilityModule()
         {
-            _soraContext = soraContext;
         }
 
         [Command("gc")]
@@ -41,7 +39,7 @@ namespace SoraBot_v2.Module
                              $"Owner: {Utility.GiveUsernameDiscrimComb(guild.Owner)}\n" +
                              $"```");
         }
-        
+
         [Command("leaveguild")]
         [RequireOwner]
         public async Task LeaveGuild(ulong id)
@@ -55,7 +53,7 @@ namespace SoraBot_v2.Module
             await guild.LeaveAsync();
             await ReplyAsync("Left guild.");
         }
-        
+
         [Command("createAdmin"), Alias("ca", "createsoraadmin", "csa"), Summary("Creates the Admin Role for Sora!")]
         public async Task CreateSoraAdminRole()
         {
@@ -70,7 +68,7 @@ namespace SoraBot_v2.Module
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Sora does not have Manage Role Permissions!"));
                 return;
             }
-            
+
             //Check if already exists
             if (Utility.CheckIfSoraAdminExists(Context.Guild))
             {
@@ -83,7 +81,7 @@ namespace SoraBot_v2.Module
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     $"Successfully created {Utility.SORA_ADMIN_ROLE_NAME} Role!"));
         }
-        
+
         [Command("restrictdj"), Alias("forcedj", "djonly"), Summary("Restricts most of the music commands to members carrying the Sora-DJ role")]
         public async Task RestrictDj()
         {
@@ -94,51 +92,49 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
-            if (guildDb.IsDjRestricted)
+            using (var _soraContext = new SoraContext())
             {
-                //MAKE IT UNRESTRICTED
-                guildDb.IsDjRestricted = false;
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                if (guildDb.IsDjRestricted)
+                {
+                    //MAKE IT UNRESTRICTED
+                    guildDb.IsDjRestricted = false;
+                    await _soraContext.SaveChangesAsync();
+                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
+                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
+                    return;
+                }
+                //Restrict them
+                bool created = false;
+                if (Context.Guild.Roles.All(x => x.Name != Utility.SORA_DJ_ROLE_NAME))
+                {
+                    //DJ Role doesn't exist
+                    if (!Context.Guild.GetUser(Context.Client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
+                    {
+                        //CANT CREATE ONE EITHER
+                        await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            $"The {Utility.SORA_DJ_ROLE_NAME} does not exist and Sora doesn't have manage role permission!").WithDescription(
+                            $"Either create the {Utility.SORA_DJ_ROLE_NAME} yourself (case sensitive) or give sora Manage Role permission and let him create it!"));
+                        return;
+                    }
+                    //Create the Role
+                    try
+                    {
+                        await Context.Guild.CreateRoleAsync(Utility.SORA_DJ_ROLE_NAME, GuildPermissions.None);
+                    }
+                    catch (Exception)
+                    {
+                        await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't Create role for some reason. Check perms!"));
+                        return;
+                    }
+                    created = true;
+                }
+
+                guildDb.IsDjRestricted = true;
                 await _soraContext.SaveChangesAsync();
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
-                return;
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
+                    $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!" : "!")}"));
             }
-            //Restrict them
-            bool created = false;
-            if (Context.Guild.Roles.All(x => x.Name != Utility.SORA_DJ_ROLE_NAME))
-            {
-                //DJ Role doesn't exist
-                if (!Context.Guild.GetUser(Context.Client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
-                {
-                    //CANT CREATE ONE EITHER
-                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], 
-                        $"The {Utility.SORA_DJ_ROLE_NAME} does not exist and Sora doesn't have manage role permission!").WithDescription(
-                        $"Either create the {Utility.SORA_DJ_ROLE_NAME} yourself (case sensitive) or give sora Manage Role permission and let him create it!"));
-                    return;
-                }
-                //Create the Role
-                try
-                {
-                    await Context.Guild.CreateRoleAsync(Utility.SORA_DJ_ROLE_NAME, GuildPermissions.None);
-                }
-                catch (Exception)
-                {
-                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't Create role for some reason. Check perms!"));
-                    return;
-                }
-                created = true;
-            }
-
-            guildDb.IsDjRestricted = true;
-            await _soraContext.SaveChangesAsync();
-            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], 
-                $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!": "!")}"));
-        }
-
-        public void Dispose()
-        {
-            _soraContext?.Dispose();
         }
     }
 }

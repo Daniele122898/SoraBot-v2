@@ -17,7 +17,7 @@ namespace SoraBot_v2.Services
         private static Timer _timer;
 
         private const int CACHE_DELAY = 60;
-        
+
         public const string DISCORD_USER_MESSAGE = "discord::usermessage::";
 
         public static void Initialize()
@@ -55,7 +55,7 @@ namespace SoraBot_v2.Services
                     msg = await SetDiscordUserMessage(channel, id, options.Timeout);
                 }
             }
-            else if(msgObj != null)
+            else if (msgObj != null)
             {
                 msg = msgObj as IUserMessage;
             }
@@ -64,7 +64,7 @@ namespace SoraBot_v2.Services
 
         public static bool RemoveUserMessage(ulong id)
         {
-            return _cacheDict.TryRemove(DISCORD_USER_MESSAGE+id, out _);
+            return _cacheDict.TryRemove(DISCORD_USER_MESSAGE + id, out _);
         }
 
         public static async Task<IUserMessage> SetDiscordUserMessage(ITextChannel channel, ulong msgId, TimeSpan timeout)
@@ -72,7 +72,7 @@ namespace SoraBot_v2.Services
             var msg = await channel.GetMessageAsync(msgId) as IUserMessage;
             if (msg == null)
                 return null;
-            Set(DISCORD_USER_MESSAGE+msgId, new Item(msg, DateTime.UtcNow.Add(timeout)));
+            Set(DISCORD_USER_MESSAGE + msgId, new Item(msg, DateTime.UtcNow.Add(timeout)));
             return msg;
         }
 

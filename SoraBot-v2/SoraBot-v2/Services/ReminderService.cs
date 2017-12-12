@@ -27,15 +27,15 @@ namespace SoraBot_v2.Services
             _client = client;
             _interactive = interactiveService;
         }
-        
+
         public void Initialize(IServiceProvider services)
         {
             _services = services;
             SetTimer();
         }
-        
+
         private const int INITIAL_DELAY = 40;
-        
+
         private void SetTimer()
         {
             _timer = new Timer(CheckReminders, null, TimeSpan.FromSeconds(INITIAL_DELAY),
@@ -45,7 +45,7 @@ namespace SoraBot_v2.Services
 
         public async Task ShowReminders(SocketCommandContext context)
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
                 if (userDb == null || userDb.Reminders.Count == 0)
@@ -83,7 +83,7 @@ namespace SoraBot_v2.Services
 
         public async Task RemoveReminder(SocketCommandContext context)
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, _soraContext);
                 if (userDb == null || userDb.Reminders.Count == 0)
@@ -114,7 +114,7 @@ namespace SoraBot_v2.Services
                 }
                 var msg = await context.Channel.SendMessageAsync("", embed: eb);
                 //var response = await _interactive.WaitForMessage(context.User, context.Channel, TimeSpan.FromSeconds(45));
-                
+
                 var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));//TODO test if this listens only to source user and source channel
                 await msg.DeleteAsync();
                 if (response == null)
@@ -148,7 +148,7 @@ namespace SoraBot_v2.Services
                         "Successfully removed reminder"));
             }
         }
-        
+
         private string ConvertTime(double value)
         {
             TimeSpan ts = TimeSpan.FromSeconds(value);
@@ -166,10 +166,10 @@ namespace SoraBot_v2.Services
             }
             return string.Format("{0:D2}s", ts.Seconds);
         }
-        
+
         private async void CheckReminders(Object stateInfo)
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 List<Reminders> rems = new List<Reminders>();
                 rems = _soraContext.Reminders.ToList();
@@ -201,7 +201,7 @@ namespace SoraBot_v2.Services
         public async Task SetReminder(SocketCommandContext context, string message)
         {
             var time = GetTime(message);
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 if (time == 0)
                 {
@@ -215,7 +215,7 @@ namespace SoraBot_v2.Services
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You need to add a message to your Reminder!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins"));
                     return;
                 }
-            
+
                 var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
 
                 var msg = message.Substring(0, message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase));
@@ -243,7 +243,7 @@ namespace SoraBot_v2.Services
             {
                 return 0;
             }
-            if(string.IsNullOrWhiteSpace(message.Substring(message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase) + " in ".Length)))
+            if (string.IsNullOrWhiteSpace(message.Substring(message.LastIndexOf(" in ", StringComparison.OrdinalIgnoreCase) + " in ".Length)))
             {
                 return -1;
             }
@@ -251,63 +251,63 @@ namespace SoraBot_v2.Services
             var regex = Regex.Matches(msg, @"(\d+)\s{0,1}([a-zA-Z]*)");
             double timeToAdd = 0;
             for (int i = 0; i < regex.Count; i++)
+            {
+                var captures = regex[i].Groups;
+                if (captures.Count < 3)
                 {
-                    var captures = regex[i].Groups;
-                    if (captures.Count < 3)
-                    {
-                        Console.WriteLine("CAPTURES COUNT LESS THEN 3");
-                        return 0;
-                    }
-
-                    double amount = 0;
-
-                    if (!Double.TryParse(captures[1].ToString(), out amount))
-                    {
-                        Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1].ToString()}");
-                        return 0;
-                    }
-
-                    switch (captures[2].ToString())
-                    {
-                        case ("weeks"):
-                        case ("week"):
-                        case ("w"):
-                            timeToAdd += amount * 604800;
-                            break;
-                        case ("day"):
-                        case ("days"):
-                        case ("d"):
-                            timeToAdd += amount * 86400;
-                            break;
-                        case ("hours"):
-                        case ("hour"):
-                        case ("h"):
-                            timeToAdd += amount * 3600;
-                            break;
-                        case ("minutes"):
-                        case ("minute"):
-                        case ("m"):
-                        case ("min"):
-                        case ("mins"):
-                            timeToAdd += amount * 60;
-                            break;
-                        case ("seconds"):
-                        case ("second"):
-                        case ("s"):
-                            timeToAdd += amount;
-                            break;
-                        default:
-                            Console.WriteLine("SWITCH FAILED");
-                            return 0;
-                    }
+                    Console.WriteLine("CAPTURES COUNT LESS THEN 3");
+                    return 0;
                 }
-                return timeToAdd;
+
+                double amount = 0;
+
+                if (!Double.TryParse(captures[1].ToString(), out amount))
+                {
+                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1].ToString()}");
+                    return 0;
+                }
+
+                switch (captures[2].ToString())
+                {
+                    case ("weeks"):
+                    case ("week"):
+                    case ("w"):
+                        timeToAdd += amount * 604800;
+                        break;
+                    case ("day"):
+                    case ("days"):
+                    case ("d"):
+                        timeToAdd += amount * 86400;
+                        break;
+                    case ("hours"):
+                    case ("hour"):
+                    case ("h"):
+                        timeToAdd += amount * 3600;
+                        break;
+                    case ("minutes"):
+                    case ("minute"):
+                    case ("m"):
+                    case ("min"):
+                    case ("mins"):
+                        timeToAdd += amount * 60;
+                        break;
+                    case ("seconds"):
+                    case ("second"):
+                    case ("s"):
+                        timeToAdd += amount;
+                        break;
+                    default:
+                        Console.WriteLine("SWITCH FAILED");
+                        return 0;
+                }
+            }
+            return timeToAdd;
         }
-        
+
 
         private void ChangeToClosestInterval()
         {
-            using (var _soraContext = _services.GetService<SoraContext>())
+            using (var _soraContext = new SoraContext())
             {
                 if (_soraContext.Reminders.ToList().Count == 0)
                 {
@@ -330,7 +330,7 @@ namespace SoraBot_v2.Services
                 }
                 else
                 {
-                    _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));  
+                    _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
                     Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
                 }
             }

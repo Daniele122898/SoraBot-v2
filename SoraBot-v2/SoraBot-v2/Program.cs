@@ -26,7 +26,9 @@ namespace SoraBot_v2
         //private CommandHandler _commands;
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
-        private string _connectionString;
+
+        //// Disabled by Catherine Renelle - Memory Leak Fix
+        ////private string _connectionString;
         #endregion
 
         public async Task MainAsync(string[] args)
@@ -37,16 +39,16 @@ namespace SoraBot_v2
             {
                 throw new Exception("INVALID SHARD ARGUMENT");
             }
-            
+
             //Setup config
             ConfigService.InitializeLoader();
             ConfigService.LoadConfig();
-            
+
             if (!int.TryParse(ConfigService.GetConfigData("shardCount"), out Utility.TOTAL_SHARDS))
             {
                 throw new Exception("INVALID SHARD COUNT");
             }
-            
+
             //setup discord client
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -58,24 +60,27 @@ namespace SoraBot_v2
             });
 
             _client.Log += Log;
-            
-            
-            
+
+
+
             //setup DB
+
+            /****
+             * Disabled by Catherine Renelle - Memory leak fix
             if (!ConfigService.GetConfig().TryGetValue("connectionString", out _connectionString))
             {
                 throw new IOException
                 {
                     Source = "COULDNT FIND CONNECTION STRING FOR DB!"
                 };
-            }
-            
+            }****/
+
             Utility.SORA_VERSION = ConfigService.GetConfigData("version");
 
-            
+
             //_soraContext = new SoraContext(_connectionString);
             //await _soraContext.Database.EnsureCreatedAsync();
-            
+
             //Setup Services
             ProfileImageProcessing.Initialize();
             _interactive = new InteractiveService(_client);
@@ -83,12 +88,12 @@ namespace SoraBot_v2
             //_commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
             var serviceProvider = ConfigureServices();
-            
+
             //setup command handler
             await serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync(serviceProvider);
             //_commands.ConfigureCommandHandler(serviceProvider);
             //await _commands.InstallAsync();
-            
+
             //SETUP other dependency injection services
             serviceProvider.GetRequiredService<ReminderService>().Initialize(serviceProvider);
             serviceProvider.GetRequiredService<EpService>().Initialize(serviceProvider);
@@ -101,7 +106,7 @@ namespace SoraBot_v2
             await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
-            
+
             //Set up an event handler to execute some state-reliant startup tasks
             _client.Ready += async () =>
             {
@@ -109,23 +114,27 @@ namespace SoraBot_v2
             };
             string token = "";
             ConfigService.GetConfig().TryGetValue("token2", out token);
-            
+
             //Connect to Discord
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
-            
+
             //INITIALIZE CACHE
             CacheService.Initialize();
-            
+
             //Hang indefinitely
             await Task.Delay(-1);
         }
 
         private IServiceProvider ConfigureServices()
-        {    var services = new ServiceCollection();
+        {
+            var services = new ServiceCollection();
             services.AddSingleton(_client);
             services.AddSingleton<CommandService>();
-            services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
+
+            //// Disabled by Catherine Renelle - Memory leak fix
+            ////services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
+
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
             services.AddSingleton<InteractionsService>();
@@ -149,7 +158,7 @@ namespace SoraBot_v2
             services.AddSingleton<TagService>();
             services.AddSingleton<AnimeSearchService>();
 
-            
+
             return new DefaultServiceProviderFactory().CreateServiceProvider(services);
         }
 
@@ -162,14 +171,14 @@ namespace SoraBot_v2
                 case LogSeverity.Critical: Console.ForegroundColor = ConsoleColor.DarkRed; break;
                 case LogSeverity.Verbose: Console.ForegroundColor = ConsoleColor.White; break;
             }
-            
+
             Console.WriteLine(m.ToString());
-            if(m.Exception != null)
+            if (m.Exception != null)
                 Console.WriteLine(m.Exception);
             Console.ForegroundColor = ConsoleColor.Gray;
 
             return Task.CompletedTask;
         }
-        
+
     }
 }

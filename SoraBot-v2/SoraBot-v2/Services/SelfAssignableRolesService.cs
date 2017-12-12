@@ -22,22 +22,22 @@ namespace SoraBot_v2.Services
         {
             _interactive = service;
         }
-        
+
         public void Initialize(IServiceProvider services)
         {
             _services = services;
         }
-        
-        
+
+
         public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
         {
             var guild = socketGuildUser.Guild;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
-                
+
                 //Check if default role is even on
-                if(!guildDb.HasDefaultRole)
+                if (!guildDb.HasDefaultRole)
                     return;
                 var sora = guild.CurrentUser;
                 //Check if sora has manageRoles perms!
@@ -72,7 +72,7 @@ namespace SoraBot_v2.Services
         public async Task RemoveSarFromList(SocketCommandContext context, string roleName)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
             var sora = context.Guild.CurrentUser;
             //Try to find role
@@ -87,7 +87,7 @@ namespace SoraBot_v2.Services
                 return;
             }
             //role was found
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 //Check if its self-assignable
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
@@ -97,7 +97,7 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "This role is not self-assignable!"));
-                    return;   
+                    return;
                 }
                 //Role is self assignable
                 guildDb.SelfAssignableRoles.Remove(sarRole);
@@ -111,9 +111,9 @@ namespace SoraBot_v2.Services
         public async Task ToggleDefaultRole(SocketCommandContext context)
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                 //if he plans to turn it on check if role exists
@@ -157,8 +157,8 @@ namespace SoraBot_v2.Services
 
         public async Task AddDefaultRole(SocketCommandContext context, string roleName)
         {
-             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            //check perms
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
             var sora = context.Guild.CurrentUser;
             //Check if sora has manage role perms
@@ -188,13 +188,13 @@ namespace SoraBot_v2.Services
                 if (soraHighestRole.Position < role.Position)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2] ,"I cannot assign roles that are above me in the role hirachy!")
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I cannot assign roles that are above me in the role hirachy!")
                         .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved."));
                     return;
                 }
             }
             //role was either found or created by sora.. 
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 //check if it already exists
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
@@ -211,11 +211,11 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} as default join role!"));
         }
-        
+
         public async Task AddSarToList(SocketCommandContext context, string roleName, bool canExpire = false, int cost = 0, TimeSpan expireAt = new TimeSpan())
         {
             //check perms
-            if(await Utility.HasAdminOrSoraAdmin(context) == false)
+            if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
             var sora = context.Guild.CurrentUser;
             //Try to find role
@@ -245,17 +245,17 @@ namespace SoraBot_v2.Services
                 if (soraHighestRole.Position < role.Position)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2] ,"I cannot assign roles that are above me in the role hirachy!")
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I cannot assign roles that are above me in the role hirachy!")
                         .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved."));
                     return;
                 }
             }
             //role was either found or created by sora.. 
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 //check if it already exists
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                if (guildDb.SelfAssignableRoles.Count >0 &&  guildDb.SelfAssignableRoles.Any(x => x.RoleId == role.Id))
+                if (guildDb.SelfAssignableRoles.Count > 0 && guildDb.SelfAssignableRoles.Any(x => x.RoleId == role.Id))
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This role is already self assignable!"));
@@ -279,7 +279,7 @@ namespace SoraBot_v2.Services
 
         public async Task IAmNotSar(SocketCommandContext context, string roleName)
         {
-            var sora = context.Guild.CurrentUser;   
+            var sora = context.Guild.CurrentUser;
             //Check if sora can create a role
             if (!sora.GuildPermissions.Has(GuildPermission.ManageRoles))
             {
@@ -288,7 +288,7 @@ namespace SoraBot_v2.Services
                     "Sora doesn't have ManageRoles Permission. Please notify an admin!"));
                 return;
             }
-            
+
             //check if the user has the role
             var user = (SocketGuildUser)context.User;
             var role = user.Roles.FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
@@ -297,10 +297,10 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                     "You don't carry this role!"));
-                return;   
+                return;
             }
-            
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+
+            using (SoraContext soraContext = new SoraContext())
             {
                 //check if the role is self assignable
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
@@ -309,7 +309,7 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "This role is not self-assignable!"));
-                    return;   
+                    return;
                 }
                 //user carries role and IS self assignable
                 await user.RemoveRoleAsync(role);
@@ -321,17 +321,17 @@ namespace SoraBot_v2.Services
 
         public async Task ListSars(SocketCommandContext context)
         {
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+            using (SoraContext soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                
+
                 int roleCount = guildDb.SelfAssignableRoles.Count;
                 if (roleCount == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "Guild has no self-assignable roles!"));
-                    return;   
+                    return;
                 }
                 if (roleCount < 24)
                 {
@@ -342,7 +342,7 @@ namespace SoraBot_v2.Services
                         ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
                         Footer = Utility.RequestedBy(context.User)
                     };
-                    
+
                     List<Role> roleList = new List<Role>(guildDb.SelfAssignableRoles);
                     foreach (var role in roleList)
                     {
@@ -368,13 +368,13 @@ namespace SoraBot_v2.Services
                     //TODO PAGINATE
                     List<Role> roleList = new List<Role>(guildDb.SelfAssignableRoles);
                     List<string> sars = new List<string>();
-                    int pageAmount = (int) Math.Ceiling(roleCount/7.0);
+                    int pageAmount = (int)Math.Ceiling(roleCount / 7.0);
                     int addToJ = 0;
                     int amountLeft = roleCount;
                     for (int i = 0; i < pageAmount; i++)
                     {
                         string addToList = "";
-                        for (int j = 0; j < (amountLeft > 7? 7: amountLeft); j++)
+                        for (int j = 0; j < (amountLeft > 7 ? 7 : amountLeft); j++)
                         {
                             var role = roleList[j + addToJ];
                             var roleInfo = context.Guild.GetRole(role.RoleId);
@@ -407,7 +407,7 @@ namespace SoraBot_v2.Services
                         Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                         Pages = sars
                     };
-                    
+
                     Criteria<SocketReaction> criteria = new Criteria<SocketReaction>();
                     criteria.AddCriterion(new EnsureReactionFromSourceUserCriterionMod());
 
@@ -419,7 +419,7 @@ namespace SoraBot_v2.Services
 
         public async Task IAmSar(SocketCommandContext context, string roleName)
         {
-            var sora = context.Guild.CurrentUser;   
+            var sora = context.Guild.CurrentUser;
             //Check if sora can create a role
             if (!sora.GuildPermissions.Has(GuildPermission.ManageRoles))
             {
@@ -436,7 +436,7 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                     "This role does not exist!"));
-                return;   
+                return;
             }
             //Check if he already has the role
             var user = (SocketGuildUser)context.User;
@@ -448,8 +448,8 @@ namespace SoraBot_v2.Services
                     "You already have this role!"));
                 return;
             }
-            
-            using (SoraContext soraContext = _services.GetService<SoraContext>())
+
+            using (SoraContext soraContext = new SoraContext())
             {
                 //check if the role is self assignable
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
@@ -458,7 +458,7 @@ namespace SoraBot_v2.Services
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "This role is not self-assignable!"));
-                    return;   
+                    return;
                 }
                 //role exists and IS self assignable
                 await user.AddRoleAsync(role);

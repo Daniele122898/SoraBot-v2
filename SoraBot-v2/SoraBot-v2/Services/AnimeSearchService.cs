@@ -21,12 +21,12 @@ namespace SoraBot_v2.Services
         private string _clientSecret = "";
         private readonly FormUrlEncodedContent _formContent;
         private readonly InteractiveService _interactive;
-        
+
         public enum AnimeType
         {
             Anime, Manga, Char
         }
-        
+
         public AnimeSearchService(InteractiveService interactiveService)
         {
             _interactive = interactiveService;
@@ -37,7 +37,7 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine("FAILED AINILIST DATA");
             }
-            
+
             var headers = new Dictionary<string, string>
             {
                 {"grant_type", "client_credentials"},
@@ -117,7 +117,7 @@ namespace SoraBot_v2.Services
                         };
                         for (int i = 0; i < results.Count; i++)
                         {
-                            choose += $"**{i+1}.** {((type == AnimeType.Anime || type == AnimeType.Manga) ? results[i]["title_english"] : $"{results[i]["name_first"]} {results[i]["name_last"]}")}\n";
+                            choose += $"**{i + 1}.** {((type == AnimeType.Anime || type == AnimeType.Manga) ? results[i]["title_english"] : $"{results[i]["name_first"]} {results[i]["name_last"]}")}\n";
                         }
                         ebC.Description = choose;
                         var msg = await context.Channel.SendMessageAsync("", embed: ebC);
@@ -130,7 +130,7 @@ namespace SoraBot_v2.Services
                                 embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/"));
                             return;
                         }
-    
+
                         if (!Int32.TryParse(response.Content, out index))
                         {
                             await context.Channel.SendMessageAsync("",
@@ -178,7 +178,7 @@ namespace SoraBot_v2.Services
         }
 
     }
-    
+
     public class CharacterResult
     {
         public int id { get; set; }
@@ -202,10 +202,10 @@ namespace SoraBot_v2.Services
                 {
                     Name = "Anilist",
                     IconUrl = "https://anilist.co/img/logo_al.png"
-                }, 
-                Title = $"{(string.IsNullOrWhiteSpace(name_last) ? "": $"{name_last}, ")}{name_first}",
+                },
+                Title = $"{(string.IsNullOrWhiteSpace(name_last) ? "" : $"{name_last}, ")}{name_first}",
                 Url = Link,
-                Description = $"{(String.IsNullOrWhiteSpace(Synopsis)? "No Info found!": "")}" + Synopsis.Replace("<br>", Environment.NewLine),
+                Description = $"{(String.IsNullOrWhiteSpace(Synopsis) ? "No Info found!" : "")}" + Synopsis.Replace("<br>", Environment.NewLine),
             };
             if (!string.IsNullOrWhiteSpace(image_url_lge))
             {
@@ -250,7 +250,7 @@ namespace SoraBot_v2.Services
         public string average_score;
         public string Link => "http://anilist.co/manga/" + id;
         public string Synopsis => description?.Substring(0, description.Length > 1900 ? 1900 : description.Length) + (description.Length > 1900 ? "..." : "");
-        
+
         public EmbedBuilder GetEmbed()
         {
             var eb = new EmbedBuilder()
@@ -260,29 +260,29 @@ namespace SoraBot_v2.Services
                 {
                     Name = "Anilist",
                     IconUrl = "https://anilist.co/img/logo_al.png"
-                }, 
+                },
                 Title = $"{title_english}",
                 Url = Link,
-                Description = $"{(String.IsNullOrWhiteSpace(Synopsis)? "No Info found!": "")}" + Synopsis.Replace("<br>", Environment.NewLine),
+                Description = $"{(String.IsNullOrWhiteSpace(Synopsis) ? "No Info found!" : "")}" + Synopsis.Replace("<br>", Environment.NewLine),
             };
             if (!string.IsNullOrWhiteSpace(image_url_lge))
             {
                 eb.WithImageUrl(image_url_lge);
             }
-            if(!string.IsNullOrWhiteSpace(total_chapters.ToString()))
+            if (!string.IsNullOrWhiteSpace(total_chapters.ToString()))
                 eb.AddField(efb => efb.WithName("Chapters 🔢").WithValue(total_chapters == 0 ? "-" : total_chapters.ToString()).WithIsInline(true));
-            if(!string.IsNullOrWhiteSpace(publishing_status))
+            if (!string.IsNullOrWhiteSpace(publishing_status))
                 eb.AddField(efb => efb.WithName("Status 📺").WithValue(publishing_status).WithIsInline(true));
-            if(!string.IsNullOrWhiteSpace(String.Join(", ", Genres)))
-                eb.AddField(efb => efb.WithName("Genres 📁").WithValue(String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length-2)).WithIsInline(true));
+            if (!string.IsNullOrWhiteSpace(String.Join(", ", Genres)))
+                eb.AddField(efb => efb.WithName("Genres 📁").WithValue(String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length - 2)).WithIsInline(true));
             eb.AddField(efb => efb.WithName("Score ⭐").WithValue((average_score ?? "-") + " / 100").WithIsInline(true));
-            if(!string.IsNullOrWhiteSpace(start_date))
+            if (!string.IsNullOrWhiteSpace(start_date))
                 eb.AddField(efb => efb.WithName("Published 🗓").WithValue($"{start_date.Remove(10)} - {(String.IsNullOrWhiteSpace(end_date) ? "Ongoing" : $"{end_date.Remove(10)}")}").WithIsInline(true));
-            
+
             return eb;
         }
-        
-       }
+
+    }
 
     public class AnimeResult
     {
@@ -322,11 +322,11 @@ namespace SoraBot_v2.Services
             }
             eb.AddField(efb => efb.WithName("Episodes 🔢").WithValue(total_episodes.ToString() ?? "-").WithIsInline(true));
             eb.AddField(efb => efb.WithName("Status 📺").WithValue(string.IsNullOrWhiteSpace(AiringStatus) ? "-" : AiringStatus.Humanize()).WithIsInline(true));
-            eb.AddField(efb => efb.WithName("Genres 📁").WithValue(string.IsNullOrWhiteSpace(String.Join(", ", Genres)) ? "-" : String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length-2)).WithIsInline(true));
+            eb.AddField(efb => efb.WithName("Genres 📁").WithValue(string.IsNullOrWhiteSpace(String.Join(", ", Genres)) ? "-" : String.Join(", ", Genres).Remove(String.Join(", ", Genres).Length - 2)).WithIsInline(true));
             eb.AddField(efb => efb.WithName("Score ⭐").WithValue((average_score ?? "-") + " / 100").WithIsInline(true));
-            if(!string.IsNullOrWhiteSpace(start_date))
-                eb.AddField(efb => efb.WithName("Aired 🗓").WithValue($"{start_date.Remove(10)} - {(String.IsNullOrWhiteSpace(end_date) ? "Ongoing": $"{end_date.Remove(10)}")}").WithIsInline(true));
-            
+            if (!string.IsNullOrWhiteSpace(start_date))
+                eb.AddField(efb => efb.WithName("Aired 🗓").WithValue($"{start_date.Remove(10)} - {(String.IsNullOrWhiteSpace(end_date) ? "Ongoing" : $"{end_date.Remove(10)}")}").WithIsInline(true));
+
             return eb;
         }
     }

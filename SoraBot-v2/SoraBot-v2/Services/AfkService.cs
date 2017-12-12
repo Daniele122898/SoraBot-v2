@@ -14,7 +14,7 @@ namespace SoraBot_v2.Services
     {
         private const int SECONDS_AFTER_REPOST = 30;
 
-        private async Task AddAfk(SocketCommandContext context, User userDb ,string message, bool updated)
+        private async Task AddAfk(SocketCommandContext context, User userDb, string message, bool updated)
         {
             if (message == null)
                 message = "";
@@ -78,7 +78,7 @@ namespace SoraBot_v2.Services
             if (msg.MentionedUsers.Count < 1)
                 return;
 
-            using (var soraContext = _services.GetService<SoraContext>())
+            using (var soraContext = new SoraContext())
             {
                 //Get GUILD PREFIX
                 string prefix = Utility.GetGuildPrefixFast(soraContext, ((SocketGuildChannel)msg.Channel).Guild.Id, "$");
@@ -88,12 +88,12 @@ namespace SoraBot_v2.Services
                 foreach (var user in msg.MentionedUsers)
                 {
                     var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
-                    if(userDb.Afk == null)
+                    if (userDb.Afk == null)
                         return; //if null none was set up
                     if (userDb.Afk.IsAfk)
                     {
                         //CAN TRIGGER AGAIN?
-                        if(userDb.Afk.TimeToTriggerAgain.CompareTo(DateTime.UtcNow)>0)
+                        if (userDb.Afk.TimeToTriggerAgain.CompareTo(DateTime.UtcNow) > 0)
                             return;
 
                         userDb.Afk.TimeToTriggerAgain = DateTime.UtcNow.AddSeconds(SECONDS_AFTER_REPOST);
@@ -103,7 +103,7 @@ namespace SoraBot_v2.Services
                             Color = Utility.PurpleEmbed,
                             Author = new EmbedAuthorBuilder()
                             {
-                                IconUrl = user.GetAvatarUrl()?? Utility.StandardDiscordAvatar,
+                                IconUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
                                 Name = $"{user.Username} is currently AFK"
                             },
                             Description = userDb.Afk.Message
