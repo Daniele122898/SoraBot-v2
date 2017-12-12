@@ -10,12 +10,7 @@ namespace SoraBot_v2.Services
 {
     public class AnnouncementService
     {
-        private IServiceProvider _services;
 
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
-        }
 
         private readonly string _defaultLeave = "{user#} left the guild";
         private readonly string _defaultJoin = "{user} Welcome to **{server}**";

@@ -18,7 +18,6 @@ namespace SoraBot_v2.Services
     public class MarriageService
     {
         private readonly InteractiveService _interactive;
-        private IServiceProvider _services;
 
         private const int MARRIAGE_SCALE = 10;
 
@@ -27,10 +26,6 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
 
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
-        }
 
         public async Task CheckLimit(SocketCommandContext context, SocketUser user)
         {

@@ -13,15 +13,9 @@ namespace SoraBot_v2.Services
 {
     public class ModService
     {
-        private IServiceProvider _services;
         private readonly Color _yellowWarning = new Color(255, 204, 77);
         private readonly Color _redBan = new Color(221, 46, 68);
         private readonly Color _orangeKick = new Color(219, 132, 19);
-
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
-        }
 
         public enum Case
         {

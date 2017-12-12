@@ -23,17 +23,11 @@ namespace SoraBot_v2.Services
     public class EpService
     {
         private DiscordSocketClient _client;
-        private IServiceProvider _services;
         private const int SETBG_LEVEL = 10;
 
         public EpService(DiscordSocketClient client)
         {
             _client = client;
-        }
-
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
         }
 
         public async Task ToggleEpGain(SocketCommandContext context)

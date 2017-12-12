@@ -19,7 +19,6 @@ namespace SoraBot_v2.Services
     public class MusicShareService
     {
         private InteractiveService _interactive;
-        private IServiceProvider _services;
 
         private const int MIN_LEVEL = 7;
         private const int NEED_FOR_EXTRA_PLAYLIST = 2;
@@ -29,10 +28,6 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
 
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
-        }
 
         //using (var soraContext = new SoraContext())
 

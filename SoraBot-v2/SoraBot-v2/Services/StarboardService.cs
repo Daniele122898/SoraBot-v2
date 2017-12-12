@@ -24,8 +24,7 @@ namespace SoraBot_v2.Services
         };*/
 
         private readonly DiscordSocketClient _client;
-        private IServiceProvider _services;
-        //private Timer _timer;
+        private Timer _timer;
 
 
         public StarboardService(DiscordSocketClient client)
@@ -33,10 +32,9 @@ namespace SoraBot_v2.Services
             _client = client;
         }
 
-        public async Task InitializeAsync(IServiceProvider services)
+        public async Task InitializeAsync()
         {
-            _services = services;
-            //Task.Factory.StartNew(() => { _timer = new Timer(UpdateStarCounts, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(10)); });
+            Task.Factory.StartNew(() => { _timer = new Timer(UpdateStarCounts, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20)); });
         }
 
         private async void UpdateStarCounts(Object objectInfo)

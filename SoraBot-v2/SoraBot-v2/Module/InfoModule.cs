@@ -334,12 +334,12 @@ namespace SoraBot_v2.Module
                         x.IsInline = true;
                         x.Value = $"{Context.Client.Latency} ms";
                     });
-                    /*eb.AddField((x) =>
+                    eb.AddField((x) =>
                     {
                         x.Name = "Sora Version";
                         x.IsInline = true;
                         x.Value = $"{Utility.SORA_VERSION}";
-                    });*/
+                    });
                     eb.AddField((x) =>
                     {
                         x.Name = "Shard Id";

@@ -95,15 +95,9 @@ namespace SoraBot_v2
             //await _commands.InstallAsync();
 
             //SETUP other dependency injection services
-            serviceProvider.GetRequiredService<ReminderService>().Initialize(serviceProvider);
-            serviceProvider.GetRequiredService<EpService>().Initialize(serviceProvider);
-            serviceProvider.GetRequiredService<MarriageService>().Initialize(serviceProvider);
-            serviceProvider.GetRequiredService<MusicShareService>().Initialize(serviceProvider);
-            await serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(serviceProvider);
-            serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(serviceProvider);
-            serviceProvider.GetRequiredService<AnnouncementService>().Initialize(serviceProvider);
-            serviceProvider.GetRequiredService<ModService>().Initialize(serviceProvider);
+            serviceProvider.GetRequiredService<ReminderService>().Initialize();
             await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
+            //serviceProvider.GetRequiredService<StarboardService>().InitializeAsync(); 
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
 

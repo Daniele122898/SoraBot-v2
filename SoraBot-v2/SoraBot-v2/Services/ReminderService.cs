@@ -20,7 +20,6 @@ namespace SoraBot_v2.Services
         private Timer _timer;
         private DiscordSocketClient _client;
         private InteractiveService _interactive;
-        private IServiceProvider _services;
 
         public ReminderService(DiscordSocketClient client, InteractiveService interactiveService)
         {
@@ -28,9 +27,8 @@ namespace SoraBot_v2.Services
             _interactive = interactiveService;
         }
 
-        public void Initialize(IServiceProvider services)
+        public void Initialize()
         {
-            _services = services;
             SetTimer();
         }
 

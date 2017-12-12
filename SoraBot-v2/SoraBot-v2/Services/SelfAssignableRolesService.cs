@@ -15,7 +15,6 @@ namespace SoraBot_v2.Services
 {
     public class SelfAssignableRolesService
     {
-        private IServiceProvider _services;
         private InteractiveService _interactive;
 
         public SelfAssignableRolesService(InteractiveService service)
@@ -23,10 +22,6 @@ namespace SoraBot_v2.Services
             _interactive = service;
         }
 
-        public void Initialize(IServiceProvider services)
-        {
-            _services = services;
-        }
 
 
         public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)

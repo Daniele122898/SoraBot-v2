@@ -181,7 +181,7 @@ namespace SoraBot_v2
                 using (var soraContext = new SoraContext())
                 {
                     //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
-                    await _afkService.Client_MessageReceived(m, _services);
+                    _afkService.Client_MessageReceived(m, _services);
 
                     // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
                     // TODO: Move this into the config file

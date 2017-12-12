@@ -10,16 +10,14 @@ using Weeb.net;
 
 namespace SoraBot_v2.Module
 {
-    public class InteractionModule : ModuleBase<SocketCommandContext>, IDisposable
+    public class InteractionModule : ModuleBase<SocketCommandContext>
     {
         
-        private SoraContext _soraContext;
         private readonly InteractionsService _interactions;
         private readonly WeebService _weebService;
 
-        public InteractionModule(SoraContext soracontext, InteractionsService interactionsService, WeebService weebService)
+        public InteractionModule(InteractionsService interactionsService, WeebService weebService)
         {
-            _soraContext = soracontext;
             _interactions = interactionsService;
             _weebService = weebService;
         }
@@ -71,8 +69,11 @@ namespace SoraBot_v2.Module
             patted = (patted.Length > 200 ? $"{patted.Remove(200)}..." : patted);
             eb.Title =
                 $"{Utility.GiveUsernameDiscrimComb(Context.User)} pats {patted.Remove(patted.Length-2)} ｡◕ ‿ ◕｡";
-            
-            await _interactions.InteractMultiple(InteractionType.Pat, users, Context, _soraContext);
+
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Pat, users, Context, _soraContext);
+            }
 
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
@@ -107,7 +108,10 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
+            }
             /*
             var r = new Random();
             eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length)]}";*/
@@ -156,7 +160,10 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            await _interactions.InteractMultiple(InteractionType.High5, users, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.High5, users, Context, _soraContext);
+            }
             var high5ed = "";
             users.ForEach(x=>high5ed+= Utility.GiveUsernameDiscrimComb(x)+", ");
             high5ed = (high5ed.Length > 200 ? $"{high5ed.Remove(200)}..." : high5ed);
@@ -204,9 +211,11 @@ namespace SoraBot_v2.Module
             };
             if(sameAsInvoker!= null)
                 users.Remove(sameAsInvoker);
-            
-            await _interactions.InteractMultiple(InteractionType.Poke, users, Context, _soraContext);
-            
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Poke, users, Context, _soraContext);
+            }
+
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
 
@@ -240,7 +249,10 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            await _interactions.InteractMultiple(InteractionType.Kiss, users, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Kiss, users, Context, _soraContext);
+            }
             string kissed = "";
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
 
@@ -261,7 +273,10 @@ namespace SoraBot_v2.Module
         public async Task GetAffinity([Summary("Person to check")]SocketUser UserT = null)
         {
             var user = UserT ?? Context.User;
-            await _interactions.CheckAffinity(user, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.CheckAffinity(user, Context, _soraContext);
+            }
         }
 
         [Command("slap",RunMode = RunMode.Async), Summary("Slaps the specified person <.<")]
@@ -294,7 +309,10 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            await _interactions.InteractMultiple(InteractionType.Slap, users, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Slap, users, Context, _soraContext);
+            }
 
             string slapped = "";
             users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");
@@ -342,7 +360,10 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            await _interactions.InteractMultiple(InteractionType.Punch, users, Context, _soraContext);
+            using (var _soraContext = new SoraContext())
+            {
+                await _interactions.InteractMultiple(InteractionType.Punch, users, Context, _soraContext);
+            }
             string punched = "";
             users.ForEach(x=> punched+= Utility.GiveUsernameDiscrimComb(x)+", ");
             punched = (punched.Length > 200 ? $"{punched.Remove(200)}..." : punched);
@@ -360,11 +381,6 @@ namespace SoraBot_v2.Module
                 Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with! (@Mention them)"
             };
             await context.Channel.SendMessageAsync("", embed: eb);
-        }
-
-        public void Dispose()
-        {
-            _soraContext?.Dispose();
         }
     }
 }
