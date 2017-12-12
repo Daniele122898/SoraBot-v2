@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 using Weeb.net;
 using Weeb.net.Data;
@@ -18,7 +19,15 @@ namespace SoraBot_v2.Services
         
         public async Task InitializeAsync()
         {
-            await _weebClient.Authenticate(_token);
+            try
+            {
+                await _weebClient.Authenticate(_token);
+
+            }
+            catch (Exception e)
+            {
+                await SentryService.SendMessage("COULND'T CONNECT TO WEEB.SH SERVICES");
+            }
         }
 
         public async Task GetTypes(SocketCommandContext context)
