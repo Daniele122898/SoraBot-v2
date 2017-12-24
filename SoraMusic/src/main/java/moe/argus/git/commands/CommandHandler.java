@@ -363,8 +363,12 @@ public class CommandHandler {
         if(!checkBotAndSame(event))
             return;
 
+        AudioPlayer player = getGuildAudioPlayer(event.getGuild()).getScheduler().getPlayer();
+
         if(args.size() ==0 || args.size() > 1){
-            if(args.size() ==0 && getGuildAudioPlayer(event.getGuild()).getScheduler().getPlayer().isPaused()){
+            if(args.size() ==0 && player.isPaused()){
+                //Unpause player
+                player.setPaused(false);
                 Utility.sendMessage(event.getChannel(), "",
                         Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Unpaused player.").build());
                 return;
