@@ -306,16 +306,10 @@ namespace SoraBot_v2.Module
                     });
                     var channelCount = 0;
                     var userCount = 0;
-                    var usermap = new Dictionary<ulong, bool>();
                     foreach (var g in Context.Client.Guilds)
                     {
                         channelCount += g.Channels.Count;
                         userCount += g.MemberCount;
-                        await g.DownloadUsersAsync();
-                        foreach (var u in g.Users)
-                        {
-                            usermap.TryAdd(u.Id, false);
-                        }
                     }
                     eb.AddField((x) =>
                     {
@@ -327,7 +321,7 @@ namespace SoraBot_v2.Module
                     {
                         x.Name = "Users with access";
                         x.IsInline = true;
-                        x.Value = $"{usermap.Count} unique\n{userCount} total";
+                        x.Value = ""+userCount;
                     });
                     eb.AddField((x) =>
                     {
