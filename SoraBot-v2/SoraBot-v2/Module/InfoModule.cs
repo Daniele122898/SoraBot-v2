@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -222,7 +223,7 @@ namespace SoraBot_v2.Module
             await Context.Channel.SendMessageAsync($"**Get support here**\n{Utility.DISCORD_INVITE}");
         }
 
-        [Command("sys"), Alias("info"), Summary("Gives stats about Sora")]
+        [Command("sys", RunMode = RunMode.Async), Alias("info"), Summary("Gives stats about Sora")]
         public async Task GetSysInfo()
         {
             using (var proc = Process.GetCurrentProcess())
@@ -305,10 +306,16 @@ namespace SoraBot_v2.Module
                     });
                     var channelCount = 0;
                     var userCount = 0;
+                    var usermap = new Dictionary<ulong, bool>();
                     foreach (var g in Context.Client.Guilds)
                     {
                         channelCount += g.Channels.Count;
                         userCount += g.MemberCount;
+                        await g.DownloadUsersAsync();
+                        foreach (var u in g.Users)
+                        {
+                            usermap.TryAdd(u.Id, false);
+                        }
                     }
                     eb.AddField((x) =>
                     {
@@ -320,7 +327,7 @@ namespace SoraBot_v2.Module
                     {
                         x.Name = "Users with access";
                         x.IsInline = true;
-                        x.Value = $"{userCount}";
+                        x.Value = $"{usermap.Count} unique\n{userCount} total";
                     });
                     eb.AddField((x) =>
                     {
