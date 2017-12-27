@@ -24,3 +24,7 @@ Complete Rewrite of Sora
 Sora will officially support MariaDB instead of running on Jsons. Json is nice and easy but it breaks easily and if that happens EVERYTHING is lost, not only 1 entry. It is also much faster and more efficient.
 
 I will also completely rewrite old code making it much faster and more efficient. At least that is the plan...
+
+## Group
+Official Dev Group Link
+https://github.com/ArgonautDevelopments/Sora
