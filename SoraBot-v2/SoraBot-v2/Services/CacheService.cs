@@ -76,6 +76,18 @@ namespace SoraBot_v2.Services
             return msg;
         }
 
+        public static async Task<IUserMessage> TrySetDiscordUserMessage(ITextChannel channel, ulong msgId,
+            TimeSpan timeout)
+        {
+            var msgobj = Get(DISCORD_USER_MESSAGE + msgId);
+            //MESSAGE ISNT CACHED! cache it
+            if (msgobj == null)
+            {
+                return (await SetDiscordUserMessage(channel, msgId, timeout));
+            }
+            return (msgobj as IUserMessage);
+        }
+
         private static void Set(string id, Item item)
         {
             _cacheDict.AddOrUpdate(id, item, (key, oldValue) => item);

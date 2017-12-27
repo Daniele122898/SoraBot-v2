@@ -327,7 +327,7 @@ namespace SoraBot_v2.Module
                     {
                         x.Name = "Music";
                         x.IsInline = true;
-                        x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}msys` for music stats"; //TODO COUNT MUSIC STREAMS
+                        x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}msys` for music stats";
                     });
                     eb.AddField((x) =>
                     {
