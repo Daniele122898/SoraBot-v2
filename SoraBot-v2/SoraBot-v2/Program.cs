@@ -120,8 +120,8 @@ namespace SoraBot_v2
                 var host = new WebHostBuilder()
                     .UseKestrel() // MVC webserver is called Kestrel when self hosting
                     .UseUrls("http://localhost:" + 8087) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
-                    .UseContentRoot(Directory.GetCurrentDirectory() + @"\web\") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
-                    .UseWebRoot(Directory.GetCurrentDirectory() + @"\web\") // Same as above.
+                    .UseContentRoot(Directory.GetCurrentDirectory() + @"/web/") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
+                    .UseWebRoot(Directory.GetCurrentDirectory() + @"/web/") // Same as above.
                     .UseStartup<Startup>() // Use Startup class in Startup.cs
                     .ConfigureServices(services =>
                     {
