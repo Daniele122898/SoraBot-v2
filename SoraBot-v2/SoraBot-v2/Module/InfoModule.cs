@@ -189,7 +189,7 @@ namespace SoraBot_v2.Module
             eb.AddField(x =>
             {
                 x.IsInline = true;
-                x.Name = "Total Emotes";//TODO CHANGE FOR SHARD LATER
+                x.Name = "Total Emotes";
                 x.Value = $"{Context.Guild.Emotes.Count}";
             });
             eb.AddField(x =>
@@ -290,13 +290,13 @@ namespace SoraBot_v2.Module
                     {
                         x.IsInline = true;
                         x.Name = "Messages Received";
-                        x.Value = $"{_commandHandler.MessagesReceived} since restart";
+                        x.Value = $"{CommandHandler.MessagesReceived} since restart";
                     });
                     eb.AddField((x) =>
                     {
                         x.Name = "Commands Executed";
                         x.IsInline = true;
-                        x.Value = $"{_commandHandler.CommandsExecuted + 1} since restart";
+                        x.Value = $"{CommandHandler.CommandsExecuted + 1} since restart";
                     });
                     eb.AddField((x) =>
                     {

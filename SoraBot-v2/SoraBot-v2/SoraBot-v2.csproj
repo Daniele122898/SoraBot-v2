@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-	<ServerGarbageCollection>true</ServerGarbageCollection>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Discord.Addons.Interactive" Version="1.0.1" />
@@ -12,6 +12,10 @@
     <PackageReference Include="Humanizer" Version="2.2.0" />
     <PackageReference Include="ImageSharp" Version="1.0.0-alpha9-00175" />
     <PackageReference Include="ImageSharp.Drawing" Version="1.0.0-alpha9-00170" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.0.0" />
@@ -58,5 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="transfer\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="web" />
   </ItemGroup>
 </Project>

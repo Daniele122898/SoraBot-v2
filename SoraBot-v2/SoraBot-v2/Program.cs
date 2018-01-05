@@ -6,6 +6,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using ImageSharp;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -112,6 +113,35 @@ namespace SoraBot_v2
             //Connect to Discord
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
+            
+            //build webserver and inject service
+            try
+            {
+                var host = new WebHostBuilder()
+                    .UseKestrel() // MVC webserver is called Kestrel when self hosting
+                    .UseUrls("http://localhost:" + 8087) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
+                    .UseContentRoot(Directory.GetCurrentDirectory() + @"\web\") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
+                    .UseWebRoot(Directory.GetCurrentDirectory() + @"\web\") // Same as above.
+                    .UseStartup<Startup>() // Use Startup class in Startup.cs
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSingleton(_client); // Injected Discord client
+                        services.AddCors(options =>
+                        {
+                            options.AddPolicy("AllowLocal", builder => builder.WithOrigins("localhost")); // Enable CORS to only allow calls from localhost
+                        });
+                        services.AddMvc().AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore ); // Fixes JSON Recursion issues in API response.
+                    })
+                    .Build(); // Actually creates the webhost
+
+                await host.RunAsync(); // Run in tandem to client
+                Console.WriteLine("WEB API STARTED ON PORT: 8087");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await SentryService.SendMessage(e.ToString());
+            }
 
             //INITIALIZE CACHE
             CacheService.Initialize();

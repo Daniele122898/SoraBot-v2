@@ -18,11 +18,6 @@ namespace SoraBot_v2.Services
 {
     public class StarboardService
     {
-        /*private readonly List<string> _acceptedStars = new List<string>()
-        {
-            "⭐", "🌟", "🌠"
-        };*/
-
         private readonly DiscordSocketClient _client;
         private Timer _timer;
         private List<StarMsgUpdateStruct> _toUpdate = new List<StarMsgUpdateStruct>();

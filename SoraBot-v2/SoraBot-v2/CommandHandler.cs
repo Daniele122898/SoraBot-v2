@@ -17,8 +17,8 @@ namespace SoraBot_v2
 {
     public class CommandHandler
     {
-        public double MessagesReceived;
-        public int CommandsExecuted;
+        public static double MessagesReceived;
+        public static int CommandsExecuted;
 
         private IServiceProvider _services;
         private readonly DiscordSocketClient _client;
