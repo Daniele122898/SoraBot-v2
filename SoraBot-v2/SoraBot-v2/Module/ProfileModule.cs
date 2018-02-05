@@ -1,57 +1,37 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    public class EpModule: ModuleBase<SocketCommandContext>
+    public class ProfileModule : ModuleBase<SocketCommandContext>
     {
-        private EpService _epService;
+        private ProfileService _profileService;
 
-        public EpModule(EpService epService)
+        public ProfileModule(ProfileService service)
         {
-            _epService = epService;
+            _profileService = service;
         }
         
-        [Command("togglenotify"), Alias("subscribe", "sub", "subep"), Summary("Will notify you when you level up!")]
-        public async Task ToggleNotify()
+        [Command("removebackground"), Alias("removebg", "rbg", "defaultcard"),
+         Summary("Removes your current BG and resets you to the default profile card")]
+        public async Task RemoveBackGround()
         {
-            await _epService.ToggleEpGain(Context);
+            await _profileService.RemoveBg(Context);
         }
-
+        
         [Command("profile", RunMode = RunMode.Async), Alias("p"), Summary("Shows your profile Card")]
         public async Task ProfileCard(SocketUser userT = null)
         {
             var typing = Context.Channel.EnterTypingState();
             var user = userT ?? Context.User;
             typing.Dispose();
-            await _epService.DrawProfileCard(Context, user);
-        }
-
-        [Command("removebackground"), Alias("removebg", "rbg", "defaultcard"),
-         Summary("Removes your current BG and resets you to the default profile card")]
-        public async Task RemoveBackGround()
-        {
-            await _epService.RemoveBg(Context);
-        }
-
-        [Command("top10"), Alias("top", "localtop", "localtop10", "t10", "leaderboard"),
-         Summary("Shows the top 10 users in this guild by EXP")]
-        public async Task LocalTop10()
-        {
-            await _epService.GetLocalTop10List(Context);
+            await _profileService.DrawProfileCard(Context, user);
         }
         
-        [Command("globaltop10"), Alias("globaltop", "globalt", "top10globally", "gt10", "global top10", "gtop10", "globalleaderboard", "gleaderboard"),
-         Summary("Shows the top 10 users globally")]
-        public async Task GlobalTop10()
-        {
-            await _epService.GetGlobalTop10(Context);
-        }
-
         [Command("setbackground", RunMode = RunMode.Async), Alias("setbg", "sbg"),
          Summary("Give Sora any Link to any Picture and he will use it as your profile card Background!")]
         public async Task SetBg(string url = null)
@@ -72,12 +52,12 @@ namespace SoraBot_v2.Module
                 }
                 url = Context.Message.Attachments.ToArray()[0].Url;
             }
-            if (!url.EndsWith(".jpg") && !url.EndsWith(".png") && !url.EndsWith(".gif") && !url.EndsWith(".jpeg"))
+            if (!url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
             {
                 await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must link or attach an Image!"));
                 return;
             }
-            await _epService.SetCustomBg(url, Context);
+            await _profileService.SetCustomBg(url, Context);
         }
     }
 }

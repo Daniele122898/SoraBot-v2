@@ -12,9 +12,10 @@ using System;
 namespace SoraBotv2.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20180109210025_ClanUpdate")]
+    partial class ClanUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,23 +24,13 @@ namespace SoraBotv2.Migrations
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.Clan", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AvatarUrl");
-
-                    b.Property<DateTime>("Created");
+                    b.Property<string>("Name");
 
                     b.Property<bool>("HasImage");
 
-                    b.Property<string>("Message");
-
-                    b.Property<string>("Name");
-
                     b.Property<ulong>("OwnerId");
 
-                    b.HasKey("Id");
+                    b.HasKey("Name");
 
                     b.ToTable("Clans");
                 });
@@ -54,8 +45,6 @@ namespace SoraBotv2.Migrations
 
                     b.Property<bool>("EmbedWelcome");
 
-                    b.Property<bool>("EnabledLvlUpMessage");
-
                     b.Property<bool>("HasDefaultRole");
 
                     b.Property<bool>("IsDjRestricted");
@@ -64,15 +53,11 @@ namespace SoraBotv2.Migrations
 
                     b.Property<string>("LeaveMessage");
 
-                    b.Property<string>("LevelUpMessage");
-
                     b.Property<string>("Prefix");
 
                     b.Property<ulong>("PunishLogsId");
 
                     b.Property<bool>("RestrictTags");
-
-                    b.Property<bool>("SendLvlDm");
 
                     b.Property<ulong>("StarChannelId");
 
@@ -146,28 +131,9 @@ namespace SoraBotv2.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClanName");
+
                     b.ToTable("ClanInvites");
-                });
-
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.GuildLevelRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("Banned");
-
-                    b.Property<ulong>("GuildId");
-
-                    b.Property<int>("RequiredLevel");
-
-                    b.Property<ulong>("RoleId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GuildId");
-
-                    b.ToTable("GuildLevelRoles");
                 });
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.GuildUser", b =>
@@ -411,8 +377,6 @@ namespace SoraBotv2.Migrations
 
                     b.Property<DateTime>("CanGainAgain");
 
-                    b.Property<int?>("ClanId");
-
                     b.Property<string>("ClanName");
 
                     b.Property<bool>("ClanStaff");
@@ -420,8 +384,6 @@ namespace SoraBotv2.Migrations
                     b.Property<float>("Exp");
 
                     b.Property<bool>("HasBg");
-
-                    b.Property<DateTime>("JoinedClan");
 
                     b.Property<int>("Money");
 
@@ -433,7 +395,7 @@ namespace SoraBotv2.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("ClanId");
+                    b.HasIndex("ClanName");
 
                     b.ToTable("Users");
                 });
@@ -454,12 +416,11 @@ namespace SoraBotv2.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.GuildLevelRole", b =>
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.ClanInvite", b =>
                 {
-                    b.HasOne("SoraBot_v2.Data.Entities.Guild", "Guild")
-                        .WithMany("LevelRoles")
-                        .HasForeignKey("GuildId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("SoraBot_v2.Data.Entities.Clan", "Clan")
+                        .WithMany("Invites")
+                        .HasForeignKey("ClanName");
                 });
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.GuildUser", b =>
@@ -540,9 +501,9 @@ namespace SoraBotv2.Migrations
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.User", b =>
                 {
-                    b.HasOne("SoraBot_v2.Data.Entities.Clan")
+                    b.HasOne("SoraBot_v2.Data.Entities.Clan", "Clan")
                         .WithMany("Members")
-                        .HasForeignKey("ClanId");
+                        .HasForeignKey("ClanName");
                 });
 #pragma warning restore 612, 618
         }

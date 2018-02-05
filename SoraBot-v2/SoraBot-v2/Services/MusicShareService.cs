@@ -199,7 +199,7 @@ namespace SoraBot_v2.Services
             using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                if (userDb == null || EpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
+                if (userDb == null || ExpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -568,7 +568,7 @@ namespace SoraBot_v2.Services
             if (context.User.Id == Utility.OWNER_ID)//backdoor so i can add as many as i want
                 return true;
 
-            int level = EpService.CalculateLevel(userDb.Exp);
+            int level = ExpService.CalculateLevel(userDb.Exp);
             int amountGranted = (int)Math.Floor((double)((level - (MIN_LEVEL - NEED_FOR_EXTRA_PLAYLIST)) / NEED_FOR_EXTRA_PLAYLIST));
             int amountLeft = amountGranted - userDb.ShareCentrals.Count;
 
@@ -586,7 +586,7 @@ namespace SoraBot_v2.Services
             using (var soraContext = new SoraContext())
             {
                 var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                if (userDb == null || EpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
+                if (userDb == null || ExpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least lvl {MIN_LEVEL} to share playlists!"));

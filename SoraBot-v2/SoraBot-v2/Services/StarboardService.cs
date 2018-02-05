@@ -300,7 +300,7 @@ namespace SoraBot_v2.Services
                 if (msg.Attachments.Count == 1)
                 {
                     var url = msg.Attachments.ToArray()[0].Url;
-                    if (url.EndsWith(".png") || url.EndsWith(".jpg") || url.EndsWith(".gif"))
+                    if (url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         attachMent = false;
                         picAttachment = true;
@@ -327,7 +327,7 @@ namespace SoraBot_v2.Services
                 if (mc.Count == 1)
                 {
                     var link = mc[0].Value;
-                    if (link.EndsWith(".png") || link.EndsWith(".jpg") || link.EndsWith(".gif"))
+                    if (link.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || link.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || link.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         picAttachment = true;
                         picAttach = link;

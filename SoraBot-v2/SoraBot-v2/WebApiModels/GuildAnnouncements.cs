@@ -21,6 +21,7 @@ namespace SoraBot_v2.WebApiModels
         public string Message { get; set; }
         public bool Embed { get; set; }
         public string Type { get; set; }
+        public bool Disabled { get; set; }
     }
 
     public class WebGuildChannel

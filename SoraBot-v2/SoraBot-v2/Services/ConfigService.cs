@@ -21,7 +21,7 @@ namespace SoraBot_v2.Services
         {
             if (!File.Exists("config.json"))
             {
-                throw new IOException("COULDN'T FIND AND LOAD CONFIG FILE!");
+                throw new IOException("COULDN'T FIND AND LOAD CONFIG FILE! at "+ Directory.GetCurrentDirectory());
             }
 
             using (StreamReader sr = File.OpenText("config.json"))

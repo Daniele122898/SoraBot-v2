@@ -24,7 +24,6 @@ namespace SoraBot_v2
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly AfkService _afkService;
-        private EpService _epService;
         private StarboardService _starboardService;
         private readonly RatelimitingService _ratelimitingService;
         private SelfAssignableRolesService _selfAssignableRolesService;
@@ -82,14 +81,13 @@ namespace SoraBot_v2
             //TODO WELCOME MESSAGE
         }
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService, EpService epService,
+        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildUpdate)
+            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService)
         {
             _client = client;
             _commands = commandService;
             _afkService = afkService;
-            _epService = epService;
             _services = provider;
             _ratelimitingService = ratelimitingService;
             _starboardService = starboardService;
@@ -97,6 +95,8 @@ namespace SoraBot_v2
             _announcementService = announcementService;
             _modService = modService;
             _guildCount = guildUpdate;
+            
+            _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
 
             _client.MessageReceived += HandleCommandsAsync;
@@ -104,7 +104,7 @@ namespace SoraBot_v2
             _commands.Log += CommandsOnLog;
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
-            _client.MessageReceived += _epService.IncreaseEpOnMessageReceive;
+            _client.MessageReceived += expService.IncreaseEpOnMessageReceive;
             _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
             _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
             _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
@@ -201,7 +201,6 @@ namespace SoraBot_v2
 
                     // Also allocate a default guild if needed since we skipped that part earlier.
                     Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
-
                     // Handoff control to D.NET
                     var result = await _commands.ExecuteAsync(
                         context,

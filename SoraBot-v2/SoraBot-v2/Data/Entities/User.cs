@@ -30,5 +30,9 @@ namespace SoraBot_v2.Data.Entities
         public virtual List<Marriage> Marriages { get; set; }
         public virtual List<ShareCentral> ShareCentrals { get; set; }
         public virtual List<Voting> Votings { get; set; }
+        //clan
+        public string ClanName { get; set; }
+        public bool ClanStaff { get; set; }
+        public DateTime JoinedClan { get; set; }
     }
 }

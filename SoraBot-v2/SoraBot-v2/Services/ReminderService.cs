@@ -33,6 +33,8 @@ namespace SoraBot_v2.Services
         }
 
         private const int INITIAL_DELAY = 40;
+        private const int CLEANUP_MINUTES = 2;
+        private const int CRUCKED_SECONDS = 30;
 
         private void SetTimer()
         {
@@ -172,6 +174,7 @@ namespace SoraBot_v2.Services
                 List<Reminders> rems = new List<Reminders>();
                 rems = _soraContext.Reminders.ToList();
                 bool triggered = false;
+                bool crucked = false;
                 foreach (var reminder in rems)
                 {
                     if (reminder.Time.CompareTo(DateTime.UtcNow) <= 0)
@@ -180,19 +183,40 @@ namespace SoraBot_v2.Services
                         var userToRemind = _client.GetUser(reminder.UserForeignId);
                         if (userToRemind == null)
                         {
-                            _soraContext.Reminders.Remove(reminder);
+                            triggered = false;
+                            crucked = true;
+                            //remove if user is not reachable anymore
+                            if (reminder.Time.Add(TimeSpan.FromMinutes(CLEANUP_MINUTES)).CompareTo(DateTime.UtcNow)<= 0)
+                            {
+                                _soraContext.Reminders.Remove(reminder);
+                            }
                             continue;
                         }
-                        await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                            embed: Utility
-                                .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
-                                .WithDescription($"{reminder.Message}"));
+                        try
+                        {
+                            await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                                embed: Utility
+                                    .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
+                                    .WithDescription($"{reminder.Message}"));
+                        }
+                        catch (Exception e)
+                        {
+                            //Ignore
+                        }
                         _soraContext.Reminders.Remove(reminder);
                     }
                 }
                 await _soraContext.SaveChangesAsync();
-                if (triggered)
-                    ChangeToClosestInterval();
+                
+
+                if (crucked)
+                {
+                    _timer.Change(TimeSpan.FromSeconds(CRUCKED_SECONDS), TimeSpan.FromSeconds(CRUCKED_SECONDS));
+                    Console.WriteLine($"CHANGED TIMER INTERVAL TO *CRUCKED*: {CRUCKED_SECONDS}");
+                } 
+                else if (triggered){
+                    ChangeToClosestInterval();                    
+                }
             }
         }
 

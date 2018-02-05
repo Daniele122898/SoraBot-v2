@@ -268,7 +268,6 @@ namespace SoraBot_v2.Services
 
                 var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
 
-
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
                 result.Reminders = reminders;
@@ -277,6 +276,51 @@ namespace SoraBot_v2.Services
                 result.Marriages = marriages;
             }
             return result;
+        }
+
+        public static GuildUser GetOrCreateGuildUser(ulong userId, ulong guildId, SoraContext soraContext)
+        {
+            GuildUser gUser = null;
+            try
+            {
+                var guildDb = GetOrCreateGuild(guildId, soraContext);
+                gUser = guildDb.Users.FirstOrDefault(x => x.UserId == userId);
+                if (gUser == null)
+                {
+                    gUser = new GuildUser(){Exp = 0, Guild = guildDb, GuildId = guildId, UserId = userId};
+                    guildDb.Users.Add(gUser);
+                    soraContext.GuildUsers.Add(gUser);
+                    soraContext.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return gUser;
+        }
+
+        public static Clan GetClan(string clanName, SoraContext soraContext)
+        {
+            Clan clan = null;
+            try
+            {
+                clan = soraContext.Clans.FirstOrDefault(
+                    x => x.Name.Equals(clanName, StringComparison.OrdinalIgnoreCase));
+                //no clan found
+                if (clan == null)
+                    return null;
+
+                var members =
+                    soraContext.Users.Where(x => !string.IsNullOrWhiteSpace(x.ClanName) && x.ClanName.Equals(clanName, StringComparison.OrdinalIgnoreCase))
+                        .ToList() ?? new List<User>();
+                clan.Members = members;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return clan;
         }
         
         
@@ -289,7 +333,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = Id, ShareCentrals = new List<ShareCentral>(), Interactions = new Interactions(),Votings = new List<Voting>(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false});
+                    var addedUser = soraContext.Users.Add(new User() {UserId = Id, ShareCentrals = new List<ShareCentral>(), Interactions = new Interactions(),Votings = new List<Voting>(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false, ClanStaff = false, ClanName = ""});
                     //Set Default action to be false! // Interactions = new Interactions() , Afk = new Afk()
                     //addedUser.Entity.Afk.IsAfk = false; CHANGED
                     //soraContext.SaveChangesThreadSafe();
@@ -305,6 +349,8 @@ namespace SoraBot_v2.Services
                 var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
 
                 var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
+                if (result.ClanName == null)
+                    result.ClanName = "";
 
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
@@ -352,7 +398,7 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1});
+                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1, Users = new List<GuildUser>(), LevelRoles = new List<GuildLevelRole>()});
                     //soraContext.SaveChangesThreadSafe();
                     soraContext.SaveChanges();
                     return addGuild.Entity;
@@ -372,6 +418,13 @@ namespace SoraBot_v2.Services
                 var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guildId)?.ToList() ??
                                new List<ModCase>();
 
+                var users = soraContext.GuildUsers.Where(x => x.GuildId == guildId).ToList() ?? new List<GuildUser>();
+
+                var levelRoles = soraContext.GuildLevelRoles.Where(x => x.GuildId == guildId).ToList() ??
+                                 new List<GuildLevelRole>();
+
+                result.LevelRoles = levelRoles;
+                result.Users = users;
                 result.Cases = modCases;
                 result.SelfAssignableRoles = foundRoles;
                 result.Tags = foundTags;

@@ -27,6 +27,12 @@ namespace SoraBot_v2.Data
         public DbSet<StarMessage> StarMessages { get; set; }
         public DbSet<Role> SelfAssignableRoles { get; set; }
         public DbSet<ModCase> Cases { get; set; }
+        public DbSet<GuildUser> GuildUsers { get; set; }
+        public DbSet<GuildLevelRole> GuildLevelRoles { get; set; }
+        
+        //Clan
+        public DbSet<Clan> Clans { get; set; }
+        public DbSet<ClanInvite> ClanInvites { get; set; }
 
         //Song list
         public DbSet<Song> Songs { get; set; }
@@ -146,6 +152,13 @@ namespace SoraBot_v2.Data
                     .HasForeignKey(g => g.GuildForeignId);
             });
 
+            modelBuilder.Entity<GuildLevelRole>(x =>
+            {
+                x.HasOne(g => g.Guild)
+                    .WithMany(p => p.LevelRoles)
+                    .HasForeignKey(g => g.GuildId);
+            });
+
             modelBuilder.Entity<Role>(x =>
             {
                 x.HasOne(g => g.Guild)
@@ -158,6 +171,13 @@ namespace SoraBot_v2.Data
                 x.HasOne(g => g.Guild)
                     .WithMany(s => s.StarMessages)
                     .HasForeignKey(g => g.GuildForeignId);
+            });
+
+            modelBuilder.Entity<GuildUser>(u =>
+            {
+                u.HasOne(g => g.Guild)
+                    .WithMany(i => i.Users)
+                    .HasForeignKey(g => g.GuildId);
             });
 
             modelBuilder.Entity<Reminders>(x =>

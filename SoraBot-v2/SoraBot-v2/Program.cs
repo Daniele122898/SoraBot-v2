@@ -83,7 +83,7 @@ namespace SoraBot_v2
             //await _soraContext.Database.EnsureCreatedAsync();
 
             //Setup Services
-            ProfileImageProcessing.Initialize();
+            ProfileImageGeneration.Initialize();
             _interactive = new InteractiveService(_client);
             //Create dummy commandHandler for dependency Injection
             //_commands = new CommandHandler();
@@ -119,7 +119,7 @@ namespace SoraBot_v2
             {
                 var host = new WebHostBuilder()
                     .UseKestrel() // MVC webserver is called Kestrel when self hosting
-                    .UseUrls("http://localhost:" + 8087) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
+                    .UseUrls("http://localhost:" + (8087+shardId)) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
                     .UseContentRoot(Directory.GetCurrentDirectory() + @"/web/") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
                     .UseWebRoot(Directory.GetCurrentDirectory() + @"/web/") // Same as above.
                     .UseStartup<Startup>() // Use Startup class in Startup.cs
@@ -155,6 +155,7 @@ namespace SoraBot_v2
             var services = new ServiceCollection();
             services.AddSingleton(_client);
             services.AddSingleton<CommandService>();
+            services.AddSingleton<ClanService>();
 
             //// Disabled by Catherine Renelle - Memory leak fix
             ////services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
@@ -173,12 +174,14 @@ namespace SoraBot_v2
             services.AddSingleton<StarboardService>();
             services.AddSingleton<GiphyService>();
             services.AddSingleton<WeebService>();
+            services.AddSingleton<GuildLevelRoleService>();
             services.AddSingleton<ModService>();
+            services.AddSingleton<ProfileService>();
             services.AddSingleton<ReminderService>();
             services.AddSingleton<GuildCountUpdaterService>();
             services.AddSingleton<UbService>();
             services.AddSingleton<ImdbService>();
-            services.AddSingleton<EpService>();
+            services.AddSingleton<ExpService>();
             services.AddSingleton<TagService>();
             services.AddSingleton<AnimeSearchService>();
 

@@ -25,10 +25,16 @@ namespace SoraBot_v2.Data.Entities
         public bool EmbedWelcome { get; set; }
         public bool EmbedLeave { get; set; }
         public ulong PunishLogsId { get; set; }
+
+        public string LevelUpMessage { get; set; }
+        public bool EnabledLvlUpMessage { get; set; }
+        public bool SendLvlDm { get; set; }
         
         public virtual List<Tags> Tags { get; set; }
         public virtual List<StarMessage> StarMessages { get; set; }
         public virtual List<Role> SelfAssignableRoles { get; set; }
         public virtual List<ModCase> Cases { get; set; }
+        public virtual List<GuildUser> Users { get; set; }
+        public virtual List<GuildLevelRole> LevelRoles { get; set; }
     }
 }

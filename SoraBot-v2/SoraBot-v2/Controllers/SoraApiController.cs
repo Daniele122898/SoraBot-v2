@@ -9,6 +9,7 @@ using SoraBot_v2.Services;
 using SoraBot_v2.WebApiModels;
 using Humanizer;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Controllers
 {
@@ -134,7 +135,153 @@ namespace SoraBot_v2.Controllers
             }
             return null;
         }
-        
+
+        [HttpPost("EditStarboard/", Name = "EditStarboard")]
+        [EnableCors("EditStarboard")]
+        public bool EditStarboard([FromBody] WebStarboardEdit star)
+        {
+            try
+            {
+                var permGuilds = GetPermGuilds(ulong.Parse(star.UserId));
+                if (permGuilds == null || permGuilds.Count == 0)
+                {
+                    Console.WriteLine("FOUND NO PERM GUILDS");
+                    return false;
+                }
+                var guildId = ulong.Parse(star.GuildId);
+                var guild = permGuilds.FirstOrDefault(x => x.Id == guildId);
+                if (guild == null)
+                {
+                    Console.WriteLine("FOUND NO GUILD WITH ID");
+                    return false;
+                }
+                var channel = guild.GetTextChannel(ulong.Parse(star.ChannelId));
+                if (channel == null)
+                {
+                    Console.WriteLine("FOUND NO CHANNEL WITH ID");
+                    return false;
+                }
+                using (var soraContext = new SoraContext())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                    //change
+                    guildDb.StarChannelId = star.Disabled ? 0 : channel.Id;
+                    guildDb.StarMinimum = star.StarMin;
+                    soraContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
+
+        [HttpGet("GetGuildLevels/{userid}/{guildid}", Name = "GetGuildLevels")]
+        [EnableCors("AllowLocal")]
+        public GuildLevels GetGuildLevels(ulong userId, ulong guildId)
+        {
+            try
+            {
+                var permGuilds = GetPermGuilds(userId);
+                if (permGuilds == null || permGuilds.Count == 0)
+                {
+                    Console.WriteLine("FOUND NO PERM GUILDS");
+                    return null;
+                }
+                var guild = permGuilds.FirstOrDefault(x => x.Id == guildId);
+                if (guild == null)
+                {
+                    Console.WriteLine("FOUND NO GUILD WITH ID");
+                    return null;
+                }
+                using (var soraContext = new SoraContext())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                    var resp = new GuildLevels()
+                    {
+                        EnabledLvlUpMessage = guildDb.EnabledLvlUpMessage,
+                        LevelUpMessage = (string.IsNullOrWhiteSpace(guildDb.LevelUpMessage) ? GuildLevelRoleService.DEFAULT_MSG : guildDb.LevelUpMessage),
+                        SendLvlDm = guildDb.SendLvlDm
+                    };
+                    var banned = guildDb.LevelRoles.Where(x => x.Banned).ToList();
+                    var normal = guildDb.LevelRoles.Where(x => !x.Banned).ToList();
+                    var otherRoles = guild.Roles;
+                    foreach (var role in otherRoles)
+                    {                        
+                        if(role.Name == "@everyone")
+                            continue;
+                        if(role.IsManaged)
+                            continue;
+                        
+                        var addRole = new WebLevelRole()
+                        {
+                            RoleId = role.Id.ToString(),
+                            RGBColor = $"rgb({role.Color.R}, {role.Color.G}, {role.Color.B})",
+                            RoleName = role.Name
+                        };
+                        //check if role is already set to be rewarded
+                        var lvlRole = normal.FirstOrDefault(x => x.RoleId == role.Id);
+                        var ban = banned.FirstOrDefault(x => x.RoleId == role.Id);
+                        addRole.Banned = ban?.Banned ?? false;
+                        addRole.RequiredLevel = lvlRole?.RequiredLevel ?? 0;
+                        resp.LevelRoles.Add(addRole);
+                    }
+                    return resp;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return null;
+        }
+
+        [HttpGet("GetStarboard/{userid}/{guildid}", Name = "GetStarboard")]
+        [EnableCors("AllowLocal")]
+        public WebStarboard GetStarboard(ulong userId, ulong guildId)
+        {
+            try
+            {
+                var permGuilds = GetPermGuilds(userId);
+                if (permGuilds == null || permGuilds.Count == 0)
+                {
+                    Console.WriteLine("FOUND NO PERM GUILDS");
+                    return null;
+                }
+                var guild = permGuilds.FirstOrDefault(x => x.Id == guildId);
+                if (guild == null)
+                {
+                    Console.WriteLine("FOUND NO GUILD WITH ID");
+                    return null;
+                }
+                using (var soraContext = new SoraContext())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                    var resp = new WebStarboard()
+                    {
+                        StarChannelId = guildDb.StarChannelId.ToString(),
+                        StarMinimum = guildDb.StarMinimum
+                    };
+                    foreach (var chan in guild.TextChannels)
+                    {
+                        resp.Channels.Add(new WebGuildChannel()
+                        {
+                            Name = chan.Name,
+                            Id = chan.Id.ToString()
+                        });
+                    }
+                    return resp;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return null;
+        }
+
         [HttpGet("GetGuildAnnouncements/{userid}/{guildid}", Name = "GetGuildAnnouncements")]
         [EnableCors("AllowLocal")]
         public GuildAnnouncements GetGuildAnnouncements(ulong userId,ulong guildId)
@@ -182,7 +329,152 @@ namespace SoraBot_v2.Controllers
             }
             return null;
         }
-       
+
+        [HttpPost("EditGuildLevels/", Name = "EditGuildLevels")]
+        [EnableCors("AllowLocal")]
+        public bool EditGuildLevels([FromBody] GuildLevelEdit lvlEdit)
+        {
+            try
+            {
+                var permGuilds = GetPermGuilds(ulong.Parse(lvlEdit.UserId));
+                if (permGuilds == null || permGuilds.Count == 0)
+                {
+                    Console.WriteLine("FOUND NO PERM GUILDS");
+                    return false;
+                }
+                var guildId = ulong.Parse(lvlEdit.GuildId);
+                var guild = permGuilds.FirstOrDefault(x => x.Id == guildId);
+                if (guild == null)
+                {
+                    Console.WriteLine("FOUND NO GUILD WITH ID");
+                    return false;
+                }
+                using (var soraContext = new SoraContext())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                    var banned = guildDb.LevelRoles.Where(x => x.Banned).ToList();
+                    //clear the banned list
+                    foreach (var role in banned)
+                    {
+                        if (!lvlEdit.BannedRoles.Contains(role.RoleId.ToString()))
+                        {
+                            guildDb.LevelRoles.Remove(role);
+                        }
+                    }
+                    
+                    foreach (var bannedRole in lvlEdit.BannedRoles)
+                    {
+                        var id = ulong.Parse(bannedRole);
+                        //check if already in the list
+                        if(banned.Any(x=> x.RoleId == id))
+                            continue;
+                        //otherwise add
+                        //check if role exists!
+                        var role = guild.GetRole(id);
+                        if (role == null)
+                            continue;
+                        
+                        guildDb.LevelRoles.Add(new GuildLevelRole()
+                        {
+                            Banned = true,
+                            GuildId = guildId,
+                            RequiredLevel = 0,
+                            RoleId = id
+                        });
+                    }
+                    //check for all the other roles now
+                    foreach (var lvlRole in lvlEdit.Roles)
+                    {
+                        //check if role exists
+                        var id = ulong.Parse(lvlRole.RoleId);
+                        var role = guild.GetRole(id);
+                        var fR = guildDb.LevelRoles.FirstOrDefault(x => x.RoleId == id);
+                        if (role == null)
+                        {
+                            //role didnt exist BUT it was in the rewards list
+                            if (fR != null)
+                            {
+                                guildDb.LevelRoles.Remove(fR);
+                            }
+                            continue;
+                        }
+                        //otherwise update or create new entry for new role!
+                        //if required level is 0 then remove it
+                        if (fR != null)
+                        {
+                            if (lvlRole.LvlReq == 0)
+                            {
+                                if (!fR.Banned)
+                                {
+                                    guildDb.LevelRoles.Remove(fR);
+                                }
+                            }
+                            else
+                            {
+                                fR.RequiredLevel = lvlRole.LvlReq;
+                            }
+                        } //otherwise add
+                        else
+                        {
+                            if (lvlRole.LvlReq == 0)
+                                continue;
+                            guildDb.LevelRoles.Add(new GuildLevelRole()
+                            {
+                                Banned = false,
+                                GuildId = guild.Id,
+                                RequiredLevel = lvlRole.LvlReq,
+                                RoleId = role.Id
+                            });
+                        }
+                    }
+                    guildDb.EnabledLvlUpMessage = lvlEdit.EnableAnn;
+                    guildDb.SendLvlDm = lvlEdit.SendDm;
+                    guildDb.LevelUpMessage = lvlEdit.LvlUpMsg;
+                    soraContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
+
+        [HttpPost("EditPrefix/", Name = "EditPrefix")]
+        [EnableCors("AllowLocal")]
+        public bool ChangePrefix([FromBody] WebPrefix prefix)
+        {
+            try
+            {
+                var permGuilds = GetPermGuilds(ulong.Parse(prefix.UserId));
+                if (permGuilds == null || permGuilds.Count == 0)
+                {
+                    Console.WriteLine("FOUND NO PERM GUILDS");
+                    return false;
+                }
+                var guildId = ulong.Parse(prefix.GuildId);
+                var guild = permGuilds.FirstOrDefault(x => x.Id == guildId);
+                if (guild == null)
+                {
+                    Console.WriteLine("FOUND NO GUILD WITH ID");
+                    return false;
+                }
+                using (var soraContext = new SoraContext())
+                {
+                    var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                    guildDb.Prefix = prefix.Prefix;
+                    soraContext.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
+
 
         [HttpPost("EditAnnouncement/", Name = "EditAnnouncement")]
         [EnableCors("AllowLocal")]
@@ -215,13 +507,14 @@ namespace SoraBot_v2.Controllers
                     switch (announc.Type)
                     {
                         case "w":
+                            guildDb.WelcomeChannelId = announc.Disabled ? 0 : channel.Id;
                             guildDb.EmbedWelcome = announc.Embed;
-                            guildDb.WelcomeChannelId = channel.Id;
                             guildDb.WelcomeMessage = announc.Message;
+                            
                             break;
                         case "l":
                             guildDb.EmbedLeave = announc.Embed;
-                            guildDb.LeaveChannelId = channel.Id;
+                            guildDb.LeaveChannelId =  announc.Disabled ? 0 : channel.Id;
                             guildDb.LeaveMessage = announc.Message;
                             break;
                         default:

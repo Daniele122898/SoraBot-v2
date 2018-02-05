@@ -34,16 +34,23 @@ namespace SoraBot_v2.Module
         [Command("ship", RunMode = RunMode.Async), Summary("Ship two people")]
         public async Task Ship(SocketUser user1, SocketUser user2 = null)
         {
-            user2 = user2 ?? Context.User;
-            await GetAvatar(user1);
-            await GetAvatar(user2);
-            ProfileImageProcessing.GenerateShipping($"Shipping/{user1.Id}Avatar.png",
-                $"Shipping/{user2.Id}Avatar.png", $"Shipping/ship{user1.Id}{user2.Id}.png");
+            try
+            {
+                user2 = user2 ?? Context.User;
+                await GetAvatar(user1);
+                await GetAvatar(user2);
+                ProfileImageGeneration.GenerateShipping($"Shipping/{user1.Id}Avatar.png",
+                    $"Shipping/{user2.Id}Avatar.png", $"Shipping/ship{user1.Id}{user2.Id}.png");
 
-            int distance = LevenshteinDistance.Compute(Utility.GiveUsernameDiscrimComb(user1),
-                Utility.GiveUsernameDiscrimComb(user2));
+                int distance = LevenshteinDistance.Compute(Utility.GiveUsernameDiscrimComb(user1),
+                    Utility.GiveUsernameDiscrimComb(user2));
             
-            await Context.Channel.SendFileAsync($"Shipping/ship{user1.Id}{user2.Id}.png",$"💕 Probability: {Math.Round(Math.Min(100, distance*multiplier),2)}%");
+                await Context.Channel.SendFileAsync($"Shipping/ship{user1.Id}{user2.Id}.png",$"💕 Probability: {Math.Round(Math.Min(100, distance*multiplier),2)}%");
+            }
+            catch (Exception e)
+            {
+                await SentryService.SendMessage(e.ToString());
+            }
             if (File.Exists($"Shipping/{user1.Id}Avatar.png"))
             {
                 File.Delete($"Shipping/{user1.Id}Avatar.png");
@@ -56,6 +63,7 @@ namespace SoraBot_v2.Module
             {
                 File.Delete($"Shipping/ship{user1.Id}{user2.Id}.png");
             }
+            
         }
     }
 }

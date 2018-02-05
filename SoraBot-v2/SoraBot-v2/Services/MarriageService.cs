@@ -39,7 +39,7 @@ namespace SoraBot_v2.Services
                             $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of 1. Married to 0 users"));
                     return;
                 }
-                int marryLimit = ((int)(Math.Floor((double)(EpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
+                int marryLimit = ((int)(Math.Floor((double)(ExpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
 
                 await context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
@@ -139,9 +139,9 @@ namespace SoraBot_v2.Services
                 var requestorDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 var askedDb = Utility.GetOrCreateUser(user.Id, soraContext);
                 int allowedMarriagesRequestor =
-                    ((int)(Math.Floor((double)(EpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
+                    ((int)(Math.Floor((double)(ExpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
                 int allowedMarriagesAsked =
-                    ((int)(Math.Floor((double)(EpService.CalculateLevel(askedDb.Exp) / 10)))) + 1;
+                    ((int)(Math.Floor((double)(ExpService.CalculateLevel(askedDb.Exp) / 10)))) + 1;
                 //check both limits
                 if (requestorDb.Marriages.Count >= allowedMarriagesRequestor)
                 {
