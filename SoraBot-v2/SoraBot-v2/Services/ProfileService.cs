@@ -14,6 +14,7 @@ namespace SoraBot_v2.Services
 {
     public class ProfileService
     {
+        
         public async Task RemoveBg(SocketCommandContext context)
         {
             using (var soraContext = new SoraContext())

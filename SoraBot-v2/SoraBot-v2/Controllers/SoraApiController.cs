@@ -282,6 +282,134 @@ namespace SoraBot_v2.Controllers
             return null;
         }
 
+        [HttpGet("GuildExists/{guildid}", Name = "GuildExists")]
+        [EnableCors("AllowLocal")]
+        public bool GuildExists(ulong guildId)
+        {
+            if (_client.GetGuild(guildId) == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HttpGet("GetGlobalLeaderboard/", Name = "GetGlobalLeaderboard")]
+        [EnableCors("AllowLocal")]
+        public GlobalLeaderboard GetGlobalLeaderboard()
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var users = soraContext.Users.ToList();
+                    var sorted = users.OrderByDescending(x => x.Exp).ToList();
+                    var resp = new GlobalLeaderboard(){ShardId = _client.ShardId};
+                    for (int i = 0; i < (sorted.Count > 150 ? 150 : sorted.Count); i++)
+                    {
+                        var guser = sorted[i];
+                        var user = _client.GetUser(guser.UserId);
+                        if (user == null)
+                        {
+                            continue;
+                        }
+                        resp.Ranks.Add(new GuildRank()
+                        {
+                            Rank = i+1,
+                            AvatarUrl = user.GetAvatarUrl() ?? "https://i.imgur.com/PvYs6dc.png",
+                            Discrim = user.Discriminator,
+                            Exp = (int)guser.Exp,
+                            Name = user.Username,
+                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(guser.Exp)+1),
+                            UserId = user.Id+""
+                        });
+                        if(resp.Ranks.Count >= 100)
+                            break;
+                    }
+                    return resp;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return null;
+        }
+
+        [HttpGet("GetGuildLeaderboard/{guildid}", Name = "GetGuildLeaderboard")]
+        [EnableCors("AllowLocal")]
+        public GuildLeaderboard GetGuildLeaderboard(ulong guildId)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var guild = _client.GetGuild(guildId);
+                    if (guild == null)
+                    {
+                        return new GuildLeaderboard()
+                        {
+                            Success = false
+                        };
+                    }
+                    var resp = new GuildLeaderboard()
+                    {
+                        Success = true,
+                        AvatarUrl = guild.IconUrl ?? "https://i.imgur.com/PvYs6dc.png",
+                        GuildName = guild.Name
+                    };
+                    var levelRoles = soraContext.GuildLevelRoles.Where(x => x.GuildId == guildId).ToList();
+                    var guildUsers = soraContext.GuildUsers.Where(x => x.GuildId == guildId).ToList();
+                    var sorted = guildUsers.OrderByDescending(x => x.Exp).ToList();
+                    var sortedLvls = levelRoles.OrderBy(x => x.RequiredLevel).ToList();
+                    for(int i = 0; i<sortedLvls.Count; i++)
+                    {
+                        var role = sortedLvls[i];
+                        var r = guild.GetRole(role.RoleId);
+                        if (r == null || role.Banned)
+                        {
+                            continue;
+                        }
+                        resp.RoleRewards.Add(new RoleReward()
+                        {
+                            Name = r.Name,
+                            Color = $"rgb({r.Color.R}, {r.Color.G}, {r.Color.B})",
+                            LevelReq = role.RequiredLevel
+                        });
+                    }
+                    int rank = 1;
+                    for(int i = 0; i<sorted.Count; i++)
+                    {
+                        var user = sorted[i];
+                        if (rank > 100)
+                        {
+                            break;
+                        }
+                        var u = guild.GetUser(user.UserId);
+                        if (u == null)
+                        {
+                            continue;
+                        }
+                        resp.Ranks.Add(new GuildRank()
+                        {
+                            AvatarUrl = u.GetAvatarUrl() ?? "https://i.imgur.com/PvYs6dc.png",
+                            Discrim = u.Discriminator,
+                            Exp = (int)user.Exp,
+                            Name = u.Username,
+                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(user.Exp)+1),
+                            Rank = rank
+                        });
+                        rank++;
+                    }
+                    return resp;
+                }   
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return new GuildLeaderboard(){Success = false};
+        }
+
         [HttpGet("GetGuildAnnouncements/{userid}/{guildid}", Name = "GetGuildAnnouncements")]
         [EnableCors("AllowLocal")]
         public GuildAnnouncements GetGuildAnnouncements(ulong userId,ulong guildId)

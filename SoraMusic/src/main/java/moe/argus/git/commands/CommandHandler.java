@@ -20,6 +20,8 @@ import moe.argus.git.Utility.VideoSelection;
 import moe.argus.git.database.Database;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONException;
+import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.IShard;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
@@ -38,6 +40,7 @@ public class CommandHandler {
     private static final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
     private static Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
     private static Connection connection;
+    private static int commandsExecuted = 0;
 
     /*public void connectToDb(){
         try {
@@ -120,10 +123,29 @@ public class CommandHandler {
             if(manager.getScheduler().getPlayer().getPlayingTrack() != null)
                 queueLength++;
         }
+
+        //Get additional info
+        int guildCount=0;
+        int channelCount=0;
+        int userCount=0;
+        IDiscordClient client = event.getClient();
+        for(IShard shard : client.getShards()){
+            for(IGuild guild : shard.getGuilds()){
+                guildCount++;
+                userCount += guild.getTotalMemberCount();
+                channelCount += guild.getChannels().size();
+            }
+        }
+        builder.withDescription("These stats are limited to the process of SoraMusic you are running on!");
+
         builder.appendField("Uptime", uptime, true);
         builder.appendField("Used RAM", allocatedRamUse + " mB", true);
         builder.appendField("Playing music for",playingFor+" "+(playingFor == 1 ? "guild" : "guilds"), true);
         builder.appendField("Total queue length",queueLength+"", true);
+        builder.appendField("Connected Guilds",guildCount+"", true);
+        builder.appendField("Watching Channels",channelCount+"", true);
+        builder.appendField("Users with access",userCount+"", true);
+        builder.appendField("Shard count",client.getShardCount()+"", true);
 
         Utility.sendMessage(event.getChannel(), "" ,builder.build());
         });
@@ -797,6 +819,13 @@ public class CommandHandler {
 
         IVoiceChannel botVoiceChannel = event.getClient().getOurUser().getVoiceStateForGuild(event.getGuild()).getChannel();
 
+        //maybe we get disconnected. clear queue also then.
+        if(event.getUser().getLongID() == event.getClient().getOurUser().getLongID()){
+            TrackScheduler scheduler = getGuildAudioPlayer(event.getGuild()).getScheduler();
+            scheduler.getQueue().clear();
+            scheduler.nextTrack();
+        }
+
         if(botVoiceChannel == null) {
             return;
         }
@@ -877,6 +906,7 @@ public class CommandHandler {
                 //try to run the command
                 try {
                     command.getValue().runCommand(event, argList);
+                    commandsExecuted += 1;
                 } catch (Exception e){
                     e.printStackTrace();
                 }

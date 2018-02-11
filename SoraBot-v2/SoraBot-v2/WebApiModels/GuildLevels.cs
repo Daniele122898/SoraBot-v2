@@ -35,19 +35,4 @@ namespace SoraBot_v2.WebApiModels
 		public string RoleId { get; set; }
 		public int LvlReq { get; set; }
 	}
-    
-    /*type GuildLevelRolesChange struct{
-	GuildId string `json:"guildId"`
-	EnableAnn bool `json:"enableAnn"`
-	SendDm bool `json:"sendDm"`
-	LvlUpMsg string `json:"lvlUpMsg"`
-	BannedRoles []string `json:"bannedRoles"`
-	Roles []LevelRole `json:"roles"`
-	UserId string `json:"userId"`
-}
-
-type LevelRole struct{
-	RoleId string `json:"roleId"`
-	LvlReq int `json:"lvlReq"`
-}*/
 }

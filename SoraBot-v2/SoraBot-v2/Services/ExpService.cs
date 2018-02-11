@@ -74,15 +74,18 @@ namespace SoraBot_v2.Services
 
         public async Task GetLocalTop10List(SocketCommandContext context)
         {
-            var eb = new EmbedBuilder()
+            /*var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,
-                Title = $"Top 10 in {context.Guild.Name}",
-                Description = $"The EXP is earned locally. There also exists global EXP!",
+                Title = $"Leaderboard in {context.Guild.Name}",
+                Description = $"[The EXP is earned locally. CLICK HERE!](http://sorabot.pw/guild/{context.Guild.Id}/leaderboard)\n" +
+                              $"[CLICK HERE FOR GLOBAL LEADERBOARD](http://sorabot.pw/globalleader)",
                 Footer = Utility.RequestedBy(context.User),
-                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar
-            };
-
+                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
+                Url = $"http://sorabot.pw/guild/{context.Guild.Id}/leaderboard"
+            };*/
+            
+            /*
             //Feed list
             //GET RANK
             using (var soraContext = new SoraContext())
@@ -117,20 +120,22 @@ namespace SoraBot_v2.Services
                     x.Value =
                         $"Lvl. {CalculateLevel(sortedUsers[yourIndex].Exp)} \tEXP: {sortedUsers[yourIndex].Exp}";
                 });
-            }
-            await context.Channel.SendMessageAsync("", embed: eb);
+            }*/
+            await context.Channel.SendMessageAsync($"Check out **{context.Guild.Name}'s leaderboard** here: http://sorabot.pw/guild/{context.Guild.Id}/leaderboard ｡◕ ‿ ◕｡");
         }
 
         public async Task GetGlobalTop10(SocketCommandContext context)
         {
-            var eb = new EmbedBuilder()
+            /*var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed,
-                Title = $"Global Top 10",
-                Description = $"EXP leaderboard of all users connected to Sora",
+                Title = $"Global Leaderboard",
+                Description = $"[EXP leaderboard of all users connected to Sora. CLICK HERE](http://sorabot.pw/globalleader)",
                 Footer = Utility.RequestedBy(context.User),
-                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar
-            };
+                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
+                Url = "http://sorabot.pw/globalleader"
+            };*/
+            /*
             //Feed list
             using (var soraContext = new SoraContext())
             {
@@ -172,7 +177,8 @@ namespace SoraBot_v2.Services
                     x.Value = $"Lvl. {CalculateLevel(sortedUsers[yourIndex].Exp)} \tEXP: {sortedUsers[yourIndex].Exp}";
                 });
             }
-            await context.Channel.SendMessageAsync("", embed: eb);
+            */
+            await context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: http://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
 
