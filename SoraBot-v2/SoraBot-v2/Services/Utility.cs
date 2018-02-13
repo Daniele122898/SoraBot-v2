@@ -222,8 +222,11 @@ namespace SoraBot_v2.Services
             var guildPerms = guild.CurrentUser.GuildPermissions;
             var chanPerms = guild.CurrentUser.GetPermissions(channel);
             
+            if (guildPerms.Has(GuildPermission.Administrator))
+                return true;
+                        
             if(!guildPerms.Has(GuildPermission.SendMessages) ||
-               !guildPerms.Has(GuildPermission.ReadMessages) || 
+               !guildPerms.Has(GuildPermission.ReadMessages) ||
                !guildPerms.Has(GuildPermission.ReadMessageHistory)||
                !chanPerms.ReadMessages ||
                !chanPerms.ReadMessageHistory ||

@@ -348,13 +348,15 @@ namespace SoraBot_v2.Services
                             guildDb.SelfAssignableRoles.Remove(role);
                             continue;
                         }
+                        /*
                         eb.AddField(x =>
                         {
                             x.IsInline = true;
                             x.Name = roleInfo.Name;
                             x.Value =
-                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
-                        });
+                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";//TODO REDO THIS
+                        });*/
+                        eb.Description += $"• {roleInfo.Name}\n";
                     }
                     await context.Channel.SendMessageAsync("", embed: eb);
                 }
