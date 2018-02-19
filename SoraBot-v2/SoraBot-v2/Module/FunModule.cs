@@ -52,7 +52,7 @@ namespace SoraBot_v2.Module
         {
             var eb = new EmbedBuilder()
             {
-                ImageUrl = "https://i.imgur.com/dCFgsvy.gifv",
+                ImageUrl = "https://i.imgur.com/gz7enYI.gif",
                 Color = Utility.PurpleEmbed
             };
             await ReplyAsync("", embed: eb);
