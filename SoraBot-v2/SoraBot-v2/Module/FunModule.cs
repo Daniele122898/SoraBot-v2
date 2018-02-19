@@ -46,6 +46,17 @@ namespace SoraBot_v2.Module
             await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎱 "+ball[r.Next(ball.Length)]));
         }
+        
+        [Command("kawaii"), Alias("cute", "men", "man", "cuteness", "kawai"), Summary("What all men seek!")]
+        public async Task Kawaii()
+        {
+            var eb = new EmbedBuilder()
+            {
+                ImageUrl = "https://i.imgur.com/dCFgsvy.gifv",
+                Color = Utility.PurpleEmbed
+            };
+            await ReplyAsync("", embed: eb);
+        }
 
 
         [Command("rps"), Alias("rockpaperscissor"), Summary("Play rock paper scissor with Sora")]

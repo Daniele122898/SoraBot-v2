@@ -26,8 +26,14 @@ namespace SoraBot_v2.Module
         [Command("profile", RunMode = RunMode.Async), Alias("p"), Summary("Shows your profile Card")]
         public async Task ProfileCard(SocketUser userT = null)
         {
-            var typing = Context.Channel.EnterTypingState();
             var user = userT ?? Context.User;
+            if (user.IsBot)
+            {
+                await ReplyAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Bots don't have a profile!"));
+                return;
+            }
+            var typing = Context.Channel.EnterTypingState();
             typing.Dispose();
             await _profileService.DrawProfileCard(Context, user);
         }
