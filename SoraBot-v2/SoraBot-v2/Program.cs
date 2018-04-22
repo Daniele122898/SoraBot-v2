@@ -5,14 +5,9 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
-using ImageSharp;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Parsing;
-using SixLabors.Shapes;
-using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2
@@ -27,7 +22,7 @@ namespace SoraBot_v2
         //private CommandHandler _commands;
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
-
+        
         //// Disabled by Catherine Renelle - Memory Leak Fix
         ////private string _connectionString;
         #endregion
