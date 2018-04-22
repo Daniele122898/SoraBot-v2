@@ -6,7 +6,6 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Humanizer;
-using ImageSharp.ColorSpaces.Conversion.Implementation.Rgb;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

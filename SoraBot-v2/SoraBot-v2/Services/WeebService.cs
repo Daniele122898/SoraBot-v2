@@ -21,7 +21,7 @@ namespace SoraBot_v2.Services
         {
             try
             {
-                await _weebClient.Authenticate(_token);
+                await _weebClient.Authenticate(_token, TokenType.Bearer);
 
             }
             catch (Exception e)
