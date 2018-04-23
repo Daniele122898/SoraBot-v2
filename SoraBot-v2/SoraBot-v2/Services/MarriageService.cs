@@ -75,7 +75,7 @@ namespace SoraBot_v2.Services
                         x.Name =
                             $"{(partner == null ? $"Unknown({marriage.Id})" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
                         x.IsInline = true;
-                        x.Value = $"*Since {marriage.Since.ToString().Remove(marriage.Since.ToString().Length - 9)}*";
+                        x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*";
                     });
                 }
 
