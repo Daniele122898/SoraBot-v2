@@ -11,13 +11,13 @@ namespace SoraBot_v2.Services
         private readonly WeebClient _weebClient;
         private readonly string _token;
 
+
         public WeebService()
         {
             _token = ConfigService.GetConfigData("weebToken");
-            _weebClient = new WeebClient();
+            _weebClient = new WeebClient("Sora", Utility.SORA_VERSION);
         }
-        
-        public async Task InitializeAsync()
+                public async Task InitializeAsync()
         {
             try
             {
