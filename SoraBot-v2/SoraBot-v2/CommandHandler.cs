@@ -66,6 +66,11 @@ namespace SoraBot_v2
                                          $"`{prefix}createAdmin`\n" +
                                          $"You can leave tag creation unrestricted if you want but its not\n" +
                                          $"recommended on larger servers as it will be spammed.\n" +
+                                         $"**Sora now has a Dashboard**\n" +
+                                         $"You can [find the dashboard here](http://argonaut.pw/Sora/) by clicking the login\n"+
+                                         $"button in the top right. It's still in pre-alpha but allows you to\n"+
+                                         $"customize levels and level rewards as well as other settings. It is required\n" + 
+                                         $"for proper setup of leveling.\n"+
                                          $"PS: Standard Prefix is `$` but you can change it with:\n" +
                                          $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
 
