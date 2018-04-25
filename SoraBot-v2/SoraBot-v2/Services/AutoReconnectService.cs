@@ -9,9 +9,12 @@ namespace SoraBot_v2.Services
     {
         private DiscordSocketClient _client;
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        public AutoReconnectService(DiscordSocketClient client)
+        private string _token;
+
+        public AutoReconnectService(DiscordSocketClient client, string token)
         {
             _client = client;
+            _token = token;
             //start reconnection loop
             Task.Factory.StartNew(()=>{ AutoReconnect(); }, TaskCreationOptions.LongRunning);
         }
@@ -38,17 +41,26 @@ namespace SoraBot_v2.Services
         private async Task Reconnect(){
             //reconnect
             var timeout = Task.Delay(_timeout);
-            var connect = _client.StartAsync();
+            var connect = _client.LoginAsync(TokenType.Bot, _token);
             var task = await Task.WhenAny(timeout, connect);
 
              if (task == timeout){
                 Console.WriteLine("Client reset timed out. Retrying...");
             }
             else if (connect.IsFaulted){
-                Console.WriteLine("Client reset faulted. Retrying...", connect.Exception);
+                Console.WriteLine("Client login failed. Retrying...", connect.Exception);
             }
-            else if (connect.IsCompletedSuccessfully)
-                Console.WriteLine("Client reset succesfully!");
+            else if (connect.IsCompletedSuccessfully){
+                //run start
+                try{
+                    await _client.StartAsync();
+                } catch(Exception e){
+                    Console.WriteLine("Client start failed. Retrying...\n"+e.ToString());
+                    return;
+                }
+                Console.WriteLine("Reconnect Successfull...");
+            }
+
         }
 
     }

@@ -111,7 +111,7 @@ namespace SoraBot_v2
             await _client.StartAsync();
 
             // initialize Autoreconnect Feature
-            _autoReconnectService = new AutoReconnectService(_client);
+            _autoReconnectService = new AutoReconnectService(_client, token);
             //build webserver and inject service
             try
             {
