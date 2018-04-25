@@ -22,6 +22,7 @@ namespace SoraBot_v2
         //private CommandHandler _commands;
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
+        private AutoReconnectService _autoReconnectService;
         
         //// Disabled by Catherine Renelle - Memory Leak Fix
         ////private string _connectionString;
@@ -108,7 +109,9 @@ namespace SoraBot_v2
             //Connect to Discord
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
-            
+
+            // initialize Autoreconnect Feature
+            _autoReconnectService = new AutoReconnectService(_client);
             //build webserver and inject service
             try
             {
