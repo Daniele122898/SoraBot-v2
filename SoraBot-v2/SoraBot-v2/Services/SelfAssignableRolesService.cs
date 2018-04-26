@@ -22,8 +22,6 @@ namespace SoraBot_v2.Services
             _interactive = service;
         }
 
-
-
         public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
         {
             var guild = socketGuildUser.Guild;
@@ -180,7 +178,7 @@ namespace SoraBot_v2.Services
                 //check if the role found is ABOVE sora if so.. quit. (on life)
                 var soraHighestRole = sora.Roles.OrderByDescending(x => x.Position).FirstOrDefault();
                 //Sora is below in the hirarchy
-                if (soraHighestRole.Position < role.Position)
+                if (soraHighestRole?.Position < role.Position)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I cannot assign roles that are above me in the role hirachy!")
@@ -348,13 +346,15 @@ namespace SoraBot_v2.Services
                             guildDb.SelfAssignableRoles.Remove(role);
                             continue;
                         }
+                        /*
                         eb.AddField(x =>
                         {
                             x.IsInline = true;
                             x.Name = roleInfo.Name;
                             x.Value =
-                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
-                        });
+                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";//TODO REDO THIS
+                        });*/
+                        eb.Description += $"• {roleInfo.Name}\n";
                     }
                     await context.Channel.SendMessageAsync("", embed: eb);
                 }

@@ -169,54 +169,61 @@ namespace SoraBot_v2.Services
 
         private async void CheckReminders(Object stateInfo)
         {
-            using (var _soraContext = new SoraContext())
+            try
             {
-                List<Reminders> rems = new List<Reminders>();
-                rems = _soraContext.Reminders.ToList();
-                bool triggered = false;
-                bool crucked = false;
-                foreach (var reminder in rems)
+                using (var _soraContext = new SoraContext())
                 {
-                    if (reminder.Time.CompareTo(DateTime.UtcNow) <= 0)
+                    List<Reminders> rems = new List<Reminders>();
+                    rems = _soraContext.Reminders.ToList();
+                    bool triggered = false;
+                    bool crucked = false;
+                    foreach (var reminder in rems)
                     {
-                        triggered = true;
-                        var userToRemind = _client.GetUser(reminder.UserForeignId);
-                        if (userToRemind == null)
+                        if (reminder.Time.CompareTo(DateTime.UtcNow) <= 0)
                         {
-                            triggered = false;
-                            crucked = true;
-                            //remove if user is not reachable anymore
-                            if (reminder.Time.Add(TimeSpan.FromMinutes(CLEANUP_MINUTES)).CompareTo(DateTime.UtcNow)<= 0)
+                            triggered = true;
+                            var userToRemind = _client.GetUser(reminder.UserForeignId);
+                            if (userToRemind == null)
                             {
-                                _soraContext.Reminders.Remove(reminder);
+                                triggered = false;
+                                crucked = true;
+                                //remove if user is not reachable anymore
+                                if (reminder.Time.Add(TimeSpan.FromMinutes(CLEANUP_MINUTES)).CompareTo(DateTime.UtcNow)<= 0)
+                                {
+                                    _soraContext.Reminders.Remove(reminder);
+                                }
+                                continue;
                             }
-                            continue;
+                            try
+                            {
+                                await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                                    embed: Utility
+                                        .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
+                                        .WithDescription($"{reminder.Message}"));
+                            }
+                            catch (Exception e)
+                            {
+                                //Ignore
+                            }
+                            _soraContext.Reminders.Remove(reminder);
                         }
-                        try
-                        {
-                            await (await userToRemind.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                                embed: Utility
-                                    .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
-                                    .WithDescription($"{reminder.Message}"));
-                        }
-                        catch (Exception e)
-                        {
-                            //Ignore
-                        }
-                        _soraContext.Reminders.Remove(reminder);
+                    }
+                    await _soraContext.SaveChangesAsync();
+                    
+    
+                    if (crucked)
+                    {
+                        _timer.Change(TimeSpan.FromSeconds(CRUCKED_SECONDS), TimeSpan.FromSeconds(CRUCKED_SECONDS));
+                        Console.WriteLine($"CHANGED TIMER INTERVAL TO *CRUCKED*: {CRUCKED_SECONDS}");
+                    } 
+                    else if (triggered){
+                        ChangeToClosestInterval();                    
                     }
                 }
-                await _soraContext.SaveChangesAsync();
-                
-
-                if (crucked)
-                {
-                    _timer.Change(TimeSpan.FromSeconds(CRUCKED_SECONDS), TimeSpan.FromSeconds(CRUCKED_SECONDS));
-                    Console.WriteLine($"CHANGED TIMER INTERVAL TO *CRUCKED*: {CRUCKED_SECONDS}");
-                } 
-                else if (triggered){
-                    ChangeToClosestInterval();                    
-                }
+            }
+            catch (Exception e)
+            {
+                await SentryService.SendMessage(e.ToString());
             }
         }
 
