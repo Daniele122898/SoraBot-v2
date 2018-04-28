@@ -23,6 +23,14 @@ namespace SoraBot_v2.Module
             GC.Collect();
         }
 
+        [Command("reloadconfig"), Alias("reconf")]
+        [RequireOwner]
+        public async Task ReloadConfig()
+        {
+            ConfigService.LoadConfig();
+            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Successfully reloaded config.json"));
+        } 
+
         [Command("oginfo")]
         [RequireOwner]
         public async Task Guildinfo(ulong id)
