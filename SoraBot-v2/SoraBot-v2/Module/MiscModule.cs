@@ -28,7 +28,7 @@ namespace SoraBot_v2.Module
         public async Task GithubPage()
         {
             await ReplyAsync("",
-                embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click to View Sora's Github Repo").WithUrl("https://github.com/SubliminalHQ/Sora"));
+                embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click to View Sora's Github Repo").WithUrl("https://github.com/Daniele122898/SoraBot-v2"));
         }
 
         [Command("invite"), Alias("inv"), Summary("Gives the invite Link to invite Sora")]
@@ -116,7 +116,7 @@ namespace SoraBot_v2.Module
                     x.IsInline = false;
                     x.Value = $"I was written in C# using the Discord.NET wrapper.\n" +
                               $"For more Info use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}info`\n" +
-                              $"Or visit my [Github page](https://github.com/SubliminalHQ/Sora)";
+                              $"Or visit my [Github page](https://github.com/Daniele122898/SoraBot-v2)";
                 });
 
                 eb.AddField(x =>
