@@ -65,15 +65,18 @@ namespace SoraBot_v2.Services
                     Color = Utility.PurpleEmbed,
                     Title = $"💕 Marriages of {Utility.GiveUsernameDiscrimComb(user)}",
                     ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
-                    Footer = Utility.RequestedBy(context.User)
+                    Footer = new EmbedFooterBuilder(){
+                        Text = "To increase performance some usernames might not be showing. sorry."
+                    } 
                 };
                 foreach (var marriage in userDb.Marriages)
                 {
                     var partner = context.Client.GetUser(marriage.PartnerId);
+
                     eb.AddField(x =>
                     {
                         x.Name =
-                            $"{(partner == null ? $"Unknown({marriage.Id})" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
+                            $"{(partner == null ? $"{marriage.PartnerId}" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
                         x.IsInline = true;
                         x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*";
                     });

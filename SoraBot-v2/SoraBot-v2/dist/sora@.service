@@ -14,19 +14,19 @@
 #   They control important (and possibly security-relevant) settings that are server-specific.
 #
 # - Copy this file to "/lib/systemd/system"
-# - Execute "systemctl enable sora1.service"
+# - Execute "systemctl enable sora0.service"
 #   - This links the file to "/etc/systemd/system/multi-user.target.wants/"
 #
 # - Double-Check that all values below are correct
 #
 # - Done! You can now use the usual control commands:
-#   - journalctl -u sora1
-#   - systemctl start sora1
-#   - systemctl stop sora1
-#   - systemctl restart sora1
+#   - journalctl -u sora0
+#   - systemctl start sora0
+#   - systemctl stop sora0
+#   - systemctl restart sora0
 #
-# To uninstall this service just disable it ("systemctl disable sora1").
-# Delete "/lib/systemd/system/sora1.service" afterwards if you want.
+# To uninstall this service just disable it ("systemctl disable sora0").
+# Delete "/lib/systemd/system/sora0.service" afterwards if you want.
 #
 # If you need more help or have no idea what's going on, try one of these:
 #   - "man 1 systemd"
@@ -37,19 +37,19 @@
 #
 
 [Unit]
-Description=The Sora Discord-Bot Shard 1
+Description=The Sora Discord-Bot Shard %i
 Documentation=http://git.argus.moe/serenity/SoraBot-v2/wikis/home
 After=network.target syslog.target
 
 [Install]
-Alias=sora1 sora-1
+Alias=sora%i sora-%i
 WantedBy=multi-user.target
 
 [Service]
 Type=simple
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=sora-bot-1
+SyslogIdentifier=sora-bot-%i
 
 # The user that will run Sora.
 # You can comment this out but remember that systemd will run your app as root if you do that.
@@ -62,7 +62,7 @@ WorkingDirectory=/home/argonaut/SoraV2/publish
 
 # The command to launch Sora.
 # You can probably leave this as-is since index.js is always relative to your working dir.
-ExecStart=/usr/bin/dotnet SoraBot-v2.dll 1
+ExecStart=/usr/bin/dotnet SoraBot-v2.dll %i
 
 # If Sora crashes give him 2 seconds of rest and reboot.
 Restart=on-failure
