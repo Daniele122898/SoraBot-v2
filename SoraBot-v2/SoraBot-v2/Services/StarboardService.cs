@@ -46,6 +46,12 @@ namespace SoraBot_v2.Services
                     foreach (var updateStruct in temp)
                     {
                         var guild = _client.GetGuild(updateStruct.GuildId);
+                        if(guild == null){
+                            //he was kicked after star or guild moved shards. 
+                            //remove and update entry
+                            _toUpdate.Remove(updateStruct);
+                            continue;
+                        }
                         var guildDb = Utility.GetOrCreateGuild(updateStruct.GuildId, soraContext);
                         //check if starchannel still exists!
                         var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
