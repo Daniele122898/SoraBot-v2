@@ -100,8 +100,8 @@ namespace SoraBot_v2.Module
                     Options = new PaginatedAppearanceOptions()
                     {
                         DisplayInformationIcon = false,
-                        Timeout = TimeSpan.FromSeconds(30),
-                        InfoTimeout = TimeSpan.FromSeconds(30),
+                        Timeout = TimeSpan.FromMinutes(4),
+                        InfoTimeout = TimeSpan.FromMinutes(4),
                     },
                     Content = "Only the invoker may switch pages, ⏹ to stop the pagination",
                     Pages = lyricsList
