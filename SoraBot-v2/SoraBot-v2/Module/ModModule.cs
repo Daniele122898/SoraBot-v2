@@ -78,6 +78,10 @@ namespace SoraBot_v2.Module
                 amount = 500;
             if(amount < 0)
                 return;
+            
+            // since the command needs to be purged as well we add 1 to the total amount
+            if (amount > 0 && amount < 500)
+                amount++;
             //he has the perms to prune
             IEnumerable<IMessage> msgs = new List<IMessage>();
             try

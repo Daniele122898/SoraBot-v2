@@ -303,6 +303,22 @@ namespace SoraBot_v2.Services
             return gUser;
         }
 
+        public static Clan GetClan(Clan clan, SoraContext soraContext)
+        {
+            try
+            {
+                var members =
+                    soraContext.Users.Where(x => !string.IsNullOrWhiteSpace(x.ClanName) && x.ClanName.Equals(clan.Name, StringComparison.OrdinalIgnoreCase))
+                        .ToList() ?? new List<User>();
+                clan.Members = members;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return clan;
+        }
+
         public static Clan GetClan(string clanName, SoraContext soraContext)
         {
             Clan clan = null;
