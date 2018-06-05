@@ -6,6 +6,7 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -22,8 +23,68 @@ namespace SoraBot_v2.Services
             _interactive = interactive;
         }
 
-        private const int MINIMUM_CREATE_LEVEL = 10;
+        private const int MINIMUM_CREATE_LEVEL = 5;
         private const int MAX_MEMBERCOUNT = 20;
+
+        private struct ClanListing
+        {
+            public Clan Clan { get; set; }
+            public float TotalExp { get; set; }
+        }
+        
+        public async Task ShowClanList(SocketCommandContext context)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // if no clans are made
+                if (!soraContext.Clans.Any())
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No Clans exist yet. Create one!"));
+                    return;
+                }
+                
+                List<ClanListing> list = new List<ClanListing>();
+                // create list
+                foreach (var clan in soraContext.Clans)
+                {
+                    var entry = new ClanListing {Clan = Utility.GetClan(clan, soraContext)};
+                    foreach (var member in clan.Members)
+                    {
+                        entry.TotalExp += member.Exp;
+                    }
+                    list.Add(entry);
+                }
+                
+                // sort list and pick top 10 :>
+                var sorted = list.OrderByDescending(x => x.TotalExp).Take(10).ToList();
+                
+                // prepare list to display :>
+                // lets actually only show the top 10 clans :)
+                
+                var eb = new EmbedBuilder()
+                {
+                    Title = "Top 10 Clans",
+                    ThumbnailUrl = sorted[0].Clan.AvatarUrl ?? context.Client.CurrentUser.GetAvatarUrl(),
+                    Description = "Top 10 Clans sorted by total EXP of all members",
+                    Footer = Utility.RequestedBy(context.User),
+                    Color = Utility.PurpleEmbed
+                };
+
+                short count = 1;
+                foreach (var clan in sorted)
+                {
+                    eb.AddField((x) =>
+                    {
+                        x.IsInline = false;
+                        x.Name = $"{(count)}. {clan.Clan.Name}";
+                        x.Value = $"{clan.TotalExp} EXP";
+                    });
+                    count++;
+                }
+                await context.Channel.SendMessageAsync("", embed: eb);
+            }
+        }
 
         public async Task RemoveClan(SocketCommandContext context)
         {

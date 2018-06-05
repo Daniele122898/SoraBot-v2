@@ -284,5 +284,12 @@ namespace SoraBot_v2.Module
         {
             await _clanService.EditClanInvite(Context, clanName, false);
         }
+
+        [Command("clanlist"), Alias("clantop", "clantop10", "top10clans", "bestclans", "clist"),
+         Summary("Shows all the clans in a list")]
+        public async Task ClanList()
+        {
+            await _clanService.ShowClanList(Context);
+        }
     }
 }
