@@ -821,7 +821,7 @@ namespace SoraBot_v2.Services
                         Text = $"Requested by {Utility.GiveUsernameDiscrimComb(context.User)} | Created: {clan.Created} UTC",
                         IconUrl = context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
                     },
-                    ThumbnailUrl = Utility.StandardDiscordAvatar //TODO CLAN AVATAR
+                    ThumbnailUrl = Utility.StandardDiscordAvatar
                 };
                 if (clan.HasImage)
                 {
@@ -837,7 +837,7 @@ namespace SoraBot_v2.Services
                         x.IsInline = true;
                         x.Name = $"{i + 1}. {(members[i].ClanStaff ? "[S] " : "")}{userName}";
                         x.Value =
-                            $"Lvl. {ExpService.CalculateLevel(members[i].Exp)} \tEXP: {members[i].Exp}\n*Joined: {members[i].JoinedClan.ToString().Remove(members[i].JoinedClan.ToString().Length - 9)}*";
+                            $"Lvl. {ExpService.CalculateLevel(members[i].Exp)} \tEXP: {members[i].Exp}\n*Joined: {(members[i].JoinedClan.ToString("dd/MM/yyyy"))}*";
                     });
                 }
                 await context.Channel.SendMessageAsync("", embed: eb);
