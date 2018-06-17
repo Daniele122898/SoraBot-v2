@@ -50,7 +50,7 @@ namespace SoraBot_v2
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
                 LogLevel = LogSeverity.Info,
-                AlwaysDownloadUsers = true,
+                AlwaysDownloadUsers = false,
                 MessageCacheSize = 0,
                 TotalShards = Utility.TOTAL_SHARDS,
                 ShardId = shardId
