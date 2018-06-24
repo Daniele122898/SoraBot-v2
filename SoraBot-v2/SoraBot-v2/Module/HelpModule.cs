@@ -22,7 +22,7 @@ namespace SoraBot_v2.Module
             {
                 await Context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click here for Wiki")
-                        .WithUrl("http://git.argus.moe/serenity/SoraBot-v2/wikis/home")); 
+                        .WithUrl("https://github.com/Daniele122898/SoraBot-v2/wiki")); 
                 return;
             }
 
