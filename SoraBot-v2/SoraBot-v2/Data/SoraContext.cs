@@ -36,6 +36,9 @@ namespace SoraBot_v2.Data
 
         //Song list
         public DbSet<Song> Songs { get; set; }
+        
+        // Bans
+        public DbSet<Ban> Bans { get; set; }
 
         //private static volatile object _padlock = new Object();
 
@@ -129,7 +132,7 @@ namespace SoraBot_v2.Data
                     .WithOne(p => p.Interactions)
                     .HasForeignKey<Interactions>(g => g.UserForeignId);
             });
-
+            
             modelBuilder.Entity<ShareCentral>(x =>
             {
                 x.HasOne(d => d.User)

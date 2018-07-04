@@ -23,6 +23,7 @@ namespace SoraBot_v2
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
         private AutoReconnectService _autoReconnectService;
+        private BanService _banService;
         
         //// Disabled by Catherine Renelle - Memory Leak Fix
         ////private string _connectionString;
@@ -57,8 +58,9 @@ namespace SoraBot_v2
             });
 
             _client.Log += Log;
-
-
+            
+            // setup banservice
+            _banService = new BanService();
 
             //setup DB
 
@@ -112,6 +114,10 @@ namespace SoraBot_v2
 
             // initialize Autoreconnect Feature
             _autoReconnectService = new AutoReconnectService(_client, LogPretty);
+            
+            // setup ban users
+            _banService.FetchBannedUsers();
+            
             //build webserver and inject service
             try
             {
@@ -123,7 +129,8 @@ namespace SoraBot_v2
                     .UseStartup<Startup>() // Use Startup class in Startup.cs
                     .ConfigureServices(services =>
                     {
-                        services.AddSingleton(_client); // Injected Discord client
+                        services.AddSingleton(_client);     // Injected Discord client
+                        services.AddSingleton(_banService); // Injected Discord client
                         services.AddCors(options =>
                         {
                             options.AddPolicy("AllowLocal", builder => builder.WithOrigins("localhost")); // Enable CORS to only allow calls from localhost
@@ -160,6 +167,7 @@ namespace SoraBot_v2
 
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
+            services.AddSingleton(_banService);
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
