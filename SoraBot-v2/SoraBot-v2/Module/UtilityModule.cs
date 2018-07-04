@@ -12,10 +12,30 @@ namespace SoraBot_v2.Module
 {
     public class UtilityModule : ModuleBase<SocketCommandContext>
     {
-        public UtilityModule()
+        private BanService _banService;
+        
+        public UtilityModule(BanService banService)
         {
+            _banService = banService;
         }
 
+        [Command("obanUser")]
+        [RequireOwner]
+        public async Task BanUser(ulong id, [Remainder] string reason)
+        {
+            var succ = await _banService.BanUser(id, reason);
+            if (succ)
+            {
+                await ReplyAsync("",
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
+                        "User has been globally banned from using Sora."));
+                return;
+            }
+            await ReplyAsync("",
+                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                    "Couldn't Ban user. Either he's already banned or smth broke."));
+        }
+        
         [Command("gc")]
         [RequireOwner]
         public async Task ForceGC()
