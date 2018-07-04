@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
 using Newtonsoft.Json;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
@@ -32,6 +34,40 @@ namespace SoraBot_v2.Services
                 {
                     _bannedUsers.TryAdd(ban.UserId, true);
                 }
+            }
+        }
+
+        public async Task GetBanInfo(SocketCommandContext context, ulong userId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var ban = soraContext.Bans.FirstOrDefault(x => x.UserId == userId);
+                if (ban == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "User is not banned or failed to fetch data."
+                    ));
+                    return;
+                }
+                
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.BlueInfoEmbed,
+                    Footer = Utility.RequestedBy(context.User),
+                    Title = $"Global Ban of {userId}",
+                    Description = $"Banned On: {ban.BannedAt.ToString("dd/MM/yyyy")}"
+                };
+                
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "Reason";
+                    x.Value = (string.IsNullOrWhiteSpace(ban.Reason) ? "Unknown" : ban.Reason);
+                });
+
+                await context.Channel.SendMessageAsync("", embed: eb);
             }
         }
         

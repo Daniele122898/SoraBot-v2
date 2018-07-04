@@ -36,6 +36,13 @@ namespace SoraBot_v2.Module
                     "Couldn't Ban user. Either he's already banned or smth broke."));
         }
         
+        [Command("obaninfo")]
+        [RequireOwner]
+        public async Task BanUser(ulong id)
+        {
+            await _banService.GetBanInfo(Context, id);
+        }
+        
         [Command("gc")]
         [RequireOwner]
         public async Task ForceGC()
