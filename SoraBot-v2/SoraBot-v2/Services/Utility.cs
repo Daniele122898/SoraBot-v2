@@ -25,6 +25,7 @@ namespace SoraBot_v2.Services
         public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
         public static int TOTAL_SHARDS;
+        public static int SHARD_ID;
         public static string SORA_VERSION = ConfigService.GetConfigData("version");
 
         public const string DISCORD_INVITE = "https://discordapp.com/invite/Pah4yj5";

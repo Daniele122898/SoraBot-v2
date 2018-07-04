@@ -57,6 +57,8 @@ namespace SoraBot_v2
                 ShardId = shardId
             });
 
+            Utility.SHARD_ID = shardId;
+
             _client.Log += Log;
             
             // setup banservice

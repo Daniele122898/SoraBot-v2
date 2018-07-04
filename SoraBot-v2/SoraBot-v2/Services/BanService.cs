@@ -1,7 +1,11 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 
@@ -38,14 +42,51 @@ namespace SoraBot_v2.Services
         }
         
         // Ban user Command
-        public async Task BanUser(ulong id)
+        public async Task<bool> BanUser(ulong id, string reason)
         {
             if (!_bannedUsers.TryAdd(id, true))
             {
-                return;
+                return false;
             }
-            // TODO notify other shards to ban user
-            
+            // Add to DB
+            using (var soraContext = new SoraContext())
+            {
+                if (string.IsNullOrWhiteSpace(reason))
+                    reason = "";
+                
+                soraContext.Bans.Add(new Ban()
+                {
+                    UserId = id,
+                    BannedAt = DateTime.UtcNow,
+                    Reason = reason
+                });
+                await soraContext.SaveChangesAsync();
+            }
+            // notify other shards to ban user
+            for (int i = 0; i < Utility.TOTAL_SHARDS; i++)
+            {
+                if(i == Utility.SHARD_ID)
+                    continue;
+                
+                try
+                {
+                    using (var httpClient = new HttpClient())
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, $"http://localhost:{(8087+i)}/api/SoraApi/BanEvent/"))
+                    {
+                        string json = JsonConvert.SerializeObject(new { userId = id });
+                        request.Content = new StringContent(json);
+                        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                        HttpResponseMessage response = await httpClient.SendAsync(request);
+                        response.Dispose(); 
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    await SentryService.SendMessage($"COULDN'T SEND BAN EVENT TO SHARD {i} FOR ID: {id}");
+                }
+            }
+            return true;
         }
         
         // check if  User Id is banned
