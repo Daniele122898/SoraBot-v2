@@ -30,6 +30,7 @@ namespace SoraBot_v2
         private AnnouncementService _announcementService;
         private ModService _modService;
         private readonly GuildCountUpdaterService _guildCount;
+        private BanService _banService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -88,7 +89,7 @@ namespace SoraBot_v2
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService)
+            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, BanService banService)
         {
             _client = client;
             _commands = commandService;
@@ -100,6 +101,7 @@ namespace SoraBot_v2
             _announcementService = announcementService;
             _modService = modService;
             _guildCount = guildUpdate;
+            _banService = banService;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -172,6 +174,10 @@ namespace SoraBot_v2
                     // For now we'll just exit here.
                     return;
                 }
+                
+                // Check if invoker is banend
+                if (_banService.IsBanned(message.Author.Id))
+                    return;
 
                 // Check the permissions of this channel 
                 if (await Utility.CheckReadWritePerms(channel.Guild, channel, false) == false)

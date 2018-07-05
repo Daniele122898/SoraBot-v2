@@ -31,14 +31,14 @@ namespace SoraBot_v2.Module
         {
             SocketGuildUser user = (SocketGuildUser)(userT ?? Context.User);
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
                 var eb = new EmbedBuilder()
                 {
                     Color = Utility.BlueInfoEmbed,
                     ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
                     Title = $"{Utility.SuccessLevelEmoji[3]} {user.Username}",
-                    Description = $"Joined Discord on {user.CreatedAt.ToString().Remove(user.CreatedAt.ToString().Length - 6)}. That is {(int)(DateTime.Now.Subtract(user.CreatedAt.DateTime).TotalDays)} days ago!",
+                    Description = $"Joined Discord on {user.CreatedAt.ToString("dd/MM/yyyy")}. That is {(int)(DateTime.Now.Subtract(user.CreatedAt.DateTime).TotalDays)} days ago!",
                     Footer = new EmbedFooterBuilder()
                     {
                         IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
@@ -76,8 +76,10 @@ namespace SoraBot_v2.Module
                     if (user?.JoinedAt != null)
                         x.Value =
                             $"{user?.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int)DateTime.Now.Subtract(((DateTimeOffset)user?.JoinedAt).DateTime).TotalDays} days ago)*";
+                    else
+                        x.Value = "*Unknown*";
                 });
-                var dbUser = Utility.OnlyGetUser(user.Id, _soraContext);
+                var dbUser = Utility.OnlyGetUser(user.Id, soraContext);
                 string icon = "";
                 double aff = 0;
                 if (dbUser != null)
