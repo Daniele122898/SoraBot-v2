@@ -23,6 +23,7 @@ namespace SoraBot_v2
         //private SoraContext _soraContext;
         private InteractiveService _interactive;
         private AutoReconnectService _autoReconnectService;
+        private BanService _banService;
         
         //// Disabled by Catherine Renelle - Memory Leak Fix
         ////private string _connectionString;
@@ -50,15 +51,17 @@ namespace SoraBot_v2
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
                 LogLevel = LogSeverity.Info,
-                AlwaysDownloadUsers = true,
+                AlwaysDownloadUsers = false,
                 MessageCacheSize = 0,
                 TotalShards = Utility.TOTAL_SHARDS,
                 ShardId = shardId
             });
 
+            Utility.SHARD_ID = shardId;
+
             _client.Log += Log;
-
-
+            
+            
 
             //setup DB
 
@@ -78,6 +81,9 @@ namespace SoraBot_v2
             //_soraContext = new SoraContext(_connectionString);
             //await _soraContext.Database.EnsureCreatedAsync();
 
+            // setup banservice
+            _banService = new BanService();
+            
             //Setup Services
             ProfileImageGeneration.Initialize();
             _interactive = new InteractiveService(_client);
@@ -112,18 +118,27 @@ namespace SoraBot_v2
 
             // initialize Autoreconnect Feature
             _autoReconnectService = new AutoReconnectService(_client, LogPretty);
+            
+            // setup ban users
+            _banService.FetchBannedUsers();
+            
+            //INITIALIZE CACHE
+            CacheService.Initialize();
+            
             //build webserver and inject service
             try
             {
+                int port = int.Parse(ConfigService.GetConfigData("port"));
                 var host = new WebHostBuilder()
                     .UseKestrel() // MVC webserver is called Kestrel when self hosting
-                    .UseUrls("http://localhost:" + (8087+shardId)) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
+                    .UseUrls("http://localhost:" + (port+shardId)) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
                     .UseContentRoot(Directory.GetCurrentDirectory() + @"/web/") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
                     .UseWebRoot(Directory.GetCurrentDirectory() + @"/web/") // Same as above.
                     .UseStartup<Startup>() // Use Startup class in Startup.cs
                     .ConfigureServices(services =>
                     {
-                        services.AddSingleton(_client); // Injected Discord client
+                        services.AddSingleton(_client);     // Injected Discord client
+                        services.AddSingleton(_banService); // Injected Discord client
                         services.AddCors(options =>
                         {
                             options.AddPolicy("AllowLocal", builder => builder.WithOrigins("localhost")); // Enable CORS to only allow calls from localhost
@@ -131,18 +146,14 @@ namespace SoraBot_v2
                         services.AddMvc().AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore ); // Fixes JSON Recursion issues in API response.
                     })
                     .Build(); // Actually creates the webhost
-
+                Console.WriteLine($"WEB API STARTED ON PORT: {port+shardId}");
                 await host.RunAsync(); // Run in tandem to client
-                Console.WriteLine("WEB API STARTED ON PORT: 8087");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 await SentryService.SendMessage(e.ToString());
             }
-
-            //INITIALIZE CACHE
-            CacheService.Initialize();
 
             //Hang indefinitely
             await Task.Delay(-1);
@@ -160,6 +171,7 @@ namespace SoraBot_v2
 
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
+            services.AddSingleton(_banService);
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();

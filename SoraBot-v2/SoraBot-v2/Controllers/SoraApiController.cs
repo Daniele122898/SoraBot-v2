@@ -17,10 +17,12 @@ namespace SoraBot_v2.Controllers
     public class SoraApiController : Controller
     {
         private DiscordSocketClient _client;
+        private BanService _banService;
 
-        public SoraApiController(DiscordSocketClient client)
+        public SoraApiController(DiscordSocketClient client, BanService banService)
         {
             _client = client;
+            _banService = banService;
         }
         
         [HttpGet("GetSoraStats/", Name = "SoraStats")]
@@ -170,6 +172,38 @@ namespace SoraBot_v2.Controllers
                     soraContext.SaveChanges();
                     return true;
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
+        
+        [HttpPost("BanEvent/", Name = "BanEvent")]
+        [EnableCors("AllowLocal")]
+        public bool BanEvent([FromBody] BanUserEvent banUserEvent)
+        {
+            try
+            {
+                _banService.BanUserEvent(banUserEvent.UserId);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
+        
+        [HttpPost("UnBanEvent/", Name = "UnBanEvent")]
+        [EnableCors("AllowLocal")]
+        public bool UnBanEvent([FromBody] BanUserEvent banUserEvent)
+        {
+            try
+            {
+                _banService.UnBanUserEvent(banUserEvent.UserId);
+                return true;
             }
             catch (Exception e)
             {

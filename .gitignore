@@ -22,6 +22,8 @@ RAMLogging.txt
 /SoraBot-v2/SoraBot-v2/ProfileData
 /SoraMusic/target
 
+**/temp
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
