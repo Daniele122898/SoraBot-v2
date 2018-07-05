@@ -79,6 +79,48 @@ namespace SoraBot_v2.Services
             Console.WriteLine($"!!! Got and registered Ban Event from ${id} !!!");
         }
         
+        // UnBan user Command
+        public async Task<bool> UnBanUser(ulong id)
+        {
+            if (!_bannedUsers.TryRemove(id, out _))
+            {
+                return false;
+            }
+            // remove from DB
+            using (var soraContext = new SoraContext())
+            {
+                soraContext.Bans.Remove(soraContext.Bans.FirstOrDefault(x => x.UserId == id));
+                await soraContext.SaveChangesAsync();
+            }
+            // notify other shards to ban user
+            int port = int.Parse(ConfigService.GetConfigData("port"));
+            for (int i = 0; i < Utility.TOTAL_SHARDS; i++)
+            {
+                if(i == Utility.SHARD_ID)
+                    continue;
+                
+                try
+                {
+                    using (var httpClient = new HttpClient())
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, $"http://localhost:{(port+i)}/api/SoraApi/UnBanEvent/"))
+                    {
+                        string json = JsonConvert.SerializeObject(new { userId = id });
+                        request.Content = new StringContent(json);
+                        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                        HttpResponseMessage response = await httpClient.SendAsync(request);
+                        response.Dispose(); 
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    await SentryService.SendMessage($"COULDN'T SEND UNBAN EVENT TO SHARD {i} FOR ID: {id}");
+                }
+            }
+            return true;
+        }
+        
+        
         // Ban user Command
         public async Task<bool> BanUser(ulong id, string reason)
         {
@@ -137,6 +179,13 @@ namespace SoraBot_v2.Services
                 return true;
             }
             return false;
+        }
+        
+        // Update incoming from webservice
+        public void UnBanUserEvent(ulong id)
+        {
+            _bannedUsers.TryRemove(id, out _);
+            Console.WriteLine($"!!! Got and registered UnBan Event from {id} !!!");
         }
     }
 }

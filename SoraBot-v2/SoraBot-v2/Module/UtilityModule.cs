@@ -36,6 +36,23 @@ namespace SoraBot_v2.Module
                     "Couldn't Ban user. Either he's already banned or smth broke."));
         }
         
+        [Command("ounbanUser")]
+        [RequireOwner]
+        public async Task UnBanUser(ulong id)
+        {
+            var succ = await _banService.UnBanUser(id);
+            if (succ)
+            {
+                await ReplyAsync("",
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
+                        "User has been globally unbanned from using Sora."));
+                return;
+            }
+            await ReplyAsync("",
+                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                    "Couldn't unban user. Either he's already banned or smth broke."));
+        }
+        
         [Command("obaninfo")]
         [RequireOwner]
         public async Task BanUser(ulong id)

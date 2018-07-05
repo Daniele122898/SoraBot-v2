@@ -195,6 +195,22 @@ namespace SoraBot_v2.Controllers
             }
             return false;
         }
+        
+        [HttpPost("UnBanEvent/", Name = "UnBanEvent")]
+        [EnableCors("AllowLocal")]
+        public bool UnBanEvent([FromBody] BanUserEvent banUserEvent)
+        {
+            try
+            {
+                _banService.UnBanUserEvent(banUserEvent.UserId);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return false;
+        }
 
         [HttpGet("GetGuildLevels/{userid}/{guildid}", Name = "GetGuildLevels")]
         [EnableCors("AllowLocal")]
