@@ -61,8 +61,7 @@ namespace SoraBot_v2
 
             _client.Log += Log;
             
-            // setup banservice
-            _banService = new BanService();
+            
 
             //setup DB
 
@@ -82,6 +81,9 @@ namespace SoraBot_v2
             //_soraContext = new SoraContext(_connectionString);
             //await _soraContext.Database.EnsureCreatedAsync();
 
+            // setup banservice
+            _banService = new BanService();
+            
             //Setup Services
             ProfileImageGeneration.Initialize();
             _interactive = new InteractiveService(_client);
@@ -120,12 +122,16 @@ namespace SoraBot_v2
             // setup ban users
             _banService.FetchBannedUsers();
             
+            //INITIALIZE CACHE
+            CacheService.Initialize();
+            
             //build webserver and inject service
             try
             {
+                int port = int.Parse(ConfigService.GetConfigData("port"));
                 var host = new WebHostBuilder()
                     .UseKestrel() // MVC webserver is called Kestrel when self hosting
-                    .UseUrls("http://localhost:" + (8087+shardId)) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
+                    .UseUrls("http://localhost:" + (port+shardId)) // Bind to localhost:port to allow http:// calls. TODO ADD WEBPORT
                     .UseContentRoot(Directory.GetCurrentDirectory() + @"/web/") // Required to be set and exist. Create web folder in the folder the bot runs from. Folder can be empty.
                     .UseWebRoot(Directory.GetCurrentDirectory() + @"/web/") // Same as above.
                     .UseStartup<Startup>() // Use Startup class in Startup.cs
@@ -140,18 +146,14 @@ namespace SoraBot_v2
                         services.AddMvc().AddJsonOptions( options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore ); // Fixes JSON Recursion issues in API response.
                     })
                     .Build(); // Actually creates the webhost
-
+                Console.WriteLine($"WEB API STARTED ON PORT: {port+shardId}");
                 await host.RunAsync(); // Run in tandem to client
-                Console.WriteLine("WEB API STARTED ON PORT: 8087");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 await SentryService.SendMessage(e.ToString());
             }
-
-            //INITIALIZE CACHE
-            CacheService.Initialize();
 
             //Hang indefinitely
             await Task.Delay(-1);

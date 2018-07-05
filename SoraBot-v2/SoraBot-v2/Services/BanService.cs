@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Newtonsoft.Json;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
@@ -17,7 +18,7 @@ namespace SoraBot_v2.Services
     {
         // list of all banned users to minimize latency in CommandHandler
         private ConcurrentDictionary<ulong, bool> _bannedUsers = new ConcurrentDictionary<ulong, bool>();
-        
+
         // Fetch list once from DB
         public void FetchBannedUsers()
         {
@@ -75,6 +76,7 @@ namespace SoraBot_v2.Services
         public void BanUserEvent(ulong id)
         {
             _bannedUsers.TryAdd(id, true);
+            Console.WriteLine($"!!! Got and registered Ban Event from ${id} !!!");
         }
         
         // Ban user Command
@@ -99,6 +101,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             // notify other shards to ban user
+            int port = int.Parse(ConfigService.GetConfigData("port"));
             for (int i = 0; i < Utility.TOTAL_SHARDS; i++)
             {
                 if(i == Utility.SHARD_ID)
@@ -107,7 +110,7 @@ namespace SoraBot_v2.Services
                 try
                 {
                     using (var httpClient = new HttpClient())
-                    using (var request = new HttpRequestMessage(HttpMethod.Post, $"http://localhost:{(8087+i)}/api/SoraApi/BanEvent/"))
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, $"http://localhost:{(port+i)}/api/SoraApi/BanEvent/"))
                     {
                         string json = JsonConvert.SerializeObject(new { userId = id });
                         request.Content = new StringContent(json);
