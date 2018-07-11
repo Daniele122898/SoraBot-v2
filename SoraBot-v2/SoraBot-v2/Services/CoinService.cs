@@ -47,5 +47,15 @@ namespace SoraBot_v2.Services
                     $"You gained {GAIN_COINS} Sora Coins! You can earn again in 24h."));
             }       
         }
+
+        public int GetAmount(ulong userId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // get user db data
+                var userdb = Utility.OnlyGetUser(userId, soraContext);
+                return userdb?.Money ?? 0;
+            }
+        }
     }
 }

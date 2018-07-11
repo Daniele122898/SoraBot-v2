@@ -27,6 +27,16 @@ namespace SoraBot_v2.Module
         // TODO give coins
         
         // TODO check coins
+        [Command("coins"), Alias("sc"), Summary("Check how many Sora coins you have")]
+        public async Task GetCoins()
+        {
+            int amount = _coinService.GetAmount(Context.User.Id);
+            await ReplyAsync("", embed: Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.SuccessLevelEmoji[4],
+                $"💰 You have {amount} Sora Coins."
+                ));
+        }
         
     }
 }

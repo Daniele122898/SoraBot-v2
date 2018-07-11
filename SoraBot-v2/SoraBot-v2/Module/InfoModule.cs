@@ -19,10 +19,12 @@ namespace SoraBot_v2.Module
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         private CommandHandler _commandHandler;
+        private CoinService _coinService;
 
-        public InfoModule(CommandHandler commandHandler)
+        public InfoModule(CommandHandler commandHandler, CoinService coinService)
         {
             _commandHandler = commandHandler;
+            _coinService = coinService;
         }
 
         [Command("userinfo"), Alias("whois", "uinfo"),
@@ -66,8 +68,8 @@ namespace SoraBot_v2.Module
                 eb.AddField(x =>
                 {
                     x.IsInline = true;
-                    x.Name = $"Discriminator";
-                    x.Value = $"#{user.Discriminator}";
+                    x.Name = $"Sora Coins";
+                    x.Value = $"{_coinService.GetAmount(user.Id)} SC";
                 });
                 eb.AddField(x =>
                 {
