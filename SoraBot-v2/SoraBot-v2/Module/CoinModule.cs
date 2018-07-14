@@ -25,7 +25,7 @@ namespace SoraBot_v2.Module
             await _coinService.DoDaily(Context);
         }
         
-        // TODO give coins
+        // give coins
         [Command("send"), Alias("transfer", "sctransfer", "sendcoins", "sendsc", "give"),
          Summary("Sends specified amount of sc to specified user")]
         public async Task SendCoins(int amount, ulong userId)

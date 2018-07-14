@@ -346,21 +346,20 @@ namespace SoraBot_v2.Services
                             guildDb.SelfAssignableRoles.Remove(role);
                             continue;
                         }
-                        /*
+                        
                         eb.AddField(x =>
                         {
                             x.IsInline = true;
                             x.Name = roleInfo.Name;
                             x.Value =
-                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";//TODO REDO THIS
-                        });*/
-                        eb.Description += $"• {roleInfo.Name}\n";
+                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
+                        });
+                        //eb.Description += $"• {roleInfo.Name}\n";
                     }
                     await context.Channel.SendMessageAsync("", embed: eb);
                 }
                 else
                 {
-                    //TODO PAGINATE
                     List<Role> roleList = new List<Role>(guildDb.SelfAssignableRoles);
                     List<string> sars = new List<string>();
                     int pageAmount = (int)Math.Ceiling(roleCount / 7.0);
