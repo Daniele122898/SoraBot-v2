@@ -6,6 +6,8 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Humanizer;
+using Humanizer.Localisation;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -352,7 +354,7 @@ namespace SoraBot_v2.Services
                             x.IsInline = true;
                             x.Name = roleInfo.Name;
                             x.Value =
-                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
+                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}" : "")}";
                         });
                         //eb.Description += $"• {roleInfo.Name}\n";
                     }
@@ -377,7 +379,7 @@ namespace SoraBot_v2.Services
                                 guildDb.SelfAssignableRoles.Remove(role);
                                 continue;
                             }
-                            addToList += $"**{roleInfo.Name}**\nCost: {role.Cost}{(role.CanExpire ? $" \t \tDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
+                            addToList += $"**{roleInfo.Name}**\nCost: {role.Cost}{(role.CanExpire ? $" \t \tDuration: {role.Duration.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)} days" : "")}";
                         }
                         sars.Add(addToList);
                         amountLeft -= 7;

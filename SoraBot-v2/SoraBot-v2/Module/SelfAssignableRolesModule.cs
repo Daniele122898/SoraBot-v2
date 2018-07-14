@@ -2,6 +2,8 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Humanizer;
+using Humanizer.Localisation;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -17,16 +19,20 @@ namespace SoraBot_v2.Module
 
         [Command("addsar"), Alias("asar", "addrole"),
          Summary("Adds a self assignable role to the list. If it doesn't exist sora will create it")]
-        public async Task AddSar([Remainder] string roleName, int cost = 0, [Remainder] string expires = null)
+        public async Task AddSar(string roleName, int cost = 0, [Remainder] string expires = null)
         {
             if (cost == 0)
             {
+                Console.WriteLine("No additional info");
                 await _sarService.AddSarToList(Context, roleName.Trim()); //TODO EXPAND THIS
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(expires))
             {
-                await _sarService.AddSarToList(Context, roleName.Trim(), false, cost); 
+                Console.WriteLine($"Cost but no time. COST: {cost}");
+                await _sarService.AddSarToList(Context, roleName.Trim(), false, cost);
+                return;
             }
             
             // parse time
@@ -39,7 +45,8 @@ namespace SoraBot_v2.Module
                         "Failed to parse time for expiration"));
                 return;
             }
-            var timeSpan = new TimeSpan(time[0], time[1], time[2], time[3]);
+            TimeSpan timeSpan = new TimeSpan(time[0], time[1], time[2], time[3]);
+            Console.WriteLine($"Cost: {cost}, time: {time.ToString()}, timespan: {timeSpan.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}");
             await _sarService.AddSarToList(Context, roleName.Trim(), true, cost, timeSpan);
         }
 
@@ -85,7 +92,7 @@ namespace SoraBot_v2.Module
         private int[] GetTime(string msg)
         {
             var regex = Regex.Matches(msg, @"(\d+)\s{0,1}([a-zA-Z]*)");
-            var add = new int[3];
+            var add = new int[4];
             for (int i = 0; i < regex.Count; i++)
             {
                 var captures = regex[i].Groups;
