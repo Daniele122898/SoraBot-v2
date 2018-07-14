@@ -21,7 +21,7 @@ namespace SoraBot_v2.Services
             if (result == null)
             {
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"Tag \"{name}\" could not be found!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"No tag was found with the name:").WithDescription($"{name}"));
                 return;
             }
             //Check if creator or admin
@@ -40,6 +40,23 @@ namespace SoraBot_v2.Services
         
         public async Task CreateTag(SocketCommandContext context, SoraContext soraContext, string name, string value, bool forceEmbed)
         {
+            //Check if contents are valid
+            if (string.IsNullOrWhiteSpace(name))// || string.IsNullOrWhiteSpace(value)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "The Name cannot be Empty or White Space!"));
+                return;
+            }
+
+            if (name.Length > 256)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "The Name of a Tag cannot exceed 256 characters!"));
+                return;
+            }
+            
             var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
             //Check if guild restricted tag creation and if the user has the admin role!
             if (guildDb.RestrictTags)
@@ -57,21 +74,13 @@ namespace SoraBot_v2.Services
             }
             
             //Check if already exists
-            if (guildDb.Tags.Any(x => x.Name == name))
+            if (guildDb.Tags.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "A tag with that name already exists in this guild!"));
                 return;
             }
             
-            //Check if contents are valid
-            if (string.IsNullOrWhiteSpace(name))// || string.IsNullOrWhiteSpace(value)
-            {
-                await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "The Name cannot be Empty or White Space!"));
-                return;
-            }
             //Also take the attachment of the message if there is one
             string attachmentUrls="";
             bool attachMent = false;
@@ -143,12 +152,12 @@ namespace SoraBot_v2.Services
         {
             var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
 
-            var result = guildDb.Tags.FirstOrDefault(x => x.Name == name);
+            var result = guildDb.Tags.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (result == null)
             {
                 //didn't find the tag ;(
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"No tag was found with the name \"{name}\""));
+                    embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"No tag was found with the name:").WithDescription($"{name}"));
                 return;
             }
             //show tag
