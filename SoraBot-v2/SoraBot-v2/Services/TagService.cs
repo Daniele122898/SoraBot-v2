@@ -17,7 +17,7 @@ namespace SoraBot_v2.Services
         {
             var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
             //Check if tag exists
-            var result = guildDb.Tags.FirstOrDefault(x => x.Name == name);
+            var result = guildDb.Tags.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (result == null)
             {
                 await context.Channel.SendMessageAsync("",
@@ -54,6 +54,14 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "The Name of a Tag cannot exceed 256 characters!"));
+                return;
+            }
+
+            if (name.Contains("\n"))
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "No multi-line tag names!"));
                 return;
             }
             
