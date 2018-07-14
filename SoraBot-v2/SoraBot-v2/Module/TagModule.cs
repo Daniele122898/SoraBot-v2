@@ -44,7 +44,7 @@ namespace SoraBot_v2.Module
                         string addToList = "";
                         for (int j = 0; j < (amountLeft > 15 ? 15 : amountLeft); j++)
                         {
-                            addToList += $"{guildDb.Tags[j + addToJ].Name}\n";
+                            addToList += $"• `{guildDb.Tags[j + addToJ].Name}`\n";
                         }
                         tagList.Add(addToList);
                         amountLeft -= 15;
@@ -176,7 +176,7 @@ namespace SoraBot_v2.Module
             }
         }
 
-        [Command("removetag"), Alias("deletetag", "dt", "rt"), Summary("Deletes the specified tag!")]
+        [Command("removetag"), Alias("deletetag", "dt", "rt", "rmt"), Summary("Deletes the specified tag!")]
         public async Task RemoveTag([Remainder]string tag)
         {
             using (var _soraContext = new SoraContext())
