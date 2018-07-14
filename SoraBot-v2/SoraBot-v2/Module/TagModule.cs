@@ -163,7 +163,7 @@ namespace SoraBot_v2.Module
 
             using (var _soraContext = new SoraContext())
             {
-                await _tagService.CreateTag(Context, _soraContext, (foundAttachment ? tag.ToLower().Trim() : tag.Remove(index).ToLower().Trim()), (foundAttachment ? "" : tag.Substring(index + 1).Trim()), forceEmbed);
+                await _tagService.CreateTag(Context, _soraContext, (foundAttachment ? tag.Trim() : tag.Remove(index).Trim()), (foundAttachment ? "" : tag.Substring(index + 1).Trim()), forceEmbed);
             }
         }
 
@@ -172,7 +172,7 @@ namespace SoraBot_v2.Module
         {
             using (var _soraContext = new SoraContext())
             {
-                await _tagService.FindAndDisplayTag(Context, _soraContext, name.ToLower().Trim());
+                await _tagService.FindAndDisplayTag(Context, _soraContext, name.Trim());
             }
         }
 
