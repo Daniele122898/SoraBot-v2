@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Discord.Commands;
 using SoraBot_v2.Services;
 
@@ -21,9 +23,17 @@ namespace SoraBot_v2.Module
         }
 
         [Command("defaultrole"), Alias("drole", "default"), Summary("Sets a default role for when users join")]
-        public async Task AddDefaultRole([Remainder] string roleName)
+        public async Task AddDefaultRole([Remainder] string roleName, int cost = 0, [Remainder] string expires = null)
         {
-            await _sarService.AddDefaultRole(Context, roleName.Trim());
+            if (cost == 0)
+            {
+                await _sarService.AddDefaultRole(Context, roleName.Trim());
+                return;
+            }
+            
+            // parse time
+            
+            
         }
 
         [Command("toggledefault"), Alias("toggledef"), Summary("Toggles if default role is on or off")]
@@ -54,6 +64,64 @@ namespace SoraBot_v2.Module
         public async Task Sars()
         {
             await _sarService.ListSars(Context);
+        }
+
+        private double GetTime(string msg)
+        {
+            var regex = Regex.Matches(msg, @"(\d+)\s{0,1}([a-zA-Z]*)");
+            double timeToAdd = 0;
+            for (int i = 0; i < regex.Count; i++)
+            {
+                var captures = regex[i].Groups;
+                if (captures.Count < 3)
+                {
+                    Console.WriteLine("CAPTURES COUNT LESS THEN 3");
+                    return 0;
+                }
+
+                double amount = 0;
+
+                if (!Double.TryParse(captures[1].ToString(), out amount))
+                {
+                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1].ToString()}");
+                    return 0;
+                }
+
+                switch (captures[2].ToString())
+                {
+                    case ("weeks"):
+                    case ("week"):
+                    case ("w"):
+                        timeToAdd += amount * 604800;
+                        break;
+                    case ("day"):
+                    case ("days"):
+                    case ("d"):
+                        timeToAdd += amount * 86400;
+                        break;
+                    case ("hours"):
+                    case ("hour"):
+                    case ("h"):
+                        timeToAdd += amount * 3600;
+                        break;
+                    case ("minutes"):
+                    case ("minute"):
+                    case ("m"):
+                    case ("min"):
+                    case ("mins"):
+                        timeToAdd += amount * 60;
+                        break;
+                    case ("seconds"):
+                    case ("second"):
+                    case ("s"):
+                        timeToAdd += amount;
+                        break;
+                    default:
+                        Console.WriteLine("SWITCH FAILED");
+                        return 0;
+                }
+            }
+            return timeToAdd;
         }
         
     }
