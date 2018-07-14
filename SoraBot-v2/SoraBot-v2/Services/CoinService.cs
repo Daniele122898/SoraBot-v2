@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
 using Microsoft.AspNetCore.Hosting.Internal;
@@ -12,6 +13,59 @@ namespace SoraBot_v2.Services
     {
         private const int GAIN_COINS = 500;
 
+        public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // get current userDb
+                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                // check if user exists and if he has the money
+                if (userdb == null || userdb.Money < amount)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "You don't have enough Sora Coins!"));
+                    return;
+                }
+                // get or create other userDb
+                var otherDb = Utility.GetOrCreateUser(userId, soraContext);
+                // transfer the money
+                userdb.Money -= amount;
+                otherDb.Money += amount;
+                // save changes
+                await soraContext.SaveChangesAsync();
+            }
+
+            var user = context.Client.GetUser(userId);
+            
+            // send message to other user
+            try
+            {
+                if (user == null)
+                    throw new Exception();
+                
+                await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.PurpleEmbed,
+                    Utility.SuccessLevelEmoji[4],
+                    $"💰 You've received {amount} SC from {Utility.GiveUsernameDiscrimComb(context.User)} !"
+                ));
+
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"You have successfully transfered {amount} SC to {Utility.GiveUsernameDiscrimComb(user)}! They've been notified."
+                ));
+            }
+            catch (Exception e)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.YellowWarningEmbed,
+                    Utility.SuccessLevelEmoji[1],
+                    $"You have successfully transfered {amount} SC to {(user == null ? userId.ToString() : Utility.GiveUsernameDiscrimComb(user))}!."
+                ).WithDescription("But I failed to send him/her a DM, they have probably disabled that feature. You may want to notify him/her yourself."));
+            }
+        }
+        
         public async Task DoDaily(SocketCommandContext context )
         {
             using (var soraContext = new SoraContext())
