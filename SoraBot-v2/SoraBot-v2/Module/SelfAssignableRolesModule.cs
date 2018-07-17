@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Humanizer;
 using Humanizer.Localisation;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -24,7 +27,7 @@ namespace SoraBot_v2.Module
             if (cost == 0)
             {
                 Console.WriteLine("No additional info");
-                await _sarService.AddSarToList(Context, roleName.Trim()); //TODO EXPAND THIS
+                await _sarService.AddSarToList(Context, roleName.Trim());
                 return;
             }
 
@@ -46,17 +49,66 @@ namespace SoraBot_v2.Module
                 return;
             }
             TimeSpan timeSpan = new TimeSpan(time[0], time[1], time[2], time[3]);
+            
+            if (timeSpan.TotalMinutes < 10)
+            {
+                await ReplyAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "The role must be valid for at least 10 minutes!"));
+                return;
+            }
+            
             Console.WriteLine($"Cost: {cost}, time: {time.ToString()}, timespan: {timeSpan.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}");
+            
             await _sarService.AddSarToList(Context, roleName.Trim(), true, cost, timeSpan);
         }
 
         [Command("defaultrole"), Alias("drole", "default"), Summary("Sets a default role for when users join")]
         public async Task AddDefaultRole([Remainder] string roleName)
         {
-            
                 await _sarService.AddDefaultRole(Context, roleName.Trim());
                 return;
+        }
 
+        [Command("expiring"), Summary("Shows all your expiring sars")]
+        public async Task ShowExpiringSars()
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var exp = soraContext.ExpiringRoles.Where(x => x.UserForeignId == Context.User.Id && x.GuildForeignId == Context.Guild.Id).ToList();
+                if (exp.Count == 0)
+                {
+                    await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You don't have any expiring roles in this Guild!"));
+                    return;
+                }
+                var eb = new EmbedBuilder()
+                {
+                    Color = Utility.PurpleEmbed,
+                    ThumbnailUrl = Context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
+                    Author = new EmbedAuthorBuilder()
+                    {
+                        IconUrl = Context.User.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                        Name = Utility.GiveUsernameDiscrimComb(Context.User)
+                    },
+                    Title = $"Your Expiring Roles in {Context.Guild.Name}",
+                };
+                foreach (var role in exp)
+                {
+                    var r = Context.Guild.GetRole(role.RoleForeignId);
+                    if(r== null)
+                        continue;
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = false;
+                        x.Name = r.Name;
+                        x.Value = $"Expires on: {role.ExpiresAt.ToString("hh:mm:ss dd/MM/yyyy UTC")}";
+                    });
+                }
+                await ReplyAsync("", embed: eb);
+            }
         }
 
         [Command("toggledefault"), Alias("toggledef"), Summary("Toggles if default role is on or off")]

@@ -101,6 +101,7 @@ namespace SoraBot_v2
             serviceProvider.GetRequiredService<ReminderService>().Initialize();
             await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<StarboardService>().Initialize(); 
+            serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(); 
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
 
