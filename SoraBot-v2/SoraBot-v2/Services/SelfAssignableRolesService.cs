@@ -82,9 +82,12 @@ namespace SoraBot_v2.Services
                             soraContext.ExpiringRoles.Remove(role);
                             continue; 
                         }
-                        // otherwise remove role from him and entry
-                        await user.RemoveRoleAsync(r);
-                        soraContext.ExpiringRoles.Remove(role);
+                        if (role.ExpiresAt.CompareTo(DateTime.UtcNow) <= 0)
+                        {
+                            // otherwise remove role from him and entry
+                            await user.RemoveRoleAsync(r);
+                            soraContext.ExpiringRoles.Remove(role);
+                        }
                     }
                     await soraContext.SaveChangesAsync();
                 }
