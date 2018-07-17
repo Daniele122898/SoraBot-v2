@@ -123,13 +123,13 @@ namespace SoraBot_v2.Module
             await _sarService.RemoveSarFromList(Context, roleName.Trim());
         }
 
-        [Command("iam"), Alias("sar"), Summary("Assigns the role to you if it exists")]
+        [Command("iam", RunMode = RunMode.Async), Alias("sar"), Summary("Assigns the role to you if it exists")]
         public async Task IAmSar([Summary("Role name"),Remainder] string roleName)
         {
             await _sarService.IAmSar(Context, roleName.Trim());
         }
 
-        [Command("iamnot"), Summary("Removes specified self assignable role from you")]
+        [Command("iamnot", RunMode = RunMode.Async), Summary("Removes specified self assignable role from you")]
         public async Task IAmNotSar([Summary("Role name"), Remainder] string roleName)
         {
             await _sarService.IAmNotSar(Context, roleName.Trim());
