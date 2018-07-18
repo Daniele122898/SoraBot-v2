@@ -82,9 +82,20 @@ namespace SoraBot_v2.Services
                         if (role.ExpiresAt.CompareTo(DateTime.UtcNow) <= 0)
                         {
                             // otherwise remove role from him and entry
-                            await user.RemoveRoleAsync(r);
-                            soraContext.ExpiringRoles.Remove(role);
-                            await Task.Delay(2000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
+                            // ratelimit is super strict here so what we do is try it, 
+                            // if it throws an exception we wait 2 seconds and try again. Hopefully that works.
+                            // otherwise we run again and retry.
+                            try
+                            {
+                                await user.RemoveRoleAsync(r);
+                                soraContext.ExpiringRoles.Remove(role);
+                            }
+                            catch (Exception e)
+                            {
+                                await Task.Delay(3000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
+                                await user.RemoveRoleAsync(r);
+                                soraContext.ExpiringRoles.Remove(role);
+                            }
                         }
                     }
                     await soraContext.SaveChangesAsync();
