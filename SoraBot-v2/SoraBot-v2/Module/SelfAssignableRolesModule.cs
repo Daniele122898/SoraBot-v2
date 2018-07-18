@@ -70,7 +70,7 @@ namespace SoraBot_v2.Module
                 return;
         }
 
-        [Command("expiring"), Summary("Shows all your expiring sars")]
+        [Command("expiring"), Alias("expires"), Summary("Shows all your expiring sars")]
         public async Task ShowExpiringSars()
         {
             using (var soraContext = new SoraContext())
