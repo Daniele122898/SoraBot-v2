@@ -590,7 +590,8 @@ namespace SoraBot_v2.Services
                     // Get owner db
                     var ownerDb = Utility.GetOrCreateUser(context.Guild.OwnerId, soraContext);
                     userDb.Money -= roleDb.Cost;
-                    ownerDb.Money += roleDb.Cost;
+                    // only send 50% of it to the owner. the rest is tax to remove money from the economy.
+                    ownerDb.Money += (int)Math.Floor(roleDb.Cost / 2.0);
                     // check if duration
                     if (roleDb.CanExpire)
                     {
