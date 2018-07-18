@@ -20,7 +20,7 @@ namespace SoraBot_v2.Module
             _sarService = service;
         }
 
-        [Command("addsar"), Alias("asar", "addrole"),
+        [Command("addsar", RunMode = RunMode.Async), Alias("asar", "addrole"),
          Summary("Adds a self assignable role to the list. If it doesn't exist sora will create it")]
         public async Task AddSar(string roleName, int cost = 0, [Remainder] string expires = null)
         {
@@ -104,7 +104,7 @@ namespace SoraBot_v2.Module
                     {
                         x.IsInline = false;
                         x.Name = r.Name;
-                        x.Value = $"Expires on: {role.ExpiresAt.ToString("hh:mm:ss dd/MM/yyyy UTC")}";
+                        x.Value = $"Expires in: {role.ExpiresAt.Subtract(DateTime.UtcNow).Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}";
                     });
                 }
                 await ReplyAsync("", embed: eb);

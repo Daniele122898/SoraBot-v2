@@ -61,7 +61,6 @@ namespace SoraBot_v2.Services
                         // if user isnt in guild anymore remove entry
                         if (user == null)
                         {
-                            Console.WriteLine("User is NULL");
                             soraContext.ExpiringRoles.Remove(role);
                             continue;
                         }
@@ -70,14 +69,12 @@ namespace SoraBot_v2.Services
                         // remove if role doesnt exist anymore
                         if (r == null)
                         {
-                            Console.WriteLine("Role is NULL");
                             soraContext.ExpiringRoles.Remove(role);
                             continue; 
                         }
                         // check if user still has role
                         if (user.Roles.All(x => x.Id != role.RoleForeignId))
                         {
-                            Console.WriteLine("User doesnt have role ");
                             // user doesnt have role anymore. remove
                             soraContext.ExpiringRoles.Remove(role);
                             continue; 
@@ -87,6 +84,7 @@ namespace SoraBot_v2.Services
                             // otherwise remove role from him and entry
                             await user.RemoveRoleAsync(r);
                             soraContext.ExpiringRoles.Remove(role);
+                            await Task.Delay(2000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
                         }
                     }
                     await soraContext.SaveChangesAsync();
@@ -106,7 +104,6 @@ namespace SoraBot_v2.Services
                 if (_soraContext.ExpiringRoles.ToList().Count == 0)
                 {
                     _timer.Change(Timeout.Infinite, Timeout.Infinite);
-                    Console.WriteLine("TIMER HAS BEEN HALTED!");
                     return;
                 }
 
@@ -120,12 +117,10 @@ namespace SoraBot_v2.Services
                 {
                     //just set timer to 1 day
                     _timer.Change(TimeSpan.FromDays(1), TimeSpan.FromDays(1));
-                    Console.WriteLine($"CHANGED TIMER INTERVAL TO: 1 day bcs the timer was too long");
                 }
                 else
                 {
                     _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
-                    Console.WriteLine($"CHANGED TIMER INTERVAL TO: {time}");
                 }
             }
         }
