@@ -425,7 +425,7 @@ namespace SoraBot_v2.Services
                 if (roleDb.CanExpire)
                 {
                     // remove entry in that list if it exists
-                    var expireDb = soraContext.ExpiringRoles.FirstOrDefault(x => x.RoleForeignId == role.Id);
+                    var expireDb = soraContext.ExpiringRoles.FirstOrDefault(x => x.RoleForeignId == role.Id && x.UserForeignId == user.Id);
                     if (expireDb != null)
                     {
                         soraContext.ExpiringRoles.Remove(expireDb);
