@@ -353,7 +353,18 @@ namespace SoraBot_v2.Services
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User() {UserId = Id, ShareCentrals = new List<ShareCentral>(), Interactions = new Interactions(),Votings = new List<Voting>(),Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),HasBg = false, Notified = false, ClanStaff = false, ClanName = ""});
+                    var addedUser = soraContext.Users.Add(new User()
+                    {
+                        UserId = Id, ShareCentrals = new List<ShareCentral>(), 
+                        Interactions = new Interactions(),Votings = new List<Voting>(),
+                        Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),
+                        HasBg = false, 
+                        Notified = false, 
+                        ClanStaff = false, 
+                        ClanName = "",
+                        Money = 0,
+                        NextDaily = DateTime.UtcNow
+                    });
                     //Set Default action to be false! // Interactions = new Interactions() , Afk = new Afk()
                     //addedUser.Entity.Afk.IsAfk = false; CHANGED
                     //soraContext.SaveChangesThreadSafe();

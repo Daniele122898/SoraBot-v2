@@ -2,9 +2,11 @@
 using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.Fonts;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Drawing;
+using SixLabors.ImageSharp.Processing.Text;
+using SixLabors.ImageSharp.Processing.Transforms;
 using SixLabors.Primitives;
 using SixLabors.Shapes;
 
@@ -42,7 +44,8 @@ namespace SoraBot_v2.Services
         
         private static void DrawMask(Image<Rgba32> mask, Image<Rgba32>output, Size size)
         {
-            output.Mutate(x=>  x.DrawImage(mask, 1, size, new Point(0, 0)));
+            mask.Mutate(x=> x.Resize(size));
+            output.Mutate(x=>  x.DrawImage(mask, 1, new Point(0, 0)));
         }
         
         private static void DrawShipAv(string avatarUrl, Image<Rgba32> output, Rectangle rec)
@@ -56,7 +59,8 @@ namespace SoraBot_v2.Services
                     Mode = ResizeMode.Crop,
                     Size = avatarPosition.Size
                 }));
-                output.Mutate(x=> x.DrawImage(avatar,1, avatarPosition.Size, avatarPosition.Location));
+                avatar.Mutate(x => x.Resize(avatarPosition.Size));
+                output.Mutate(x=> x.DrawImage(avatar,1, avatarPosition.Location));
             }
         }
 
@@ -83,17 +87,17 @@ namespace SoraBot_v2.Services
             var light = new Font(_fontLight, 15.4f, FontStyle.Regular);
             
             //Draw name and clan
-            output.Mutate(x=> x.DrawText(username, heavy, Rgba32.White, new Vector2(60,14), new TextGraphicsOptions(true)
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }));
+            }, username, heavy, Rgba32.White, new Vector2(60,14)));
             
-            output.Mutate(x=> x.DrawText(clanName, light, Rgba32.White, new Vector2(60,34), new TextGraphicsOptions(true)
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }));
+            }, clanName, light, Rgba32.White, new Vector2(60,34)));
 
             //Draw global stats
             var oStats = new Font(_fontheavy, 13.4f, FontStyle.Bold);
@@ -102,56 +106,57 @@ namespace SoraBot_v2.Services
             var globalStatsText = $"GLOBAL RANK: {globalRank}";
             var textSize = TextMeasurer.Measure(globalStatsText, new RendererOptions(oStats, 72));
             
-            output.Mutate(x=> x.DrawText($"GLOBAL RANK: ", oStats, Rgba32.White, new Vector2(235-(textSize.Width/2), 221), new TextGraphicsOptions(true)
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }));
-            output.Mutate(x=> x.DrawText($"{globalRank}", oStats, new Rgba32(47,166,222), new Vector2(235+(textSize.Width/2), 221), new TextGraphicsOptions(true)
+            }, $"GLOBAL RANK: ", oStats, Rgba32.White, new Vector2(235-(textSize.Width/2), 221)));
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
-            }));
-            output.Mutate(x=> x.DrawText($"LEVEL: {globalLevel}", oStats, Rgba32.White, new Vector2(235, 236), new TextGraphicsOptions(true)
+            },$"{globalRank}", oStats, new Rgba32(47,166,222), new Vector2(235+(textSize.Width/2), 221)));
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
-            }));
-            output.Mutate(x=> x.DrawText($"{globalExp} / {globalExpNeeded}", expStats, Rgba32.White, new Vector2(235, 250), new TextGraphicsOptions(true)
+            }, $"LEVEL: {globalLevel}", oStats, Rgba32.White, new Vector2(235, 236)));
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
-            }));
+            }, $"{globalExp} / {globalExpNeeded}", expStats, Rgba32.White, new Vector2(235, 250)));
             
             //draw local stats
             var localStatsText = $"LOCAL RANK: {localRank}";
             var localTextSize = TextMeasurer.Measure(localStatsText, new RendererOptions(oStats, 72));
             
-            output.Mutate(x=> x.DrawText($"LOCAL RANK: ", oStats, Rgba32.White, new Vector2(386-(localTextSize.Width/2), 221), new TextGraphicsOptions(true)
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }));
-            output.Mutate(x=> x.DrawText($"{localRank}", oStats, new Rgba32(47,166,222), new Vector2(386+(localTextSize.Width/2), 221), new TextGraphicsOptions(true)
+            }, $"LOCAL RANK: ", oStats, Rgba32.White, new Vector2(386-(localTextSize.Width/2), 221)));
+            output.Mutate(x=> x.DrawText( new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
-            }));
-            output.Mutate(x=> x.DrawText($"LEVEL: {localLevel}", oStats, Rgba32.White, new Vector2(386, 236), new TextGraphicsOptions(true)
+            },$"{localRank}", oStats, new Rgba32(47,166,222), new Vector2(386+(localTextSize.Width/2), 221)));
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
-            }));
-            output.Mutate(x=> x.DrawText($"{localExp} / {localExpNeeded}", expStats, Rgba32.White, new Vector2(386, 250), new TextGraphicsOptions(true)
+            }, $"LEVEL: {localLevel}", oStats, Rgba32.White, new Vector2(386, 236)));
+            output.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
-            }));
+            }, $"{localExp} / {localExpNeeded}", expStats, Rgba32.White, new Vector2(386, 250)));
         }
 
         private static void DrawTemplate(Image<Rgba32> template, Image<Rgba32> output, Size size)
         {
-            output.Mutate(x=> x.DrawImage(template, 1, size, new Point(0, 0)));
+            template.Mutate(x=> x.Resize(size));
+            output.Mutate(x=> x.DrawImage(template, 1, new Point(0, 0)));
         }
         
         private static void DrawAvatar(string avatarUrl, Image<Rgba32> output, Rectangle rec, float cornerRadius)
@@ -165,7 +170,9 @@ namespace SoraBot_v2.Services
                     Mode = ResizeMode.Crop,
                     Size = avatarPosition.Size
                 }).Apply(i=> ApplyRoundedCorners(i, cornerRadius)));
-                output.Mutate(x=> x.DrawImage(avatar,1, avatarPosition.Size, avatarPosition.Location));
+                
+                avatar.Mutate(x=> x.Resize(avatarPosition.Size));
+                output.Mutate(x=> x.DrawImage(avatar,1, avatarPosition.Location));
             }
         }
 
@@ -173,16 +180,16 @@ namespace SoraBot_v2.Services
         {
             IPathCollection corner = BuildCorners(img.Width, img.Height, cornerRadius);
             
-            img.Mutate(x=> x.Fill(Rgba32.Transparent, corner, new GraphicsOptions(true)
+            img.Mutate(x=> x.Fill(new GraphicsOptions(true)
             {
                 BlenderMode = PixelBlenderMode.Src // enforces that any part of this shape that has color is punched out of the background
-            }));
+            }, Rgba32.Transparent, corner));
         }
         
         private static IPathCollection BuildCorners(int imageWidth, int imageHeight, float cornerRadius)
         {
             // first create a square
-            var rect = new RectangularePolygon(-0.5f, -0.5f, cornerRadius, cornerRadius);
+            var rect = new RectangularPolygon(-0.5f, -0.5f, cornerRadius, cornerRadius);
 
             // then cut out of the square a circle so we are left with a corner
             IPath cornerToptLeft = rect.Clip(new EllipsePolygon(cornerRadius - 0.5f, cornerRadius - 0.5f, cornerRadius));
@@ -206,7 +213,8 @@ namespace SoraBot_v2.Services
         {
             using (Image<Rgba32> background = Image.Load(backgroundUrl)) //960x540
             {
-                output.Mutate(x=> x.DrawImage(background, 1, size, new Point(0, 0)));
+                background.Mutate(x=> x.Resize(size));
+                output.Mutate(x=> x.DrawImage(background, 1, new Point(0, 0)));
             }//can be disposed since no longer needed in memory. 
         }
     }

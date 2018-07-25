@@ -1,25 +1,139 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Humanizer;
+using Humanizer.Localisation;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Extensions;
+using Timer = System.Threading.Timer;
 
 namespace SoraBot_v2.Services
 {
     public class SelfAssignableRolesService
     {
         private InteractiveService _interactive;
+        private DiscordSocketClient _client;
+        private Timer _timer;
 
-        public SelfAssignableRolesService(InteractiveService service)
+        public SelfAssignableRolesService(InteractiveService service, DiscordSocketClient client)
         {
             _interactive = service;
+            _client = client;
+        }
+
+        public void Initialize()
+        {
+            SetTimer();
+        }
+
+        private const int INITIAL_DELAY = 40;
+
+        private void SetTimer()
+        {
+            _timer = new Timer(CheckExpiringRoles, null, TimeSpan.FromSeconds(INITIAL_DELAY),
+                TimeSpan.FromSeconds(INITIAL_DELAY));
+        }
+
+        private async void CheckExpiringRoles(Object stateInfo)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var roles = new List<ExpiringRole>();
+                    roles = soraContext.ExpiringRoles.ToList();
+                    foreach (var role in roles)
+                    {
+                        // get guild
+                        var guild = _client.GetGuild(role.GuildForeignId);
+                        if(guild == null)
+                            continue;
+                        // get user
+                        var user = guild.GetUser(role.UserForeignId);
+                        // if user isnt in guild anymore remove entry
+                        if (user == null)
+                        {
+                            soraContext.ExpiringRoles.Remove(role);
+                            continue;
+                        }
+                        // get role
+                        var r = guild.GetRole(role.RoleForeignId);
+                        // remove if role doesnt exist anymore
+                        if (r == null)
+                        {
+                            soraContext.ExpiringRoles.Remove(role);
+                            continue; 
+                        }
+                        // check if user still has role
+                        if (user.Roles.All(x => x.Id != role.RoleForeignId))
+                        {
+                            // user doesnt have role anymore. remove
+                            soraContext.ExpiringRoles.Remove(role);
+                            continue; 
+                        }
+                        if (role.ExpiresAt.CompareTo(DateTime.UtcNow) <= 0)
+                        {
+                            // otherwise remove role from him and entry
+                            // ratelimit is super strict here so what we do is try it, 
+                            // if it throws an exception we wait 2 seconds and try again. Hopefully that works.
+                            // otherwise we run again and retry.
+                            try
+                            {
+                                await user.RemoveRoleAsync(r);
+                                soraContext.ExpiringRoles.Remove(role);
+                            }
+                            catch (Exception e)
+                            {
+                                await Task.Delay(3000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
+                                await user.RemoveRoleAsync(r);
+                                soraContext.ExpiringRoles.Remove(role);
+                            }
+                        }
+                    }
+                    await soraContext.SaveChangesAsync();
+                }
+                ChangeToClosestInterval();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        private void ChangeToClosestInterval()
+        {
+            using (var _soraContext = new SoraContext())
+            {
+                if (_soraContext.ExpiringRoles.ToList().Count == 0)
+                {
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    return;
+                }
+
+                var sortedRoles = _soraContext.ExpiringRoles.ToList().OrderBy(x => x.ExpiresAt).ToList();
+                var time = sortedRoles[0].ExpiresAt.Subtract(DateTime.UtcNow).TotalSeconds;
+                if (time < 0)
+                {
+                    time = 0;
+                }
+                if (time > 86400)
+                {
+                    //just set timer to 1 day
+                    _timer.Change(TimeSpan.FromDays(1), TimeSpan.FromDays(1));
+                }
+                else
+                {
+                    _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
+                }
+            }
         }
 
         public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
@@ -266,6 +380,7 @@ namespace SoraBot_v2.Services
                 //save DB
                 await soraContext.SaveChangesAsync();
             }
+            
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} to the list of self-assignable roles!"));
         }
@@ -297,7 +412,8 @@ namespace SoraBot_v2.Services
             {
                 //check if the role is self assignable
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                if (guildDb.SelfAssignableRoles.All(x => x.RoleId != role.Id))
+                var roleDb = guildDb.SelfAssignableRoles.FirstOrDefault(x => x.RoleId == role.Id);
+                if (roleDb == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -305,6 +421,19 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 //user carries role and IS self assignable
+                // check if it had a duration
+                if (roleDb.CanExpire)
+                {
+                    // remove entry in that list if it exists
+                    var expireDb = soraContext.ExpiringRoles.FirstOrDefault(x => x.RoleForeignId == role.Id && x.UserForeignId == user.Id);
+                    if (expireDb != null)
+                    {
+                        soraContext.ExpiringRoles.Remove(expireDb);
+                        await soraContext.SaveChangesAsync();
+                        ChangeToClosestInterval();
+                    }
+                }
+                
                 await user.RemoveRoleAsync(role);
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
@@ -346,21 +475,20 @@ namespace SoraBot_v2.Services
                             guildDb.SelfAssignableRoles.Remove(role);
                             continue;
                         }
-                        /*
+                        
                         eb.AddField(x =>
                         {
                             x.IsInline = true;
                             x.Name = roleInfo.Name;
                             x.Value =
-                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";//TODO REDO THIS
-                        });*/
-                        eb.Description += $"• {roleInfo.Name}\n";
+                                $"Cost: {role.Cost}{(role.CanExpire ? $"\nDuration: {role.Duration.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}" : "")}";
+                        });
+                        //eb.Description += $"• {roleInfo.Name}\n";
                     }
                     await context.Channel.SendMessageAsync("", embed: eb);
                 }
                 else
                 {
-                    //TODO PAGINATE
                     List<Role> roleList = new List<Role>(guildDb.SelfAssignableRoles);
                     List<string> sars = new List<string>();
                     int pageAmount = (int)Math.Ceiling(roleCount / 7.0);
@@ -378,7 +506,7 @@ namespace SoraBot_v2.Services
                                 guildDb.SelfAssignableRoles.Remove(role);
                                 continue;
                             }
-                            addToList += $"**{roleInfo.Name}**\nCost: {role.Cost}{(role.CanExpire ? $" \t \tDuration: {role.Duration.ToString(@"ww\.dd\.hh\")}" : "")}";
+                            addToList += $"**{roleInfo.Name}**\nCost: {role.Cost}{(role.CanExpire ? $" \t \tDuration: {role.Duration.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)} days" : "")}";
                         }
                         sars.Add(addToList);
                         amountLeft -= 7;
@@ -448,20 +576,54 @@ namespace SoraBot_v2.Services
             {
                 //check if the role is self assignable
                 var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                if (guildDb.SelfAssignableRoles.All(x => x.RoleId != role.Id))
+                var roleDb = guildDb.SelfAssignableRoles.FirstOrDefault(x => x.RoleId == role.Id);
+                if (roleDb == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                         "This role is not self-assignable!"));
                     return;
                 }
-                //role exists and IS self assignable
+                // role exists and IS self assignable
+                // check if it costs. 
+                if (roleDb.Cost > 0)
+                {
+                    // check if user has enough money.
+                    var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
+                    if (userDb.Money < roleDb.Cost)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "You don't have enough Sora Coins for this role."));
+                        return;
+                    }
+                    // He has enough SC to buy
+                    // Get owner db
+                    var ownerDb = Utility.GetOrCreateUser(context.Guild.OwnerId, soraContext);
+                    userDb.Money -= roleDb.Cost;
+                    // only send 50% of it to the owner. the rest is tax to remove money from the economy.
+                    ownerDb.Money += (int)Math.Floor(roleDb.Cost / 2.0);
+                    // check if duration
+                    if (roleDb.CanExpire)
+                    {
+                        // add role to list of expiring roles.
+                        soraContext.ExpiringRoles.Add(new ExpiringRole()
+                        {
+                            RoleForeignId = role.Id,
+                            ExpiresAt = DateTime.UtcNow.Add(roleDb.Duration),
+                            GuildForeignId = context.Guild.Id,
+                            UserForeignId = user.Id
+                        });
+                        Console.WriteLine($"EXPIRES AT: {DateTime.UtcNow.Add(roleDb.Duration)}");
+                    }
+                    await soraContext.SaveChangesAsync();
+                    ChangeToClosestInterval();
+                }                
                 await user.AddRoleAsync(role);
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                 $"Successfully added {role.Name} to your roles!"));
-
         }
     }
 }

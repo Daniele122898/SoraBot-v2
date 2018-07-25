@@ -26,6 +26,7 @@ namespace SoraBot_v2.Data
         public DbSet<Tags> Tags { get; set; }
         public DbSet<StarMessage> StarMessages { get; set; }
         public DbSet<Role> SelfAssignableRoles { get; set; }
+        public DbSet<ExpiringRole> ExpiringRoles { get; set; }
         public DbSet<ModCase> Cases { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; }
         public DbSet<GuildLevelRole> GuildLevelRoles { get; set; }
@@ -78,51 +79,7 @@ namespace SoraBot_v2.Data
 
             optionsBuilder.UseMySql(connectionString);
         }
-        ////
-
-        /*public int SaveChangesThreadSafe()
-        {
-            lock (_padlock)
-            {
-                try
-                {
-                    return this.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    foreach (var entry in ex.Entries)
-                    {
-                        //REMINDERS
-                        if (entry.Entity is Reminders)
-                        {
-                            var databaseEntity = this.Reminders.AsNoTracking()
-                                .Single(x => x.Id == ((Reminders) entry.Entity).Id);
-                            var databaseEntry = this.Entry(databaseEntity);
-
-                            foreach (var property in entry.Metadata.GetProperties())
-                            {
-                                var proposedValue = entry.Property(property.Name).CurrentValue;
-                                var originalValue = entry.Property(property.Name).OriginalValue;
-                                var databaseValue = entry.Property(property.Name).CurrentValue;
-
-                                // TODO: Logic to decide which value should be written to database
-                                // entry.Property(property.Name).CurrentValue = <value to be saved>;
-
-                                entry.Property(property.Name).OriginalValue =
-                                    databaseEntry.Property(property.Name).CurrentValue;
-                            }
-
-                        }
-                        else
-                        {
-                            throw new NotSupportedException("Don't know how to handle concurrency conflicts for "+ entry.Metadata.Name);
-                        }
-                    }
-                    //retry the save operation
-                    return this.SaveChanges();
-                }
-            }
-        }*/
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

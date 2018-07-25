@@ -25,12 +25,139 @@ namespace SoraBot_v2.Services
 
         private const int MINIMUM_CREATE_LEVEL = 5;
         private const int MAX_MEMBERCOUNT = 20;
-
+        
+        private const int CLAN_CREATION_COST = 2000;
+        private const int CLAN_RENAME_COST = 500;
+        private const int CLAN_LVLUP_COST = 10000;
+        
         private struct ClanListing
         {
             public Clan Clan { get; set; }
             public float TotalExp { get; set; }
         }
+        
+        private int GetMaxUsers(Clan clan)
+        {
+            return MAX_MEMBERCOUNT + (clan.Level*10);
+        }
+
+        public async Task LevelUpClan(SocketCommandContext context)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // check if user is in a clan
+                var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                if (userDb == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(userDb.ClanName))
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                    return; 
+                }
+                // check if clan still exists
+                var clan = Utility.GetClan(userDb.ClanName, soraContext);
+                if (clan == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore..."));
+                    return;
+                }
+                // otherwise check if he's owner or staff
+                if (clan.OwnerId != context.User.Id && !userDb.ClanStaff)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan nor a staff member!"));
+                    return;
+                }
+                // check available money
+                if (userDb.Money < CLAN_LVLUP_COST)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to upgrade! It costs {CLAN_LVLUP_COST} SC!"));
+                    return;
+                }
+                // upgrade clan
+                clan.Level += 1;
+                // remove money
+                userDb.Money -= CLAN_LVLUP_COST;
+                // save changes
+                await soraContext.SaveChangesAsync();
+                
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(
+                        Utility.GreenSuccessEmbed, 
+                        Utility.SuccessLevelEmoji[0], 
+                        $"Successfully upgraded the clan! You can now have {GetMaxUsers(clan)} members!"));
+            }
+        }
+
+        public async Task RenameClan(SocketCommandContext context, string clanName)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // check if user is in a clan
+                var userDb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                if (userDb == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(userDb.ClanName))
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                    return; 
+                }
+                // check if clan still exists
+                var clan = Utility.GetClan(userDb.ClanName, soraContext);
+                if (clan == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore..."));
+                    return;
+                }
+                // otherwise check if he's owner
+                if (clan.OwnerId != context.User.Id)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan!"));
+                    return;
+                }
+                // check available money
+                if (userDb.Money < CLAN_RENAME_COST)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to rename! It costs {CLAN_RENAME_COST} SC!"));
+                    return;
+                }
+                // he's owner and has the cash. rename 
+                clan.Name = clanName;
+                // update all members
+                foreach (var member in clan.Members)
+                {
+                    member.ClanName = clanName;
+                }
+                // update this user
+                userDb.ClanName = clanName;
+                // remove some of his cash KEK
+                userDb.Money -= CLAN_RENAME_COST;
+                
+                await soraContext.SaveChangesAsync();
+                
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(
+                        Utility.GreenSuccessEmbed, 
+                        Utility.SuccessLevelEmoji[0], 
+                        $"Successfully renamed the clan to `{clanName}`"));
+            }            
+        }
+        
         
         public async Task ShowClanList(SocketCommandContext context)
         {
@@ -74,6 +201,10 @@ namespace SoraBot_v2.Services
                 short count = 1;
                 foreach (var clan in sorted)
                 {
+                    // only show 20 for lvl up shit.
+                    if (count > 20)
+                        break;
+                    
                     eb.AddField((x) =>
                     {
                         x.IsInline = false;
@@ -554,7 +685,7 @@ namespace SoraBot_v2.Services
                         return;
                     }
                     //CHECK IF CLAN IS FULLL
-                    if (clan.Members.Count >= MAX_MEMBERCOUNT)
+                    if (clan.Members.Count >= GetMaxUsers(clan))
                     {
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -674,7 +805,7 @@ namespace SoraBot_v2.Services
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already invited this person!"));
                     return; 
                 }
-                if (clan.Members.Count >= MAX_MEMBERCOUNT)
+                if (clan.Members.Count >= GetMaxUsers(clan))
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already reached the max amount of members!"));
@@ -811,11 +942,17 @@ namespace SoraBot_v2.Services
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Clan doesn't exist!"));
                     return;
                 }
+                
+                // get total EXP
+                float totalExp = 0;
+                clan.Members.ForEach(x=> totalExp += x.Exp);
+                
+                string desc = (string.IsNullOrWhiteSpace(clan.Message) ? "Clan has no description!" : clan.Message) + $"\n**Total Exp:** {totalExp}";
                 var eb = new EmbedBuilder()
                 {
                     Title = $"{Utility.SuccessLevelEmoji[3]} {clan.Name} info",
                     Color = Utility.BlueInfoEmbed,
-                    Description = (string.IsNullOrWhiteSpace(clan.Message) ? "Clan has no description!" : clan.Message),
+                    Description = desc,
                     Footer = new EmbedFooterBuilder()
                     {
                         Text = $"Requested by {Utility.GiveUsernameDiscrimComb(context.User)} | Created: {clan.Created} UTC",
@@ -869,6 +1006,14 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 
+                // check his cash
+                if (userDb.Money < CLAN_CREATION_COST)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Creating a clan costs {CLAN_CREATION_COST} Sora Coins! You don't have enough!"));
+                    return;
+                }
+                
                 //check if clan already exists
                 if (soraContext.Clans.Any(x => x.Name.Equals(clanName, StringComparison.OrdinalIgnoreCase)))
                 {
@@ -883,6 +1028,7 @@ namespace SoraBot_v2.Services
                 userDb.JoinedClan = DateTime.UtcNow;
                 clan.Members.Add(userDb);
                 userDb.ClanStaff = true;
+                userDb.Money -= CLAN_CREATION_COST;
                 soraContext.Clans.Add(clan);
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",

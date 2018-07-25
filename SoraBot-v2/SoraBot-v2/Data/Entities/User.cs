@@ -22,6 +22,7 @@ namespace SoraBot_v2.Data.Entities
         public DateTime UpdateBgAgain { get; set; }
         public DateTime ShowProfileCardAgain { get; set; }
         public int Money { get; set; }
+        public DateTime NextDaily { get; set; }
         
         
         public virtual Interactions Interactions { get; set; }

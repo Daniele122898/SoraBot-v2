@@ -21,6 +21,12 @@ namespace SoraBot_v2.Module
             _interactions = interactionsService;
             _weebService = weebService;
         }
+
+        [Command("types", RunMode = RunMode.Async), Summary("Gets all interaction types")]
+        public async Task Types()
+        {
+            await _weebService.GetTypes(Context);
+        }
         
         [Command("pat",RunMode = RunMode.Async), Summary("Pats the specified person")]
         public async Task Pat([Summary("Mention the users you want to pat and maybe add a reason"), Remainder] string reason)
@@ -171,13 +177,6 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length)]}";
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} high fived {high5ed.Remove(high5ed.Length -2)} °˖✧◝(⁰▿⁰)◜✧˖°";
             await Context.Channel.SendMessageAsync("", embed: eb);
-        }
-
-        [Command("reset"), Summary("Resets your own stats")]
-        public async Task Reset()
-        {
-            //TODO AFFINITY RESET
-            await ReplyAsync("Under construction");
         }
 
         [Command("poke",RunMode = RunMode.Async), Summary("Pokes the specified person")]
