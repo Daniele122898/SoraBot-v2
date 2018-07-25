@@ -942,11 +942,17 @@ namespace SoraBot_v2.Services
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Clan doesn't exist!"));
                     return;
                 }
+                
+                // get total EXP
+                float totalExp = 0;
+                clan.Members.ForEach(x=> totalExp += x.Exp);
+                
+                string desc = (string.IsNullOrWhiteSpace(clan.Message) ? "Clan has no description!" : clan.Message) + $"\n**Total Exp:** {totalExp}";
                 var eb = new EmbedBuilder()
                 {
                     Title = $"{Utility.SuccessLevelEmoji[3]} {clan.Name} info",
                     Color = Utility.BlueInfoEmbed,
-                    Description = (string.IsNullOrWhiteSpace(clan.Message) ? "Clan has no description!" : clan.Message),
+                    Description = desc,
                     Footer = new EmbedFooterBuilder()
                     {
                         Text = $"Requested by {Utility.GiveUsernameDiscrimComb(context.User)} | Created: {clan.Created} UTC",
