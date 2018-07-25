@@ -322,6 +322,8 @@ namespace SoraBot_v2.Services
                         break;
                     case ("seconds"):
                     case ("second"):
+                    case ("secs"):
+                    case ("sec"):
                     case ("s"):
                         timeToAdd += amount;
                         break;

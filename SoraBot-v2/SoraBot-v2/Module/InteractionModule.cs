@@ -173,13 +173,6 @@ namespace SoraBot_v2.Module
             await Context.Channel.SendMessageAsync("", embed: eb);
         }
 
-        [Command("reset"), Summary("Resets your own stats")]
-        public async Task Reset()
-        {
-            //TODO AFFINITY RESET
-            await ReplyAsync("Under construction");
-        }
-
         [Command("poke",RunMode = RunMode.Async), Summary("Pokes the specified person")]
         public async Task Poke([Summary("Mention the users you want to poke and maybe add a reason"), Remainder]string reason)
         {
