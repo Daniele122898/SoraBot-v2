@@ -16,6 +16,31 @@ namespace SoraBot_v2.Module
             _clanService = clanService;
         }
 
+        [Command("crename", RunMode = RunMode.Async), Alias("renameclan", "clanrename"),
+         Summary("To rename your clan.")]
+        public async Task RenameClan([Remainder] string clanName)
+        {
+            if (Context.Message.Content.Contains("<") && Context.Message.Content.Contains(">"))
+            {
+                await Context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please don't include any emotes! Anything with `<` and `>`"));
+                return;
+            }
+            if (clanName.Length > 20)
+            {
+                await Context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should not exceed 20 characters!"));
+                return;
+            }
+            if (clanName.Length < 3)
+            {
+                await Context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should at least have 3 characters!"));
+                return;
+            }
+            await _clanService.RenameClan(Context, clanName);
+        }
+
         [Command("createclan"), Alias("cclan"), Summary("Create a clan. Costs 2000 SC.")]
         public async Task CreateClan([Remainder] string clanName)
         {
