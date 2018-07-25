@@ -29,8 +29,6 @@ namespace SoraBot_v2.Services
         private const int CLAN_CREATION_COST = 2000;
         private const int CLAN_RENAME_COST = 500;
         private const int CLAN_LVLUP_COST = 10000;
-
-        // TODO add clan lvl up
         
         private struct ClanListing
         {
