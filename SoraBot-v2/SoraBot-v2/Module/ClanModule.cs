@@ -16,7 +16,7 @@ namespace SoraBot_v2.Module
             _clanService = clanService;
         }
 
-        [Command("createclan"), Alias("cclan"), Summary("Create a clan")]
+        [Command("createclan"), Alias("cclan"), Summary("Create a clan. Costs 2000 SC.")]
         public async Task CreateClan([Remainder] string clanName)
         {
             if (Context.Message.Content.Contains("<") && Context.Message.Content.Contains(">"))
