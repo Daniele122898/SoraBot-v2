@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
+using Weeb.net;
 
 namespace SoraBot_v2.Services
 {
@@ -17,6 +18,15 @@ namespace SoraBot_v2.Services
     }
     public class InteractionsService
     {
+
+        private WeebService _weebService;
+        private static List<string> _taken = new List<string>(){"hug", "kiss", "pat", "poke", "slap", "highfive", "punch"};
+        
+        public InteractionsService(WeebService weebService)
+        {
+            _weebService = weebService;
+        }
+        
         public static  Dictionary<Func<int, bool>, string> MySwitch = new Dictionary<Func<int, bool>, string>
         {
             {x=>x <10,"☢"},
@@ -66,6 +76,100 @@ namespace SoraBot_v2.Services
             }
 
             await soraContext.SaveChangesAsync();
+        }
+
+        private static bool RemoveInter(string s)
+        {
+            return _taken.Contains(s);
+        }
+
+        private string UserDiscrimCombo(IUser user)
+        {
+            return $"{user.Username}#{user.Discriminator}";
+        }
+
+        private string GetTitle(string type, ICommandContext context, string interacted)
+        {
+            switch (type)
+            {
+                    case "cuddle":
+                        return $"{UserDiscrimCombo(context.User)} cuddled {interacted.Remove(interacted.Length - 2)} °˖✧◝(⁰▿⁰)◜✧˖°";
+                    case "insult":
+                        return $"{UserDiscrimCombo(context.User)} insulted {interacted.Remove(interacted.Length - 2)} (⌯˃̶᷄ ﹏ ˂̶᷄⌯)ﾟ";
+                    case "lick":
+                        return $"{UserDiscrimCombo(context.User)} licked {interacted.Remove(interacted.Length - 2)} ༼ つ ◕o◕ ༽つ";
+                    case "nom":
+                        return $"{UserDiscrimCombo(context.User)} nommed {interacted.Remove(interacted.Length - 2)} (*ﾟﾛﾟ)";
+                    case "stare":
+                        return $"{UserDiscrimCombo(context.User)} stares at {interacted.Remove(interacted.Length - 2)} ⁄(⁄ ⁄•⁄-⁄•⁄ ⁄)⁄";
+                    case "tickle":
+                        return $"{UserDiscrimCombo(context.User)} tickled {interacted.Remove(interacted.Length - 2)} o(*≧□≦)o";
+                    case "bite":   
+                        return $"{UserDiscrimCombo(context.User)} bit {interacted.Remove(interacted.Length - 2)} (˃̶᷄︿๏）";
+                    case "greet":
+                        return $"{UserDiscrimCombo(context.User)} bit {interacted.Remove(interacted.Length - 2)} (=ﾟωﾟ)ノ";
+                    default:
+                        return null;
+            }
+        }
+
+        public async Task AddOtherCommands(CommandService service)
+        {
+            //  get all tags
+            var tags = await _weebService.GetTypesRaw();
+            tags.Types.RemoveAll(RemoveInter);
+            var module = await service.CreateModuleAsync("", build =>
+            {
+
+                foreach (var type in tags.Types)
+                {
+                    build.AddCommand(type, (context, objects, serviceProvider, commandInfo) =>
+                    {
+                        var image = _weebService.GetRandImage(type, new string[] { }, FileType.Gif, NsfwSearch.False).Result;
+
+                        ulong[] usersT = context.Message.MentionedUserIds.ToArray();
+                        string title = null;
+                        if (usersT.Length > 0)
+                        {
+                            var users = usersT.Distinct().ToList();
+                            users.Remove(context.User.Id);
+                            if (users.Count > 0)
+                            {
+                                string interacted ="";
+                                users.ForEach(x=>interacted += UserDiscrimCombo(context.Guild.GetUserAsync(x).Result)+", ");
+                                interacted = (interacted.Length > 200 ? $"{interacted.Remove(200)}..." : interacted);
+                                title = GetTitle(type, context, interacted);
+                            }
+                        }
+                        
+                        var eb = new EmbedBuilder()
+                        {
+                            Color = Utility.PurpleEmbed,
+                            Footer = new EmbedFooterBuilder()
+                            {
+                                Text = $"Powered by weeb.sh and the weeb.net wrapper"
+                            },
+                            ImageUrl = image.Url
+                        };
+
+                        if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            eb.Title = title;
+                        }
+                        
+                        return context.Channel.SendMessageAsync("", embed: eb);
+                    }, builder =>
+                        {
+                            builder.AddParameter("remainder", typeof(string),
+                                parameterBuilder =>
+                                {
+                                    parameterBuilder.IsRemainder = true;
+                                    parameterBuilder.IsOptional = true;
+                                });
+                        });    
+                }
+                
+            });
         }
         
         public async Task InteractMultiple(InteractionType type, List<SocketUser> usersT, SocketCommandContext context, SoraContext soraContext)
