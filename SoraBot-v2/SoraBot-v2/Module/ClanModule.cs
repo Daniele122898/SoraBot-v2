@@ -16,6 +16,13 @@ namespace SoraBot_v2.Module
             _clanService = clanService;
         }
 
+        [Command("clevelup"), Alias("cupgrade", "upgradeclan", "memberlimit"),
+         Summary("Upgrade clan to increase member limit")]
+        public async Task UpgradeClan()
+        {
+            await _clanService.LevelUpClan(Context);
+        }
+
         [Command("crename", RunMode = RunMode.Async), Alias("renameclan", "clanrename"),
          Summary("To rename your clan.")]
         public async Task RenameClan([Remainder] string clanName)
