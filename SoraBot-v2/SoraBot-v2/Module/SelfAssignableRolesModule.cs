@@ -188,6 +188,8 @@ namespace SoraBot_v2.Module
                         break;
                     case ("seconds"):
                     case ("second"):
+                    case ("secs"):
+                    case ("sec"):
                     case ("s"):
                         add[3] += amount;
                         break;
