@@ -19,5 +19,6 @@ namespace SoraBot_v2.Data.Entities
         public string AvatarUrl { get; set; }
         public string Message { get; set; }
         public DateTime Created { get; set; }
+        public int Level { get; set; }
     }
 }
