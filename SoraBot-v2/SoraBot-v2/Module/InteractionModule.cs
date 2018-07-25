@@ -21,6 +21,12 @@ namespace SoraBot_v2.Module
             _interactions = interactionsService;
             _weebService = weebService;
         }
+
+        [Command("types", RunMode = RunMode.Async), Summary("Gets all interaction types")]
+        public async Task Types()
+        {
+            await _weebService.GetTypes(Context);
+        }
         
         [Command("pat",RunMode = RunMode.Async), Summary("Pats the specified person")]
         public async Task Pat([Summary("Mention the users you want to pat and maybe add a reason"), Remainder] string reason)

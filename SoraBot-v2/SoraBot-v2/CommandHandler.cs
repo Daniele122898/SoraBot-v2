@@ -31,6 +31,7 @@ namespace SoraBot_v2
         private ModService _modService;
         private readonly GuildCountUpdaterService _guildCount;
         private BanService _banService;
+        private InteractionsService _interactionsService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -89,7 +90,7 @@ namespace SoraBot_v2
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, BanService banService)
+            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, BanService banService, InteractionsService interactionsService)
         {
             _client = client;
             _commands = commandService;
@@ -102,6 +103,7 @@ namespace SoraBot_v2
             _modService = modService;
             _guildCount = guildUpdate;
             _banService = banService;
+            _interactionsService = interactionsService;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -141,6 +143,8 @@ namespace SoraBot_v2
         {
             _services = provider;
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            // create interactions
+            await _interactionsService.AddOtherCommands(_commands);
         }
 
         private Task CommandsOnLog(LogMessage logMessage)

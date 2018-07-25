@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Weeb.net;
 using Weeb.net.Data;
+using TokenType = Weeb.net.TokenType;
 
 namespace SoraBot_v2.Services
 {
@@ -30,6 +32,19 @@ namespace SoraBot_v2.Services
             }
         }
 
+        public async Task<TypesData> GetTypesRaw()
+        {
+            try
+            {
+                return await _weebClient.GetTypesAsync();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                return null;
+            }
+        }
+
         public async Task GetTypes(SocketCommandContext context)
         {
             var result = await _weebClient.GetTypesAsync();
@@ -38,7 +53,15 @@ namespace SoraBot_v2.Services
             {
                 types += $"{resultType}, ";
             }
-            await context.Channel.SendMessageAsync($"```\n{types}\n```");
+            var eb = new EmbedBuilder()
+            {
+                Description = $"These are all available Interactions:\n```\n{types}\n```",
+                Color = Utility.PurpleEmbed,
+                Title = "Available Types",
+                Footer = Utility.RequestedBy(context.User),
+                ThumbnailUrl = context.Client.CurrentUser.GetAvatarUrl()
+            };
+            await context.Channel.SendMessageAsync("", embed: eb);
         }
 
         public async Task GetTags(SocketCommandContext context)

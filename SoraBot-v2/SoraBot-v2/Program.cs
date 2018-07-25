@@ -91,6 +91,9 @@ namespace SoraBot_v2
             //_commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
             var serviceProvider = ConfigureServices();
+            
+            // first setup weebservice
+            await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
 
             //setup command handler
             await serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync(serviceProvider);
@@ -99,7 +102,6 @@ namespace SoraBot_v2
 
             //SETUP other dependency injection services
             serviceProvider.GetRequiredService<ReminderService>().Initialize();
-            await serviceProvider.GetRequiredService<WeebService>().InitializeAsync();
             serviceProvider.GetRequiredService<StarboardService>().Initialize(); 
             serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(); 
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
