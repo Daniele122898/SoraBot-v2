@@ -116,12 +116,15 @@ namespace SoraBot_v2.Services
         public async Task AddOtherCommands(CommandService service)
         {
             //  get all tags
-            var tags = await _weebService.GetTypesRaw();
-            tags.Types.RemoveAll(RemoveInter);
+            var types = await _weebService.GetTypesRaw();
+            // if cant get types just quit
+            if (types == null) return;    
+            
+            types.Types.RemoveAll(RemoveInter);
             var module = await service.CreateModuleAsync("", build =>
             {
 
-                foreach (var type in tags.Types)
+                foreach (var type in types.Types)
                 {
                     build.AddCommand(type, (context, objects, serviceProvider, commandInfo) =>
                     {

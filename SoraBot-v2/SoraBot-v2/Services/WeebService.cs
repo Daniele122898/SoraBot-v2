@@ -34,7 +34,15 @@ namespace SoraBot_v2.Services
 
         public async Task<TypesData> GetTypesRaw()
         {
-            return await _weebClient.GetTypesAsync();
+            try
+            {
+                return await _weebClient.GetTypesAsync();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                return null;
+            }
         }
 
         public async Task GetTypes(SocketCommandContext context)
