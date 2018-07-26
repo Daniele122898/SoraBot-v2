@@ -129,6 +129,7 @@ namespace SoraBot_v2.Services
                     build.AddCommand(type, async (context, objects, serviceProvider, commandInfo) =>
                     {
                         var image = await _weebService.GetRandImage(type, new string[] { }, FileType.Any, NsfwSearch.False);
+                        
                         if (image == null)
                         {
                             await context.Channel.SendMessageAsync("",
