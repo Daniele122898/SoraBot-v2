@@ -126,9 +126,16 @@ namespace SoraBot_v2.Services
 
                 foreach (var type in types.Types)
                 {
-                    build.AddCommand(type, (context, objects, serviceProvider, commandInfo) =>
+                    build.AddCommand(type, async (context, objects, serviceProvider, commandInfo) =>
                     {
-                        var image = _weebService.GetRandImage(type, new string[] { }, FileType.Gif, NsfwSearch.False).Result;
+                        var image = await _weebService.GetRandImage(type, new string[] { }, FileType.Any, NsfwSearch.False);
+                        if (image == null)
+                        {
+                            await context.Channel.SendMessageAsync("",
+                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                    "Failed to get image. Try another one."));
+                            return;
+                        }
 
                         ulong[] usersT = context.Message.MentionedUserIds.ToArray();
                         string title = null;
@@ -160,7 +167,7 @@ namespace SoraBot_v2.Services
                             eb.Title = title;
                         }
                         
-                        return context.Channel.SendMessageAsync("", embed: eb);
+                        await context.Channel.SendMessageAsync("", embed: eb);
                     }, builder =>
                         {
                             builder.AddParameter("remainder", typeof(string),
