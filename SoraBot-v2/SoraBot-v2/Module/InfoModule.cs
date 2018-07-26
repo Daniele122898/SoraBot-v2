@@ -369,6 +369,12 @@ namespace SoraBot_v2.Module
                         x.IsInline = true;
                         x.Value = $"[Click here to invite]({Utility.SORA_INVITE})";
                     });
+                    eb.AddField((x) =>
+                    {
+                        x.Name = "Support me";
+                        x.IsInline = true;
+                        x.Value = $"[Support me on Patreon](https://www.patreon.com/Serenity_c7)";
+                    });
                     await ReplyAsync("", embed: eb);
                 }
             }
