@@ -20,7 +20,6 @@ namespace SoraBot_v2.Services
     public class ProfileService
     {
         private List<User> _globalCache = new List<User>();
-        private Object cacheLock = new Object();
         private Timer _timer;
         
         private const int INITIAL_DELAY = 1;
