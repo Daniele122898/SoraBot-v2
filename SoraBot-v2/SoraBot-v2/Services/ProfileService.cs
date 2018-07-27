@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -117,8 +118,11 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
                 try
                 {
+                    Console.WriteLine("Started watch");
                     var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
                     //Check for cooldown
                     var requestorDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
@@ -136,6 +140,8 @@ namespace SoraBot_v2.Services
                                 $"Dont break me >.< Please wait another {remainingSeconds} seconds!"));
                         return;
                     }
+                    
+                    Console.WriteLine($"Done with Basic checks: {watch.Elapsed.TotalMilliseconds} ms");
                     
                     Uri requestUri = new Uri(user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar);
                     //remove temporary avatar file if it already exists
@@ -156,30 +162,41 @@ namespace SoraBot_v2.Services
                         await stream.FlushAsync();
                         stream.Dispose();
                     }
+                    
+                    Console.WriteLine($"Got User Avatar: {watch.Elapsed.TotalMilliseconds} ms");
     
                     var username = (user.Username.Length > 18 ? user.Username.Remove(18) + "..." : user.Username);
                     //Get Local Rank
+                    Console.WriteLine($"Start local Rank: {watch.Elapsed.TotalMilliseconds} ms");
                     var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
                     var sortedUsers = guildDb.Users.OrderByDescending(x => x.Exp).ToList();
                     var localRank = sortedUsers.FindIndex(x => x.UserId == user.Id)+1;
+                    Console.WriteLine($"Start Local Level: {watch.Elapsed.TotalMilliseconds} ms");
                     //Get local LVL
                     var guildUser = Utility.GetOrCreateGuildUser(user.Id, context.Guild.Id, soraContext);
                     var localLevel = ExpService.CalculateLevel(guildUser.Exp);
+                    Console.WriteLine($"Start global rank: {watch.Elapsed.TotalMilliseconds} ms");
                     //get global rank
                     var sortedGloablUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
                     var globalRank = sortedGloablUsers.FindIndex(x => x.UserId == user.Id)+1;
+                    Console.WriteLine($"Start global level: {watch.Elapsed.TotalMilliseconds} ms");
                     //Get global lvl
                     var globalLevel = ExpService.CalculateLevel(userDb.Exp);
                     //calculate needed exp for next lvl
+                    Console.WriteLine($"STart next exp: {watch.Elapsed.TotalMilliseconds} ms");
                     int localNeededExp = ExpService.CalculateNeededExp(localLevel+1);
                     int globalNeededExp = ExpService.CalculateNeededExp(globalLevel+1);
                     //Get clan
+                    Console.WriteLine($"Getting clan Name: {watch.Elapsed.TotalMilliseconds} ms");
                     var clanName = (string.IsNullOrWhiteSpace(userDb.ClanName) ? "" : userDb.ClanName);
                     //get background image
+                    Console.WriteLine($"Getting bg image: {watch.Elapsed.TotalMilliseconds} ms");
                     var bgImage = (userDb.HasBg ? $"ProfileData/{user.Id}BGF.png" : $"ProfileCreation/defaultBG.png");
                     //Draw profile card
+                    Console.WriteLine($"Start drawing: {watch.Elapsed.TotalMilliseconds} ms");
                     ProfileImageGeneration.GenerateProfile($"ProfileData/{user.Id}Avatar.png",bgImage, username, clanName, globalRank, globalLevel, (int)userDb.Exp, 
                         globalNeededExp, localRank, localLevel, (int)guildUser.Exp, localNeededExp, $"ProfileData/{user.Id}.png");
+                    Console.WriteLine($"End drawing: {watch.Elapsed.TotalMilliseconds} ms");
                 }
                 catch (Exception e)
                 {
@@ -187,10 +204,11 @@ namespace SoraBot_v2.Services
                     throw;
                 }
                 
-                
                 if (File.Exists($"ProfileData/{user.Id}.png"))
                 {
+                    Console.WriteLine($"Start Send: {watch.Elapsed.TotalMilliseconds} ms");
                     await context.Channel.SendFileAsync($"ProfileData/{user.Id}.png");
+                    Console.WriteLine($"End send: {watch.Elapsed.TotalMilliseconds} ms");
                     File.Delete($"ProfileData/{user.Id}.png");
                     File.Delete($"ProfileData/{user.Id}Avatar.png");
                 }
@@ -202,6 +220,7 @@ namespace SoraBot_v2.Services
                                 "Failed to create profile card! Maybe try to get a new Background? Or contact the creator here")
                             .WithUrl(Utility.DISCORD_INVITE));
                 }
+                watch.Stop();
             }
         }
     }

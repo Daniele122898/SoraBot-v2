@@ -123,7 +123,6 @@ namespace SoraBot_v2.Services
             types.Types.RemoveAll(RemoveInter);
             var module = await service.CreateModuleAsync("", build =>
             {
-
                 foreach (var type in types.Types)
                 {
                     build.AddCommand(type, async (context, objects, serviceProvider, commandInfo) =>
