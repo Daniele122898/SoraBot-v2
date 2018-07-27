@@ -14,7 +14,7 @@ namespace SoraBot_v2.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public ulong UserId { get; set; }
         
-        //User and EP
+        // User and EP
         public float Exp { get; set; }
         public DateTime CanGainAgain { get; set; }
         public bool Notified { get; set; }
@@ -31,7 +31,8 @@ namespace SoraBot_v2.Data.Entities
         public virtual List<Marriage> Marriages { get; set; }
         public virtual List<ShareCentral> ShareCentrals { get; set; }
         public virtual List<Voting> Votings { get; set; }
-        //clan
+        public virtual List<UserWaifu> UserWaifus { get; set; }
+        // Clan
         public string ClanName { get; set; }
         public bool ClanStaff { get; set; }
         public DateTime JoinedClan { get; set; }

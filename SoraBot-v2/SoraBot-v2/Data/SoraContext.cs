@@ -20,6 +20,10 @@ namespace SoraBot_v2.Data
         public DbSet<Marriage> Marriages { get; set; }
         public DbSet<ShareCentral> ShareCentrals { get; set; }
         public DbSet<Voting> Votings { get; set; }
+        public DbSet<UserWaifu> UserWaifus { get; set; }
+        
+        // Waifu
+        public DbSet<Waifu> Waifus { get; set; }
 
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -88,6 +92,14 @@ namespace SoraBot_v2.Data
                 x.HasOne(d => d.User)
                     .WithOne(p => p.Interactions)
                     .HasForeignKey<Interactions>(g => g.UserForeignId);
+            });
+
+            modelBuilder.Entity<UserWaifu>(x =>
+            {
+                x.HasOne(u => u.User)
+                    .WithMany(w => w.UserWaifus)
+                    .HasForeignKey(k => k.UserForeignId)
+                    .HasForeignKey(y => y.WaifuForeignId);
             });
             
             modelBuilder.Entity<ShareCentral>(x =>
