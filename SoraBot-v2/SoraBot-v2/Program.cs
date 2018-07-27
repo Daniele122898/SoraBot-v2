@@ -102,6 +102,7 @@ namespace SoraBot_v2
 
             //SETUP other dependency injection services
             serviceProvider.GetRequiredService<ReminderService>().Initialize();
+            serviceProvider.GetRequiredService<ProfileService>().Initialize();
             serviceProvider.GetRequiredService<StarboardService>().Initialize(); 
             serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(); 
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
