@@ -271,7 +271,10 @@ namespace SoraBot_v2.Services
                 var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
 
                 var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
+                
+                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id)?.ToList() ?? new List<UserWaifu>();
 
+                result.UserWaifus = waifus;
                 result.Votings = votings;
                 result.ShareCentrals = shareCentral;
                 result.Reminders = reminders;
@@ -358,6 +361,7 @@ namespace SoraBot_v2.Services
                         UserId = Id, ShareCentrals = new List<ShareCentral>(), 
                         Interactions = new Interactions(),Votings = new List<Voting>(),
                         Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),
+                        UserWaifus = new List<UserWaifu>(),
                         HasBg = false, 
                         Notified = false, 
                         ClanStaff = false, 
@@ -376,6 +380,7 @@ namespace SoraBot_v2.Services
                 var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
                 var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
                 var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
+                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id)?.ToList() ?? new List<UserWaifu>();
 
                 var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
 
@@ -389,6 +394,7 @@ namespace SoraBot_v2.Services
                 result.Afk = afk;
                 result.Marriages = marriages;
                 result.Reminders = reminders;
+                result.UserWaifus = waifus;
             }
             catch (Exception e)
             {

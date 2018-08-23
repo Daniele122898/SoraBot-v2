@@ -11,7 +11,7 @@ namespace SoraBot_v2.Data.Entities.SubEntities
 
         public int Count { get; set; }
         
-        public ulong WaifuForeignId { get; set; }
+        public int WaifuForeignId { get; set; }
         [ForeignKey("WaifuForeignId")]
         public virtual Waifu Waifu{ get; set; }
         

@@ -67,6 +67,16 @@ namespace SoraBot_v2.Services
                 _boxCache.Shuffle();
             }
         }
+
+        private async Task<bool> GiveWaifuToId(ulong userId, int waifuId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.GetOrCreateUser(userId, soraContext);
+                
+            }
+            return true;
+        }
         
         public async Task UnboxWaifu()
         {
