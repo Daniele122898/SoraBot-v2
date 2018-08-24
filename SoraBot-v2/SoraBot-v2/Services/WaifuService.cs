@@ -71,6 +71,7 @@ namespace SoraBot_v2.Services
                 }
                 // shuffle for some extra RNG
                 _boxCache.Shuffle();
+                _boxCache.Shuffle();
             }
         }
 
@@ -193,6 +194,8 @@ namespace SoraBot_v2.Services
             {
                 _boxCache.Add(waifu);
             }
+            // reshuffle
+            _boxCache.Shuffle();
         }
 
         public static string GetRarityString(WaifuRarity rarity)

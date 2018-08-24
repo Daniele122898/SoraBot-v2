@@ -107,6 +107,8 @@ namespace SoraBot_v2.Controllers
                         return userwaifus;
                     }
 
+                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.SortRarity).ToList();
+
                     return userwaifus;
 
                 }
