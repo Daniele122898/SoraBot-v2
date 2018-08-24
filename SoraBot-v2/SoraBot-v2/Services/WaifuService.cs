@@ -18,11 +18,11 @@ namespace SoraBot_v2.Services
         
         Rarities
         ---------
-        common				2000 - 50
-        uncommon			800 - 100
-        rare				200 - 200
-        epic				20 - 500
-        ultimate Waifu		1 - 1000
+        common				500 - 50
+        uncommon			300 - 100
+        rare				100 - 200
+        epic				50 - 500
+        ultimate Waifu		10 - 1000
         
         Waifu
         ---------
@@ -97,6 +97,17 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
+                // check if waifu already exists
+                if (soraContext.Waifus.Any(x=> x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"{name} already exists in the Database!"
+                    ));
+                    return;
+                }
+                
                 var waifu = new Waifu()
                 {
                     ImageUrl = image,
