@@ -7,7 +7,7 @@ namespace SoraBot_v2.Data.Entities.SubEntities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public ulong Id { get; set; }
+        public int Id { get; set; }
 
         public int Count { get; set; }
         
