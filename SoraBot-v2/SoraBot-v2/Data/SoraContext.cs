@@ -98,8 +98,7 @@ namespace SoraBot_v2.Data
             {
                 x.HasOne(u => u.User)
                     .WithMany(w => w.UserWaifus)
-                    .HasForeignKey(k => k.UserForeignId)
-                    .HasForeignKey(y => y.WaifuForeignId);
+                    .HasForeignKey(k => k.UserForeignId);
             });
             
             modelBuilder.Entity<ShareCentral>(x =>
