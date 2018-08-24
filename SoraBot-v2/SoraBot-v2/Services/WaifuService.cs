@@ -41,7 +41,7 @@ namespace SoraBot_v2.Services
     
     public class WaifuService
     {
-        // TODO unbox, sell, maybe trade, maybe fav
+        // TODO show waifus, sell, maybe trade, maybe fav
         private List<Waifu> _boxCache = new List<Waifu>();
 
         private int BOX_COST = 500;
@@ -195,7 +195,7 @@ namespace SoraBot_v2.Services
             }
         }
 
-        private string GetRarityString(WaifuRarity rarity)
+        public static string GetRarityString(WaifuRarity rarity)
         {
             switch (rarity)
             {
