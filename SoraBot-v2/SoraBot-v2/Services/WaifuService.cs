@@ -134,7 +134,6 @@ namespace SoraBot_v2.Services
                 // remove money
                 userdb.Money -= BOX_COST;
                 // open box
-                Random rnd = new Random();
                 var waifus = new List<Waifu>();
                 for (int i = 0; i < BOX_CARD_AMOUNT; i++)
                 {
@@ -152,7 +151,7 @@ namespace SoraBot_v2.Services
                     Title = "Congrats! You've got some nice waifus",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
-                    ThumbnailUrl = ordered[0].ImageUrl
+                    ImageUrl = ordered[0].ImageUrl
                 };
 
                 foreach (var waifu in ordered)
