@@ -23,6 +23,7 @@ namespace SoraBot_v2.Data.Entities
         public DateTime ShowProfileCardAgain { get; set; }
         public int Money { get; set; }
         public DateTime NextDaily { get; set; }
+        public int FavoriteWaifu { get; set; }
         
         
         public virtual Interactions Interactions { get; set; }

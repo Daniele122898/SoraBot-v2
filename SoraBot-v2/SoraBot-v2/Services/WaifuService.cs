@@ -50,7 +50,7 @@ namespace SoraBot_v2.Services
             _interactive = service;
         }
         
-        // TODO maybe trade, maybe fav, sellable by name
+        // TODO maybe fav
         private List<Waifu> _boxCache = new List<Waifu>();
 
         private int BOX_COST = 500;
@@ -81,6 +81,42 @@ namespace SoraBot_v2.Services
                 // shuffle for some extra RNG
                 _boxCache.Shuffle();
                 _boxCache.Shuffle();
+            }
+        }
+
+        public async Task SetFavoriteWaifu(SocketCommandContext context, int waifuId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                if (userdb == null || userdb.UserWaifus.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You have no Waifus to set as favorite! Open some WaifuBoxes!"
+                    ));
+                    return;
+                }
+                // check if we have the specified waifu
+                var waifu = userdb.UserWaifus.FirstOrDefault(x => x.WaifuId == waifuId);
+                if (waifu == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"You don't have that Waifu to set as favorite!"
+                    ));
+                    return;
+                }
+                // set as favorite
+                userdb.FavoriteWaifu = waifu.Id;
+                await soraContext.SaveChangesAsync();
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"Successfully set favorite Waifu on profile."
+                ));
             }
         }
 
@@ -195,23 +231,41 @@ namespace SoraBot_v2.Services
                 GiveWaifuToId(other.Id, userW.Id, otherdb);
                 // remove waifu
                 userWaifu.Count--;
+                bool fav1 = false;
+                bool fav2 = false;
                 if (userWaifu.Count == 0)
                 {
-                    RemoveWaifuFromUser(userdb, userWaifu);
+                    fav1 = RemoveWaifuFromUser(userdb, userWaifu);
                 }
 
                 otherWaifu.Count--;
                 if (otherWaifu.Count == 0)
                 {
-                    RemoveWaifuFromUser(otherdb, otherWaifu);
+                    fav2 = RemoveWaifuFromUser(otherdb, otherWaifu);
                 }
                 // completed trade
                 await soraContext.SaveChangesAsync();
-                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                string desc = "";
+                if (fav1)
+                {
+                    desc +=
+                        $"{context.User.Username}, you traded away your favorite Waifu. It has been removed from your profile.\n";
+                }
+                if (fav2)
+                {
+                    desc +=
+                        $"{other.Username}, you traded away your favorite Waifu. It has been removed from your profile.";
+                }
+                var eb2 = Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     $"Successfully traded {userW.Name} for {otherW.Name}."
-                ));
+                );
+                if (!string.IsNullOrWhiteSpace(desc))
+                {
+                    eb2.WithDescription(desc);
+                }
+                await context.Channel.SendMessageAsync("", embed: eb2);
             }
         }
 
@@ -255,26 +309,34 @@ namespace SoraBot_v2.Services
                 var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == waifuId);
                 int cash = GetWaifuQuickSellCost(waifu?.Rarity ?? 0) * amount;
                 userdb.Money += cash;
+                bool fav = false;
                 if (selected.Count == 0)
                 {
-                    RemoveWaifuFromUser(userdb, selected);
+                    fav = RemoveWaifuFromUser(userdb, selected);
                 }
 
                 await soraContext.SaveChangesAsync();
-
-                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                var eb = Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     $"You successfully sold {amount} for {cash} SC."
-                ));
+                );
+                if (fav)
+                {
+                    eb.WithDescription("You sold your Favorite Waifu. Thus it has been removed from your profile.");
+                }
+                await context.Channel.SendMessageAsync("", embed: eb);
             }
         }
         
-        // TODO when removing check for favorite stuff in future
         private bool RemoveWaifuFromUser(User userdb, UserWaifu waifu)
         {
             userdb.UserWaifus.Remove(waifu);
-            return false;
+            if (waifu.WaifuId != userdb.FavoriteWaifu)
+                return false;
+
+            userdb.FavoriteWaifu = -1;
+            return true;
         }
 
         private void GiveWaifuToId(ulong userId, int waifuId, User userdb)

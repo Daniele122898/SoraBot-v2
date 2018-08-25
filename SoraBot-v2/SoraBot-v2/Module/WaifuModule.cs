@@ -71,6 +71,35 @@ namespace SoraBot_v2.Module
         {
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
+        
+        [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav", "favwaifu"), Summary("Sets your favorite waifu")]
+        public async Task SetFavWaifu([Remainder] string name)
+        {
+            int waifuId = 0;
+            using (var soraContext = new SoraContext())
+            {
+                var waifu = soraContext.Waifus.FirstOrDefault(x =>
+                    x.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (waifu == null)
+                {
+                    await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "That waifu doesn't exist."
+                    ));
+                    return;
+                }
+
+                waifuId = waifu.Id;
+            }
+            await _waifuService.SetFavoriteWaifu(Context, waifuId);
+        }
+
+        [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav", "favwaifu"), Summary("Sets your favorite waifu")]
+        public async Task SetFavWaifu(int waifuId)
+        {
+            await _waifuService.SetFavoriteWaifu(Context, waifuId);
+        }
 
         [Command("trade", RunMode = RunMode.Async), Alias("tradewaifu", "waifutrade"), Summary("Trade Waifus")]
         public async Task TradeWaifu(SocketGuildUser user, int wantId, int offerId)
