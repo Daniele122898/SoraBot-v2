@@ -50,12 +50,10 @@ namespace SoraBot_v2.Services
             _interactive = service;
         }
         
-        // TODO maybe fav
         private List<Waifu> _boxCache = new List<Waifu>();
 
         private int BOX_COST = 500;
         private byte BOX_CARD_AMOUNT = 3;
-        private Random Rnd = new Random();
         
         public void Initialize()
         {
@@ -449,7 +447,7 @@ namespace SoraBot_v2.Services
 
         private Waifu GetRandomFromBox()
         {
-            return _boxCache[Rnd.Next(0, _boxCache.Count)];
+            return _boxCache[ThreadSafeRandom.ThisThreadsRandom.Next(0, _boxCache.Count)];
         }
 
         private void AddWaifuToCache(Waifu waifu)
