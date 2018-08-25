@@ -25,5 +25,11 @@ namespace SoraBot_v2.Module
         {
             await _waifuService.UnboxWaifu(Context);
         }
+
+        [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you own")]
+        public async Task ShowMyWaifus()
+        {
+            await ReplyAsync($"Check out your Waifus here: http://sorabot.pw/user/{Context.User.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+        }
     }
 }

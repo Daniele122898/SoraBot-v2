@@ -161,6 +161,7 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
+                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC.",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl
