@@ -45,5 +45,11 @@ namespace SoraBot_v2.Module
         {
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
+
+        [Command("trade", RunMode = RunMode.Async), Alias("tradewaifu", "waifutrade"), Summary("Trade Waifus")]
+        public async Task TradeWaifu(SocketGuildUser user, int wantId, int offerId)
+        {
+            await _waifuService.MakeTradeOffer(Context, user, wantId, offerId);
+        }
     }
 }
