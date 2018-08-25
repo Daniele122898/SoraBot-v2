@@ -102,6 +102,8 @@ namespace SoraBot_v2
 
             //SETUP other dependency injection services
             serviceProvider.GetRequiredService<ReminderService>().Initialize();
+            serviceProvider.GetRequiredService<WaifuService>().Initialize();
+            serviceProvider.GetRequiredService<ProfileService>().Initialize();
             serviceProvider.GetRequiredService<StarboardService>().Initialize(); 
             serviceProvider.GetRequiredService<SelfAssignableRolesService>().Initialize(); 
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
@@ -181,6 +183,7 @@ namespace SoraBot_v2
             services.AddSingleton<DynamicPrefixService>();
             services.AddSingleton<RatelimitingService>();
             services.AddSingleton<MusicShareService>();
+            services.AddSingleton<WaifuService>();
             services.AddSingleton<SelfAssignableRolesService>();
             services.AddSingleton<WeatherService>();
             services.AddSingleton<AnnouncementService>();

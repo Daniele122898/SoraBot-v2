@@ -26,14 +26,12 @@ namespace SoraBot_v2.Module
         {
             if (cost == 0)
             {
-                Console.WriteLine("No additional info");
                 await _sarService.AddSarToList(Context, roleName.Trim());
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(expires))
             {
-                Console.WriteLine($"Cost but no time. COST: {cost}");
                 await _sarService.AddSarToList(Context, roleName.Trim(), false, cost);
                 return;
             }
@@ -58,7 +56,6 @@ namespace SoraBot_v2.Module
                 return;
             }
             
-            Console.WriteLine($"Cost: {cost}, time: {time.ToString()}, timespan: {timeSpan.Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}");
             
             await _sarService.AddSarToList(Context, roleName.Trim(), true, cost, timeSpan);
         }

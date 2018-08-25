@@ -22,7 +22,7 @@ namespace SoraBot_v2.Module
             _weebService = weebService;
         }
 
-        [Command("types", RunMode = RunMode.Async), Summary("Gets all interaction types")]
+        [Command("types", RunMode = RunMode.Async), Alias("interactions"), Summary("Gets all interaction types")]
         public async Task Types()
         {
             await _weebService.GetTypes(Context);

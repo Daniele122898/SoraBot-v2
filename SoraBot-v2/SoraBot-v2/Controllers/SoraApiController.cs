@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using SoraBot_v2.Services;
 using SoraBot_v2.WebApiModels;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 
@@ -61,7 +62,92 @@ namespace SoraBot_v2.Controllers
             }
             return permGuilds;
         }
-        
+
+        [HttpGet("GetAllWaifus/", Name = "GetAllWaifus")]
+        [EnableCors("AllowLocal")]
+        public AllWaifus GetAllWaifus(ulong userId)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var waifus = new AllWaifus();
+                    // add up all waifus
+                    var sorted = soraContext.Waifus.OrderByDescending(x => x.Rarity);
+                    foreach (var waifu in sorted)
+                    {
+                        waifus.Waifus.Add(waifu);
+                    }
+                    // send all waifus
+                    return waifus;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return null;
+        }
+
+        [HttpGet("GetUserWaifus/{userId}", Name = "GetUserWaifus")]
+        [EnableCors("AllowLocal")]
+        public UserWaifusAPI GetUserWaifus(ulong userId)
+        {
+            try
+            {
+                var user = _client.GetUser(userId);
+                using (var soraContext = new SoraContext())
+                {
+                    var userwaifus = new UserWaifusAPI();
+                    var userdb = Utility.OnlyGetUser(userId, soraContext);
+                    if (userdb == null || userdb.UserWaifus.Count == 0)
+                    {
+                        userwaifus.Success = false;
+                        return userwaifus;
+                    }
+
+                    userwaifus.Success = true;
+                    userwaifus.Username = user?.Username ?? "Undefined";
+                    userwaifus.AvatarUrl = user?.GetAvatarUrl();
+
+                    foreach (var userWaifu in userdb.UserWaifus)
+                    {
+                        var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == userWaifu.WaifuId);
+                        if (waifu == null)
+                            continue;
+                        
+                        userwaifus.Waifus.Add(new UserWaifuAPI()
+                        {
+                            Count = userWaifu.Count,
+                            Id = waifu.Id,
+                            ImageUrl = waifu.ImageUrl,
+                            Name = waifu.Name,
+                            Rarity = WaifuService.GetRarityString(waifu.Rarity),
+                            SortRarity = waifu.Rarity
+                        });
+                    }
+
+                    if (userwaifus.Waifus.Count ==0)
+                    {
+                        userwaifus.Success = false;
+                        return userwaifus;
+                    }
+
+                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.SortRarity).ToList();
+
+                    return userwaifus;
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return null;
+        }
+
         [HttpGet("GetGuilds/{userId}", Name = "GetGuilds")]
         [EnableCors("AllowLocal")]
         public UserGuilds GetGuilds(ulong userId)

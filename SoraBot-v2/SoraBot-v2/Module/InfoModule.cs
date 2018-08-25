@@ -138,6 +138,22 @@ namespace SoraBot_v2.Module
                     }
                 }
 
+                if (dbUser != null && dbUser.FavoriteWaifu != -1)
+                {
+                    var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == dbUser.FavoriteWaifu);
+                    if (waifu != null)
+                    {
+                        eb.AddField(x =>
+                        {
+                            x.Name = "Waifu";
+                            x.IsInline = true;
+                            x.Value = waifu.Name;
+                        });
+
+                        eb.WithImageUrl(waifu.ImageUrl);
+                    }   
+                }
+
                 await ReplyAsync("", embed: eb);
             }
         }
@@ -368,6 +384,12 @@ namespace SoraBot_v2.Module
                         x.Name = "Invite me";
                         x.IsInline = true;
                         x.Value = $"[Click here to invite]({Utility.SORA_INVITE})";
+                    });
+                    eb.AddField((x) =>
+                    {
+                        x.Name = "Support me";
+                        x.IsInline = true;
+                        x.Value = $"[Support me on Patreon](https://www.patreon.com/Serenity_c7)";
                     });
                     await ReplyAsync("", embed: eb);
                 }

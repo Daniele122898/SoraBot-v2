@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -10,12 +13,36 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Transforms;
 using SixLabors.Primitives;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities;
 
 namespace SoraBot_v2.Services
 {
     public class ProfileService
     {
+        private List<User> _globalCache = new List<User>();
+        private Timer _timer;
         
+        private const int INITIAL_DELAY = 1;
+        private const int NEXT_TIME = 1;
+        
+        public void Initialize()
+        {
+            // create cache for the first time
+            CreateGlobalCache(null);
+            // create timer
+            _timer = new Timer(CreateGlobalCache, null, TimeSpan.FromMinutes(INITIAL_DELAY), 
+                TimeSpan.FromMinutes(NEXT_TIME));
+        }
+
+        private void CreateGlobalCache(Object stateInfo)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var temp = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
+                _globalCache = temp;
+            }
+        }
+
         public async Task RemoveBg(SocketCommandContext context)
         {
             using (var soraContext = new SoraContext())
@@ -137,6 +164,7 @@ namespace SoraBot_v2.Services
                         return;
                     }
                     
+                    
                     Uri requestUri = new Uri(user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar);
                     //remove temporary avatar file if it already exists
                     if (File.Exists($"ProfileData/{user.Id}Avatar.png"))
@@ -156,7 +184,7 @@ namespace SoraBot_v2.Services
                         await stream.FlushAsync();
                         stream.Dispose();
                     }
-    
+                    
                     var username = (user.Username.Length > 18 ? user.Username.Remove(18) + "..." : user.Username);
                     //Get Local Rank
                     var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
@@ -166,8 +194,12 @@ namespace SoraBot_v2.Services
                     var guildUser = Utility.GetOrCreateGuildUser(user.Id, context.Guild.Id, soraContext);
                     var localLevel = ExpService.CalculateLevel(guildUser.Exp);
                     //get global rank
-                    var sortedGloablUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
-                    var globalRank = sortedGloablUsers.FindIndex(x => x.UserId == user.Id)+1;
+                    var globalRank = _globalCache.FindIndex(x => x.UserId == user.Id)+1;
+                    // if its not in cache do this:
+                    if (globalRank == 0)
+                    {
+                        globalRank = _globalCache.Count + 1;
+                    }
                     //Get global lvl
                     var globalLevel = ExpService.CalculateLevel(userDb.Exp);
                     //calculate needed exp for next lvl
@@ -186,7 +218,6 @@ namespace SoraBot_v2.Services
                     Console.WriteLine(e);
                     throw;
                 }
-                
                 
                 if (File.Exists($"ProfileData/{user.Id}.png"))
                 {

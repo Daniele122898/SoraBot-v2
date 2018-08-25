@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Services;
 using System;
 
@@ -21,6 +22,19 @@ namespace SoraBotv2.Migrations
                 .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                 .HasAnnotation("ProductVersion", "2.0.0-rtm-26452");
 
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.Ban", b =>
+                {
+                    b.Property<ulong>("UserId");
+
+                    b.Property<DateTime>("BannedAt");
+
+                    b.Property<string>("Reason");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Bans");
+                });
+
             modelBuilder.Entity("SoraBot_v2.Data.Entities.Clan", b =>
                 {
                     b.Property<int>("Id")
@@ -32,6 +46,8 @@ namespace SoraBotv2.Migrations
                     b.Property<DateTime>("Created");
 
                     b.Property<bool>("HasImage");
+
+                    b.Property<int>("Level");
 
                     b.Property<string>("Message");
 
@@ -147,6 +163,31 @@ namespace SoraBotv2.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ClanInvites");
+                });
+
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.ExpiringRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("ExpiresAt");
+
+                    b.Property<ulong>("GuildForeignId");
+
+                    b.Property<ulong>("RoleForeignId");
+
+                    b.Property<ulong>("UserForeignId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildForeignId");
+
+                    b.HasIndex("RoleForeignId");
+
+                    b.HasIndex("UserForeignId");
+
+                    b.ToTable("ExpiringRoles");
                 });
 
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.GuildLevelRole", b =>
@@ -384,6 +425,25 @@ namespace SoraBotv2.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.UserWaifu", b =>
+                {
+                    b.Property<ulong>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Count");
+
+                    b.Property<ulong>("UserForeignId");
+
+                    b.Property<int>("WaifuId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserForeignId");
+
+                    b.ToTable("UserWaifus");
+                });
+
             modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.Voting", b =>
                 {
                     b.Property<int>("VoteId")
@@ -405,6 +465,23 @@ namespace SoraBotv2.Migrations
                     b.ToTable("Votings");
                 });
 
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.Waifu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ImageUrl");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("Rarity");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Waifus");
+                });
+
             modelBuilder.Entity("SoraBot_v2.Data.Entities.User", b =>
                 {
                     b.Property<ulong>("UserId");
@@ -424,6 +501,8 @@ namespace SoraBotv2.Migrations
                     b.Property<DateTime>("JoinedClan");
 
                     b.Property<int>("Money");
+
+                    b.Property<DateTime>("NextDaily");
 
                     b.Property<bool>("Notified");
 
@@ -451,6 +530,24 @@ namespace SoraBotv2.Migrations
                     b.HasOne("SoraBot_v2.Data.Entities.User", "User")
                         .WithOne("Afk")
                         .HasForeignKey("SoraBot_v2.Data.Entities.SubEntities.Afk", "UserForeignId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.ExpiringRole", b =>
+                {
+                    b.HasOne("SoraBot_v2.Data.Entities.Guild", "Guild")
+                        .WithMany()
+                        .HasForeignKey("GuildForeignId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SoraBot_v2.Data.Entities.SubEntities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleForeignId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SoraBot_v2.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserForeignId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -523,6 +620,14 @@ namespace SoraBotv2.Migrations
                     b.HasOne("SoraBot_v2.Data.Entities.Guild", "Guild")
                         .WithMany("Tags")
                         .HasForeignKey("GuildForeignId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SoraBot_v2.Data.Entities.SubEntities.UserWaifu", b =>
+                {
+                    b.HasOne("SoraBot_v2.Data.Entities.User", "User")
+                        .WithMany("UserWaifus")
+                        .HasForeignKey("UserForeignId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
