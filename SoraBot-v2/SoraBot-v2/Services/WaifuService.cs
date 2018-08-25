@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.WebSocket;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -41,7 +43,14 @@ namespace SoraBot_v2.Services
     
     public class WaifuService
     {
-        // TODO sell, maybe trade, maybe fav
+        private readonly InteractiveService _interactive;
+
+        public WaifuService(InteractiveService service)
+        {
+            _interactive = service;
+        }
+        
+        // TODO maybe trade, maybe fav, sellable by name
         private List<Waifu> _boxCache = new List<Waifu>();
 
         private int BOX_COST = 500;
@@ -72,6 +81,136 @@ namespace SoraBot_v2.Services
                 // shuffle for some extra RNG
                 _boxCache.Shuffle();
                 _boxCache.Shuffle();
+            }
+        }
+
+        public async Task MakeTradeOffer(SocketCommandContext context, SocketGuildUser other, int wantId, int offerId)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                // check if they have ANY waifus at all
+                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                if (userdb == null || userdb.UserWaifus.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You have no waifus to trade! Open some WaifuBoxes!"
+                    ));
+                    return;
+                }
+
+                var otherdb = Utility.OnlyGetUser(other.Id, soraContext);
+                if (otherdb == null || otherdb.UserWaifus.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"{other.Username} has no waifus to trade!"
+                    ));
+                    return;
+                }
+                // check if both have the offered waifus. 
+                // first other
+                var otherWaifu = otherdb.UserWaifus.FirstOrDefault(x => x.WaifuId == wantId);
+                if (otherWaifu == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"{other.Username} doesn't have that waifu!"
+                    ));
+                    return;
+                }
+                // now us
+                var userWaifu = userdb.UserWaifus.FirstOrDefault(x => x.WaifuId == offerId);
+                if (userWaifu == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"You don't have that waifu to offer!"
+                    ));
+                    return;
+                }
+                // now ask for the trade.
+                var otherW = soraContext.Waifus.FirstOrDefault(x => x.Id == wantId);
+                var userW = soraContext.Waifus.FirstOrDefault(x => x.Id == offerId);
+                var eb = new EmbedBuilder()
+                {
+                    Title = "Waifu Trade Request",
+                    Description = $"{context.User.Username} has requested to trade with you.",
+                    Color = Utility.PurpleEmbed,
+                    Footer = Utility.RequestedBy(context.User)
+                };
+
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = "User offers";
+                    x.Value = $"{userW.Name}\n{GetRarityString(userW.Rarity)}\n*ID: {userW.Id}*";
+                });
+                
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = "User Wants";
+                    x.Value = $"{otherW.Name}\n{GetRarityString(otherW.Rarity)}\n*ID: {otherW.Id}*";
+                });
+                
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "Accept?";
+                    x.Value = "You can accept this trade by writing `y` and decline by writing anything else.";
+                });
+                
+                await context.Channel.SendMessageAsync("", embed: eb);
+                
+                Criteria<SocketMessage> criteria = new Criteria<SocketMessage>();
+                criteria.AddCriterion(new EnsureFromUserInChannel(other.Id, context.Channel.Id));
+
+                var response = await _interactive.NextMessageAsync(context, criteria, TimeSpan.FromSeconds(45));
+                
+                if (response == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed:
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            $"{other.Username} didn't answer in time >.<"));
+                    return;
+                }
+
+                if (!response.Content.Equals("y", StringComparison.OrdinalIgnoreCase))
+                {
+                    await context.Channel.SendMessageAsync("", embed:
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            $"{other.Username} declined the trade offer!"));
+                    return;
+                }
+                
+                // accepted offer
+                // add waifu
+                GiveWaifuToId(userdb.UserId, otherW.Id, userdb);
+                GiveWaifuToId(other.Id, userW.Id, otherdb);
+                // remove waifu
+                userWaifu.Count--;
+                if (userWaifu.Count == 0)
+                {
+                    RemoveWaifuFromUser(userdb, userWaifu);
+                }
+
+                otherWaifu.Count--;
+                if (otherWaifu.Count == 0)
+                {
+                    RemoveWaifuFromUser(otherdb, otherWaifu);
+                }
+                // completed trade
+                await soraContext.SaveChangesAsync();
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"Successfully traded {userW.Name} for {otherW.Name}."
+                ));
             }
         }
 
@@ -115,10 +254,9 @@ namespace SoraBot_v2.Services
                 var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == waifuId);
                 int cash = GetWaifuQuickSellCost(waifu?.Rarity ?? 0) * amount;
                 userdb.Money += cash;
-                // TODO when removing check for favorite stuff in future
                 if (selected.Count == 0)
                 {
-                    userdb.UserWaifus.Remove(selected);
+                    RemoveWaifuFromUser(userdb, selected);
                 }
 
                 await soraContext.SaveChangesAsync();
@@ -129,6 +267,13 @@ namespace SoraBot_v2.Services
                     $"You successfully sold {amount} for {cash} SC."
                 ));
             }
+        }
+        
+        // TODO when removing check for favorite stuff in future
+        private bool RemoveWaifuFromUser(User userdb, UserWaifu waifu)
+        {
+            userdb.UserWaifus.Remove(waifu);
+            return false;
         }
 
         private void GiveWaifuToId(ulong userId, int waifuId, User userdb)

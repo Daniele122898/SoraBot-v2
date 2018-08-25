@@ -37,7 +37,7 @@ namespace SoraBot_v2.Module
         [Command("allwaifus"), Alias("waifulist", "wlist"), Summary("Shows all the waifus that exist")]
         public async Task ShowAllWaifus()
         {
-            await ReplyAsync($"Check out all Waifus here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
