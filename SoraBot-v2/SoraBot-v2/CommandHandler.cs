@@ -35,57 +35,59 @@ namespace SoraBot_v2
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
-            //Notify discordbots that we joined a new guild :P
-            try
-            {
-                await _guildCount.UpdateCount(_client.Guilds.Count);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            using (var soraContext = new SoraContext())
-            {
-                var guild = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
-
-                //AUTO CREATE SORA ADMIN ROLE
-                //var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext).ConfigureAwait(false);
-                /*
-                if (created)
-                {
-                    guild.RestrictTags = socketGuild.MemberCount > 100;
-                }*/
-                await soraContext.SaveChangesAsync();
+            Task.Run(async () => { 
+                //Notify discordbots that we joined a new guild :P
                 try
                 {
-                    string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
-                    await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
-                        .WithDescription($"I'm glad you invited me over :)\n" +
-                                         $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n" +
-                                         $"To restrict tag creation and Sora's mod functions you must create\n" +
-                                         $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
-                                         $"tags or use Sora's mod functionality. You can make him create one with: " +
-                                         $"`{prefix}createAdmin`\n" +
-                                         $"You can leave tag creation unrestricted if you want but its not\n" +
-                                         $"recommended on larger servers as it will be spammed.\n" +
-                                         $"**Sora now has a Dashboard**\n" +
-                                         $"You can [find the dashboard here](http://argonaut.pw/Sora/) by clicking the login\n"+
-                                         $"button in the top right. It's still in pre-alpha but allows you to\n"+
-                                         $"customize levels and level rewards as well as other settings. It is required\n" + 
-                                         $"for proper setup of leveling.\n"+
-                                         $"PS: Standard Prefix is `$` but you can change it with:\n" +
-                                         $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
-
+                    await _guildCount.UpdateCount(_client.Guilds.Count);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
-            }
-
-            //inform me of joining
-            await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
-            //TODO WELCOME MESSAGE
+                using (var soraContext = new SoraContext())
+                {
+                    var guild = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
+    
+                    //AUTO CREATE SORA ADMIN ROLE
+                    //var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext).ConfigureAwait(false);
+                    /*
+                    if (created)
+                    {
+                        guild.RestrictTags = socketGuild.MemberCount > 100;
+                    }*/
+                    await soraContext.SaveChangesAsync();
+                    try
+                    {
+                        string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
+                        await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
+                            .WithDescription($"I'm glad you invited me over :)\n" +
+                                             $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n" +
+                                             $"To restrict tag creation and Sora's mod functions you must create\n" +
+                                             $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
+                                             $"tags or use Sora's mod functionality. You can make him create one with: " +
+                                             $"`{prefix}createAdmin`\n" +
+                                             $"You can leave tag creation unrestricted if you want but its not\n" +
+                                             $"recommended on larger servers as it will be spammed.\n" +
+                                             $"**Sora now has a Dashboard**\n" +
+                                             $"You can [find the dashboard here](http://argonaut.pw/Sora/) by clicking the login\n"+
+                                             $"button in the top right. It's still in pre-alpha but allows you to\n"+
+                                             $"customize levels and level rewards as well as other settings. It is required\n" + 
+                                             $"for proper setup of leveling.\n"+
+                                             $"PS: Standard Prefix is `$` but you can change it with:\n" +
+                                             $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
+    
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+    
+                //inform me of joining
+                await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
+                //TODO WELCOME MESSAGE
+            });
         }
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
