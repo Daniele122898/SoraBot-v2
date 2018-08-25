@@ -78,6 +78,7 @@ namespace SoraBot_v2.Module
             int waifuId = 0;
             using (var soraContext = new SoraContext())
             {
+                name = name.Replace("\"", "");
                 var waifu = soraContext.Waifus.FirstOrDefault(x =>
                     x.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (waifu == null)

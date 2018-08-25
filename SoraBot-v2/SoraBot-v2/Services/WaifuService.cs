@@ -528,7 +528,7 @@ namespace SoraBot_v2.Services
                     case WaifuRarity.Epic:
                         return 50;
                     case WaifuRarity.UltimateWaifu:
-                        return 10;
+                        return 20;
             }
             return 0;
         }
