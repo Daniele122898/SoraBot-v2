@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -27,9 +28,16 @@ namespace SoraBot_v2.Module
         }
 
         [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you own")]
-        public async Task ShowMyWaifus()
+        public async Task ShowMyWaifus(SocketUser userT = null)
         {
-            await ReplyAsync($"Check out your Waifus here: http://sorabot.pw/user/{Context.User.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            var user = userT ?? Context.User;
+            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: http://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+        }
+        
+        [Command("allwaifus"), Alias("waifulist", "wlist"), Summary("Shows all the waifus that exist")]
+        public async Task ShowAllWaifus()
+        {
+            await ReplyAsync($"Check out all Waifus here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
     }
 }
