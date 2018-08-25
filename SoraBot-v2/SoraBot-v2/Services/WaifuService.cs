@@ -141,7 +141,8 @@ namespace SoraBot_v2.Services
                     Title = "Waifu Trade Request",
                     Description = $"{context.User.Username} has requested to trade with you.",
                     Color = Utility.PurpleEmbed,
-                    Footer = Utility.RequestedBy(context.User)
+                    Footer = Utility.RequestedBy(context.User),
+                    ImageUrl = userW.ImageUrl
                 };
 
                 eb.AddField(x =>
