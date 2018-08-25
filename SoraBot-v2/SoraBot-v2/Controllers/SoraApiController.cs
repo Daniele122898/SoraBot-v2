@@ -63,6 +63,32 @@ namespace SoraBot_v2.Controllers
             return permGuilds;
         }
 
+        [HttpGet("GetAllWaifus/", Name = "GetAllWaifus")]
+        [EnableCors("AllowLocal")]
+        public AllWaifus GetAllWaifus(ulong userId)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var waifus = new AllWaifus();
+                    // add up all waifus
+                    foreach (var waifu in soraContext.Waifus)
+                    {
+                        waifus.Waifus.Add(waifu);
+                    }
+                    // send all waifus
+                    return waifus;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return null;
+        }
+
         [HttpGet("GetUserWaifus/{userId}", Name = "GetUserWaifus")]
         [EnableCors("AllowLocal")]
         public UserWaifusAPI GetUserWaifus(ulong userId)

@@ -20,4 +20,9 @@ namespace SoraBot_v2.WebApiModels
         public string ImageUrl { get; set; }
         public string Name { get; set; }
     }
+
+    public class AllWaifus
+    {
+        public List<Waifu> Waifus { get; set; } = new List<Waifu>();
+    }
 }
