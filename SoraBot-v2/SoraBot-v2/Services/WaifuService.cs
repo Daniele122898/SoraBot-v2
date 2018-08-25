@@ -110,7 +110,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 // set as favorite
-                userdb.FavoriteWaifu = waifu.Id;
+                userdb.FavoriteWaifu = waifu.WaifuId;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,

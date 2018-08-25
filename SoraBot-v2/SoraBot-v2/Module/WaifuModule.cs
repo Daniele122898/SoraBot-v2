@@ -101,6 +101,32 @@ namespace SoraBot_v2.Module
             await _waifuService.SetFavoriteWaifu(Context, waifuId);
         }
 
+        [Command("removefav"), Alias("unfavorite", "nowaifu"), Summary("Removes your favorite waifu")]
+        public async Task RemoveFavWaifu()
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.OnlyGetUser(Context.User.Id, soraContext);
+                if (userdb == null)
+                {
+                    await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You don't have a favorite waifu..."
+                    ));
+                    return;
+                }
+
+                userdb.FavoriteWaifu = -1;
+                await soraContext.SaveChangesAsync();
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    "Successfully removed favorite waifu."
+                ));
+            }
+        }
+
         [Command("trade", RunMode = RunMode.Async), Alias("tradewaifu", "waifutrade"), Summary("Trade Waifus")]
         public async Task TradeWaifu(SocketGuildUser user, int wantId, int offerId)
         {
