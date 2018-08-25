@@ -20,9 +20,9 @@ namespace SoraBot_v2.Services
         ---------
         common				500 - 50
         uncommon			300 - 100
-        rare				100 - 200
-        epic				50 - 500
-        ultimate Waifu		10 - 1000
+        rare				100 - 300
+        epic				50 - 600
+        ultimate Waifu		10 - 1500
         
         Waifu
         ---------
@@ -41,7 +41,7 @@ namespace SoraBot_v2.Services
     
     public class WaifuService
     {
-        // TODO show waifus, sell, maybe trade, maybe fav
+        // TODO sell, maybe trade, maybe fav
         private List<Waifu> _boxCache = new List<Waifu>();
 
         private int BOX_COST = 500;
@@ -72,6 +72,62 @@ namespace SoraBot_v2.Services
                 // shuffle for some extra RNG
                 _boxCache.Shuffle();
                 _boxCache.Shuffle();
+            }
+        }
+
+        public async Task QuickSellWaifus(SocketCommandContext context, int waifuId, int amount)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                if (userdb == null || userdb.UserWaifus.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You have no waifus to sell! Open some WaifuBoxes!"
+                    ));
+                    return;
+                }
+
+                var selected = userdb.UserWaifus.FirstOrDefault(x => x.WaifuId == waifuId);
+                if (selected == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Either this waifu doesn't exist or you don't own it!"
+                    ));
+                    return; 
+                }
+
+                if (selected.Count < amount)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You don't have enough of this Waifu. Sell less!"
+                    ));
+                    return; 
+                }
+
+                selected.Count -= amount;
+                var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == waifuId);
+                int cash = GetWaifuQuickSellCost(waifu?.Rarity ?? 0) * amount;
+                userdb.Money += cash;
+                // TODO when removing check for favorite stuff in future
+                if (selected.Count == 0)
+                {
+                    userdb.UserWaifus.Remove(selected);
+                }
+
+                await soraContext.SaveChangesAsync();
+
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"You successfully sold {amount} for {cash} SC."
+                ));
             }
         }
 
@@ -215,6 +271,24 @@ namespace SoraBot_v2.Services
                     return "Ultimate Waifu";
             }
             return "";
+        }
+
+        private int GetWaifuQuickSellCost(WaifuRarity rarity)
+        {
+            switch (rarity)
+            {
+                case WaifuRarity.Common:
+                    return 50;
+                case WaifuRarity.Uncommon:
+                    return 100;
+                case WaifuRarity.Rare:
+                    return 200;
+                case WaifuRarity.Epic:
+                    return 500;
+                case WaifuRarity.UltimateWaifu:
+                    return 1500;
+            }
+            return 0;
         }
 
         private WaifuRarity GetRarityByInt(int rarity)
