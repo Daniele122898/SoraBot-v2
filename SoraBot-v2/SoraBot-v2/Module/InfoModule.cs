@@ -138,6 +138,22 @@ namespace SoraBot_v2.Module
                     }
                 }
 
+                if (dbUser != null && dbUser.FavoriteWaifu != -1)
+                {
+                    var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == dbUser.FavoriteWaifu);
+                    if (waifu != null)
+                    {
+                        eb.AddField(x =>
+                        {
+                            x.Name = "Waifu";
+                            x.IsInline = true;
+                            x.Value = waifu.Name;
+                        });
+
+                        eb.WithImageUrl(waifu.ImageUrl);
+                    }   
+                }
+
                 await ReplyAsync("", embed: eb);
             }
         }
