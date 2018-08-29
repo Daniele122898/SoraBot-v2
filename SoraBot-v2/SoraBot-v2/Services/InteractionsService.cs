@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using Weeb.net;
+using Weeb.net.Data;
 
 namespace SoraBot_v2.Services
 {
@@ -116,7 +117,7 @@ namespace SoraBot_v2.Services
         public async Task AddOtherCommands(CommandService service)
         {
             //  get all tags
-            var types = await _weebService.GetTypesRaw();
+            TypesData types = await _weebService.GetTypesRaw();
             // if cant get types just quit
             if (types == null) return;    
             
@@ -142,13 +143,23 @@ namespace SoraBot_v2.Services
                         if (usersT.Length > 0)
                         {
                             var users = usersT.Distinct().ToList();
+                            // remove self
                             users.Remove(context.User.Id);
+                            // remove sora
+                            users.Remove(context.Client.CurrentUser.Id);
                             if (users.Count > 0)
                             {
                                 string interacted ="";
                                 users.ForEach(x=>interacted += UserDiscrimCombo(context.Guild.GetUserAsync(x).Result)+", ");
                                 interacted = (interacted.Length > 200 ? $"{interacted.Remove(200)}..." : interacted);
                                 title = GetTitle(type, context, interacted);
+                            }
+                            else
+                            {
+                                await context.Channel.SendMessageAsync("",
+                                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                        "Please mention someone to interact with."));
+                                return;
                             }
                         }
                         
