@@ -244,69 +244,6 @@ namespace SoraBot_v2
             }
         }
 
-
-        /*private async Task HandleCommandsAsync(SocketMessage m)
-        {
-            try
-            {
-                MessagesReceived++;
-                var message = m as SocketUserMessage;
-                if (message == null) return;
-                if (message.Author.IsBot) return;
-                if (!(message.Channel is SocketGuildChannel)) return;
-                
-                //create Context
-                var context = new SocketCommandContext(_client,message);
-                //Check essential perms, set send message to false here to prevent spam from normal failiure. 
-                //darwinism :P
-                if(await Utility.CheckReadWritePerms(context.Guild, (IGuildChannel)context.Channel, false) == false)
-                    return;
-                
-                //Hand to AFK service
-                
-                Task.Run(async () =>
-                {
-                    using (var soraContext = new SoraContext())
-                    {
-                        await _afkService.Client_MessageReceived(m, soraContext);
-                    }
-                });*
-                
-            
-                //prefix ends and command starts
-                string prefix = Utility.GetGuildPrefix(context.Guild, _soraContext);
-                
-               
-                //prefix = Utility.GetGuildPrefix(context.Guild, soraContext);
-                
-                int argPos = prefix.Length-1;
-                if(!(message.HasStringPrefix(prefix, ref argPos)|| message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                    return;
-            
-                //Check ratelimit
-                if(await _ratelimitingService.IsRatelimited(message.Author.Id))
-                    return;
-                
-                var result = await _commands.ExecuteAsync(context, argPos, _services);
-                //LOG
-                //Logger.WriteRamLog(context);
-                if (!result.IsSuccess)
-                {
-                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                    await HandleErrorAsync(result, context);
-                }
-                else if (result.IsSuccess)
-                {
-                    CommandsExecuted++;
-                    _ratelimitingService.RateLimitMain(context.User.Id);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }*/
-
         private async Task HandleErrorAsync(IResult result, SocketCommandContext context, CommandException exception = null)
         {
             switch (result.Error)

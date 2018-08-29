@@ -41,14 +41,15 @@ namespace SoraBot_v2.Module
         }
         
         // check coins
-        [Command("coins"), Alias("sc", "soracoins"), Summary("Check how many Sora coins you have")]
-        public async Task GetCoins()
+        [Command("coins"), Alias("soracoins"), Summary("Check how many Sora coins you have")]
+        public async Task GetCoins(SocketUser userT = null)
         {
-            int amount = _coinService.GetAmount(Context.User.Id);
+            var user = userT ?? Context.User;
+            int amount = _coinService.GetAmount(user.Id);
             await ReplyAsync("", embed: Utility.ResultFeedback(
                 Utility.BlueInfoEmbed,
                 Utility.SuccessLevelEmoji[4],
-                $"💰 You have {amount} Sora Coins."
+                $"💰 You have {amount.ToString()} Sora Coins."
                 ));
         }
         
