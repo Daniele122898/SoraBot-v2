@@ -100,7 +100,7 @@ namespace SoraBot_v2.Controllers
         {
             try
             {
-                var user = await _restClient.GetUserAsync(userId);
+                IUser user = _client.GetUser(userId) ?? await _restClient.GetUserAsync(userId) as IUser;
                 using (var soraContext = new SoraContext())
                 {
                     var userwaifus = new UserWaifusAPI();
@@ -431,7 +431,7 @@ namespace SoraBot_v2.Controllers
                     for (int i = 0; i < (sorted.Count > 150 ? 150 : sorted.Count); i++)
                     {
                         var guser = sorted[i];
-                        var user = await _restClient.GetUserAsync(guser.UserId);
+                        IUser user = _client.GetUser(guser.UserId) ?? await _restClient.GetUserAsync(guser.UserId) as IUser;
                         if (user == null)
                         {
                             continue;
@@ -508,7 +508,7 @@ namespace SoraBot_v2.Controllers
                         {
                             break;
                         }
-                        var u = await _restClient.GetUserAsync(user.UserId);
+                        IUser u = _client.GetUser(user.UserId) ?? await _restClient.GetUserAsync(user.UserId) as IUser;
                         if (u == null)
                         {
                             continue;
