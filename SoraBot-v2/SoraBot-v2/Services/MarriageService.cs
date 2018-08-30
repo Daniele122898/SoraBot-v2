@@ -74,11 +74,7 @@ namespace SoraBot_v2.Services
                 };
                 foreach (var marriage in userDb.Marriages)
                 {
-                    IUser partner = context.Client.GetUser(marriage.PartnerId);
-                    if (partner == null)
-                    {
-                        partner = await _restClient.GetUserAsync(marriage.PartnerId);
-                    }
+                    IUser partner = context.Client.GetUser(marriage.PartnerId) ?? await _restClient.GetUserAsync(marriage.PartnerId) as IUser;
 
                     eb.AddField(x =>
                     {
