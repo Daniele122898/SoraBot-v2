@@ -509,7 +509,7 @@ namespace SoraBot_v2.Services
             };
         }
 
-        public static string GiveUsernameDiscrimComb(SocketUser user)
+        public static string GiveUsernameDiscrimComb(IUser user)
         {
             return user == null ? "User Unknown" : $"{user.Username}#{user.Discriminator}";
         }

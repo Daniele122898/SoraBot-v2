@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,12 +19,14 @@ namespace SoraBot_v2.Services
     public class MarriageService
     {
         private readonly InteractiveService _interactive;
+        private DiscordRestClient _restClient;
 
         private const int MARRIAGE_SCALE = 10;
 
-        public MarriageService(InteractiveService interactiveService)
+        public MarriageService(InteractiveService interactiveService, DiscordRestClient restClient)
         {
             _interactive = interactiveService;
+            _restClient = restClient;
         }
 
 
@@ -71,7 +74,7 @@ namespace SoraBot_v2.Services
                 };
                 foreach (var marriage in userDb.Marriages)
                 {
-                    var partner = context.Client.GetUser(marriage.PartnerId);
+                    IUser partner = context.Client.GetUser(marriage.PartnerId) ?? await _restClient.GetUserAsync(marriage.PartnerId) as IUser;
 
                     eb.AddField(x =>
                     {

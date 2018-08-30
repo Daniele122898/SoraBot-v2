@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -24,6 +25,7 @@ namespace SoraBot_v2
         private InteractiveService _interactive;
         private AutoReconnectService _autoReconnectService;
         private BanService _banService;
+        private DiscordRestClient _restClient;
         
         //// Disabled by Catherine Renelle - Memory Leak Fix
         ////private string _connectionString;
@@ -37,6 +39,8 @@ namespace SoraBot_v2
             {
                 throw new Exception("INVALID SHARD ARGUMENT");
             }
+            
+            _restClient = new DiscordRestClient();
 
             //Setup config
             ConfigService.InitializeLoader();
@@ -61,25 +65,14 @@ namespace SoraBot_v2
 
             _client.Log += Log;
             
-            
+            string token = "";
+            ConfigService.GetConfig().TryGetValue("token2", out token);
+
+            await _restClient.LoginAsync(TokenType.Bot, token);
 
             //setup DB
 
-            /****
-             * Disabled by Catherine Renelle - Memory leak fix
-            if (!ConfigService.GetConfig().TryGetValue("connectionString", out _connectionString))
-            {
-                throw new IOException
-                {
-                    Source = "COULDNT FIND CONNECTION STRING FOR DB!"
-                };
-            }****/
-
             Utility.SORA_VERSION = ConfigService.GetConfigData("version");
-
-
-            //_soraContext = new SoraContext(_connectionString);
-            //await _soraContext.Database.EnsureCreatedAsync();
 
             // setup banservice
             _banService = new BanService();
@@ -87,8 +80,6 @@ namespace SoraBot_v2
             //Setup Services
             ProfileImageGeneration.Initialize();
             _interactive = new InteractiveService(_client);
-            //Create dummy commandHandler for dependency Injection
-            //_commands = new CommandHandler();
             //Instantiate the dependency map and add our services and client to it
             var serviceProvider = ConfigureServices();
             
@@ -97,8 +88,6 @@ namespace SoraBot_v2
 
             //setup command handler
             await serviceProvider.GetRequiredService<CommandHandler>().InitializeAsync(serviceProvider);
-            //_commands.ConfigureCommandHandler(serviceProvider);
-            //await _commands.InstallAsync();
 
             //SETUP other dependency injection services
             serviceProvider.GetRequiredService<ReminderService>().Initialize();
@@ -114,8 +103,7 @@ namespace SoraBot_v2
             {
                 SentryService.Install(_client);
             };
-            string token = "";
-            ConfigService.GetConfig().TryGetValue("token2", out token);
+            
 
             //Connect to Discord
             await _client.LoginAsync(TokenType.Bot, token);
@@ -168,6 +156,7 @@ namespace SoraBot_v2
         {
             var services = new ServiceCollection();
             services.AddSingleton(_client);
+            services.AddSingleton(_restClient);
             services.AddSingleton<CommandService>();
             services.AddSingleton<ClanService>();
 
