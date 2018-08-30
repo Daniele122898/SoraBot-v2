@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +20,13 @@ namespace SoraBot_v2.Controllers
     public class SoraApiController : Controller
     {
         private DiscordSocketClient _client;
+        private DiscordRestClient _restClient;
         private BanService _banService;
 
-        public SoraApiController(DiscordSocketClient client, BanService banService)
+        public SoraApiController(DiscordSocketClient client, BanService banService, DiscordRestClient restClient)
         {
             _client = client;
+            _restClient = restClient;
             _banService = banService;
         }
         
@@ -92,11 +96,11 @@ namespace SoraBot_v2.Controllers
 
         [HttpGet("GetUserWaifus/{userId}", Name = "GetUserWaifus")]
         [EnableCors("AllowLocal")]
-        public UserWaifusAPI GetUserWaifus(ulong userId)
+        public async Task<UserWaifusAPI> GetUserWaifus(ulong userId)
         {
             try
             {
-                var user = _client.GetUser(userId);
+                var user = await _restClient.GetUserAsync(userId);
                 using (var soraContext = new SoraContext())
                 {
                     var userwaifus = new UserWaifusAPI();
@@ -415,7 +419,7 @@ namespace SoraBot_v2.Controllers
 
         [HttpGet("GetGlobalLeaderboard/", Name = "GetGlobalLeaderboard")]
         [EnableCors("AllowLocal")]
-        public GlobalLeaderboard GetGlobalLeaderboard()
+        public async Task<GlobalLeaderboard> GetGlobalLeaderboard()
         {
             try
             {
@@ -427,7 +431,7 @@ namespace SoraBot_v2.Controllers
                     for (int i = 0; i < (sorted.Count > 150 ? 150 : sorted.Count); i++)
                     {
                         var guser = sorted[i];
-                        var user = _client.GetUser(guser.UserId);
+                        var user = await _restClient.GetUserAsync(guser.UserId);
                         if (user == null)
                         {
                             continue;
@@ -457,7 +461,7 @@ namespace SoraBot_v2.Controllers
 
         [HttpGet("GetGuildLeaderboard/{guildid}", Name = "GetGuildLeaderboard")]
         [EnableCors("AllowLocal")]
-        public GuildLeaderboard GetGuildLeaderboard(ulong guildId)
+        public async Task<GuildLeaderboard> GetGuildLeaderboard(ulong guildId)
         {
             try
             {
@@ -504,7 +508,7 @@ namespace SoraBot_v2.Controllers
                         {
                             break;
                         }
-                        var u = guild.GetUser(user.UserId);
+                        var u = await _restClient.GetUserAsync(user.UserId);
                         if (u == null)
                         {
                             continue;
