@@ -30,7 +30,7 @@ namespace SoraBot_v2.Module
             await _waifuService.UnboxWaifu(Context);
         }
 
-        [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you own")]
+        [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you or the specified user owns")]
         public async Task ShowMyWaifus(SocketUser userT = null)
         {
             var user = userT ?? Context.User;
