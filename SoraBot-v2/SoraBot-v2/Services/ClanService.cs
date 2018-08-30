@@ -970,13 +970,12 @@ namespace SoraBot_v2.Services
                 var members = clan.Members.OrderByDescending(x => x.Exp).ThenByDescending(x => x.ClanStaff).ToList();
                 for (int i = 0; i < members.Count; i++)
                 {
-                    var user = context.Client.GetUser(members[i].UserId);
-                    RestUser ruser = null;
+                    IUser user = context.Client.GetUser(members[i].UserId);
                     if (user == null)
                     {
-                        ruser = await _restClient.GetUserAsync(members[i].UserId);
+                        user = await _restClient.GetUserAsync(members[i].UserId);
                     }
-                    var userName = (user == null ? $"{ruser.Username}#{ruser.Discriminator}" : Utility.GiveUsernameDiscrimComb(user));
+                    var userName = (user == null ? members[i].UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
                     eb.AddField(x =>
                     {
                         x.IsInline = true;

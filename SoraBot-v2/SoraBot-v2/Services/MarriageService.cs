@@ -74,12 +74,16 @@ namespace SoraBot_v2.Services
                 };
                 foreach (var marriage in userDb.Marriages)
                 {
-                    var partner = await _restClient.GetUserAsync(marriage.PartnerId);
+                    IUser partner = context.Client.GetUser(marriage.PartnerId);
+                    if (partner == null)
+                    {
+                        partner = await _restClient.GetUserAsync(marriage.PartnerId);
+                    }
 
                     eb.AddField(x =>
                     {
                         x.Name =
-                            $"{(partner == null ? $"{marriage.PartnerId}" : $"{partner.Username}#{partner.Discriminator}")}";
+                            $"{(partner == null ? $"{marriage.PartnerId}" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
                         x.IsInline = true;
                         x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*";
                     });
