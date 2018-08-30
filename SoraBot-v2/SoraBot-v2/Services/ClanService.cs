@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SoraBot_v2.Data;
@@ -17,10 +18,12 @@ namespace SoraBot_v2.Services
     {
         
         private InteractiveService _interactive;
+        private DiscordRestClient _restClient;
 
-        public ClanService(InteractiveService interactive)
+        public ClanService(InteractiveService interactive, DiscordRestClient restClient)
         {
             _interactive = interactive;
+            _restClient = restClient;
         }
 
         private const int MINIMUM_CREATE_LEVEL = 5;
@@ -967,7 +970,7 @@ namespace SoraBot_v2.Services
                 var members = clan.Members.OrderByDescending(x => x.Exp).ThenByDescending(x => x.ClanStaff).ToList();
                 for (int i = 0; i < members.Count; i++)
                 {
-                    var user = context.Client.GetUser(members[i].UserId);
+                    IUser user = context.Client.GetUser(members[i].UserId) ?? await _restClient.GetUserAsync(members[i].UserId) as IUser;
                     var userName = (user == null ? members[i].UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
                     eb.AddField(x =>
                     {
