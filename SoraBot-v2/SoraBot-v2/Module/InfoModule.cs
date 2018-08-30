@@ -57,7 +57,7 @@ namespace SoraBot_v2.Module
                 {
                     x.IsInline = true;
                     x.Name = $"Game";
-                    x.Value = $"{(string.IsNullOrWhiteSpace(user.Activity.Name) ? "*none*" : user.Activity.Name)}";
+                    x.Value = $"{(user.Activity == null ? "*none*" : user.Activity.Name)}";
                 });
                 eb.AddField(x =>
                 {
