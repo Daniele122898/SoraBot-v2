@@ -49,7 +49,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "User is not banned or failed to fetch data."
-                    ));
+                    ).Build());
                     return;
                 }
                 
@@ -68,7 +68,7 @@ namespace SoraBot_v2.Services
                     x.Value = (string.IsNullOrWhiteSpace(ban.Reason) ? "Unknown" : ban.Reason);
                 });
 
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
         

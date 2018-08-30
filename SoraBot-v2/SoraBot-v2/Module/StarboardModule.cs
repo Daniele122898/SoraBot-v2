@@ -33,7 +33,7 @@ namespace SoraBot_v2.Module
             if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starboard channel!"));
+                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starboard channel!").Build());
                 return;
             }
 
@@ -43,7 +43,7 @@ namespace SoraBot_v2.Module
                 guildDb.StarChannelId = starChannel.Id;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully set starboard channel").WithDescription($"<#{starChannel.Id}>"));
+                    Utility.SuccessLevelEmoji[0], "Successfully set starboard channel").WithDescription($"<#{starChannel.Id}>").Build());
             }
         }
 
@@ -54,7 +54,7 @@ namespace SoraBot_v2.Module
             if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"You need Administrator or Mange Channels permission or the {Utility.SORA_ADMIN_ROLE_NAME} role to remove the starboard channel"));
+                    Utility.SuccessLevelEmoji[2], $"You need Administrator or Mange Channels permission or the {Utility.SORA_ADMIN_ROLE_NAME} role to remove the starboard channel").Build());
                 return;
             }
 
@@ -64,13 +64,13 @@ namespace SoraBot_v2.Module
                 if (guildDb.StarChannelId == 0)
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "No Starboard channel set!"));
+                        Utility.SuccessLevelEmoji[2], "No Starboard channel set!").Build());
                     return;
                 }
                 guildDb.StarChannelId = 0;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], $"Successfully removed the starboard channel"));
+                    Utility.SuccessLevelEmoji[0], $"Successfully removed the starboard channel").Build());
             }
         }
 
@@ -81,7 +81,7 @@ namespace SoraBot_v2.Module
             if (CheckPerms(Context) == false)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starlimit!"));
+                    Utility.SuccessLevelEmoji[2], "You need Administrator or Mange Channels permission to set the starlimit!").Build());
                 return;
             }
             if (amount > 100)
@@ -95,7 +95,7 @@ namespace SoraBot_v2.Module
                 guildDb.StarMinimum = amount;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], $"Successfully changed minimum Star requirement to {amount}"));
+                    Utility.SuccessLevelEmoji[0], $"Successfully changed minimum Star requirement to {amount}").Build());
             }
         }
     }

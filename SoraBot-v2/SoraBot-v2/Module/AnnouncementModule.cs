@@ -21,7 +21,7 @@ namespace SoraBot_v2.Module
             if (await _announcement.SetWelcomeMessage(Context, message))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully set Welcome message to").WithDescription(message));
+                    Utility.SuccessLevelEmoji[0], "Successfully set Welcome message to").WithDescription(message).Build());
             }
         }
 
@@ -31,7 +31,7 @@ namespace SoraBot_v2.Module
             if (await _announcement.SetLeaveMessage(Context, message))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully set Leave message to").WithDescription(message));
+                    Utility.SuccessLevelEmoji[0], "Successfully set Leave message to").WithDescription(message).Build());
             }
         }
 
@@ -42,7 +42,7 @@ namespace SoraBot_v2.Module
             if (await _announcement.SetWelcomeChannel(Context, channel))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully set Welcome channel to").WithDescription($"<#{channel.Id}>"));
+                    Utility.SuccessLevelEmoji[0], "Successfully set Welcome channel to").WithDescription($"<#{channel.Id}>").Build());
             }
         }
         
@@ -52,7 +52,7 @@ namespace SoraBot_v2.Module
             if (await _announcement.SetLeaveChannel(Context, channel))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully set Leave channel to").WithDescription($"<#{channel.Id}>"));
+                    Utility.SuccessLevelEmoji[0], "Successfully set Leave channel to").WithDescription($"<#{channel.Id}>").Build());
             }
         }
 
@@ -64,12 +64,12 @@ namespace SoraBot_v2.Module
                 if (await _announcement.SetWelcomeMessage(Context, message))
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                        Utility.SuccessLevelEmoji[0], "Successfully set Welcome to").WithDescription($"{message} and with channel: <#{channel.Id}>"));
+                        Utility.SuccessLevelEmoji[0], "Successfully set Welcome to").WithDescription($"{message} and with channel: <#{channel.Id}>").Build());
                 }
                 else
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed,
-                        Utility.SuccessLevelEmoji[1], "Only set Welcome channel to").WithDescription($"<#{channel.Id}>\nFailed to add message"));
+                        Utility.SuccessLevelEmoji[1], "Only set Welcome channel to").WithDescription($"<#{channel.Id}>\nFailed to add message").Build());
                 }
             }
         }
@@ -94,12 +94,12 @@ namespace SoraBot_v2.Module
                 if (await _announcement.SetLeaveMessage(Context, message))
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                        Utility.SuccessLevelEmoji[0], "Successfully set Leave to").WithDescription($"{message} and with channel: <#{channel.Id}>"));
+                        Utility.SuccessLevelEmoji[0], "Successfully set Leave to").WithDescription($"{message} and with channel: <#{channel.Id}>").Build());
                 }
                 else
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.YellowWarningEmbed,
-                        Utility.SuccessLevelEmoji[1], "Only set Leave channel to").WithDescription($"<#{channel.Id}>\nFailed to add message"));
+                        Utility.SuccessLevelEmoji[1], "Only set Leave channel to").WithDescription($"<#{channel.Id}>\nFailed to add message").Build());
                 }
             }
         }

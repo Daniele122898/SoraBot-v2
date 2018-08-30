@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using SoraBot_v2.Services;
 using SoraBot_v2.WebApiModels;
 using Humanizer;
-using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
+using RequestOptions = Discord.RequestOptions;
 
 namespace SoraBot_v2.Controllers
 {
@@ -431,7 +431,7 @@ namespace SoraBot_v2.Controllers
                     for (int i = 0; i < (sorted.Count > 150 ? 150 : sorted.Count); i++)
                     {
                         var guser = sorted[i];
-                        IUser user = _client.GetUser(guser.UserId) ?? await _restClient.GetUserAsync(guser.UserId) as IUser;
+                        IUser user = _client.GetUser(guser.UserId);
                         if (user == null)
                         {
                             continue;
@@ -501,6 +501,8 @@ namespace SoraBot_v2.Controllers
                         });
                     }
                     int rank = 1;
+                    var g = await _restClient.GetGuildAsync(guildId);
+                    var users = await g.GetUsersAsync().FlattenAsync();
                     for(int i = 0; i<sorted.Count; i++)
                     {
                         var user = sorted[i];
@@ -508,7 +510,9 @@ namespace SoraBot_v2.Controllers
                         {
                             break;
                         }
-                        IUser u = _client.GetUser(user.UserId) ?? await _restClient.GetUserAsync(user.UserId) as IUser;
+
+                        var u = users.FirstOrDefault(x => x.Id == user.UserId);
+                        
                         if (u == null)
                         {
                             continue;

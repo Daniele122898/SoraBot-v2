@@ -69,6 +69,7 @@ namespace SoraBot_v2
             ConfigService.GetConfig().TryGetValue("token2", out token);
 
             await _restClient.LoginAsync(TokenType.Bot, token);
+            Console.WriteLine($"CONNECTED REST CLIENT {_restClient.LoginState}");
 
             //setup DB
 
@@ -131,7 +132,8 @@ namespace SoraBot_v2
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton(_client);     // Injected Discord client
-                        services.AddSingleton(_banService); // Injected Discord client
+                        services.AddSingleton(_banService); // Injected Ban service
+                        services.AddSingleton(_restClient); // inject rest Client
                         services.AddCors(options =>
                         {
                             options.AddPolicy("AllowLocal", builder => builder.WithOrigins("localhost")); // Enable CORS to only allow calls from localhost

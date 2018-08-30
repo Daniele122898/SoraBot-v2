@@ -52,7 +52,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You don't even have a BG set..."));
+                            "You don't even have a BG set...").Build());
                     return;
                 }
                 userDb.HasBg = false;
@@ -64,7 +64,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    "Successfully delete the BG!"));
+                    "Successfully delete the BG!").Build());
         }
         
         public async Task SetCustomBg(string url, SocketCommandContext context)
@@ -82,7 +82,7 @@ namespace SoraBot_v2.Services
                     var timeRemaining = userDb.UpdateBgAgain.Subtract(DateTime.UtcNow.TimeOfDay).Second;
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Dont break me >.< Please wait another {timeRemaining} seconds!"));
+                            $"Dont break me >.< Please wait another {timeRemaining} seconds!").Build());
                     return;
                 }
                 try
@@ -127,7 +127,7 @@ namespace SoraBot_v2.Services
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                            "Successfully set new BG!"));
+                            "Successfully set new BG!").Build());
                     
                 }
                 catch (Exception e)
@@ -135,7 +135,7 @@ namespace SoraBot_v2.Services
                     Console.WriteLine(e);
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Failed to Download the Image! Try another one, gomen"));
+                            "Failed to Download the Image! Try another one, gomen").Build());
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace SoraBot_v2.Services
                             requestorDb.ShowProfileCardAgain.Subtract(DateTime.UtcNow.TimeOfDay).Second;
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                $"Dont break me >.< Please wait another {remainingSeconds} seconds!"));
+                                $"Dont break me >.< Please wait another {remainingSeconds} seconds!").Build());
                         return;
                     }
                     
@@ -231,7 +231,7 @@ namespace SoraBot_v2.Services
                         embed: Utility
                             .ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                                 "Failed to create profile card! Maybe try to get a new Background? Or contact the creator here")
-                            .WithUrl(Utility.DISCORD_INVITE));
+                            .WithUrl(Utility.DISCORD_INVITE).Build());
                 }
             }
         }

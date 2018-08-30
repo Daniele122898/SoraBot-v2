@@ -24,7 +24,7 @@ namespace SoraBot_v2.Module
                 x.Value = $"[Join this guild to let me hear it]({Utility.DISCORD_INVITE})";
             });
 
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
     }
 }

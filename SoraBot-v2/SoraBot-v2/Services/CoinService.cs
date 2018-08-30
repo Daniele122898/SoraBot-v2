@@ -24,7 +24,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You don't have enough Sora Coins!"));
+                            "You don't have enough Sora Coins!").Build());
                     return;
                 }
                 // get or create other userDb
@@ -48,13 +48,13 @@ namespace SoraBot_v2.Services
                     Utility.PurpleEmbed,
                     Utility.SuccessLevelEmoji[4],
                     $"💰 You've received {amount} SC from {Utility.GiveUsernameDiscrimComb(context.User)} !"
-                ));
+                ).Build());
 
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     $"You have successfully transfered {amount} SC to {Utility.GiveUsernameDiscrimComb(user)}! They've been notified."
-                ));
+                ).Build());
             }
             catch (Exception e)
             {
@@ -62,7 +62,7 @@ namespace SoraBot_v2.Services
                     Utility.YellowWarningEmbed,
                     Utility.SuccessLevelEmoji[1],
                     $"You have successfully transfered {amount} SC to {(user == null ? userId.ToString() : Utility.GiveUsernameDiscrimComb(user))}!."
-                ).WithDescription("But I failed to send him/her a DM, they have probably disabled that feature. You may want to notify him/her yourself."));
+                ).WithDescription("But I failed to send him/her a DM, they have probably disabled that feature. You may want to notify him/her yourself.").Build());
             }
         }
         
@@ -77,7 +77,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Something went wrong soryy :c"));
+                            "Something went wrong soryy :c").Build());
                     return;
                 }
                 if (userdb.NextDaily.CompareTo(DateTime.UtcNow) >= 0)
@@ -85,7 +85,7 @@ namespace SoraBot_v2.Services
                     var timeRemaining = userdb.NextDaily.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
-                        $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!"));
+                        $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
                     return;
                 }
                 // add 24h cooldown
@@ -98,7 +98,7 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in 24h."));
+                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in 24h.").Build());
             }       
         }
 

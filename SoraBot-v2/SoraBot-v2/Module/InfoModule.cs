@@ -57,7 +57,7 @@ namespace SoraBot_v2.Module
                 {
                     x.IsInline = true;
                     x.Name = $"Game";
-                    x.Value = $"{(user.Game.HasValue ? user.Game.Value.Name : "*none*")}";
+                    x.Value = $"{(string.IsNullOrWhiteSpace(user.Activity.Name) ? "*none*" : user.Activity.Name)}";
                 });
                 eb.AddField(x =>
                 {
@@ -154,7 +154,7 @@ namespace SoraBot_v2.Module
                     }   
                 }
 
-                await ReplyAsync("", embed: eb);
+                await ReplyAsync("", embed: eb.Build());
             }
         }
 
@@ -233,7 +233,7 @@ namespace SoraBot_v2.Module
                     val = "No Custom Emotes";
                 x.Value = val;
             });
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
 
         }
 
@@ -391,7 +391,7 @@ namespace SoraBot_v2.Module
                         x.IsInline = true;
                         x.Value = $"[Support me on Patreon](https://www.patreon.com/Serenity_c7)";
                     });
-                    await ReplyAsync("", embed: eb);
+                    await ReplyAsync("", embed: eb.Build());
                 }
             }
         }

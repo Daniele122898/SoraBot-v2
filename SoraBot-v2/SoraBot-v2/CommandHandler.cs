@@ -75,7 +75,7 @@ namespace SoraBot_v2
                                              $"customize levels and level rewards as well as other settings. It is required\n" + 
                                              $"for proper setup of leveling.\n"+
                                              $"PS: Standard Prefix is `$` but you can change it with:\n" +
-                                             $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})"));
+                                             $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})").Build());
     
                     }
                     catch (Exception e)
@@ -256,15 +256,15 @@ namespace SoraBot_v2
                     }
                     break;
                 case CommandError.BadArgCount:
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason));
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], result.ErrorReason).Build());
                     break;
                 case CommandError.UnknownCommand:
                     break;
                 case CommandError.ParseFailed:
-                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one. If two strings are asked or smth after the first string please wrap the string in \"\" if it consists of more than one word!"));
+                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one. If two strings are asked or smth after the first string please wrap the string in \"\" if it consists of more than one word!").Build());
                     break;
                 default:
-                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}"));
+                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}").Build());
                     break;
             }
         }

@@ -28,12 +28,12 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "User has been globally banned from using Sora."));
+                        "User has been globally banned from using Sora.").Build());
                 return;
             }
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "Couldn't Ban user. Either he's already banned or smth broke."));
+                    "Couldn't Ban user. Either he's already banned or smth broke.").Build());
         }
         
         [Command("ounbanUser")]
@@ -45,12 +45,12 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "User has been globally unbanned from using Sora."));
+                        "User has been globally unbanned from using Sora.").Build());
                 return;
             }
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "Couldn't unban user. Either he's already banned or smth broke."));
+                    "Couldn't unban user. Either he's already banned or smth broke.").Build());
         }
         
         [Command("obaninfo")]
@@ -72,7 +72,7 @@ namespace SoraBot_v2.Module
         public async Task ReloadConfig()
         {
             ConfigService.LoadConfig();
-            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Successfully reloaded config.json"));
+            await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Successfully reloaded config.json").Build());
         } 
 
         [Command("oginfo")]
@@ -112,26 +112,26 @@ namespace SoraBot_v2.Module
             var invoker = Context.User as SocketGuildUser;
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions to create the {Utility.SORA_ADMIN_ROLE_NAME}"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions to create the {Utility.SORA_ADMIN_ROLE_NAME}").Build());
                 return;
             }
             if (!Context.Guild.GetUser(Context.Client.CurrentUser.Id).GuildPermissions.Has(GuildPermission.ManageRoles))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Sora does not have Manage Role Permissions!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Sora does not have Manage Role Permissions!").Build());
                 return;
             }
 
             //Check if already exists
             if (Utility.CheckIfSoraAdminExists(Context.Guild))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role already exists!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role already exists!").Build());
                 return;
             }
             //Create role
             await Context.Guild.CreateRoleAsync(Utility.SORA_ADMIN_ROLE_NAME, GuildPermissions.None);
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    $"Successfully created {Utility.SORA_ADMIN_ROLE_NAME} Role!"));
+                    $"Successfully created {Utility.SORA_ADMIN_ROLE_NAME} Role!").Build());
         }
 
         [Command("restrictdj"), Alias("forcedj", "djonly"), Summary("Restricts most of the music commands to members carrying the Sora-DJ role")]
@@ -140,7 +140,7 @@ namespace SoraBot_v2.Module
             var invoker = (SocketGuildUser)Context.User;
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(invoker))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to restrict music usage!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to restrict music usage!").Build());
                 return;
             }
 
@@ -152,8 +152,8 @@ namespace SoraBot_v2.Module
                     //MAKE IT UNRESTRICTED
                     guildDb.IsDjRestricted = false;
                     await _soraContext.SaveChangesAsync();
-                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
-                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!"));
+                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!").Build());
+                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!").Build());
                     return;
                 }
                 //Restrict them
@@ -166,7 +166,7 @@ namespace SoraBot_v2.Module
                         //CANT CREATE ONE EITHER
                         await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                             $"The {Utility.SORA_DJ_ROLE_NAME} does not exist and Sora doesn't have manage role permission!").WithDescription(
-                            $"Either create the {Utility.SORA_DJ_ROLE_NAME} yourself (case sensitive) or give sora Manage Role permission and let him create it!"));
+                            $"Either create the {Utility.SORA_DJ_ROLE_NAME} yourself (case sensitive) or give sora Manage Role permission and let him create it!").Build());
                         return;
                     }
                     //Create the Role
@@ -176,7 +176,7 @@ namespace SoraBot_v2.Module
                     }
                     catch (Exception)
                     {
-                        await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't Create role for some reason. Check perms!"));
+                        await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't Create role for some reason. Check perms!").Build());
                         return;
                     }
                     created = true;
@@ -185,7 +185,7 @@ namespace SoraBot_v2.Module
                 guildDb.IsDjRestricted = true;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!" : "!")}"));
+                    $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!" : "!")}").Build());
             }
         }
     }

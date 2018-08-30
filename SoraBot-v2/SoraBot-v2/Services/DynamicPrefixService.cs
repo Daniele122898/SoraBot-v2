@@ -14,7 +14,7 @@ namespace SoraBot_v2.Services
             await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    $"Prefix in this Guild was changed to `{prefix}`"));
+                    $"Prefix in this Guild was changed to `{prefix}`").Build());
         }
 
         public async Task ReturnGuildPrefix(SocketCommandContext context, SoraContext soraContext)
@@ -22,7 +22,7 @@ namespace SoraBot_v2.Services
             var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3],
-                    $"Prefix for this Guild is `{guildDb.Prefix}`"));
+                    $"Prefix for this Guild is `{guildDb.Prefix}`").Build());
         }
     }
 }

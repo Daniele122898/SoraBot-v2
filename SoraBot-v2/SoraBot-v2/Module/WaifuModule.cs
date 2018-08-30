@@ -57,7 +57,7 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "That waifu doesn't exist. Make sure to wrap the name in \"\" if it consists of more than 1 word!"
-                    ));
+                    ).Build());
                     return;
                 }
 
@@ -87,7 +87,7 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "That waifu doesn't exist."
-                    ));
+                    ).Build());
                     return;
                 }
 
@@ -114,7 +114,7 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "You don't have a favorite waifu..."
-                    ));
+                    ).Build());
                     return;
                 }
 
@@ -124,7 +124,7 @@ namespace SoraBot_v2.Module
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     "Successfully removed favorite waifu."
-                ));
+                ).Build());
             }
         }
 
@@ -149,7 +149,7 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"`{want}` doesn't exist. Make sure to wrap the name in \"\" if it consists of more than 1 word!"
-                    ));
+                    ).Build());
                     return;
                 }
                 wantId = wantW.Id;
@@ -162,7 +162,7 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"`{offer}` doesn't exist. Make sure to wrap the name in \"\" if it consists of more than 1 word!"
-                    ));
+                    ).Build());
                     return;
                 }
 

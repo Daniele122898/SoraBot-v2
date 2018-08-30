@@ -30,19 +30,19 @@ namespace SoraBot_v2.Module
             if (Context.Message.Content.Contains("<") && Context.Message.Content.Contains(">"))
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please don't include any emotes! Anything with `<` and `>`"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please don't include any emotes! Anything with `<` and `>`").Build());
                 return;
             }
             if (clanName.Length > 20)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should not exceed 20 characters!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should not exceed 20 characters!").Build());
                 return;
             }
             if (clanName.Length < 3)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should at least have 3 characters!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should at least have 3 characters!").Build());
                 return;
             }
             await _clanService.RenameClan(Context, clanName);
@@ -54,19 +54,19 @@ namespace SoraBot_v2.Module
             if (Context.Message.Content.Contains("<") && Context.Message.Content.Contains(">"))
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please don't include any emotes! Anything with `<` and `>`"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please don't include any emotes! Anything with `<` and `>`").Build());
                 return;
             }
             if (clanName.Length > 20)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should not exceed 20 characters!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should not exceed 20 characters!").Build());
                 return;
             }
             if (clanName.Length < 3)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should at least have 3 characters!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name should at least have 3 characters!").Build());
                 return;
             }
             await _clanService.CreateClan(Context, clanName.Trim());
@@ -92,20 +92,20 @@ namespace SoraBot_v2.Module
                 if (Context.Message.Attachments.Count < 1)
                 {
                     await ReplyAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "If you do not specify a link to an Image then please attach one!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "If you do not specify a link to an Image then please attach one!").Build());
                     return;
                 }
                 else if (Context.Message.Attachments.Count > 1)
                 {
                     await ReplyAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please only attach one Image!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please only attach one Image!").Build());
                     return;                   
                 }
                 url = Context.Message.Attachments.First().Url;
             }
             if (!url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
             {
-                await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must link or attach an Image!"));
+                await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must link or attach an Image!").Build());
                 return;
             }
             await _clanService.SetClanAvatar(Context, url);
@@ -131,14 +131,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.RevokeInvite(Context, user);
@@ -158,14 +158,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.RemoveStaff(Context, user);
@@ -191,14 +191,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.MakeOwner(Context, user);
@@ -218,14 +218,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.MakeStaff(Context, user);
@@ -245,14 +245,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.KickUser(Context, user);
@@ -273,14 +273,14 @@ namespace SoraBot_v2.Module
             if (userName.Length < 2)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Username! Please use: Name#Discrim").Build());
                 return; 
             }
             var user = Context.Client.GetUser(userName[0], userName[1]);
             if (user == null)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't find user "+name).Build());
                 return;  
             }
             await _clanService.InviteUser(Context, user);
@@ -293,13 +293,13 @@ namespace SoraBot_v2.Module
             if (string.IsNullOrWhiteSpace(description))
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Description must have... at least something in it."));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Description must have... at least something in it.").Build());
                 return; 
             }
             if (description.Length > 1500)
             {
                 await Context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Description should not be longer than 1500 characters!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Description should not be longer than 1500 characters!").Build());
                 return; 
             }
             await _clanService.EditClanDescription(Context, description);

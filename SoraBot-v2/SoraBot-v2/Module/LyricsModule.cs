@@ -27,7 +27,7 @@ namespace SoraBot_v2.Module
             var data = JsonConvert.DeserializeObject<LyricsData>(response);
             if (data.meta.status != 200 || data.response.hits.Count == 0)
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Failed to get Lyrics"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Failed to get Lyrics").Build());
                 return;
             }
             Result res = null;
@@ -42,7 +42,7 @@ namespace SoraBot_v2.Module
             }
             if (res == null || !res.lyrics_state.Equals("complete"))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Failed to get Lyrics"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Failed to get Lyrics").Build());
                 return;
             }
             // got a hit
@@ -67,7 +67,7 @@ namespace SoraBot_v2.Module
                     Color = Utility.PurpleEmbed
                 };
 
-                await Context.Channel.SendMessageAsync("", embed: eb);
+                await Context.Channel.SendMessageAsync("", embed: eb.Build());
             }
             else
             {

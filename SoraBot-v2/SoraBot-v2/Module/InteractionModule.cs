@@ -54,7 +54,7 @@ namespace SoraBot_v2.Module
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)}, why are you patting yourself? Are you okay? ｡ﾟ･（>﹏<）･ﾟ｡";
                     eb.ImageUrl = "https://i.imgur.com/QFtH3Gl.gif";
 
-                    await Context.Channel.SendMessageAsync("", embed: eb);
+                    await Context.Channel.SendMessageAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -81,7 +81,7 @@ namespace SoraBot_v2.Module
                 await _interactions.InteractMultiple(InteractionType.Pat, users, Context, _soraContext);
             }
 
-            await Context.Channel.SendMessageAsync("", embed: eb);
+            await Context.Channel.SendMessageAsync("", embed: eb.Build());
         }
         
         [Command("hug",RunMode = RunMode.Async), Summary("Hugs the specified person")]
@@ -110,7 +110,7 @@ namespace SoraBot_v2.Module
                     eb.Title =
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)} don't hug yourself ;-; At least take this pillow (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂ ";
                     eb.ImageUrl = "http://i.imgur.com/CM0of.gif";
-                    await Context.Channel.SendMessageAsync("", embed: eb);
+                    await Context.Channel.SendMessageAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -134,7 +134,7 @@ namespace SoraBot_v2.Module
             hugged = (hugged.Length > 200 ? $"{hugged.Remove(200)}..." : hugged);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} hugged {hugged.Remove(hugged.Length-2)} °˖✧◝(⁰▿⁰)◜✧˖°";
-            await Context.Channel.SendMessageAsync("", embed: eb);
+            await Context.Channel.SendMessageAsync("", embed: eb.Build());
         }
         
         [Command("high5"), Alias("h5"), Summary("High5 the specified person")]
@@ -162,7 +162,7 @@ namespace SoraBot_v2.Module
                     eb.Title =
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)} no friends to high five? (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂ ";
                     eb.ImageUrl = $"{Utility.Self5[r.Next(0, Utility.Self5.Length)]}";
-                    await Context.Channel.SendMessageAsync("", embed: eb);
+                    await Context.Channel.SendMessageAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -176,7 +176,7 @@ namespace SoraBot_v2.Module
 
             eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length)]}";
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} high fived {high5ed.Remove(high5ed.Length -2)} °˖✧◝(⁰▿⁰)◜✧˖°";
-            await Context.Channel.SendMessageAsync("", embed: eb);
+            await Context.Channel.SendMessageAsync("", embed: eb.Build());
         }
 
         [Command("poke",RunMode = RunMode.Async), Summary("Pokes the specified person")]
@@ -215,7 +215,7 @@ namespace SoraBot_v2.Module
                 await _interactions.InteractMultiple(InteractionType.Poke, users, Context, _soraContext);
             }
 
-            await Context.Channel.SendMessageAsync("", embed: eb);
+            await Context.Channel.SendMessageAsync("", embed: eb.Build());
         }
 
         [Command("kiss",RunMode = RunMode.Async), Summary("Kiss the specified person")]
@@ -244,7 +244,7 @@ namespace SoraBot_v2.Module
                     eb.Color = Utility.YellowWarningEmbed;
                     eb.Title =
                         $"{Utility.SuccessLevelEmoji[1]}️{Utility.GiveUsernameDiscrimComb(Context.User)} you may pat yourself or hug a pillow but kissing yourself is too much (๑•﹏•)";
-                    await ReplyAsync("", embed: eb);
+                    await ReplyAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -265,7 +265,7 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = image.Url;
             
             //eb.ImageUrl = $"{Utility.Kisses[r.Next(0, Utility.Kisses.Length)]}";
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
 
         [Command("affinity"), Alias("aff", "stats"), Summary("Shows the Affinity of the specified user or if none is specified your own.")]
@@ -304,7 +304,7 @@ namespace SoraBot_v2.Module
                     eb.Title =
                         $"{Utility.GiveUsernameDiscrimComb(Context.User)} why would you slap yourself... Are you okay? 〣( ºΔº )〣";
                     eb.ImageUrl = $"https://media.giphy.com/media/Okk9cb1dvtMxq/giphy.gif";
-                    await ReplyAsync("", embed: eb);
+                    await ReplyAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -326,7 +326,7 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = image.Url;
             
             //eb.ImageUrl = $"{Utility.Slaps[r.Next(0, Utility.Slaps.Length)]}"; 
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
         
         [Command("Punch"), Summary("Punches the specified person o.O")]
@@ -355,7 +355,7 @@ namespace SoraBot_v2.Module
                     eb.Color = Utility.YellowWarningEmbed;
                     eb.Title =
                         $"{Utility.SuccessLevelEmoji[1]} {Utility.GiveUsernameDiscrimComb(Context.User)} you may slap yourself but i wont allow you to punch yourself (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂ ";
-                    await ReplyAsync("", embed: eb);
+                    await ReplyAsync("", embed: eb.Build());
                     return;
                 }
             }
@@ -369,7 +369,7 @@ namespace SoraBot_v2.Module
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} punched {punched} (ᗒᗩᗕ)՞";
             eb.ImageUrl= $"{Utility.Punches[r.Next(0, Utility.Punches.Length)]}";
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
 
         private async Task AtLeast1Param(SocketCommandContext context)
@@ -379,7 +379,7 @@ namespace SoraBot_v2.Module
                 Color = Utility.RedFailiureEmbed,
                 Title= $"{Utility.SuccessLevelEmoji[2]} You need to specify at least 1 person to be interacted with! (@Mention them)"
             };
-            await context.Channel.SendMessageAsync("", embed: eb);
+            await context.Channel.SendMessageAsync("", embed: eb.Build());
         }
     }
 }

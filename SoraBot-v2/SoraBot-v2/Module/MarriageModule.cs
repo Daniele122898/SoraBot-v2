@@ -21,7 +21,7 @@ namespace SoraBot_v2.Module
             {
                 await Context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "I'm sorry. You can't marry bots :/"));
+                        "I'm sorry. You can't marry bots :/").Build());
                 return;
             }
             await _marriageService.Marry(Context, user);

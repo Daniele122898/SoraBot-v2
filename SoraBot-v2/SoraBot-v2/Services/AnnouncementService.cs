@@ -51,7 +51,7 @@ namespace SoraBot_v2.Services
                             Description = editedMessage
                         };
 
-                        await channel.SendMessageAsync("", embed: eb);
+                        await channel.SendMessageAsync("", embed: eb.Build());
                     }
                     else
                     {
@@ -98,7 +98,7 @@ namespace SoraBot_v2.Services
                             Description = editedMessage
                         };
 
-                        await channel.SendMessageAsync("", embed: eb);
+                        await channel.SendMessageAsync("", embed: eb.Build());
                     }
                     else
                     {
@@ -131,13 +131,13 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Welcome announcements will now be done in embeds!"));
+                        "Welcome announcements will now be done in embeds!").Build());
                 }
                 else
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Welcome announcements will now be done as normal messages!"));
+                        "Welcome announcements will now be done as normal messages!").Build());
                 }
             }
         }
@@ -156,13 +156,13 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Leave announcements will now be done in embeds!"));
+                        "Leave announcements will now be done in embeds!").Build());
                 }
                 else
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Leave announcements will now be done as normal messages!"));
+                        "Leave announcements will now be done as normal messages!").Build());
                 }
             }
         }
@@ -221,7 +221,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], "Successfully removed Welcome channel. No join announcements will be done anymore"));
+                Utility.SuccessLevelEmoji[0], "Successfully removed Welcome channel. No join announcements will be done anymore").Build());
         }
 
         public async Task RemoveLeaveChannel(SocketCommandContext context)
@@ -236,7 +236,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], "Successfully removed Leave channel. No leave announcements will be done anymore"));
+                Utility.SuccessLevelEmoji[0], "Successfully removed Leave channel. No leave announcements will be done anymore").Build());
         }
 
         public async Task<bool> SetLeaveChannel(SocketCommandContext context, SocketChannel channel)

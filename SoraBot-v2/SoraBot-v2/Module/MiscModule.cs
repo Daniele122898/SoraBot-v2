@@ -28,7 +28,7 @@ namespace SoraBot_v2.Module
         public async Task GithubPage()
         {
             await ReplyAsync("",
-                embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click to View Sora's Github Repo").WithUrl("https://github.com/Daniele122898/SoraBot-v2"));
+                embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click to View Sora's Github Repo").WithUrl("https://github.com/Daniele122898/SoraBot-v2").Build());
         }
 
         [Command("invite"), Alias("inv"), Summary("Gives the invite Link to invite Sora")]
@@ -38,7 +38,7 @@ namespace SoraBot_v2.Module
                 embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Invite Sora to Your Guild")
                     .WithUrl(Utility.SORA_INVITE)
                     .WithDescription("Sora needs all the perms if you intend to use all of his features. Unchecking certain perms will inhibit some of Soras' functions\n" +
-                                     $"[Click to Invite]({Utility.SORA_INVITE})"));
+                                     $"[Click to Invite]({Utility.SORA_INVITE})").Build());
         }
 
         [Command("choose"), Summary("Give sora a list of which he shall choose one.")]
@@ -65,7 +65,7 @@ namespace SoraBot_v2.Module
             if (bestChoose.Count == 0)
             {
                 await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Found nothing to choose from!"));
+                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Found nothing to choose from!").Build());
                 return;
             }
             bool codeBlock = true;
@@ -75,7 +75,7 @@ namespace SoraBot_v2.Module
 
 
             await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "").WithDescription($"🔍 I've chosen {(codeBlock ? "`" : "")}{chosen}{(codeBlock ? "`" : "")}"));
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "").WithDescription($"🔍 I've chosen {(codeBlock ? "`" : "")}{chosen}{(codeBlock ? "`" : "")}").Build());
         }
 
         [Command("minecraft"), Alias("skin", "minecraftskin"), Summary("Get the skin of your minecraft avatar")]
@@ -92,7 +92,7 @@ namespace SoraBot_v2.Module
                 ImageUrl = $"https://minotar.net/body/{HttpUtility.UrlEncode(name)}/300.png",
             };
 
-            await Context.Channel.SendMessageAsync("", embed: eb);
+            await Context.Channel.SendMessageAsync("", embed: eb.Build());
         }
 
         [Command("about"), Summary("Some info on Sora himself")]
@@ -133,7 +133,7 @@ namespace SoraBot_v2.Module
                               "to crush you. Because..\n" +
                               "Blank never loses.";
                 });
-                await ReplyAsync("", embed: eb);
+                await ReplyAsync("", embed: eb.Build());
             }
         }
     }

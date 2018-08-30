@@ -72,7 +72,7 @@ namespace SoraBot_v2.Services
                                 Description = msg,
                                 Color = Utility.BlueInfoEmbed
                             };
-                            await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb);
+                            await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                         }
                         else
                         {
@@ -101,7 +101,7 @@ namespace SoraBot_v2.Services
                                     $"Sora is missing crucial permissions!")
                                 .WithDescription($"You've set up Roles as level rewards but Sora is missing the Manage Roles permission in {context.Guild.Name}! " +
                                                  $"{Utility.GiveUsernameDiscrimComb(context.User)} earned a new role but couldn't receive it due to the missing permissions! " +
-                                                 $"This message will be sent to you every time a user levels up and would receive a new role. Either remove the role rewards or grant Sora the missing permissions!"));
+                                                 $"This message will be sent to you every time a user levels up and would receive a new role. Either remove the role rewards or grant Sora the missing permissions!").Build());
                     }
                     catch (Exception e)
                     {

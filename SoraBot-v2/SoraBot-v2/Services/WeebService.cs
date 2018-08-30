@@ -61,7 +61,7 @@ namespace SoraBot_v2.Services
                 Footer = Utility.RequestedBy(context.User),
                 ThumbnailUrl = context.Client.CurrentUser.GetAvatarUrl()
             };
-            await context.Channel.SendMessageAsync("", embed: eb);
+            await context.Channel.SendMessageAsync("", embed: eb.Build());
         }
 
         public async Task GetTags(SocketCommandContext context)

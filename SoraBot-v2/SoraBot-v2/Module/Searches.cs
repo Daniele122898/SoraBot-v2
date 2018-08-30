@@ -48,7 +48,7 @@ namespace SoraBot_v2.Module
             {
                 string response = await http.GetStringAsync("https://api.chucknorris.io/jokes/random").ConfigureAwait(false);
                 var data = JsonConvert.DeserializeObject<NorrisData>(response);
-                await Context.Channel.SendMessageAsync("", embed: data.GetEmbed());
+                await Context.Channel.SendMessageAsync("", embed: data.GetEmbed().Build());
             }
         }
         

@@ -19,17 +19,17 @@ namespace SoraBot_v2.Services
                     var ub = JsonConvert.DeserializeObject<UbContainer>(req);
                     if (ub == null)
                     {
-                        await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find Urban Dictionary entry."));
+                        await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find Urban Dictionary entry.").Build());
                         return;
                     }
                     var eb = ub.GetEmbed();
                     eb.WithFooter(Utility.RequestedBy(context.User));
-                    await context.Channel.SendMessageAsync("", embed: eb);
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
                 }
             }
             catch (Exception)
             {
-                await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find Urban Dictionary entry."));
+                await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find Urban Dictionary entry.").Build());
             }
         }
     }

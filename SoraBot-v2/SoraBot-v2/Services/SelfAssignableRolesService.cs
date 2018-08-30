@@ -158,7 +158,7 @@ namespace SoraBot_v2.Services
                                     "Sora failed to add a default role!")
                                 .WithDescription(
                                     "He needs the ManageRole permissions to assign roles. The role must also be below his highest role!\n" +
-                                    "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!"));
+                                    "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
                         guildDb.HasDefaultRole = false;
                         await soraContext.SaveChangesAsync();
                         return;
@@ -174,7 +174,7 @@ namespace SoraBot_v2.Services
                                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                                     "Sora failed to add a default role!")
                                 .WithDescription("The default role doesn't exist anymore.\n" +
-                                                 "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!"));
+                                                 "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
                         guildDb.HasDefaultRole = false;
                         await soraContext.SaveChangesAsync();
                         return;
@@ -200,7 +200,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "The Specified Role doesn't exist!"));
+                    "The Specified Role doesn't exist!").Build());
                 return;
             }
             //role was found
@@ -213,7 +213,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "This role is not self-assignable!"));
+                        "This role is not self-assignable!").Build());
                     return;
                 }
                 //Role is self assignable
@@ -222,7 +222,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                $"Successfully removed {role.Name} from self-assignable roles!"));
+                $"Successfully removed {role.Name} from self-assignable roles!").Build());
         }
 
         public async Task ToggleDefaultRole(SocketCommandContext context)
@@ -243,7 +243,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "The default role doesn't exist! Please set one before changing this to true."));
+                            "The default role doesn't exist! Please set one before changing this to true.").Build());
                         return;
                     }
                     var sora = context.Guild.CurrentUser;
@@ -252,21 +252,21 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Sora needs ManageRole permissions for Default roles to work!"));
+                            "Sora needs ManageRole permissions for Default roles to work!").Build());
                         return;
                     }
                     //set it to true
                     guildDb.HasDefaultRole = true;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Default role is now activated!"));
+                        "Default role is now activated!").Build());
                 }
                 else
                 {
                     guildDb.HasDefaultRole = false;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Default role is now deactivated!"));
+                        "Default role is now deactivated!").Build());
                 }
                 await soraContext.SaveChangesAsync();
             }
@@ -283,7 +283,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "Sora needs ManageRole permissions for Default roles to work!"));
+                    "Sora needs ManageRole permissions for Default roles to work!").Build());
                 return;
             }
             //Try to find role
@@ -306,7 +306,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I cannot assign roles that are above me in the role hirachy!")
-                        .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved."));
+                        .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved.").Build());
                     return;
                 }
             }
@@ -318,7 +318,7 @@ namespace SoraBot_v2.Services
                 if (guildDb.DefaultRoleId == role.Id)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This role already is the default role..."));
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This role already is the default role...").Build());
                     return;
                 }
                 guildDb.DefaultRoleId = role.Id;
@@ -326,7 +326,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} as default join role!"));
+                Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} as default join role!").Build());
         }
 
         public async Task AddSarToList(SocketCommandContext context, string roleName, bool canExpire = false, int cost = 0, TimeSpan expireAt = new TimeSpan())
@@ -347,7 +347,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "The specified role was not found and Sora doesn't have ManageRoles permissions to create it!"));
+                        "The specified role was not found and Sora doesn't have ManageRoles permissions to create it!").Build());
                     return;
                 }
                 //he has the perms so he can create the role
@@ -363,7 +363,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I cannot assign roles that are above me in the role hirachy!")
-                        .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved."));
+                        .WithDescription("If this is not the case, open the server settings and move a couple roles around since discord doesn't refresh the position unless they are moved.").Build());
                     return;
                 }
             }
@@ -375,7 +375,7 @@ namespace SoraBot_v2.Services
                 if (guildDb.SelfAssignableRoles.Count > 0 && guildDb.SelfAssignableRoles.Any(x => x.RoleId == role.Id))
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This role is already self assignable!"));
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "This role is already self assignable!").Build());
                     return;
                 }
                 //Add it to the list!
@@ -392,7 +392,7 @@ namespace SoraBot_v2.Services
             }
             
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} to the list of self-assignable roles!"));
+                Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully{(wasCreated ? " created and" : "")} added {roleName} to the list of self-assignable roles!").Build());
         }
 
         public async Task IAmNotSar(SocketCommandContext context, string roleName)
@@ -403,7 +403,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "Sora doesn't have ManageRoles Permission. Please notify an admin!"));
+                    "Sora doesn't have ManageRoles Permission. Please notify an admin!").Build());
                 return;
             }
 
@@ -414,7 +414,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "You don't carry this role!"));
+                    "You don't carry this role!").Build());
                 return;
             }
 
@@ -427,7 +427,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "This role is not self-assignable!"));
+                        "This role is not self-assignable!").Build());
                     return;
                 }
                 //user carries role and IS self assignable
@@ -448,7 +448,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                $"Successfully removed {role.Name} from your roles!"));
+                $"Successfully removed {role.Name} from your roles!").Build());
         }
 
         public async Task ListSars(SocketCommandContext context)
@@ -462,7 +462,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "Guild has no self-assignable roles!"));
+                        "Guild has no self-assignable roles!").Build());
                     return;
                 }
                 if (roleCount < 24)
@@ -495,7 +495,7 @@ namespace SoraBot_v2.Services
                         });
                         //eb.Description += $"• {roleInfo.Name}\n";
                     }
-                    await context.Channel.SendMessageAsync("", embed: eb);
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
                 }
                 else
                 {
@@ -558,7 +558,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "Sora doesn't have ManageRoles Permission. Please notify an admin!"));
+                    "Sora doesn't have ManageRoles Permission. Please notify an admin!").Build());
                 return;
             }
             //check if role exists
@@ -568,7 +568,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "This role does not exist!"));
+                    "This role does not exist!").Build());
                 return;
             }
             //Check if he already has the role
@@ -578,7 +578,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                    "You already have this role!"));
+                    "You already have this role!").Build());
                 return;
             }
 
@@ -591,7 +591,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "This role is not self-assignable!"));
+                        "This role is not self-assignable!").Build());
                     return;
                 }
                 // role exists and IS self assignable
@@ -604,7 +604,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You don't have enough Sora Coins for this role."));
+                            "You don't have enough Sora Coins for this role.").Build());
                         return;
                     }
                     // He has enough SC to buy
@@ -633,7 +633,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                $"Successfully added {role.Name} to your roles!"));
+                $"Successfully added {role.Name} to your roles!").Build());
         }
     }
 }

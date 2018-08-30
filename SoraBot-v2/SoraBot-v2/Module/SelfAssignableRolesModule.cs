@@ -43,7 +43,7 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "Failed to parse time for expiration"));
+                        "Failed to parse time for expiration").Build());
                 return;
             }
             TimeSpan timeSpan = new TimeSpan(time[0], time[1], time[2], time[3]);
@@ -52,7 +52,7 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "The role must be valid for at least 10 minutes!"));
+                        "The role must be valid for at least 10 minutes!").Build());
                 return;
             }
             
@@ -78,7 +78,7 @@ namespace SoraBot_v2.Module
                     await ReplyAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
-                        "You don't have any expiring roles in this Guild!"));
+                        "You don't have any expiring roles in this Guild!").Build());
                     return;
                 }
                 var eb = new EmbedBuilder()
@@ -104,7 +104,7 @@ namespace SoraBot_v2.Module
                         x.Value = $"Expires in: {role.ExpiresAt.Subtract(DateTime.UtcNow).Humanize(2, maxUnit: TimeUnit.Day, minUnit: TimeUnit.Second, countEmptyUnits:true)}";
                     });
                 }
-                await ReplyAsync("", embed: eb);
+                await ReplyAsync("", embed: eb.Build());
             }
         }
 
