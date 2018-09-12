@@ -50,7 +50,7 @@ namespace SoraBot_v2.Services
             }
         }
 
-        public async Task ShowMarriages(SocketCommandContext context, SocketUser user)
+        public async Task ShowMarriages(SocketCommandContext context, SocketUser user, bool advanced = false)
         {
             using (var _soraContext = new SoraContext())
             {
@@ -81,7 +81,7 @@ namespace SoraBot_v2.Services
                         x.Name =
                             $"{(partner == null ? $"{marriage.PartnerId}" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
                         x.IsInline = true;
-                        x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*";
+                        x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*{(advanced ? $"\nID: {marriage.PartnerId}":"")}";
                     });
                 }
 
