@@ -30,7 +30,6 @@ namespace SoraBot_v2.Services
             catch (Exception e)
             {
                 await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find Urban Dictionary entry.").Build());
-                Console.WriteLine(e.ToString());
             }
         }
     }
