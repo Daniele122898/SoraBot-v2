@@ -20,8 +20,6 @@ namespace SoraBot_v2
         #region Private Fields
 
         private DiscordSocketClient _client;
-        //private CommandHandler _commands;
-        //private SoraContext _soraContext;
         private InteractiveService _interactive;
         private AutoReconnectService _autoReconnectService;
         private BanService _banService;
