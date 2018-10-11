@@ -15,6 +15,13 @@ namespace SoraBot_v2.Services
 
         public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
         {
+            if (amount < 1)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "Amount must be greater than 1!").Build());
+                return;
+            }
             using (var soraContext = new SoraContext())
             {
                 // get current userDb
