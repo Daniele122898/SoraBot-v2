@@ -53,13 +53,13 @@ namespace SoraBot_v2.Services
                 if (userDb == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!").Build());
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(userDb.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!").Build());
                     return; 
                 }
                 // check if clan still exists
@@ -67,21 +67,21 @@ namespace SoraBot_v2.Services
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore..."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 // otherwise check if he's owner or staff
                 if (clan.OwnerId != context.User.Id && !userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan nor a staff member!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan nor a staff member!").Build());
                     return;
                 }
                 // check available money
                 if (userDb.Money < CLAN_LVLUP_COST)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to upgrade! It costs {CLAN_LVLUP_COST} SC!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to upgrade! It costs {CLAN_LVLUP_COST} SC!").Build());
                     return;
                 }
                 // upgrade clan
@@ -95,7 +95,7 @@ namespace SoraBot_v2.Services
                     embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, 
                         Utility.SuccessLevelEmoji[0], 
-                        $"Successfully upgraded the clan! You can now have {GetMaxUsers(clan)} members!"));
+                        $"Successfully upgraded the clan! You can now have {GetMaxUsers(clan)} members!").Build());
             }
         }
 
@@ -108,13 +108,13 @@ namespace SoraBot_v2.Services
                 if (userDb == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!").Build());
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(userDb.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not in a clan!").Build());
                     return; 
                 }
                 // check if clan still exists
@@ -122,21 +122,21 @@ namespace SoraBot_v2.Services
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore..."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 // otherwise check if he's owner
                 if (clan.OwnerId != context.User.Id)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan!").Build());
                     return;
                 }
                 // check available money
                 if (userDb.Money < CLAN_RENAME_COST)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to rename! It costs {CLAN_RENAME_COST} SC!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have enough SC to rename! It costs {CLAN_RENAME_COST} SC!").Build());
                     return;
                 }
                 // he's owner and has the cash. rename 
@@ -157,7 +157,7 @@ namespace SoraBot_v2.Services
                     embed: Utility.ResultFeedback(
                         Utility.GreenSuccessEmbed, 
                         Utility.SuccessLevelEmoji[0], 
-                        $"Successfully renamed the clan to `{clanName}`"));
+                        $"Successfully renamed the clan to `{clanName}`").Build());
             }            
         }
         
@@ -170,7 +170,7 @@ namespace SoraBot_v2.Services
                 if (!soraContext.Clans.Any())
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No Clans exist yet. Create one!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No Clans exist yet. Create one!").Build());
                     return;
                 }
                 
@@ -216,7 +216,7 @@ namespace SoraBot_v2.Services
                     });
                     count++;
                 }
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
 
@@ -229,7 +229,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -237,7 +237,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore. You have now been removed."));
+                            $"Your clan doesn't exist anymore. You have now been removed.").Build());
                     userDb.ClanName = null;
                     userDb.ClanStaff = false;
                     await soraContext.SaveChangesAsync();
@@ -247,7 +247,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not the owner of this guild!"));
+                            $"You are not the owner of this guild!").Build());
                     return;
                 }
                 var eb = new EmbedBuilder()
@@ -256,13 +256,13 @@ namespace SoraBot_v2.Services
                     Title = Utility.SuccessLevelEmoji[1]+ " Are you sure you want to delete " + clan.Name+"?",
                     Description = "This cannot be undone! All members will be kicked and the entire clan will be erased.\n If you are certain answer with `y` or `yes`. Otherwise just enter anything."
                 };
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
 
                 var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                 if (response == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;").Build());
                     return;
                 }
 
@@ -282,12 +282,12 @@ namespace SoraBot_v2.Services
                     soraContext.Clans.Remove(clan);
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully removed {clan.Name}!"));
+                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully removed {clan.Name}!").Build());
                 }
                 else
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes!").Build());
                 }
                
             }
@@ -302,7 +302,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -310,14 +310,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore..."));
+                            $"Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 if (context.User.Id != clan.OwnerId)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not the owner of this guild!"));
+                            $"You are not the owner of this guild!").Build());
                     return;
                 }
                 //Get other user
@@ -326,7 +326,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!").Build());
                     return;
                 }
                 //check if same clan
@@ -334,7 +334,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!").Build());
                     return;
                 }
                 
@@ -344,11 +344,11 @@ namespace SoraBot_v2.Services
                 userDb.ClanStaff = true;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully set {Utility.GiveUsernameDiscrimComb(user)} as new owner!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully set {Utility.GiveUsernameDiscrimComb(user)} as new owner!").Build());
                 //Send DM to user who got promoted.
                 try
                 {
-                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to clan owner!"));
+                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to clan owner!").Build());
                 }
                 catch (Exception e)
                 {
@@ -366,14 +366,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You have to be a staff member to remove other staff members!"));
+                            $"You have to be a staff member to remove other staff members!").Build());
                     return;
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -381,7 +381,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore..."));
+                            $"Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 //Get other user
@@ -390,7 +390,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!").Build());
                     return;
                 }
                 //check if same clan
@@ -398,7 +398,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!").Build());
                     return;
                 }
                 //check if he's owner
@@ -406,7 +406,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You can't remove staff from the owner!"));
+                            $"You can't remove staff from the owner!").Build());
                     return;
                 }
                 //check if already staff
@@ -414,18 +414,18 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"User is not a staff member!"));
+                            $"User is not a staff member!").Build());
                     return;  
                 }
                 //remove staff
                 kuserDb.ClanStaff = false;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully removed {Utility.GiveUsernameDiscrimComb(user)} from the staff team!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully removed {Utility.GiveUsernameDiscrimComb(user)} from the staff team!").Build());
                 //Send DM to user who got promoted.
                 try
                 {
-                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been removed from the staff team!"));
+                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been removed from the staff team!").Build());
                 }
                 catch (Exception e)
                 {
@@ -443,14 +443,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You have to be a staff member to make other members staff!"));
+                            $"You have to be a staff member to make other members staff!").Build());
                     return;
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -458,7 +458,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore..."));
+                            $"Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 //Get other user
@@ -467,7 +467,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!").Build());
                     return;
                 }
                 //check if same clan
@@ -475,7 +475,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!").Build());
                     return;
                 }
                 //check if he's owner
@@ -483,7 +483,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Owner is always staff..."));
+                            $"Owner is always staff...").Build());
                     return;
                 }
                 //check if already staff
@@ -491,18 +491,18 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"User is a staff member already!"));
+                            $"User is a staff member already!").Build());
                     return;  
                 }
                 //make user staff
                 kuserDb.ClanStaff = true;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully added {Utility.GiveUsernameDiscrimComb(user)} to the staff team!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully added {Utility.GiveUsernameDiscrimComb(user)} to the staff team!").Build());
                 //Send DM to user who got promoted.
                 try
                 {
-                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to staff!"));
+                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to staff!").Build());
                 }
                 catch (Exception e)
                 {
@@ -519,20 +519,20 @@ namespace SoraBot_v2.Services
                 if (string.IsNullOrWhiteSpace(userDb?.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!").Build());
                     return; 
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have to be a staff member to kick other users!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have to be a staff member to kick other users!").Build());
                     return; 
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore..."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore...").Build());
                     return; 
                 }
                 //Get other user
@@ -540,21 +540,21 @@ namespace SoraBot_v2.Services
                 if (string.IsNullOrWhiteSpace(kuserDb?.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} is not part of a clan!").Build());
                     return; 
                 }
                 //check if same clan
                 if (!kuserDb.ClanName.Equals(clan.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} is not part of your clan!").Build());
                     return; 
                 }
                 //check if he's owner
                 if (user.Id == clan.OwnerId)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You cannot kick the owner of the clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You cannot kick the owner of the clan!").Build());
                     return; 
                 }
                 //kick user
@@ -562,11 +562,12 @@ namespace SoraBot_v2.Services
                 kuserDb.ClanStaff = false;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully kicked {Utility.GiveUsernameDiscrimComb(user)}!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully kicked {Utility.GiveUsernameDiscrimComb(user)}!").Build());
                 //Send DM to user who got kicked.
                 try
                 {
-                        await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been kicked from {clan.Name}!"));
+                        await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, 
+                            Utility.SuccessLevelEmoji[3], $"You have been kicked from {clan.Name}!").Build());
                 }
                 catch (Exception e)
                 {
@@ -583,7 +584,7 @@ namespace SoraBot_v2.Services
                 if (string.IsNullOrWhiteSpace(userDb?.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!").Build());
                     return; 
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -593,20 +594,20 @@ namespace SoraBot_v2.Services
                     userDb.ClanName = null;
                     userDb.ClanStaff = false;
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully left the clan."));
+                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully left the clan.").Build());
                     await soraContext.SaveChangesAsync();
                     return; 
                 }
                 if (clan.OwnerId == context.User.Id)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You cannot leave a clan you own. Transfer ownership or remove it completely!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You cannot leave a clan you own. Transfer ownership or remove it completely!").Build());
                     return; 
                 }
                 userDb.ClanName = null;
                 userDb.ClanStaff = false;
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully left the clan."));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully left the clan.").Build());
                 await soraContext.SaveChangesAsync();
             }
         }
@@ -619,26 +620,26 @@ namespace SoraBot_v2.Services
                 if (string.IsNullOrWhiteSpace(userDb?.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!").Build());
                     return; 
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have to be a staff member to edit the clan description!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have to be a staff member to edit the clan description!").Build());
                     return; 
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore..."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore...").Build());
                     return; 
                 }
                 clan.Message = clanMessage;
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully changed clan description!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully changed clan description!").Build());
             }
         }
 
@@ -651,7 +652,7 @@ namespace SoraBot_v2.Services
                 if (invite == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have no invite from this clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have no invite from this clan!").Build());
                     return; 
                 }
                 Clan clan = null;
@@ -662,7 +663,7 @@ namespace SoraBot_v2.Services
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                            $"Successfully declined Clan Invite!"));
+                            $"Successfully declined Clan Invite!").Build());
                 }
                 else
                 {
@@ -672,7 +673,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                $"You are already part of a clan! Please leave first before joining another one!"));
+                                $"You are already part of a clan! Please leave first before joining another one!").Build());
                         return;
                     }
                     //check if clan still exists.
@@ -683,7 +684,7 @@ namespace SoraBot_v2.Services
 
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                $"Clan does not exist anymore! Invite was removed."));
+                                $"Clan does not exist anymore! Invite was removed.").Build());
                         await soraContext.SaveChangesAsync();
                         return;
                     }
@@ -692,7 +693,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                $"Clan is already full! Wait until someone leaves..."));
+                                $"Clan is already full! Wait until someone leaves...").Build());
                         await soraContext.SaveChangesAsync();
                         return;
                     }
@@ -704,7 +705,7 @@ namespace SoraBot_v2.Services
                     //send messages
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                            "You successfully joined " + clan.Name));
+                            "You successfully joined " + clan.Name).Build());
                 }
                 //try to send message to Moderator
                 try
@@ -719,7 +720,7 @@ namespace SoraBot_v2.Services
                             Title = $"{Utility.GiveUsernameDiscrimComb(context.User)} {state} your clan invite!",
                             Description = $"Your clan invite to {clan.Name} was {state}!"
                         };
-                        await (await mod.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb);
+                        await (await mod.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                     }
                 }
                 catch (Exception e)
@@ -738,14 +739,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not a Staff member!"));
+                            $"You are not a Staff member!").Build());
                     return;
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
@@ -753,7 +754,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore..."));
+                            $"Your clan doesn't exist anymore...").Build());
                     return;
                 }
                 //check if invite exists!
@@ -763,7 +764,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"This person has no invite yet!"));
+                            $"This person has no invite yet!").Build());
                     return;
                 }
                 //remove invite
@@ -771,7 +772,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        $"The invite has been revoked!").WithDescription("No DM will be sent to the user in this case."));
+                        $"The invite has been revoked!").WithDescription("No DM will be sent to the user in this case.").Build());
                 return;
             }
         }
@@ -784,20 +785,20 @@ namespace SoraBot_v2.Services
                 if (string.IsNullOrWhiteSpace(userDb?.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not part of a clan!").Build());
                     return; 
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not a Staff member!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not a Staff member!").Build());
                     return; 
                 }
                 var clan = Utility.GetClan(userDb.ClanName, soraContext);
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore..."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Your clan doesn't exist anymore...").Build());
                     return; 
                 }
                 //check if invite already exists!
@@ -805,13 +806,13 @@ namespace SoraBot_v2.Services
                     x.ClanName.Equals(clan.Name, StringComparison.OrdinalIgnoreCase) && x.UserId == user.Id))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already invited this person!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already invited this person!").Build());
                     return; 
                 }
                 if (clan.Members.Count >= GetMaxUsers(clan))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already reached the max amount of members!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You already reached the max amount of members!").Build());
                     return; 
                 }
                 //create Invite
@@ -834,7 +835,7 @@ namespace SoraBot_v2.Services
                         Description = $"You have been invited to join {clan.Name}! You can accept this request using the `$accept {clan.Name}` command or decline it using the " +
                                       $"`$decline {clan.Name}` command! You must use them in a guild with Sora and his respective prefix, DM doesnt work. Or alternatively use the Sora Dashboard!"
                     };
-                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb);
+                    await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                 }
                 catch (Exception e)
                 {
@@ -844,7 +845,7 @@ namespace SoraBot_v2.Services
                     "User successfully invited!");
                 if (!send)
                     eb2.Description = "Failed to send Clan Invite via DM! Please contact the user directly!";
-                await context.Channel.SendMessageAsync("", embed: eb2);
+                await context.Channel.SendMessageAsync("", embed: eb2.Build());
             }
         }
 
@@ -857,14 +858,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You must be a staff member to change the clan avatar!"));
+                            $"You must be a staff member to change the clan avatar!").Build());
                     return;
                 }
                 //Get Clan
@@ -873,7 +874,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore :/"));
+                            $"Your clan doesn't exist anymore :/").Build());
                     return;
                 }
                 
@@ -881,7 +882,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Successfully removed clan avatar!"));
+                        "Successfully removed clan avatar!").Build());
             }
         }
 
@@ -894,14 +895,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You are not part of a clan!"));
+                            $"You are not part of a clan!").Build());
                     return;
                 }
                 if (!userDb.ClanStaff)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You must be a staff member to change the clan avatar!"));
+                            $"You must be a staff member to change the clan avatar!").Build());
                     return;
                 }
                 //Get Clan
@@ -910,7 +911,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"Your clan doesn't exist anymore :/"));
+                            $"Your clan doesn't exist anymore :/").Build());
                     return;
                 }
                 
@@ -919,7 +920,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                        "Successfully set new clan avatar!"));
+                        "Successfully set new clan avatar!").Build());
             }
         }
 
@@ -933,7 +934,7 @@ namespace SoraBot_v2.Services
                     if (string.IsNullOrWhiteSpace(userDb?.ClanName))
                     {
                         await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not in a clan! Enter a clan name!"));
+                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not in a clan! Enter a clan name!").Build());
                         return;
                     }
                     clanName = userDb.ClanName;
@@ -942,7 +943,7 @@ namespace SoraBot_v2.Services
                 if (clan == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Clan doesn't exist!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Clan doesn't exist!").Build());
                     return;
                 }
                 
@@ -980,7 +981,7 @@ namespace SoraBot_v2.Services
                             $"Lvl. {ExpService.CalculateLevel(members[i].Exp)} \tEXP: {members[i].Exp}\n*Joined: {(members[i].JoinedClan.ToString("dd/MM/yyyy"))}*";
                     });
                 }
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
 
@@ -993,19 +994,20 @@ namespace SoraBot_v2.Services
                 if (userDb == null)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least level {MINIMUM_CREATE_LEVEL} to create a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least level {MINIMUM_CREATE_LEVEL} to create a clan!").Build());
                     return;
                 }
                 if (!string.IsNullOrWhiteSpace(userDb.ClanName))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are already in a clan! Please leave that clan first!").WithDescription("If you are the owner, you can pass on the clan to someone else before leaving."));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are already in a clan! Please leave that clan first!")
+                            .WithDescription("If you are the owner, you can pass on the clan to someone else before leaving.").Build());
                     return;
                 }
                 if (ExpService.CalculateLevel(userDb.Exp) < MINIMUM_CREATE_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least level {MINIMUM_CREATE_LEVEL} to create a clan!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least level {MINIMUM_CREATE_LEVEL} to create a clan!").Build());
                     return;
                 }
                 
@@ -1013,7 +1015,7 @@ namespace SoraBot_v2.Services
                 if (userDb.Money < CLAN_CREATION_COST)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Creating a clan costs {CLAN_CREATION_COST} Sora Coins! You don't have enough!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Creating a clan costs {CLAN_CREATION_COST} Sora Coins! You don't have enough!").Build());
                     return;
                 }
                 
@@ -1021,7 +1023,7 @@ namespace SoraBot_v2.Services
                 if (soraContext.Clans.Any(x => x.Name.Equals(clanName, StringComparison.OrdinalIgnoreCase)))
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name is already taken!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Clan Name is already taken!").Build());
                     return;
                 }
                 
@@ -1035,7 +1037,7 @@ namespace SoraBot_v2.Services
                 soraContext.Clans.Add(clan);
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Clan \"{clanName}\" has been created!"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Clan \"{clanName}\" has been created!").Build());
             }
         }
     }

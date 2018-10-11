@@ -93,7 +93,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "You have no Waifus to set as favorite! Open some WaifuBoxes!"
-                    ));
+                    ).Build());
                     return;
                 }
                 // check if we have the specified waifu
@@ -104,7 +104,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You don't have that Waifu to set as favorite!"
-                    ));
+                    ).Build());
                     return;
                 }
                 // set as favorite
@@ -114,7 +114,7 @@ namespace SoraBot_v2.Services
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     $"Successfully set favorite Waifu on profile."
-                ));
+                ).Build());
             }
         }
 
@@ -130,7 +130,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "You have no waifus to trade! Open some WaifuBoxes!"
-                    ));
+                    ).Build());
                     return;
                 }
 
@@ -141,7 +141,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"{other.Username} has no waifus to trade!"
-                    ));
+                    ).Build());
                     return;
                 }
                 // check if both have the offered waifus. 
@@ -153,7 +153,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"{other.Username} doesn't have that waifu!"
-                    ));
+                    ).Build());
                     return;
                 }
                 // now us
@@ -164,7 +164,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You don't have that waifu to offer!"
-                    ));
+                    ).Build());
                     return;
                 }
                 // now ask for the trade.
@@ -200,7 +200,7 @@ namespace SoraBot_v2.Services
                     x.Value = "You can accept this trade by writing `y` and decline by writing anything else.";
                 });
                 
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
                 
                 Criteria<SocketMessage> criteria = new Criteria<SocketMessage>();
                 criteria.AddCriterion(new EnsureFromUserInChannel(other.Id, context.Channel.Id));
@@ -211,7 +211,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{other.Username} didn't answer in time >.<"));
+                            $"{other.Username} didn't answer in time >.<").Build());
                     return;
                 }
 
@@ -219,7 +219,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{other.Username} declined the trade offer!"));
+                            $"{other.Username} declined the trade offer!").Build());
                     return;
                 }
                 
@@ -263,7 +263,7 @@ namespace SoraBot_v2.Services
                 {
                     eb2.WithDescription(desc);
                 }
-                await context.Channel.SendMessageAsync("", embed: eb2);
+                await context.Channel.SendMessageAsync("", embed: eb2.Build());
             }
         }
 
@@ -278,7 +278,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "You have no waifus to sell! Open some WaifuBoxes!"
-                    ));
+                    ).Build());
                     return;
                 }
 
@@ -289,7 +289,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "Either this waifu doesn't exist or you don't own it!"
-                    ));
+                    ).Build());
                     return; 
                 }
 
@@ -299,7 +299,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         "You don't have enough of this Waifu. Sell less!"
-                    ));
+                    ).Build());
                     return; 
                 }
 
@@ -323,7 +323,7 @@ namespace SoraBot_v2.Services
                 {
                     eb.WithDescription("You sold your Favorite Waifu. Thus it has been removed from your profile.");
                 }
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
         
@@ -367,7 +367,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"{name} already exists in the Database!"
-                    ));
+                    ).Build());
                     return;
                 }
                 
@@ -386,7 +386,7 @@ namespace SoraBot_v2.Services
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
                     $"You added {name} with ID {waifu.Id}"
-                ));
+                ).Build());
             }
         }
         
@@ -402,7 +402,7 @@ namespace SoraBot_v2.Services
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You don't have enough Sora Coins! You need {BOX_COST} SC."
-                    ));
+                    ).Build());
                     return;
                 }
                 // remove money
@@ -441,7 +441,7 @@ namespace SoraBot_v2.Services
                     });
                 }
 
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
 

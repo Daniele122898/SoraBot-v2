@@ -22,7 +22,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Couldn't find any Gifs <.<"));
+                            "Couldn't find any Gifs <.<").Build());
                     return;
                 }
                 var randomData = data.data[r.Next(data.data.Count)];
@@ -33,7 +33,7 @@ namespace SoraBot_v2.Services
                     Color = Utility.PurpleEmbed,
                     ImageUrl = url
                 };
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
     }

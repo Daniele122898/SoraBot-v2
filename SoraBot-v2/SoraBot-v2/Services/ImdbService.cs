@@ -27,7 +27,7 @@ namespace SoraBot_v2.Services
                 
                 if(movieSimple == null || movieSimple.Length < 1)
                 {
-                    await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find movie/series"));
+                    await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find movie/series").Build());
                     return;
                 }
 
@@ -48,25 +48,26 @@ namespace SoraBot_v2.Services
                         count++;
                     }
                     ebC.Description = choose;
-                    var msg = await context.Channel.SendMessageAsync("", embed: ebC);
+                    var msg = await context.Channel.SendMessageAsync("", embed: ebC.Build());
                     var response =
                         await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                     await msg.DeleteAsync();
                     if (response == null)
                     {
-                        await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} didn't answer in time (≧д≦ヾ)"));
+                        await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], 
+                            $"{Utility.GiveUsernameDiscrimComb(context.User)} didn't answer in time (≧д≦ヾ)").Build());
                         return;
                     }
                     if (!Int32.TryParse(response.Content, out index))
                     {
                         await context.Channel.SendMessageAsync("", embed:
-                            Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Only send the Index!"));
+                            Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Only send the Index!").Build());
                         return;
                     }
                     if (index > (movieSimple.Length) || index < 1)
                     {
                         await context.Channel.SendMessageAsync("", embed:
-                            Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Invalid Index!"));
+                            Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Invalid Index!").Build());
                         return;
                     }
                 }
@@ -80,12 +81,12 @@ namespace SoraBot_v2.Services
 
                 var eb = finalMovie.GetEmbed();
                 eb.WithFooter(Utility.RequestedBy(context.User));
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
 
             }
             catch (Exception)
             {
-                await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find TheMovieDb entry."));
+                await context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find TheMovieDb entry.").Build());
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Services;
@@ -21,7 +22,7 @@ namespace SoraBot_v2.Module
             {
                 await Context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "I'm sorry. You can't marry bots :/"));
+                        "I'm sorry. You can't marry bots :/").Build());
                 return;
             }
             await _marriageService.Marry(Context, user);
@@ -40,10 +41,18 @@ namespace SoraBot_v2.Module
         }
 
         [Command("marriages"), Alias("marrylist"), Summary("Shows all your marriages")]
-        public async Task ShowMarriages(SocketUser userT = null)
+        public async Task ShowMarriages(SocketUser userT = null, string tags = null)
         {
             var user = userT ?? Context.User;
-            await _marriageService.ShowMarriages(Context, user);
+            bool adv = false;
+            if (!string.IsNullOrWhiteSpace(tags))
+            {
+                if (tags.Equals("-adv", StringComparison.OrdinalIgnoreCase))
+                {
+                    adv = true;
+                }
+            }
+            await _marriageService.ShowMarriages(Context, user, adv);
         }
 
         [Command("marrylimit"), Alias("checklimit", "marriagelimit"), Summary("Checks your marriage limit")]

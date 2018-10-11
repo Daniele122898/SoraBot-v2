@@ -30,7 +30,7 @@ namespace SoraBot_v2.Module
             if (user.IsBot)
             {
                 await ReplyAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Bots don't have a profile!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Bots don't have a profile!").Build());
                 return;
             }
             var typing = Context.Channel.EnterTypingState();
@@ -47,20 +47,20 @@ namespace SoraBot_v2.Module
                 if (Context.Message.Attachments.Count < 1)
                 {
                     await ReplyAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "If you do not specify a link to an Image then please attach one!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "If you do not specify a link to an Image then please attach one!").Build());
                     return;
                 }
                 else if (Context.Message.Attachments.Count > 1)
                 {
                     await ReplyAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please only attach one Image!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Please only attach one Image!").Build());
                     return;                   
                 }
                 url = Context.Message.Attachments.ToArray()[0].Url;
             }
             if (!url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
             {
-                await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must link or attach an Image!"));
+                await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must link or attach an Image!").Build());
                 return;
             }
             await _profileService.SetCustomBg(url, Context);

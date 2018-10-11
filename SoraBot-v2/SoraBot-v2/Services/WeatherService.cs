@@ -28,12 +28,12 @@ namespace SoraBot_v2.Services
                 }
                 var data = JsonConvert.DeserializeObject<WeatherData>(response);
 
-                await context.Channel.SendMessageAsync("", embed: data.GetEmbed());
+                await context.Channel.SendMessageAsync("", embed: data.GetEmbed().Build());
             }
             catch (Exception)
             {
                 await context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find weather for specified location!"));
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find weather for specified location!").Build());
             }
         }
     }

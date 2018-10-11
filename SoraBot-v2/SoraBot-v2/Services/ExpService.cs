@@ -42,14 +42,14 @@ namespace SoraBot_v2.Services
                 if (userDb.Notified)
                 {
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You will now be notified on level up!"));
+                        embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You will now be notified on level up!").Build());
                     return;
                 }
             }
 
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    "You will NOT be notified on level up!"));
+                    "You will NOT be notified on level up!").Build());
         }
         
         private int GetIndexOfItem(List<User> list, ulong key)
@@ -74,110 +74,11 @@ namespace SoraBot_v2.Services
 
         public async Task GetLocalTop10List(SocketCommandContext context)
         {
-            /*var eb = new EmbedBuilder()
-            {
-                Color = Utility.PurpleEmbed,
-                Title = $"Leaderboard in {context.Guild.Name}",
-                Description = $"[The EXP is earned locally. CLICK HERE!](http://sorabot.pw/guild/{context.Guild.Id}/leaderboard)\n" +
-                              $"[CLICK HERE FOR GLOBAL LEADERBOARD](http://sorabot.pw/globalleader)",
-                Footer = Utility.RequestedBy(context.User),
-                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
-                Url = $"http://sorabot.pw/guild/{context.Guild.Id}/leaderboard"
-            };*/
-            
-            /*
-            //Feed list
-            //GET RANK
-            using (var soraContext = new SoraContext())
-            {
-                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                
-                var sortedUsers = guildDb.Users.OrderByDescending(x => x.Exp).ToList();
-
-                for (int index = 0; index < (sortedUsers.Count < 10 ? sortedUsers.Count : 10); index++)
-                {
-                    var user = _client.GetUser(sortedUsers[index].UserId);
-                    if (user == null)
-                    {
-                        sortedUsers.RemoveAt(index);
-                        index--;
-                        continue;
-                    }
-                    eb.AddField(x =>
-                    {
-                        x.IsInline = false;
-                        x.Name =
-                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}";
-                        x.Value =
-                            $"Lvl. {CalculateLevel(sortedUsers[index].Exp)} \tEXP: {sortedUsers[index].Exp}";
-                    });
-                }
-                eb.AddField(x =>
-                {
-                    int yourIndex = sortedUsers.FindIndex(y=> y.UserId == context.User.Id);
-                    x.IsInline = false;
-                    x.Name = $"Your Rank: {yourIndex + 1}";
-                    x.Value =
-                        $"Lvl. {CalculateLevel(sortedUsers[yourIndex].Exp)} \tEXP: {sortedUsers[yourIndex].Exp}";
-                });
-            }*/
             await context.Channel.SendMessageAsync($"Check out **{context.Guild.Name}'s leaderboard** here: http://sorabot.pw/guild/{context.Guild.Id}/leaderboard ｡◕ ‿ ◕｡");
         }
 
         public async Task GetGlobalTop10(SocketCommandContext context)
         {
-            /*var eb = new EmbedBuilder()
-            {
-                Color = Utility.PurpleEmbed,
-                Title = $"Global Leaderboard",
-                Description = $"[EXP leaderboard of all users connected to Sora. CLICK HERE](http://sorabot.pw/globalleader)",
-                Footer = Utility.RequestedBy(context.User),
-                ThumbnailUrl = context.Guild.IconUrl ?? Utility.StandardDiscordAvatar,
-                Url = "http://sorabot.pw/globalleader"
-            };*/
-            /*
-            //Feed list
-            using (var soraContext = new SoraContext())
-            {
-                var sortedUsers = soraContext.Users.OrderByDescending(x => x.Exp).ToList();
-                var sortedShort = sortedUsers.Take((sortedUsers.Count < 50 ? sortedUsers.Count : 50)).ToList();
-                
-                for (int i = 0; i < sortedShort.Count; i++)
-                {
-                    var user = _client.GetUser(sortedShort[i].UserId);
-                    if (user == null)
-                    {
-                        sortedShort.RemoveAt(i);
-                        sortedUsers.RemoveAt(i);
-                        i--;
-                    }
-                }
-                for (int index = 0; index < (sortedShort.Count < 10 ? sortedShort.Count : 10); index++)
-                {
-                    var user = _client.GetUser(sortedShort[index].UserId);
-                    if (user == null)
-                    {
-                        index -= 1;
-                        continue;
-                    }
-                    eb.AddField(x =>
-                    {
-                        x.IsInline = false;
-                        x.Name =
-                            $"{index + 1}. {Utility.GiveUsernameDiscrimComb(user)}";
-                        x.Value =
-                            $"Lvl. {CalculateLevel(sortedShort[index].Exp)} \tEXP: {sortedShort[index].Exp}";
-                    });
-                }
-                eb.AddField(x =>
-                {
-                    int yourIndex = sortedUsers.FindIndex(y=> y.UserId == context.User.Id);
-                    x.IsInline = false;
-                    x.Name = $"Your Rank: {yourIndex + 1}";
-                    x.Value = $"Lvl. {CalculateLevel(sortedUsers[yourIndex].Exp)} \tEXP: {sortedUsers[yourIndex].Exp}";
-                });
-            }
-            */
             await context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: http://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
@@ -223,7 +124,7 @@ namespace SoraBot_v2.Services
                         Color = new Color(255, 204, 77),
                         Title = $"🏆 You leveled up! You are now level {currentLevel} \\ (•◡•) /"
                     };
-                    await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb);
+                    await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                 }
             }
         }

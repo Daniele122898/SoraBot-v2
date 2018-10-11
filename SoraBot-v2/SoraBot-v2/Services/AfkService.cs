@@ -30,7 +30,7 @@ namespace SoraBot_v2.Services
                 Color = Utility.GreenSuccessEmbed,
                 Title = $"{Utility.SuccessLevelEmoji[0]} {(updated ? "Your AFK status has been updated!" : "You are now set AFK")}"
             };
-            await context.Channel.SendMessageAsync("", embed: eb);
+            await context.Channel.SendMessageAsync("", embed: eb.Build());
         }
 
         public async Task ToggleAFK(SocketCommandContext context, string message, SoraContext soraContext)
@@ -59,7 +59,7 @@ namespace SoraBot_v2.Services
 
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                            "AFK has been removed"));
+                            "AFK has been removed").Build());
 
                 }
                 else
@@ -110,7 +110,7 @@ namespace SoraBot_v2.Services
                         };
 
                         await soraContext.SaveChangesAsync();
-                        await msg.Channel.SendMessageAsync("", embed: eb);
+                        await msg.Channel.SendMessageAsync("", embed: eb.Build());
                     }
                 }
             }

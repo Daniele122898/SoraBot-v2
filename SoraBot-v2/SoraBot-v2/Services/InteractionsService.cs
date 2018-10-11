@@ -134,7 +134,7 @@ namespace SoraBot_v2.Services
                         {
                             await context.Channel.SendMessageAsync("",
                                 embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                    "Failed to get image. Try another one."));
+                                    "Failed to get image. Try another one.").Build());
                             return;
                         }
 
@@ -173,7 +173,7 @@ namespace SoraBot_v2.Services
                             eb.Title = title;
                         }
                         
-                        await context.Channel.SendMessageAsync("", embed: eb);
+                        await context.Channel.SendMessageAsync("", embed: eb.Build());
                     }, builder =>
                         {
                             builder.AddParameter("remainder", typeof(string),
@@ -264,7 +264,7 @@ namespace SoraBot_v2.Services
             if (dbUser == null)
             {
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} has no Interactions yet!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(user)} has no Interactions yet!").Build());
                 return;
             }
             var eb = new EmbedBuilder()
@@ -337,7 +337,7 @@ namespace SoraBot_v2.Services
                 x.Value= $"{aff}/100 {icon}";
                 
             });
-            await context.Channel.SendMessageAsync("",false,eb);
+            await context.Channel.SendMessageAsync("",false,eb.Build());
         
         }
     }

@@ -44,7 +44,7 @@ namespace SoraBot_v2.Module
         {
             Random r = new Random();
             await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎱 "+ball[r.Next(ball.Length)]));
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎱 "+ball[r.Next(ball.Length)]).Build());
         }
         
         [Command("kawaii"), Alias("cute", "men", "man", "cuteness", "kawai"), Summary("What all men seek!")]
@@ -55,7 +55,7 @@ namespace SoraBot_v2.Module
                 ImageUrl = "https://i.imgur.com/gz7enYI.gif",
                 Color = Utility.PurpleEmbed
             };
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
 
 
@@ -73,19 +73,19 @@ namespace SoraBot_v2.Module
                     {
                         //win
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else if (botRps == "paper")
                     {
                         //Draw
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else
                     {
                         //lost
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                         
                     }
                     break;
@@ -95,19 +95,19 @@ namespace SoraBot_v2.Module
                     {
                         //lost
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else if (botRps == "paper")
                     {
                         //win
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else
                     {
                         //Draw
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     break;
                 case ("rock"):
@@ -116,24 +116,24 @@ namespace SoraBot_v2.Module
                     {
                         //Draw
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😐 It's a draw!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else if (botRps == "paper")
                     {
                         //lost
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😢 You lost!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     else
                     {
                         //win
                         await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`"));
+                            Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "😀 You won!").WithDescription($"Sora chose `{botRps.Humanize()}`").Build());
                     }
                     break;
                 default:
                     await Context.Channel.SendMessageAsync("", embed:Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must enter a valid RPS option"));
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must enter a valid RPS option").Build());
                     return;
             }
         }
@@ -143,7 +143,7 @@ namespace SoraBot_v2.Module
         {
             Random r = new Random();
             await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)));
+                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)).Build());
         }
 
         [Command("lenny"), Summary("Lenny's the Chat")]
@@ -167,7 +167,7 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "You need to specify at least one person to show the door to"));
+                        "You need to specify at least one person to show the door to").Build());
                 return;
             }
 
@@ -182,7 +182,7 @@ namespace SoraBot_v2.Module
                 Color = Utility.PurpleEmbed,
                 Description = $"**{showDoors}** 👉🚪"
             };
-            await ReplyAsync("", embed: eb);
+            await ReplyAsync("", embed: eb.Build());
         }
 
         [Command("google"), Summary("Googles shit for you")]
@@ -191,7 +191,7 @@ namespace SoraBot_v2.Module
             string search = google.Replace(" ", "%20");
             await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"{($"Results for \"{google}\"".Length > 200 ? $"Results for \"{google}".Remove(200)+"...\"":$"Results for \"{google}\"")}")
-                    .WithUrl($"https://lmgtfy.com/?q={search}"));
+                    .WithUrl($"https://lmgtfy.com/?q={search}").Build());
         }
         
     }

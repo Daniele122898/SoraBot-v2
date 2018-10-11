@@ -22,7 +22,7 @@ namespace SoraBot_v2.Module
             {
                 await Context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click here for Wiki")
-                        .WithUrl("https://github.com/Daniele122898/SoraBot-v2/wiki")); 
+                        .WithUrl("https://github.com/Daniele122898/SoraBot-v2/wiki").Build()); 
                 return;
             }
 
@@ -56,12 +56,12 @@ namespace SoraBot_v2.Module
             }
             if (found)
             {
-                await Context.Channel.SendMessageAsync("", embed: eb);
+                await Context.Channel.SendMessageAsync("", embed: eb.Build());
             }
             else
             {
                 await Context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find command!"));
+                    Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find command!").Build());
             }
         }
 

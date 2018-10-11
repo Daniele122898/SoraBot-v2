@@ -25,14 +25,14 @@ namespace SoraBot_v2.Module
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        $"You don't have permission to set the prefix! You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                        $"You don't have permission to set the prefix! You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                 return;
             }
             if (string.IsNullOrWhiteSpace(prefix))
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "Prefix can't be null or whitespace!"));
+                        "Prefix can't be null or whitespace!").Build());
                 return;
             }
 

@@ -50,7 +50,7 @@ namespace SoraBot_v2.Module
                 Utility.BlueInfoEmbed,
                 Utility.SuccessLevelEmoji[4],
                 $"💰 You have {amount.ToString()} Sora Coins."
-                ));
+                ).Build());
         }
         
     }

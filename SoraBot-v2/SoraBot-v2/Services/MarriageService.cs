@@ -39,18 +39,18 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
-                            $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of 1. Married to 0 users"));
+                            $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of 1. Married to 0 users").Build());
                     return;
                 }
                 int marryLimit = ((int)(Math.Floor((double)(ExpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
 
                 await context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
-                        $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of {marryLimit}. Married to {userDb.Marriages.Count} users"));
+                        $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of {marryLimit}. Married to {userDb.Marriages.Count} users").Build());
             }
         }
 
-        public async Task ShowMarriages(SocketCommandContext context, SocketUser user)
+        public async Task ShowMarriages(SocketCommandContext context, SocketUser user, bool advanced = false)
         {
             using (var _soraContext = new SoraContext())
             {
@@ -59,7 +59,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        $"{Utility.GiveUsernameDiscrimComb(user)} has no marriages yet!"));
+                        $"{Utility.GiveUsernameDiscrimComb(user)} has no marriages yet!").Build());
                     return;
                 }
 
@@ -81,11 +81,11 @@ namespace SoraBot_v2.Services
                         x.Name =
                             $"{(partner == null ? $"{marriage.PartnerId}" : $"{Utility.GiveUsernameDiscrimComb(partner)}")}";
                         x.IsInline = true;
-                        x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*";
+                        x.Value = $"*Since {marriage.Since.ToString("dd/MM/yyyy")}*{(advanced ? $"\nID: {marriage.PartnerId}":"")}";
                     });
                 }
 
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
 
         }
@@ -98,14 +98,14 @@ namespace SoraBot_v2.Services
                 if (userDb == null || userDb.Marriages.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have no marriages yet!"));
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You have no marriages yet!").Build());
                     return;
                 }
                 var result = userDb.Marriages.FirstOrDefault(x => x.PartnerId == Id);
                 if (result == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not married to that person"));
+                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You are not married to that person").Build());
                     return;
                 }
                 var parterDb = Utility.OnlyGetUser(Id, soraContext);
@@ -117,7 +117,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
 
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                    Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You have been successfully divorced"));
+                    Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "You have been successfully divorced").Build());
 
                 var divorced = context.Client.GetUser(Id);
                 if (divorced != null)
@@ -125,7 +125,7 @@ namespace SoraBot_v2.Services
                     await (await divorced.GetOrCreateDMChannelAsync()).SendMessageAsync("",
                         embed: Utility.ResultFeedback(
                             Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3],
-                            $"{Utility.GiveUsernameDiscrimComb(context.User)} has divorced you 😞"));
+                            $"{Utility.GiveUsernameDiscrimComb(context.User)} has divorced you 😞").Build());
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        $"You can't and shouldn't marry yourself ;_;"));
+                        $"You can't and shouldn't marry yourself ;_;").Build());
                 return;
             }
             using (var soraContext = new SoraContext())
@@ -153,14 +153,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(context.User)}, you already reached your marriage limit. Level up to increase it"));
+                            $"{Utility.GiveUsernameDiscrimComb(context.User)}, you already reached your marriage limit. Level up to increase it").Build());
                     return;
                 }
                 if (askedDb.Marriages.Count >= allowedMarriagesAsked)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} already reached their marriage limit. They must level up to increase the limit")); //TODO this sounds like shit. change it
+                            $"{Utility.GiveUsernameDiscrimComb(user)} already reached their marriage limit. They must level up to increase the limit").Build()); //TODO this sounds like shit. change it
                     return;
                 }
                 //Check for duplicate
@@ -169,13 +169,13 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You cannot marry someone twice!"));
+                            $"You cannot marry someone twice!").Build());
                     return;
                 }
                 //Proceed to ask for marriage
                 var msg = await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
-                        $"{Utility.GiveUsernameDiscrimComb(user)}, do you want to marry {Utility.GiveUsernameDiscrimComb(context.User)}? 💍"));
+                        $"{Utility.GiveUsernameDiscrimComb(user)}, do you want to marry {Utility.GiveUsernameDiscrimComb(context.User)}? 💍").Build());
 
                 Criteria<SocketMessage> criteria = new Criteria<SocketMessage>();
                 criteria.AddCriterion(new EnsureFromUserInChannel(user.Id, context.Channel.Id));
@@ -185,7 +185,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} didn't answer in time >.<"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} didn't answer in time >.<").Build());
                     return;
                 }
                 if ((!response.Content.Contains(" yes ", StringComparison.OrdinalIgnoreCase) &&
@@ -196,7 +196,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"{Utility.GiveUsernameDiscrimComb(user)} didn't answer with a yes ˚‧º·(˚ ˃̣̣̥᷄⌓˂̣̣̥᷅ )‧º·˚"));
+                            $"{Utility.GiveUsernameDiscrimComb(user)} didn't answer with a yes ˚‧º·(˚ ˃̣̣̥᷄⌓˂̣̣̥᷅ )‧º·˚").Build());
                     return;
                 }
                 //Answer contains a yes
@@ -215,7 +215,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed:
                 Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
-                    $"You are now married 💑").WithImageUrl("https://media.giphy.com/media/iQ5rGja9wWB9K/giphy.gif"));
+                    $"You are now married 💑").WithImageUrl("https://media.giphy.com/media/iQ5rGja9wWB9K/giphy.gif").Build());
         }
 
     }

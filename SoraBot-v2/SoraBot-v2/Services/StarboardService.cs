@@ -194,7 +194,7 @@ namespace SoraBot_v2.Services
                             try
                             {
                                 await socketMessageChannel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified"));
+                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified").Build());
                             }
                             catch (Exception e)
                             {
@@ -359,7 +359,7 @@ namespace SoraBot_v2.Services
             }
             try
             {
-                var postedMsg = await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}> \n", embed: eb);
+                var postedMsg = await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}> \n", embed: eb.Build());
                 return postedMsg.Id;
             }
             catch (Exception e)

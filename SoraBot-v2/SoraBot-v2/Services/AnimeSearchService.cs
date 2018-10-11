@@ -97,7 +97,7 @@ namespace SoraBot_v2.Services
                     if (!results.HasValues || results.Count == 0)
                     {
                         await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I couldn't find anything. Sorry"));
+                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "I couldn't find anything. Sorry").Build());
                         return;
                     }
                     int index;
@@ -119,27 +119,27 @@ namespace SoraBot_v2.Services
                             choose += $"**{i + 1}.** {((type == AnimeType.Anime || type == AnimeType.Manga) ? results[i]["title_english"] : $"{results[i]["name_first"]} {results[i]["name_last"]}")}\n";
                         }
                         ebC.Description = choose;
-                        var msg = await context.Channel.SendMessageAsync("", embed: ebC);
+                        var msg = await context.Channel.SendMessageAsync("", embed: ebC.Build());
                         var response =
                             await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                         await msg.DeleteAsync();
                         if (response == null)
                         {
                             await context.Channel.SendMessageAsync("",
-                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/"));
+                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/").Build());
                             return;
                         }
 
                         if (!Int32.TryParse(response.Content, out index))
                         {
                             await context.Channel.SendMessageAsync("",
-                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Only send the Index!"));
+                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Only send the Index!").Build());
                             return;
                         }
                         if (index > (results.Count) || index < 1)
                         {
                             await context.Channel.SendMessageAsync("",
-                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Index!"));
+                                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Invalid Index!").Build());
                             return;
                         }
                     }
@@ -155,24 +155,24 @@ namespace SoraBot_v2.Services
                         case AnimeType.Anime:
                             var animeData = JsonConvert.DeserializeObject<AnimeResult>(aniData);
                             await context.Channel.SendMessageAsync("",
-                                embed: animeData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)));
+                                embed: animeData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)).Build());
                             break;
                         case AnimeType.Char:
                             var charData = JsonConvert.DeserializeObject<CharacterResult>(aniData);
                             await context.Channel.SendMessageAsync("",
-                                embed: charData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)));
+                                embed: charData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)).Build());
                             break;
                         case AnimeType.Manga:
                             var mangaData = JsonConvert.DeserializeObject<MangaResult>(aniData);
                             await context.Channel.SendMessageAsync("",
-                                embed: mangaData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)));
+                                embed: mangaData.GetEmbed().WithFooter(Utility.RequestedBy(context.User)).Build());
                             break;
                     }
                 }
             }
             catch (Exception)
             {
-                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find anything. Sorry"));
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Couldn't find anything. Sorry").Build());
             }
         }
 

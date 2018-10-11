@@ -31,7 +31,7 @@ namespace SoraBot_v2.Module
                     if (guildDb.Tags.Count < 1)
                     {
                         await ReplyAsync("",
-                            embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Your Guild has no Tags yet!"));
+                            embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Your Guild has no Tags yet!").Build());
                         return;
                     }
 
@@ -89,7 +89,7 @@ namespace SoraBot_v2.Module
                                 Text = "Page 1/1"
                             }
                         };
-                        await Context.Channel.SendMessageAsync("", embed: eb);
+                        await Context.Channel.SendMessageAsync("", embed: eb.Build());
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace SoraBot_v2.Module
             var invoker = (SocketGuildUser)Context.User;
             if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(invoker))
             {
-                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to change these settings!"));
+                await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to change these settings!").Build());
                 return;
             }
 
@@ -119,14 +119,14 @@ namespace SoraBot_v2.Module
                 if (!Utility.CheckIfSoraAdminExists(Context.Guild) && !guildDb.RestrictTags)
                 {
                     await ReplyAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role does not exist! Please create it manually or use \"{Utility.GetGuildPrefix(Context.Guild, _soraContext)}createAdmin\""));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role does not exist! Please create it manually or use \"{Utility.GetGuildPrefix(Context.Guild, _soraContext)}createAdmin\"").Build());
                     return;
                 }
 
                 guildDb.RestrictTags = !guildDb.RestrictTags;
                 await _soraContext.SaveChangesAsync();
                 await ReplyAsync("",
-                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"{(guildDb.RestrictTags ? $"Set the Tag Restriction to TRUE!\n=> Users need the {Utility.SORA_ADMIN_ROLE_NAME} Role to create Tags" : $"Set the Tag Restriction to FALSE!\n=> Everyone can create Tags")}"));
+                    embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"{(guildDb.RestrictTags ? $"Set the Tag Restriction to TRUE!\n=> Users need the {Utility.SORA_ADMIN_ROLE_NAME} Role to create Tags" : $"Set the Tag Restriction to FALSE!\n=> Everyone can create Tags")}").Build());
             }
         }
 
@@ -148,7 +148,7 @@ namespace SoraBot_v2.Module
                             "Failed to add Tag! Make sure the format is \"tagName | tagValue\"").WithDescription("You can add attachments to your message which Sora will " +
                                                                                                                  "embed aswell!\n(if you add attachments you don't need to specify " +
                                                                                                                  "a value, you can still can tho.\nif you add no value you can simply " +
-                                                                                                                 "leave the \"|\" away and only give the tag name)"));
+                                                                                                                 "leave the \"|\" away and only give the tag name)").Build());
                     return;
                 }
             }

@@ -50,7 +50,8 @@ namespace SoraBot_v2.Services
                 if (results.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered Title").WithDescription("You can use SQL to search => Where you don't know what to write add `%`"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered Title")
+                            .WithDescription("You can use SQL to search => Where you don't know what to write add `%`").Build());
                     return;
                 }
 
@@ -68,7 +69,7 @@ namespace SoraBot_v2.Services
                 if (orderedList.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "There are no shared playlists yet! Add one!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "There are no shared playlists yet! Add one!").Build());
                     return;
                 }
 
@@ -137,7 +138,7 @@ namespace SoraBot_v2.Services
                         Text = "Page 1/1"
                     }
                 };
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
 
@@ -150,7 +151,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You have no shared playlists!"));
+                            "You have no shared playlists!").Build());
                     return;
                 }
 
@@ -168,7 +169,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You have no shared playlists!"));
+                            "You have no shared playlists!").Build());
                     return;
                 }
 
@@ -177,7 +178,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "URL not found in your shared playlists"));
+                            "URL not found in your shared playlists").Build());
                     return;
                 }
 
@@ -191,7 +192,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed:
                 Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                    "Successfully removed playlist"));
+                    "Successfully removed playlist").Build());
         }
 
         public async Task VotePlaylist(SocketCommandContext context, string url, bool vote)
@@ -203,7 +204,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            $"You need to be at least lvl {MIN_LEVEL} to vote on playlists!"));
+                            $"You need to be at least lvl {MIN_LEVEL} to vote on playlists!").Build());
                     return;
                 }
 
@@ -213,7 +214,7 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "There is no shared playlist with that Url!"));
+                            "There is no shared playlist with that Url!").Build());
                     return;
                 }
 
@@ -234,14 +235,14 @@ namespace SoraBot_v2.Services
                         playlistDb.Upvotes++;
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                                "Successfully UPVOTED playlist"));
+                                "Successfully UPVOTED playlist").Build());
                     }
                     else //DOWNVOTED
                     {
                         playlistDb.Downvotes++;
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                                "Successfully DOWNVOTED playlist"));
+                                "Successfully DOWNVOTED playlist").Build());
                     }
 
                     await soraContext.SaveChangesAsync();
@@ -252,7 +253,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "You already voted this playlist with this vote! You can change your vote though!"));
+                                "You already voted this playlist with this vote! You can change your vote though!").Build());
                         return;
                     }
                     voteDb.UpOrDown = vote;
@@ -263,7 +264,7 @@ namespace SoraBot_v2.Services
 
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                                "Successfully updated vote to UPVOTED!"));
+                                "Successfully updated vote to UPVOTED!").Build());
                     }
                     else//DOWNVOTE
                     {
@@ -272,7 +273,7 @@ namespace SoraBot_v2.Services
 
                         await context.Channel.SendMessageAsync("", embed:
                             Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
-                                "Successfully updated vote to DOWNVOTED!"));
+                                "Successfully updated vote to DOWNVOTED!").Build());
                     }
                     await soraContext.SaveChangesAsync();
                 }
@@ -318,7 +319,7 @@ namespace SoraBot_v2.Services
                 if (searchResult.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered tags"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Nothing found with entered tags").Build());
                     return;
                 }
 
@@ -382,7 +383,7 @@ namespace SoraBot_v2.Services
                             Text = "Page 1/1"
                         }
                     };
-                    await context.Channel.SendMessageAsync("", embed: eb);
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
                 }
             }
         }
@@ -395,20 +396,20 @@ namespace SoraBot_v2.Services
                 if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists").Build());
                     return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == url);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!").Build());
                     return;
                 }
                 if (shareResult.IsPrivate)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PRIVATE"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PRIVATE").Build());
                     return;
                 }
 
@@ -417,7 +418,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
 
                 await context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PRIVATE"));
+                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PRIVATE").Build());
 
             }
         }
@@ -430,20 +431,20 @@ namespace SoraBot_v2.Services
                 if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists").Build());
                     return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == url);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!").Build());
                     return;
                 }
                 if (!shareResult.IsPrivate)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PUBLIC"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already is set to PUBLIC").Build());
                     return;
                 }
 
@@ -452,7 +453,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
 
                 await context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PUBLIC"));
+                    Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Playlist is now PUBLIC").Build());
             }
         }
 
@@ -465,14 +466,14 @@ namespace SoraBot_v2.Services
                 if (userDb == null || userDb.ShareCentrals.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You have no playlists").Build());
                     return;
                 }
                 var shareResult = userDb.ShareCentrals.FirstOrDefault(x => x.ShareLink == shareUrl);
                 if (shareResult == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "No playlist found with that URL!").Build());
                     return;
                 }
 
@@ -498,14 +499,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`"));
+                            "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`").Build());
                     return;
                 }
                 if (betterTags.Count > 10)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Please dont exceed 10 tags!"));
+                            "Please dont exceed 10 tags!").Build());
                     return;
                 }
 
@@ -534,14 +535,14 @@ namespace SoraBot_v2.Services
                     x.Name = "Tags";
                     x.Value = joinedTags.Replace(";", " - ");
                 });
-                var msg = await context.Channel.SendMessageAsync("", embed: eb);
+                var msg = await context.Channel.SendMessageAsync("", embed: eb.Build());
 
                 var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
                 await msg.DeleteAsync();
                 if (response == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;").Build());
                     return;
                 }
 
@@ -552,12 +553,12 @@ namespace SoraBot_v2.Services
                     shareResult.Titel = title;
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully updated playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"));
+                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully updated playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧").Build());
                 }
                 else
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes! Discarded changes"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes! Discarded changes").Build());
                 }
 
             }
@@ -576,7 +577,7 @@ namespace SoraBot_v2.Services
                 return true;
 
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You reached your playlist limit. You gain another slot every 2 levels!"));
+                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You reached your playlist limit. You gain another slot every 2 levels!").Build());
             return false;
         }
 
@@ -589,7 +590,7 @@ namespace SoraBot_v2.Services
                 if (userDb == null || ExpService.CalculateLevel(userDb.Exp) < MIN_LEVEL)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least lvl {MIN_LEVEL} to share playlists!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You need to be at least lvl {MIN_LEVEL} to share playlists!").Build());
                     return;
                 }
 
@@ -599,7 +600,7 @@ namespace SoraBot_v2.Services
                 if (!shareUrl.StartsWith("https://hastebin.com/"))
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "The link must be a valid hastebin link!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "The link must be a valid hastebin link!").Build());
                     return;
                 }
 
@@ -609,7 +610,7 @@ namespace SoraBot_v2.Services
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
                                 "Must be an originaly exported sora or fredboat playlist!")
                             .WithDescription(
-                                $"Use `{Utility.GetGuildPrefix(context.Guild, soraContext)}export` when you have a Queue! This is to minimize errors."));
+                                $"Use `{Utility.GetGuildPrefix(context.Guild, soraContext)}export` when you have a Queue! This is to minimize errors.").Build());
                     return;
                 }
                 if (shareUrl.EndsWith(".fredboat"))
@@ -620,7 +621,7 @@ namespace SoraBot_v2.Services
                 if (soraContext.ShareCentrals.Any(x => x.ShareLink == shareUrl))
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already exists!"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Playlist already exists!").Build());
                     return;
                 }
                 string[] seperatedTags;
@@ -645,14 +646,14 @@ namespace SoraBot_v2.Services
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`"));
+                            "Add at least one Tag!").WithDescription("Tags must be added like this: `trap;edm;chill music;other`").Build());
                     return;
                 }
                 if (betterTags.Count > 10)
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "Please dont exceed 10 tags!"));
+                            "Please dont exceed 10 tags!").Build());
                     return;
                 }
                 string joinedTags = String.Join(";", betterTags);
@@ -688,7 +689,7 @@ namespace SoraBot_v2.Services
                     x.Value = $"{(isPrivate ? "Yes" : "No")}";
                 });
 
-                var msg = await context.Channel.SendMessageAsync("", embed: eb);
+                var msg = await context.Channel.SendMessageAsync("", embed: eb.Build());
 
                 var response = await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
 
@@ -696,7 +697,7 @@ namespace SoraBot_v2.Services
                 if (response == null)
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer in time ;_;").Build());
                     return;
                 }
 
@@ -715,12 +716,12 @@ namespace SoraBot_v2.Services
                     });
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully {(isPrivate ? "saved" : "shared")} playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"));
+                        Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully {(isPrivate ? "saved" : "shared")} playlist (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧").Build());
                 }
                 else
                 {
                     await context.Channel.SendMessageAsync("", embed:
-                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes! Discarded changes"));
+                        Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Didn't answer with y or yes! Discarded changes").Build());
                 }
             }
         }

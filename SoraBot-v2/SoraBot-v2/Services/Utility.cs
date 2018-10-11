@@ -212,7 +212,7 @@ namespace SoraBot_v2.Services
             if (!user.GuildPermissions.Has(GuildPermission.Administrator) && !IsSoraAdmin(user))
             {
                 await context.Channel.SendMessageAsync("", embed:ResultFeedback(
-                    RedFailiureEmbed, SuccessLevelEmoji[2], $"You need Administrator permissions or the {SORA_ADMIN_ROLE_NAME} role to do this!"));
+                    RedFailiureEmbed, SuccessLevelEmoji[2], $"You need Administrator permissions or the {SORA_ADMIN_ROLE_NAME} role to do this!").Build());
                 return false;
             }
             return true;
@@ -245,7 +245,7 @@ namespace SoraBot_v2.Services
                                 "This message was sent because he tried to post or edit something and lacked permissions. Thus either the " +
                                 "starboard, punish logs, User announcements (join/leave) or every functionality is malfunctioning!\n\n" +
                                 $"Guild Affected: {guild.Name} / {guild.Id}\n" +
-                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>"));
+                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>").Build());
                     _ownersNotified.Add(guild.OwnerId);
                 }
                 return false;

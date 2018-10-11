@@ -60,7 +60,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], "I don't have ban permissions!"));
+                            Utility.SuccessLevelEmoji[2], "I don't have ban permissions!").Build());
                         return false;
                     }
                     //Check user perms
@@ -68,7 +68,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], $"You don't have ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                            Utility.SuccessLevelEmoji[2], $"You don't have ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                         return false;
                     }
                     punishment = "ban";
@@ -79,7 +79,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], "I don't have kick permissions!"));
+                            Utility.SuccessLevelEmoji[2], "I don't have kick permissions!").Build());
                         return false;
                     }
                     //Check user perms
@@ -87,7 +87,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], $"You don't have kick permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                            Utility.SuccessLevelEmoji[2], $"You don't have kick permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                         return false;
                     }
                     punishment = "kick";
@@ -98,7 +98,7 @@ namespace SoraBot_v2.Services
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], $"You don't have kick or ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                            Utility.SuccessLevelEmoji[2], $"You don't have kick or ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                         return false;
                     }
                     punishment = "warn";
@@ -111,7 +111,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"You can't {punishment} somebody above you in the role hierarchy!"));
+                    Utility.SuccessLevelEmoji[2], $"You can't {punishment} somebody above you in the role hierarchy!").Build());
                 return false;
             }
             var soraHighestRole = sora.Roles.OrderByDescending(x => x.Position).FirstOrDefault();
@@ -119,7 +119,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"I can't {punishment} somebody above me in the role hierarchy!"));
+                    Utility.SuccessLevelEmoji[2], $"I can't {punishment} somebody above me in the role hierarchy!").Build());
                 return false;
             }
             return true;
@@ -136,14 +136,14 @@ namespace SoraBot_v2.Services
                 if (guildDb.PunishLogsId == channel.Id)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "This already is the punishlogs channel..."));
+                        Utility.SuccessLevelEmoji[2], "This already is the punishlogs channel...").Build());
                     return;
                 }
                 guildDb.PunishLogsId = channel.Id;
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], "Successfully set punishlogs channel to").WithDescription($"<#{channel.Id}>"));
+                Utility.SuccessLevelEmoji[0], "Successfully set punishlogs channel to").WithDescription($"<#{channel.Id}>").Build());
         }
 
         public async Task DeletePunishLogsChannel(SocketCommandContext context)
@@ -158,7 +158,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], "Successfully removed punishlogs channel"));
+                Utility.SuccessLevelEmoji[0], "Successfully removed punishlogs channel").Build());
         }
 
         public async Task KickUser(SocketCommandContext context, SocketGuildUser user, string reason)
@@ -174,14 +174,14 @@ namespace SoraBot_v2.Services
             catch (Exception)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!"));
+                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!").Build());
                 return;
             }
             //log
             bool logged = await Log(context.Guild, user, Case.Kick, context.User as SocketGuildUser, reason);
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully kicked user {Utility.GiveUsernameDiscrimComb(user)}")
-                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}{(logged ? "" : "\nThis action wasn't logged nor saved bcs the Punishlogs channel isn't set up!")}"));
+                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}{(logged ? "" : "\nThis action wasn't logged nor saved bcs the Punishlogs channel isn't set up!")}").Build());
         }
 
         public async Task BanUser(SocketCommandContext context, SocketGuildUser user, string reason)
@@ -197,13 +197,13 @@ namespace SoraBot_v2.Services
             catch (Exception)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!"));
+                    Utility.SuccessLevelEmoji[2], "Something went wrong :( I probably lack permissions!").Build());
                 return;
             }
             bool logged = await Log(context.Guild, user, Case.Ban, context.User as SocketGuildUser, reason);
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully banned user {Utility.GiveUsernameDiscrimComb(user)}")
-                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}{(logged ? "" : "\nThis action wasn't logged nor saved bcs the Punishlogs channel isn't set up!")}"));
+                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}{(logged ? "" : "\nThis action wasn't logged nor saved bcs the Punishlogs channel isn't set up!")}").Build());
         }
 
         public async Task<bool> PardonUser(SocketUser user, SocketGuild guild, SocketUser mod = null)
@@ -255,7 +255,7 @@ namespace SoraBot_v2.Services
                     eb.ThumbnailUrl = mod.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
                 }
 
-                await channel.SendMessageAsync("", embed: eb);
+                await channel.SendMessageAsync("", embed: eb.Build());
 
             }
             return true;
@@ -288,7 +288,7 @@ namespace SoraBot_v2.Services
                 x.Value = $"{amountDeleted} out of {initialAmount} were removed";
             });
 
-            await channel.SendMessageAsync("", embed: eb);
+            await channel.SendMessageAsync("", embed: eb.Build());
         }
 
         public async Task RemoveWarnings(SocketCommandContext context, SocketGuildUser user, int warnNr, bool all)
@@ -305,13 +305,13 @@ namespace SoraBot_v2.Services
                 if (channel == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Can't remove warnings without a punishlogs channel! Please set one up"));
+                        Utility.SuccessLevelEmoji[2], "Can't remove warnings without a punishlogs channel! Please set one up").Build());
                     return;
                 }
                 if (await Utility.CheckReadWritePerms(context.Guild, channel) == false)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Sora is missing crucial perms. Owner has been notified!"));
+                        Utility.SuccessLevelEmoji[2], "Sora is missing crucial perms. Owner has been notified!").Build());
                     return;
                 }
                 //search for warnings with him
@@ -321,14 +321,14 @@ namespace SoraBot_v2.Services
                     if (userCases == null || userCases.Count == 0)
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], "User has no logged warnings!"));
+                            Utility.SuccessLevelEmoji[2], "User has no logged warnings!").Build());
                         return;
                     }
                     int initialCount = userCases.Count;
                     userCases.ForEach(x => guildDb.Cases.Remove(x));
                     await soraContext.SaveChangesAsync();
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                        Utility.SuccessLevelEmoji[0], "Removed all warnings from user"));
+                        Utility.SuccessLevelEmoji[0], "Removed all warnings from user").Build());
                     await PostWarningRemovalLog(channel, user, context.User, userCases.Count, initialCount);
                     return;
                 }
@@ -336,14 +336,14 @@ namespace SoraBot_v2.Services
                 if (warning == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Couldn't find specified warning!"));
+                        Utility.SuccessLevelEmoji[2], "Couldn't find specified warning!").Build());
                     return;
                 }
                 int totalWarnings = guildDb.Cases.Count(x => x.UserId == user.Id && x.Type == Case.Warning);
                 guildDb.Cases.Remove(warning);
                 await soraContext.SaveChangesAsync();
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Removed specified warning"));
+                    Utility.SuccessLevelEmoji[0], "Removed specified warning").Build());
                 await PostWarningRemovalLog(channel, user, context.User, 1, totalWarnings);
             }
         }
@@ -362,7 +362,7 @@ namespace SoraBot_v2.Services
                 if (userCases == null || userCases.Count == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "User has no logged cases!"));
+                        Utility.SuccessLevelEmoji[2], "User has no logged cases!").Build());
                     return;
                 }
                 var eb = new EmbedBuilder()
@@ -410,7 +410,7 @@ namespace SoraBot_v2.Services
                                   $"*by {(mod == null ? "Undefined" : $"{Utility.GiveUsernameDiscrimComb(mod)}")}*";
                     });
                 }
-                await context.Channel.SendMessageAsync("", embed: eb);
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
 
@@ -424,7 +424,7 @@ namespace SoraBot_v2.Services
                 if (foundCase == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Couldn't find case"));
+                        Utility.SuccessLevelEmoji[2], "Couldn't find case").Build());
                     return;
                 }
                 //check if punishlogs channel exists
@@ -432,7 +432,7 @@ namespace SoraBot_v2.Services
                 if (channel == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "There is no punishlogs channel set up!"));
+                        Utility.SuccessLevelEmoji[2], "There is no punishlogs channel set up!").Build());
                     return;
                 }
 
@@ -440,7 +440,7 @@ namespace SoraBot_v2.Services
                 if (await Utility.CheckReadWritePerms(context.Guild, channel) == false)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Sora laggs major permissions. Owner was notified"));
+                        Utility.SuccessLevelEmoji[2], "Sora laggs major permissions. Owner was notified").Build());
                     return;
                 }
 
@@ -449,7 +449,7 @@ namespace SoraBot_v2.Services
                 if (msg == null)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2], "Log doesn't exist anymore!"));
+                        Utility.SuccessLevelEmoji[2], "Log doesn't exist anymore!").Build());
                     return;
                 }
 
@@ -465,7 +465,7 @@ namespace SoraBot_v2.Services
                     else
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                            Utility.SuccessLevelEmoji[2], "This is not your case! You can't update the reason!"));
+                            Utility.SuccessLevelEmoji[2], "This is not your case! You can't update the reason!").Build());
                         return;
                     }
                 }
@@ -478,7 +478,7 @@ namespace SoraBot_v2.Services
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed,
                             Utility.SuccessLevelEmoji[2],
-                            $"You don't have ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                            $"You don't have ban permissions nor the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                         return;
                     }
                     foundCase.ModId = mod.Id;
@@ -497,7 +497,7 @@ namespace SoraBot_v2.Services
                 await soraContext.SaveChangesAsync();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], $"Successfully updated reason on case {caseNr}"));
+                Utility.SuccessLevelEmoji[0], $"Successfully updated reason on case {caseNr}").Build());
         }
 
         public async Task WarnUser(SocketCommandContext context, SocketGuildUser user, string reason)
@@ -510,7 +510,7 @@ namespace SoraBot_v2.Services
             if (!logged)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "Can't warn without a punish logs channel! Please set one up!"));
+                    Utility.SuccessLevelEmoji[2], "Can't warn without a punish logs channel! Please set one up!").Build());
                 return;
             }
             int warnNr = 0;
@@ -522,7 +522,7 @@ namespace SoraBot_v2.Services
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully warned user {Utility.GiveUsernameDiscrimComb(user)}, this is his {warnNr} warning")
-                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}"));
+                .WithDescription($"{(string.IsNullOrWhiteSpace(reason) ? "*no reason added yet*" : reason)}").Build());
         }
 
         private EmbedBuilder CreateLogReason(int caseNr, Case modCase, string user, ulong userId, SocketGuildUser mod, string reason, int warnNr)
@@ -670,7 +670,7 @@ namespace SoraBot_v2.Services
                 }
                 //log final result
                 var eb = CreateLog(caseNr, modCase, user, guild, mod, reason, warnNr);
-                var msg = await channel.SendMessageAsync("", embed: eb);
+                var msg = await channel.SendMessageAsync("", embed: eb.Build());
                 guildDb.Cases.Add(new ModCase()
                 {
                     CaseNr = caseNr,

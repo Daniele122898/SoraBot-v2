@@ -63,7 +63,7 @@ namespace SoraBot_v2.Module
             if (!user.GuildPermissions.Has(GuildPermission.ManageMessages) && !Utility.IsSoraAdmin(user))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"You either need ManageMessages perms or the {Utility.SORA_ADMIN_ROLE_NAME} role!"));
+                    Utility.SuccessLevelEmoji[2], $"You either need ManageMessages perms or the {Utility.SORA_ADMIN_ROLE_NAME} role!").Build());
                 return;
             }
             //Check if sora has manageMessages perms
@@ -71,7 +71,7 @@ namespace SoraBot_v2.Module
             if (!sora.GuildPermissions.Has(GuildPermission.ManageMessages))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"Sore needs Manage Messages permissions!"));
+                    Utility.SuccessLevelEmoji[2], $"Sore needs Manage Messages permissions!").Build());
                 return;
             }
             if (amount > 500)
@@ -86,7 +86,7 @@ namespace SoraBot_v2.Module
             IEnumerable<IMessage> msgs = new List<IMessage>();
             try
             {
-                msgs = await Context.Channel.GetMessagesAsync(amount).Flatten();
+                msgs = await Context.Channel.GetMessagesAsync(amount).FlattenAsync();
             }
             catch (Exception e)
             {
@@ -95,7 +95,19 @@ namespace SoraBot_v2.Module
             try
             {
                 msgs = msgs.Except(msgs.Where(x => (DateTime.UtcNow - x.CreatedAt.DateTime).TotalDays > 13));
-                await Context.Channel.DeleteMessagesAsync(msgs);
+                if (Context.Channel is ITextChannel text)
+                {
+                    await text.DeleteMessagesAsync(msgs);
+                }
+                else
+                {
+                    await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Something went wrong :("
+                    ).Build());
+                    return;
+                }
             }
             catch (Exception e)
             {
@@ -104,7 +116,7 @@ namespace SoraBot_v2.Module
             int count = amount - (amount - msgs.Count());
 
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                Utility.SuccessLevelEmoji[0], $"Successfully removed {count} messages").WithDescription((count < amount ? "Discord allows bots to only bulk delete messages 2 weeks in the past." : "")));
+                Utility.SuccessLevelEmoji[0], $"Successfully removed {count} messages").WithDescription((count < amount ? "Discord allows bots to only bulk delete messages 2 weeks in the past." : "")).Build());
         }
 
         [Command("pardon"), Summary("Pardons a user and removes all his cases")]
@@ -117,11 +129,11 @@ namespace SoraBot_v2.Module
             if (await _modService.PardonUser(user, Context.Guild, Context.User))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0], "Successfully pardoned user"));
+                    Utility.SuccessLevelEmoji[0], "Successfully pardoned user").Build());
                 return;
             }
             await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                Utility.SuccessLevelEmoji[2], "Can't pardon user"));
+                Utility.SuccessLevelEmoji[2], "Can't pardon user").Build());
         }
 
         [Command("reason"), Summary("Updates the reason on a case")]
@@ -132,7 +144,7 @@ namespace SoraBot_v2.Module
             if (!int.TryParse(splitted[0], out caseNr))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], "Format is incorrect. Please follow the instructions!").WithDescription("the format is `caseNr YourReason`"));
+                    Utility.SuccessLevelEmoji[2], "Format is incorrect. Please follow the instructions!").WithDescription("the format is `caseNr YourReason`").Build());
                 return;
             }
             await _modService.AddReason(Context, caseNr, splitted[1]);

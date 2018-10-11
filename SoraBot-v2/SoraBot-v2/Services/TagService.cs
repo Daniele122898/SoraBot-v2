@@ -21,21 +21,21 @@ namespace SoraBot_v2.Services
             if (result == null)
             {
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"No tag was found with the name:").WithDescription($"{name}"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"No tag was found with the name:").WithDescription($"{name}").Build());
                 return;
             }
             //Check if creator or admin
             if (!admin && result.CreatorId != context.User.Id)
             {
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are neither Administrator nor the Creator of the Tag!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are neither Administrator nor the Creator of the Tag!").Build());
                 return;
             }
             //delete Tag
             guildDb.Tags.Remove(result);
             await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
-                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully removed!"));
+                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully removed!").Build());
         }
         
         public async Task CreateTag(SocketCommandContext context, SoraContext soraContext, string name, string value, bool forceEmbed)
@@ -45,7 +45,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "The Name cannot be Empty or White Space!"));
+                        "The Name cannot be Empty or White Space!").Build());
                 return;
             }
 
@@ -53,7 +53,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "The Name of a Tag cannot exceed 256 characters!"));
+                        "The Name of a Tag cannot exceed 256 characters!").Build());
                 return;
             }
 
@@ -61,7 +61,7 @@ namespace SoraBot_v2.Services
             {
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "No multi-line tag names!"));
+                        "No multi-line tag names!").Build());
                 return;
             }
             
@@ -75,7 +75,8 @@ namespace SoraBot_v2.Services
                     if (adminRole == null)
                     {
                         //HE MISSES THE ROLE SO HE CANT ADD SHIT :D
-                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"You don't have the {Utility.SORA_ADMIN_ROLE_NAME} role and thus can't create Tags!"));
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, 
+                            Utility.SuccessLevelEmoji[2], $"You don't have the {Utility.SORA_ADMIN_ROLE_NAME} role and thus can't create Tags!").Build());
                         return;
                     }
                 }
@@ -85,7 +86,7 @@ namespace SoraBot_v2.Services
             if (guildDb.Tags.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "A tag with that name already exists in this guild!"));
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "A tag with that name already exists in this guild!").Build());
                 return;
             }
             
@@ -127,7 +128,7 @@ namespace SoraBot_v2.Services
                 {
                     //NEEDS ATLEAST VALUE OR ATTACHMENT/PIC
                     await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "The Value of a Tag cannot be empty! Either add text or an Attachment to the message!"));
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "The Value of a Tag cannot be empty! Either add text or an Attachment to the message!").Build());
                     return;
                 }
             }
@@ -153,7 +154,7 @@ namespace SoraBot_v2.Services
                 CreatorId = context.User.Id, PictureAttachment = picAttachment, AttachmentString = (picAttachment ? picAttach: ""), ForceEmbed = forceEmbed});
             await soraContext.SaveChangesAsync();
             await context.Channel.SendMessageAsync("",
-                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully created!"));
+                embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], "Tag was successfully created!").Build());
         }
 
         public async Task FindAndDisplayTag(SocketCommandContext context, SoraContext soraContext, string name)
@@ -165,7 +166,7 @@ namespace SoraBot_v2.Services
             {
                 //didn't find the tag ;(
                 await context.Channel.SendMessageAsync("",
-                    embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"No tag was found with the name:").WithDescription($"{name}"));
+                    embed: Utility.ResultFeedback(Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], $"No tag was found with the name:").WithDescription($"{name}").Build());
                 return;
             }
             //show tag
@@ -198,7 +199,7 @@ namespace SoraBot_v2.Services
                 eb.ImageUrl = result.AttachmentString;
             }
 
-            await context.Channel.SendMessageAsync("", embed: eb);
+            await context.Channel.SendMessageAsync("", embed: eb.Build());
         }
     }
 }
