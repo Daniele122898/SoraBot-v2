@@ -80,10 +80,10 @@ namespace SoraBot_v2.Module
                 return;
             
             // since the command needs to be purged as well we add 1 to the total amount
-            if (amount > 0 && amount < 500)
-                amount++;
+            amount++;
+            
             //he has the perms to prune
-            IEnumerable<IMessage> msgs = new List<IMessage>();
+            IEnumerable<IMessage> msgs;
             try
             {
                 msgs = await Context.Channel.GetMessagesAsync(amount).FlattenAsync();
@@ -94,7 +94,7 @@ namespace SoraBot_v2.Module
             }
             try
             {
-                msgs = msgs.Except(msgs.Where(x => (DateTime.UtcNow - x.CreatedAt.DateTime).TotalDays > 13));
+                msgs = msgs.Where(x => (DateTime.UtcNow - x.CreatedAt.DateTime).TotalDays <= 13);
                 if (Context.Channel is ITextChannel text)
                 {
                     await text.DeleteMessagesAsync(msgs);
