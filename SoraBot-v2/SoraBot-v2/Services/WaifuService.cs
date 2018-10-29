@@ -267,6 +267,60 @@ namespace SoraBot_v2.Services
             }
         }
 
+        public async Task SellDupes(SocketCommandContext context)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                // check if user even has waifus
+                if (userdb == null || userdb.UserWaifus.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You have no waifus to sell! Open some WaifuBoxes!"
+                    ).Build());
+                    return;
+                }
+                // get all waifus that he has dupes of
+                var dupes = userdb.UserWaifus.Where(x => x.Count > 1).ToList();
+                // check if he has dupes
+                if (dupes.Count == 0)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You don't have any dupes at the moment."
+                    ).Build());
+                    return; 
+                }
+                // iterate through all the dupes
+                int totalWaifus = 0;
+                int totalCoins = 0;
+                foreach (var waifu in dupes)
+                {
+                    // remove the waifus
+                    int amount = waifu.Count - 1;
+                    totalWaifus += amount;
+                    waifu.Count -= amount;
+                    // calculate coins
+                    var w = soraContext.Waifus.FirstOrDefault(x => x.Id == waifu.WaifuId);
+                    int cash = GetWaifuQuickSellCost(w?.Rarity ?? 0) * amount;
+                    totalCoins += cash;
+                }
+                // add total coins to user
+                userdb.Money += totalCoins;
+                // save everything
+                await soraContext.SaveChangesAsync();
+                // report back to user
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"You successfully sold {totalCoins} Waifus for {totalCoins} Sora Coins!")
+                    .Build());
+            }
+        }
+
         public async Task QuickSellWaifus(SocketCommandContext context, int waifuId, int amount)
         {
             using (var soraContext = new SoraContext())

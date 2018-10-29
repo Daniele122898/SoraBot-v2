@@ -42,6 +42,12 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
+
+        [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have.")]
+        public async Task SellDupes()
+        {
+            await _waifuService.SellDupes(Context);
+        }
         
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
         public async Task QuickSell(string name, int amount)
