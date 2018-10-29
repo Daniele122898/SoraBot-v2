@@ -51,8 +51,10 @@ namespace SoraBot_v2.Services
         }
         
         private List<Waifu> _boxCache = new List<Waifu>();
+        private List<Waifu> _specialWaifu = new List<Waifu>();
 
         private int BOX_COST = 500;
+        private int SPECIAL_COST = 1200;
         private byte BOX_CARD_AMOUNT = 3;
         
         public void Initialize()
@@ -71,6 +73,13 @@ namespace SoraBot_v2.Services
                 {
                     // add each waifu * rarity amount to cache
                     int amount = GetRarityAmount(waifu.Rarity);
+                    // special waifus should not be added to normal pot
+                    if (amount == 0)
+                    {
+                        _specialWaifu.Add(waifu);
+                        continue;
+                    }
+                    // add normal waifus to normal pot
                     for (int i = 0; i < amount; i++)
                     {
                         _boxCache.Add(waifu);
@@ -443,6 +452,61 @@ namespace SoraBot_v2.Services
                 ).Build());
             }
         }
+
+        public async Task UnboxSpecialWaifu(SocketCommandContext context)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.GetOrCreateUser(context.User.Id, soraContext);
+                // check sora coins
+                if (userdb.Money < SPECIAL_COST)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"You don't have enough Sora Coins! You need {SPECIAL_COST} SC."
+                    ).Build());
+                    return;
+                }
+                // remove money
+                userdb.Money -= SPECIAL_COST;
+                // open box
+                var waifus = new List<Waifu>();
+                for (int i = 0; i < BOX_CARD_AMOUNT; i++)
+                {
+                    var waifu = GetRandomSpecialWaifu();
+                    waifus.Add(waifu);
+                    // add to user
+                    GiveWaifuToId(context.User.Id, waifu.Id, userdb);
+                }
+                // save already if smth down there fails at least he got everything.
+                await soraContext.SaveChangesAsync();
+                // show what he got
+                var ordered = waifus.OrderByDescending(x => x.Rarity).ToArray();
+                var eb = new EmbedBuilder()
+                {
+                    Title = "Congrats! You've got some nice waifus",
+                    Description = $"You opened a Halloween WaifuBox for {SPECIAL_COST} SC.",
+                    Footer = Utility.RequestedBy(context.User),
+                    Color = Utility.PurpleEmbed,
+                    ImageUrl = ordered[0].ImageUrl
+                };
+
+                foreach (var waifu in ordered)
+                {
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = true;
+                        x.Name = waifu.Name;
+                        x.Value = $"Rarity: {GetRarityString(waifu.Rarity)}\n" +
+                                  $"[Image Url]({waifu.ImageUrl})\n" +
+                                  $"*ID: {waifu.Id}*";
+                    });
+                }
+
+                await context.Channel.SendMessageAsync("", embed: eb.Build());
+            }
+        }
         
         public async Task UnboxWaifu(SocketCommandContext context)
         {
@@ -499,6 +563,11 @@ namespace SoraBot_v2.Services
             }
         }
 
+        private Waifu GetRandomSpecialWaifu()
+        {
+            return _specialWaifu[ThreadSafeRandom.ThisThreadsRandom.Next(0, _specialWaifu.Count)];
+        }
+
         private Waifu GetRandomFromBox()
         {
             return _boxCache[ThreadSafeRandom.ThisThreadsRandom.Next(0, _boxCache.Count)];
@@ -529,6 +598,8 @@ namespace SoraBot_v2.Services
                     return "Epic";
                 case WaifuRarity.UltimateWaifu:
                     return "Ultimate Waifu";
+                case WaifuRarity.Halloween:
+                    return "Halloween";
             }
             return "";
         }
@@ -547,6 +618,8 @@ namespace SoraBot_v2.Services
                     return 500;
                 case WaifuRarity.UltimateWaifu:
                     return 1500;
+                case WaifuRarity.Halloween:
+                    return 300;
             }
             return 0;
         }
@@ -565,6 +638,8 @@ namespace SoraBot_v2.Services
                     return WaifuRarity.Epic;
                 case 4:
                     return WaifuRarity.UltimateWaifu;
+                case 5:
+                    return WaifuRarity.Halloween;
             }
             return WaifuRarity.Common;
         }
@@ -583,6 +658,8 @@ namespace SoraBot_v2.Services
                         return 50;
                     case WaifuRarity.UltimateWaifu:
                         return 20;
+                    case WaifuRarity.Halloween:
+                        return 0;
             }
             return 0;
         }

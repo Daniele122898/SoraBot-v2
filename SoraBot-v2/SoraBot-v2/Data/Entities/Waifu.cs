@@ -5,7 +5,7 @@ namespace SoraBot_v2.Data.Entities.SubEntities
 {
     public enum WaifuRarity
     {
-        Common, Uncommon, Rare, Epic, UltimateWaifu
+        Common, Uncommon, Rare, Epic, UltimateWaifu, Halloween
     }
     
     public class Waifu

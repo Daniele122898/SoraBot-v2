@@ -30,6 +30,12 @@ namespace SoraBot_v2.Module
             await _waifuService.UnboxWaifu(Context);
         }
 
+        [Command("special"), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
+        public async Task SpecialWaifus()
+        {
+            await _waifuService.UnboxSpecialWaifu(Context);
+        }
+
         [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you or the specified user owns")]
         public async Task ShowMyWaifus(SocketUser userT = null)
         {
@@ -77,6 +83,7 @@ namespace SoraBot_v2.Module
         {
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
+        
         
         [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav", "favwaifu"), Summary("Sets your favorite waifu")]
         public async Task SetFavWaifu([Remainder] string name)
