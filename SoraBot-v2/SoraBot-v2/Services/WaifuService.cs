@@ -54,7 +54,7 @@ namespace SoraBot_v2.Services
         private List<Waifu> _specialWaifu = new List<Waifu>();
 
         private int BOX_COST = 500;
-        private int SPECIAL_COST = 1200;
+        private int SPECIAL_COST = 750;
         private byte BOX_CARD_AMOUNT = 3;
         
         public void Initialize()
