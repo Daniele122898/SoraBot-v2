@@ -59,6 +59,15 @@ namespace SoraBot_v2.Module
         public async Task QuickSell(string name, int amount = 1)
         {
             // if amount is omitted it will default to one
+            if (amount < 1)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Amount must be bigger than 0!")
+                    .Build());
+                return;
+            }
             int waifuId = 0;
             using (var soraContext = new SoraContext())
             {
@@ -82,6 +91,15 @@ namespace SoraBot_v2.Module
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
         public async Task QuickSell(int waifuId, int amount = 1)
         {
+            if (amount < 1)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Amount must be bigger than 0!")
+                    .Build());
+                return;
+            }
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
         
