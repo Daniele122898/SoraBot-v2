@@ -475,6 +475,16 @@ namespace SoraBot_v2.Services
                 // one special waifu
                 // this CANNOT be a dupe.
                 var wspecial = GetRandomSpecialWaifu(userdb);
+                // check if its null so he has ALL special waifus
+                if (wspecial == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"You already own ALL the available special waifus. Open normal boxes now."
+                    ).Build());
+                    return;
+                }
                 waifus.Add(wspecial);
                 // add to user
                 GiveWaifuToId(context.User.Id, wspecial.Id, userdb);
