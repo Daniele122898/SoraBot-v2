@@ -325,7 +325,7 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You successfully sold {totalCoins} Waifus for {totalCoins} Sora Coins!")
+                    $"You successfully sold {totalWaifus} Waifus for {totalCoins} Sora Coins!")
                     .Build());
             }
         }
