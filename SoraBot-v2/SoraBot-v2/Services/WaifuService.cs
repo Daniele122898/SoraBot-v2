@@ -472,9 +472,16 @@ namespace SoraBot_v2.Services
                 userdb.Money -= SPECIAL_COST;
                 // open box
                 var waifus = new List<Waifu>();
-                for (int i = 0; i < BOX_CARD_AMOUNT; i++)
+                // one special waifu
+                // this CANNOT be a dupe.
+                var wspecial = GetRandomSpecialWaifu(userdb);
+                waifus.Add(wspecial);
+                // add to user
+                GiveWaifuToId(context.User.Id, wspecial.Id, userdb);
+                // the others are normal waifus.
+                for (int i = 0; i < BOX_CARD_AMOUNT-1; i++)
                 {
-                    var waifu = GetRandomSpecialWaifu();
+                    var waifu = GetRandomFromBox();
                     waifus.Add(waifu);
                     // add to user
                     GiveWaifuToId(context.User.Id, waifu.Id, userdb);
@@ -563,9 +570,14 @@ namespace SoraBot_v2.Services
             }
         }
 
-        private Waifu GetRandomSpecialWaifu()
+        private Waifu GetRandomSpecialWaifu(User db)
         {
-            return _specialWaifu[ThreadSafeRandom.ThisThreadsRandom.Next(0, _specialWaifu.Count)];
+            // remove all Dupes from list
+            var specialListWithoutDupes = _specialWaifu.Where(y => db.UserWaifus.All(x => x.WaifuId != y.Id)).ToList();
+            // return null if he has all waifus so we can handle that case
+            if (specialListWithoutDupes.Count == 0) return null;
+            // otherwise give a random waifu of the remaining ones
+            return specialListWithoutDupes[ThreadSafeRandom.ThisThreadsRandom.Next(0, specialListWithoutDupes.Count)];
         }
 
         private Waifu GetRandomFromBox()
