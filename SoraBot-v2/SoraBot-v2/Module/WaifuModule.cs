@@ -24,13 +24,13 @@ namespace SoraBot_v2.Module
             await _waifuService.AddWaifu(Context, name, image, rarity);
         }
 
-        [Command("unbox"), Alias("waifu"), Summary("Unbox Waifus")]
+        [Command("unbox", RunMode = RunMode.Async), Alias("waifu"), Summary("Unbox Waifus")]
         public async Task UnboxWaifus()
         {
             await _waifuService.UnboxWaifu(Context);
         }
 
-        [Command("special"), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
+        [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
         public async Task SpecialWaifus()
         {
             await _waifuService.UnboxSpecialWaifu(Context);
@@ -56,8 +56,9 @@ namespace SoraBot_v2.Module
         }
         
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
-        public async Task QuickSell(string name, int amount)
+        public async Task QuickSell(string name, int amount = 1)
         {
+            // if amount is omitted it will default to one
             int waifuId = 0;
             using (var soraContext = new SoraContext())
             {
@@ -79,7 +80,7 @@ namespace SoraBot_v2.Module
         }
 
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
-        public async Task QuickSell(int waifuId, int amount)
+        public async Task QuickSell(int waifuId, int amount = 1)
         {
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
