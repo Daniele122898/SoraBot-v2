@@ -20,8 +20,8 @@
 <br>
 <hr/>
 <h2>Waifus</h2>
-<p>Now also with Waifu Boxes. You can not get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
-There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. Create the harem you always wanted!</p>
+<p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
+There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. <strong>Create the harem you always wanted!</strong></p>
 <img src="https://cdn.argonaut.pw/9mLsHwZ4XSIU2aaNy00d3QqnJNA8dROv.png" alt="Owned Waifus">
 <hr/>
 <h2>Economy</h2>
