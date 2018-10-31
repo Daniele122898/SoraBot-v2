@@ -232,6 +232,7 @@ namespace SoraBot_v2.Services
             var time = GetTime(message);
             using (var _soraContext = new SoraContext())
             {
+                // format was incorrect
                 if (time == 0)
                 {
                     await context.Channel.SendMessageAsync("",
@@ -241,12 +242,22 @@ namespace SoraBot_v2.Services
                             .WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins").Build());
                     return;
                 }
+                // no message to reminder 
                 if (time == -1)
                 {
                     await context.Channel.SendMessageAsync("",
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], 
                             "You need to add a message to your Reminder!").WithDescription($"Example: {Utility.GetGuildPrefix(context.Guild, _soraContext)}remind do this in 3 h 10mins").Build());
                     return;
+                } 
+                if (time < 0)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, 
+                                Utility.SuccessLevelEmoji[2], 
+                                "Amount of time cannot be negative!")
+                            .Build());
+                    return; 
                 }
 
                 var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
