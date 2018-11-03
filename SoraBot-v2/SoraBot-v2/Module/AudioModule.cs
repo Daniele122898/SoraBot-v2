@@ -7,6 +7,7 @@ namespace SoraBot_v2.Module
 {
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
+        /*
         private AudioService _audio;
 
         public AudioModule(AudioService service)
@@ -57,7 +58,19 @@ namespace SoraBot_v2.Module
         [Command("queue"), Alias("list")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
+
+        [Command("skip"), Alias("next")]
+        public async Task SkipAsync()
+            => await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));
         
-        
+        [Command("volume"), Alias("vol")]
+        public Task Volume(int vol)
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.Volume(Context.Guild.Id, vol))
+                .Build());
+    */
     }
+    
 }

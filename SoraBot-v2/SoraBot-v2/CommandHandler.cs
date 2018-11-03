@@ -150,7 +150,7 @@ namespace SoraBot_v2
                 MaxTries = 5,
                 Severity = LogSeverity.Verbose
             });
-            _services.GetRequiredService<AudioService>().Initialize(node);
+            _services.GetRequiredService<AudioService2>().Initialize(node);
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)

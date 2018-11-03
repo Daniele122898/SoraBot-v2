@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
+using SoraBot_v2.Data;
 using Victoria;
 using Victoria.Objects;
 using Victoria.Objects.Enums;
@@ -25,6 +25,7 @@ namespace SoraBot_v2.Services
             node.Stuck += NodeOnStuck;
             node.Finished += NodeOnFinished;
             node.Exception += NodeOnException;
+            node.Updated += NodeOnUpdated;
         }
 
         public async Task ConnectAsync(ulong guildId, IVoiceState state, IMessageChannel channel)
@@ -147,19 +148,152 @@ namespace SoraBot_v2.Services
 
         }
 
-        private Task NodeOnException(LavaPlayer arg1, LavaTrack arg2, string arg3)
+        public async Task<Embed> SkipAsync(ulong guildId, ulong userId)
         {
-            throw new System.NotImplementedException();
+            var player = _lavaNode.GetPlayer(guildId);
+            if(player?.CurrentTrack == null) return Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.MusicalNote,
+                "Not playing anything currently.").Build();
+
+            using (var soraContext = new SoraContext())
+            {
+                var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
+                if (!guildDb.NeedVotes)
+                {
+                    var track = player.CurrentTrack;
+                    player.Stop();
+                    return Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        $"Skipped: {track.Title}")
+                        .WithUrl(track.Uri.ToString()).Build();
+                }
+            }
+
+            var users = (await player.VoiceChannel.GetUsersAsync().FlattenAsync()).Count(x => !x.IsBot);
+            if (!_voteSkip.ContainsKey(guildId))
+                _voteSkip.TryAdd(guildId, (player.CurrentTrack, new List<ulong>()));
+            _voteSkip.TryGetValue(guildId, out var skipInfo);
+            
+            if(!skipInfo.votes.Contains(userId)) skipInfo.votes.Add(userId);
+            var perc = (int) Math.Round((100.0 * skipInfo.votes.Count) / users);
+            if(perc <= 50) return Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.SuccessLevelEmoji[3],
+                "More votes needed.").Build();
+            _voteSkip.TryUpdate(guildId, skipInfo, skipInfo);
+            var temp = player.CurrentTrack;
+            player.Stop();
+            return Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    $"Skipped: {temp.Title}")
+                .WithUrl(temp.Uri.ToString()).Build();
         }
 
-        private Task NodeOnFinished(LavaPlayer arg1, LavaTrack arg2, TrackReason arg3)
+        public string Volume(ulong guildId, int vol)
         {
-            throw new System.NotImplementedException();
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player == null) return "Not playing anything currently.";
+
+            try
+            {
+                if (vol < 1)
+                    vol = 1;
+                else if (vol > 100)
+                    vol = 100;
+                player.Volume(vol);
+                return $"Volume has been set to {vol}";
+            }
+            catch (ArgumentException e)
+            {
+                return e.Message;
+            }
         }
 
-        private Task NodeOnStuck(LavaPlayer arg1, LavaTrack arg2, long arg3)
+        private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
-            throw new System.NotImplementedException();
+            player.Dequeue(track);
+            player.Enqueue(track);
+            await player.TextChannel.SendMessageAsync(
+                "",embed:Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        $"Track {track.Title} threw an exception. Track has been requeued.")
+                    .WithDescription(string.IsNullOrWhiteSpace(arg3) ? "Unknown Exception" : arg3)
+                    .Build());
+        }
+        
+        private async Task NodeOnUpdated(LavaPlayer player, LavaTrack track, TimeSpan arg3)
+        {
+            if (player == null)
+                return;
+            // check if its not playing anything rn
+            if (player.CurrentTrack == null)
+            {
+                // so let's enqueue the new track
+                player.Queue.TryGetValue(player.Guild.Id, out var queue);
+                var next = queue?.First?.Value ?? queue?.First?.Next?.Value;
+                if (next == null)
+                {
+                    await _lavaNode.LeaveAsync(player.Guild.Id);
+                    await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                            Utility.BlueInfoEmbed,
+                            Utility.MusicalNote,
+                            "Queue Completed!")
+                        .Build());
+                    return;
+                }
+                
+                player.Play(next);
+                await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        $"Now Playing: {next.Title}")
+                    .WithUrl(next.Uri.ToString())
+                    .Build());
+            }
+        }
+
+        private async Task NodeOnFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
+        {
+            if (player == null)
+                return;
+            player.Dequeue(track);
+            player.Queue.TryGetValue(player.Guild.Id, out var queue);
+            var nextTrack = queue.Count == 0 ? null : queue.First?.Value ?? queue.First?.Next?.Value;
+            if (nextTrack == null)
+            {
+                await _lavaNode.LeaveAsync(player.Guild.Id);
+                await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        "Queue Completed!")
+                    .Build());
+                return;
+            }
+
+            player.Play(nextTrack);
+            await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    $"Now Playing: {nextTrack.Title}")
+                .WithUrl(nextTrack.Uri.ToString())
+                .Build());
+        }
+
+        private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
+        {
+            player.Dequeue(track);
+            player.Enqueue(track);
+            await player.TextChannel.SendMessageAsync(
+                "", embed:Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        $"Track {track.Title} got stuck: {arg3}. Track has been requeued.")
+                    .WithUrl(track.Uri.ToString())
+                    .Build());
         }
     }
 }
