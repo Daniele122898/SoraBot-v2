@@ -41,6 +41,8 @@ namespace SoraBot_v2.Services
             "✅","⚠","❌","ℹ",""
         };
 
+        public static string MusicalNote = "🎵";
+
         private static readonly List<ulong> _ownersNotified = new List<ulong>();
         
         #region Gifs

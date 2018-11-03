@@ -32,10 +32,32 @@ namespace SoraBot_v2.Module
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0],
+                    Utility.MusicalNote,
                     $"{(info.enqued ? "Enqueued" : "Playing")}: [{info.track.Length.ToString(@"mm\:ss")}] - **{info.track.Title}**")
                 .WithUrl(info.track.Uri.ToString())
                 .Build());
         }
+
+        [Command("pause")]
+        public Task Pause()
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.Pause(Context.Guild.Id))
+                .Build());
+        
+        [Command("resume")]
+        public Task Resume()
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.Resume(Context.Guild.Id))
+                .Build());
+
+        [Command("queue"), Alias("list")]
+        public Task Queue()
+            => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
+        
+        
     }
 }

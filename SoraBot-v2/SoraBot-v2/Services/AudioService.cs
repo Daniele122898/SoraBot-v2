@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
 using Victoria;
 using Victoria.Objects;
 using Victoria.Objects.Enums;
@@ -68,6 +70,82 @@ namespace SoraBot_v2.Services
 
         public async Task<string> DisconnectAsync(ulong guildId)
             => await _lavaNode.LeaveAsync(guildId) ? "Disconnected." : "Not connected to any voice channels.";
+
+        public string Pause(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if(player?.CurrentTrack == null) return "Not playing anything currently.";
+            player.Pause();
+            return $"Paused: {player.CurrentTrack.Title}";
+        }
+
+        public string Resume(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if(player?.CurrentTrack == null) return "Not playing anything currently.";
+            player.Resume();
+            return $"Resumed: {player.CurrentTrack.Title}";
+        }
+
+        public Embed DisplayQueue(ulong guildId, SocketUser user, IMessageChannel channel)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if(player?.CurrentTrack == null) return Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.MusicalNote,
+                "Not playing anything currently.").Build();
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = $"{Utility.MusicalNote} Queue",
+                Footer = Utility.RequestedBy(user),
+            };
+            
+            // first show currently playing track
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = $"Now playing by {player.CurrentTrack.Author}";
+                x.Value =
+                    $"[{player.CurrentTrack.Length.ToString(@"mm\:ss")}] - **[{player.CurrentTrack.Title}]({player.CurrentTrack.Uri})**";
+            });
+
+            var queue = player.Queue[guildId];
+
+            if (queue == null || queue.Count == 0) return eb.Build();
+            
+
+            for (int i = 0; i < (player.Queue.Count <10 ? queue.Count : 10); i++)
+            {
+                var track = queue.ElementAt(i);
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = $"#{i+1} by {track.Author}";
+                    x.Value =
+                        $"[{track.Length.ToString(@"mm\:ss")}] - **[{track.Title}]({track.Uri})**";
+                });
+            }
+            
+            // get total length
+            TimeSpan span = new TimeSpan();
+
+            foreach (var track in queue)
+            {
+                span = span.Add(track.Length);
+            }
+
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = $"{queue.Count} songs in queue";
+                x.Value = $"[{span.ToString(@"hh\:mm\:ss")}] total playtime";
+            });
+
+            return eb.Build();
+
+        }
 
         private Task NodeOnException(LavaPlayer arg1, LavaTrack arg2, string arg3)
         {
