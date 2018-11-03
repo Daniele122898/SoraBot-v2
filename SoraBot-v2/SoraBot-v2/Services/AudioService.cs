@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Victoria;
@@ -42,6 +44,26 @@ namespace SoraBot_v2.Services
                 Utility.SuccessLevelEmoji[0],
                 $"Connected to {state.VoiceChannel}.")
                 .Build());
+        }
+
+        public async Task<(LavaTrack track, bool enqued)> PlayAsync(ulong guildId, string query)
+        {
+            // if url get that otherwise search yt
+            var search = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute)
+                ? await _lavaNode.GetTracksAsync(new Uri(query))
+                : await _lavaNode.SearchYouTubeAsync(query);
+
+            // get first track
+            var track = search.Tracks.FirstOrDefault();
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player.CurrentTrack != null)
+            {
+                player.Enqueue(track);
+                return (track, true);
+            }
+            
+            player.Play(track);
+            return (track, false);
         }
 
         public async Task<string> DisconnectAsync(ulong guildId)
