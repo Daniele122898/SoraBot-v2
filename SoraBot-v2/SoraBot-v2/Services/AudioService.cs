@@ -105,7 +105,7 @@ namespace SoraBot_v2.Services
             }
 
             double percentageDone = (100.0 / player.CurrentTrack.Length.TotalSeconds) *
-                                    player.CurrentTrack.Position.TotalSeconds;
+                                    player.Position.TotalSeconds;
 
             int rounded = (int) Math.Floor(percentageDone / 10);
             string progress = "";
@@ -121,14 +121,14 @@ namespace SoraBot_v2.Services
             return Utility.ResultFeedback(
                 Utility.BlueInfoEmbed,
                 Utility.MusicalNote,
-                $"Currently playing by ${player.CurrentTrack.Author}")
+                $"Currently playing by {player.CurrentTrack.Author}")
                 .WithDescription($"**[{player.CurrentTrack.Title}]({player.CurrentTrack.Uri})**")
                 .AddField(x =>
                 {
                     x.IsInline = false;
                     x.Name = "Progress";
                     x.Value =
-                        $"[{player.CurrentTrack.Position.ToString(@"mm\:ss")}] {progress} [{player.CurrentTrack.Length.ToString(@"mm\:ss")}]";
+                        $"[{player.Position.ToString(@"mm\:ss")}] {progress} [{player.CurrentTrack.Length.ToString(@"mm\:ss")}]";
                 })
                 .Build();    
         }
@@ -183,7 +183,7 @@ namespace SoraBot_v2.Services
             }
             
             // also add currently playing song
-            span = span.Add(player.CurrentTrack.Length.Subtract(player.CurrentTrack.Position));
+            span = span.Add(player.CurrentTrack.Length.Subtract(player.Position));
 
             eb.AddField(x =>
             {
@@ -275,33 +275,7 @@ namespace SoraBot_v2.Services
         
         private async Task NodeOnUpdated(LavaPlayer player, LavaTrack track, TimeSpan arg3)
         {
-            if (player == null)
-                return;
-            // check if its not playing anything rn
-            if (player.CurrentTrack == null)
-            {
-                // so let's enqueue the new track
-                player.Queue.TryGetValue(player.Guild.Id, out var queue);
-                var next = queue?.First?.Value ?? queue?.First?.Next?.Value;
-                if (next == null)
-                {
-                    await _lavaNode.LeaveAsync(player.Guild.Id);
-                    await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
-                            Utility.BlueInfoEmbed,
-                            Utility.MusicalNote,
-                            "Queue Completed!")
-                        .Build());
-                    return;
-                }
-                
-                player.Play(next);
-                await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
-                        Utility.BlueInfoEmbed,
-                        Utility.MusicalNote,
-                        $"Now Playing: {next.Title}")
-                    .WithUrl(next.Uri.ToString())
-                    .Build());
-            }
+            // TODO internal counter for more accurate measurement of time passed.
         }
 
         private async Task NodeOnFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
