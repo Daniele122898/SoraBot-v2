@@ -7,7 +7,6 @@ namespace SoraBot_v2.Module
 {
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
-        /*
         private AudioService _audio;
 
         public AudioModule(AudioService service)
@@ -70,7 +69,10 @@ namespace SoraBot_v2.Module
                     Utility.MusicalNote,
                     _audio.Volume(Context.Guild.Id, vol))
                 .Build());
-    */
+
+        [Command("nowplaying"), Alias("now playing", "np")]
+        public Task Np()
+            => ReplyAsync("", embed: _audio.NowPlaying(Context.Guild.Id));
     }
     
 }

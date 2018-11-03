@@ -88,6 +88,51 @@ namespace SoraBot_v2.Services
             return $"Resumed: {player.CurrentTrack.Title}";
         }
 
+        public Embed NowPlaying(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if(player?.CurrentTrack == null) return Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.MusicalNote,
+                "Not playing anything currently.").Build();
+
+            if (player.CurrentTrack.IsStream)
+            {
+                return Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    "Cannot display more info of a stream").Build();
+            }
+
+            double percentageDone = (100.0 / player.CurrentTrack.Length.TotalSeconds) *
+                                    player.CurrentTrack.Position.TotalSeconds;
+
+            int rounded = (int) Math.Floor(percentageDone / 10);
+            string progress = "";
+            for (int i = 0; i < 10; i++)
+            {
+                if (i == rounded) {
+                    progress += " :red_circle: ";
+                    continue;
+                }
+                progress += "▬";
+            }
+
+            return Utility.ResultFeedback(
+                Utility.BlueInfoEmbed,
+                Utility.MusicalNote,
+                $"Currently playing by ${player.CurrentTrack.Author}")
+                .WithDescription($"**[{player.CurrentTrack.Title}]({player.CurrentTrack.Uri})**")
+                .AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "Progress";
+                    x.Value =
+                        $"[{player.CurrentTrack.Position.ToString(@"mm\:ss")}] {progress} [{player.CurrentTrack.Length.ToString(@"mm\:ss")}]";
+                })
+                .Build();    
+        }
+
         public Embed DisplayQueue(ulong guildId, SocketUser user, IMessageChannel channel)
         {
             var player = _lavaNode.GetPlayer(guildId);
@@ -136,6 +181,9 @@ namespace SoraBot_v2.Services
             {
                 span = span.Add(track.Length);
             }
+            
+            // also add currently playing song
+            span = span.Add(player.CurrentTrack.Length.Subtract(player.CurrentTrack.Position));
 
             eb.AddField(x =>
             {

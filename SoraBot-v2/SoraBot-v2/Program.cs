@@ -159,7 +159,6 @@ namespace SoraBot_v2
 
             services.AddSingleton<Lavalink>();
             services.AddSingleton<AudioService>();
-            services.AddSingleton<AudioService2>();
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
             services.AddSingleton(_banService);
