@@ -12,6 +12,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
+using Victoria;
 
 namespace SoraBot_v2
 {
@@ -32,6 +33,7 @@ namespace SoraBot_v2
         private readonly GuildCountUpdaterService _guildCount;
         private BanService _banService;
         private InteractionsService _interactionsService;
+        private Lavalink _lavalink;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -91,8 +93,10 @@ namespace SoraBot_v2
         }
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
-            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, BanService banService, InteractionsService interactionsService)
+            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, 
+            SelfAssignableRolesService selfService, AnnouncementService announcementService,
+            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, 
+            BanService banService, InteractionsService interactionsService, Lavalink lavalink)
         {
             _client = client;
             _commands = commandService;
@@ -106,6 +110,7 @@ namespace SoraBot_v2
             _guildCount = guildUpdate;
             _banService = banService;
             _interactionsService = interactionsService;
+            _lavalink = lavalink;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -125,6 +130,27 @@ namespace SoraBot_v2
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
+            
+            // Ready
+            _client.Ready += ClientOnReady;
+        }
+
+        private async Task ClientOnReady()
+        {
+            SentryService.Install(_client);
+            // setup lavalink
+            var node = await _lavalink.ConnectAsync(_client, new LavaConfig()
+            {
+                Authorization = ConfigService.GetConfigData("lavalinkpw"),
+                Endpoint = new Endpoint
+                {
+                    Port = Int32.Parse(ConfigService.GetConfigData("lavalinkport")),
+                    Host = ConfigService.GetConfigData("lavalinkip")
+                },
+                MaxTries = 5,
+                Severity = LogSeverity.Verbose
+            });
+            _services.GetRequiredService<AudioService>().Initialize(node);
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -144,7 +170,7 @@ namespace SoraBot_v2
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _services = provider;
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
             // create interactions
             await _interactionsService.AddOtherCommands(_commands);
         }
