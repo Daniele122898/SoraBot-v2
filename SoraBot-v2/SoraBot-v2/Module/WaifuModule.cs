@@ -33,7 +33,12 @@ namespace SoraBot_v2.Module
         [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
         public async Task SpecialWaifus()
         {
-            await _waifuService.UnboxSpecialWaifu(Context);
+            await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2],
+                    "There are no special waifus available right now.")
+                .Build());
+            // await _waifuService.UnboxSpecialWaifu(Context);
         }
 
         [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you or the specified user owns")]
