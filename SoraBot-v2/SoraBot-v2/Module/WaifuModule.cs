@@ -24,10 +24,21 @@ namespace SoraBot_v2.Module
             await _waifuService.AddWaifu(Context, name, image, rarity);
         }
 
-        [Command("unbox"), Alias("waifu"), Summary("Unbox Waifus")]
+        [Command("unbox", RunMode = RunMode.Async), Alias("waifu"), Summary("Unbox Waifus")]
         public async Task UnboxWaifus()
         {
             await _waifuService.UnboxWaifu(Context);
+        }
+
+        [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
+        public async Task SpecialWaifus()
+        {
+            await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2],
+                    "There are no special waifus available right now.")
+                .Build());
+            // await _waifuService.UnboxSpecialWaifu(Context);
         }
 
         [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you or the specified user owns")]
@@ -42,10 +53,26 @@ namespace SoraBot_v2.Module
         {
             await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
+
+        [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have.")]
+        public async Task SellDupes()
+        {
+            await _waifuService.SellDupes(Context);
+        }
         
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
-        public async Task QuickSell(string name, int amount)
+        public async Task QuickSell(string name, int amount = 1)
         {
+            // if amount is omitted it will default to one
+            if (amount < 1)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Amount must be bigger than 0!")
+                    .Build());
+                return;
+            }
             int waifuId = 0;
             using (var soraContext = new SoraContext())
             {
@@ -67,10 +94,20 @@ namespace SoraBot_v2.Module
         }
 
         [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
-        public async Task QuickSell(int waifuId, int amount)
+        public async Task QuickSell(int waifuId, int amount = 1)
         {
+            if (amount < 1)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Amount must be bigger than 0!")
+                    .Build());
+                return;
+            }
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
+        
         
         [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav", "favwaifu"), Summary("Sets your favorite waifu")]
         public async Task SetFavWaifu([Remainder] string name)
