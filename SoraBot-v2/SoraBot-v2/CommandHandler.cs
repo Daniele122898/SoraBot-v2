@@ -148,7 +148,8 @@ namespace SoraBot_v2
                     Host = ConfigService.GetConfigData("lavalinkip")
                 },
                 MaxTries = 5,
-                Severity = LogSeverity.Verbose
+                Severity = LogSeverity.Verbose,
+                BufferSize = 512
             });
             _services.GetRequiredService<AudioService>().Initialize(node);
         }

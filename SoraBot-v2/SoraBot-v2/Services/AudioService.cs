@@ -41,7 +41,6 @@ namespace SoraBot_v2.Services
             }
 
             var player = await _lavaNode.JoinAsync(state.VoiceChannel, channel);
-            player.Queue.TryAdd(guildId, new LinkedList<LavaTrack>());
             await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed,
                 Utility.SuccessLevelEmoji[0],
@@ -157,7 +156,7 @@ namespace SoraBot_v2.Services
                     $"[{player.CurrentTrack.Length.ToString(@"mm\:ss")}] - **[{player.CurrentTrack.Title}]({player.CurrentTrack.Uri})**";
             });
 
-            var queue = player.Queue[guildId];
+            var queue = player.Queue;
 
             if (queue == null || queue.Count == 0) return eb.Build();
             
@@ -203,6 +202,8 @@ namespace SoraBot_v2.Services
                 Utility.BlueInfoEmbed,
                 Utility.MusicalNote,
                 "Not playing anything currently.").Build();
+            
+            
 
             using (var soraContext = new SoraContext())
             {
@@ -210,7 +211,7 @@ namespace SoraBot_v2.Services
                 if (!guildDb.NeedVotes)
                 {
                     var track = player.CurrentTrack;
-                    player.Stop();
+                    player.Skip();
                     return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
@@ -232,7 +233,7 @@ namespace SoraBot_v2.Services
                 "More votes needed.").Build();
             _voteSkip.TryUpdate(guildId, skipInfo, skipInfo);
             var temp = player.CurrentTrack;
-            player.Stop();
+            player.Skip();
             return Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
@@ -282,9 +283,11 @@ namespace SoraBot_v2.Services
         {
             if (player == null)
                 return;
+            if (reason != TrackReason.Finished || reason != TrackReason.LoadFailed)
+                return;
             player.Dequeue(track);
-            player.Queue.TryGetValue(player.Guild.Id, out var queue);
-            var nextTrack = queue.Count == 0 ? null : queue.First?.Value ?? queue.First?.Next?.Value;
+            var queue = player.Queue;
+            var nextTrack = queue.Count == 0 ? null : queue.First?.Value;
             if (nextTrack == null)
             {
                 await _lavaNode.LeaveAsync(player.Guild.Id);

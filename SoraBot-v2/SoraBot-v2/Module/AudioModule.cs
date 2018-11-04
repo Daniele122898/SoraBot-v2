@@ -14,7 +14,7 @@ namespace SoraBot_v2.Module
             _audio = service;
         }
 
-        [Command("join")]
+        [Command("join", RunMode = RunMode.Async)]
         public Task Join() 
             => _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
 
@@ -26,7 +26,7 @@ namespace SoraBot_v2.Module
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
 
-        [Command("play"), Alias("add")]
+        [Command("play", RunMode = RunMode.Async), Alias("add")]
         public async Task PlayAsync([Remainder] string query)
         {
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
@@ -58,7 +58,7 @@ namespace SoraBot_v2.Module
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
 
-        [Command("skip"), Alias("next")]
+        [Command("skip", RunMode = RunMode.Async), Alias("next")]
         public async Task SkipAsync()
             => await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));
         
