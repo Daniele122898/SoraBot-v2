@@ -53,7 +53,7 @@ namespace SoraBot_v2.Services
         {
             // if url get that otherwise search yt
             var search = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute)
-                ? await _lavaNode.GetTracksAsync(new Uri(query))
+                ? await _lavaNode.GetTracksAsync(query)
                 : await _lavaNode.SearchYouTubeAsync(query);
 
             // get first track
