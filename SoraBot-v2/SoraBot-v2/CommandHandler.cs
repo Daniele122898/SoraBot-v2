@@ -149,7 +149,7 @@ namespace SoraBot_v2
                 },
                 MaxTries = 5,
                 Severity = LogSeverity.Verbose,
-                BufferSize = 512
+                BufferSize = 1024
             });
             _services.GetRequiredService<AudioService>().Initialize(node);
         }

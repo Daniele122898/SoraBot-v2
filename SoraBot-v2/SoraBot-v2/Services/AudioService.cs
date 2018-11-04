@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -212,6 +213,8 @@ namespace SoraBot_v2.Services
                 {
                     var track = player.CurrentTrack;
                     player.Skip();
+                    if(player.CurrentTrack != null)
+                        player.Dequeue(player.CurrentTrack);
                     return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
@@ -234,6 +237,8 @@ namespace SoraBot_v2.Services
             _voteSkip.TryUpdate(guildId, skipInfo, skipInfo);
             var temp = player.CurrentTrack;
             player.Skip();
+            if(player.CurrentTrack != null)
+                player.Dequeue(player.CurrentTrack);
             return Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
