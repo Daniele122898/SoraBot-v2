@@ -64,7 +64,6 @@ namespace SoraBot_v2.Services
                 player.Enqueue(track);
                 return (track, true);
             }
-            
             player.Play(track);
             return (track, false);
         }
@@ -214,12 +213,12 @@ namespace SoraBot_v2.Services
                 var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
                 if (!guildDb.NeedVotes)
                 {
-                    var track = player.CurrentTrack;
-                    player.Skip();
+                    var track = player.Skip();
+
                     return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
-                        $"Skipped: {track.Title}")
+                        $"Now playing: {track.Title}")
                         .WithUrl(track.Uri.ToString()).Build();
                 }
             }
@@ -289,8 +288,10 @@ namespace SoraBot_v2.Services
                 return;
             if (reason != TrackReason.Finished || reason != TrackReason.LoadFailed)
                 return;
-            var queue = player.Queue;
-            var nextTrack = queue.Count == 0 ? null : queue.Dequeue();
+            
+            // player.Remove(track);
+            
+            var nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
             if (nextTrack == null)
             {
                 await _lavaNode.LeaveAsync(player.Guild.Id);
