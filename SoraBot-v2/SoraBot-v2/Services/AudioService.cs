@@ -160,24 +160,27 @@ namespace SoraBot_v2.Services
             var queue = player.Queue;
 
             if (queue == null || queue.Count == 0) return eb.Build();
-            
 
-            for (int i = 0; i < (player.Queue.Count <10 ? queue.Count : 10); i++)
+
+            int count = 0;
+            foreach (var track in queue.Items)
             {
-                var track = queue.ElementAt(i);
                 eb.AddField(x =>
                 {
                     x.IsInline = false;
-                    x.Name = $"#{i+1} by {track.Author}";
+                    x.Name = $"#{count+1} by {track.Author}";
                     x.Value =
                         $"[{track.Length.ToString(@"mm\:ss")}] - **[{track.Title}]({track.Uri})**";
                 });
+
+                count++;
+                if (count >= 10) break;
             }
-            
+
             // get total length
             TimeSpan span = new TimeSpan();
 
-            foreach (var track in queue)
+            foreach (var track in queue.Items)
             {
                 span = span.Add(track.Length);
             }
@@ -213,8 +216,6 @@ namespace SoraBot_v2.Services
                 {
                     var track = player.CurrentTrack;
                     player.Skip();
-                    if(player.CurrentTrack != null)
-                        player.Dequeue(player.CurrentTrack);
                     return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
@@ -237,8 +238,6 @@ namespace SoraBot_v2.Services
             _voteSkip.TryUpdate(guildId, skipInfo, skipInfo);
             var temp = player.CurrentTrack;
             player.Skip();
-            if(player.CurrentTrack != null)
-                player.Dequeue(player.CurrentTrack);
             return Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
@@ -268,7 +267,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
-            player.Dequeue(track);
+            player.Dequeue();
             player.Enqueue(track);
             await player.TextChannel.SendMessageAsync(
                 "",embed:Utility.ResultFeedback(
@@ -290,9 +289,8 @@ namespace SoraBot_v2.Services
                 return;
             if (reason != TrackReason.Finished || reason != TrackReason.LoadFailed)
                 return;
-            player.Dequeue(track);
             var queue = player.Queue;
-            var nextTrack = queue.Count == 0 ? null : queue.First?.Value;
+            var nextTrack = queue.Count == 0 ? null : queue.Dequeue();
             if (nextTrack == null)
             {
                 await _lavaNode.LeaveAsync(player.Guild.Id);
@@ -315,7 +313,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
         {
-            player.Dequeue(track);
+            player.Dequeue();
             player.Enqueue(track);
             await player.TextChannel.SendMessageAsync(
                 "", embed:Utility.ResultFeedback(
