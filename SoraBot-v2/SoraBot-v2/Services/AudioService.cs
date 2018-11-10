@@ -82,6 +82,28 @@ namespace SoraBot_v2.Services
 
         public EmbedBuilder PlayerStats(string avatarUrl, SocketUser requestor)
         {
+            
+            long FormatRamValue(long d)
+            {
+                while (d > 1000)
+                {
+                    d /= 1000;
+                }
+                return d;
+            }
+
+            string FormatRamUnit(long d)
+            {
+                var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB" };
+                var unitCount = 0;
+                while (d > 1000)
+                {
+                    d /= 1000;
+                    unitCount++;
+                }
+                return units[unitCount];
+            }
+            
             EmbedBuilder eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
@@ -100,7 +122,7 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = "RAM usage";
-                x.Value = $"{_lavaNode.Statistics.RamUsed} / {_lavaNode.Statistics.RamAllocated}";
+                x.Value = $"{FormatRamValue(_lavaNode.Statistics.RamUsed):f2} {FormatRamUnit(_lavaNode.Statistics.RamUsed)} / {FormatRamValue(_lavaNode.Statistics.RamAllocated):f2} {FormatRamUnit(_lavaNode.Statistics.RamAllocated)}";
             });
             eb.AddField(x =>
             {
@@ -112,7 +134,7 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = "LavaNode CPU Usage";
-                x.Value = $"{_lavaNode.Statistics.CpuLavalinkLoad}%";
+                x.Value = $"{(_lavaNode.Statistics.CpuLavalinkLoad*100):f2}%";
             });
 
             return eb;
