@@ -151,7 +151,8 @@ namespace SoraBot_v2.Services
                 player.Enqueue(result.track);
                 queued = true;
             }
-            player.Play(result.track);
+            else
+                player.Play(result.track);
             
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
