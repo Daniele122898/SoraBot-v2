@@ -34,6 +34,7 @@ namespace SoraBot_v2
         private BanService _banService;
         private InteractionsService _interactionsService;
         private Lavalink _lavalink;
+        private AudioService _audioService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -96,7 +97,7 @@ namespace SoraBot_v2
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, 
             SelfAssignableRolesService selfService, AnnouncementService announcementService,
             ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, 
-            BanService banService, InteractionsService interactionsService, Lavalink lavalink)
+            BanService banService, InteractionsService interactionsService, Lavalink lavalink, AudioService audioService)
         {
             _client = client;
             _commands = commandService;
@@ -111,6 +112,7 @@ namespace SoraBot_v2
             _banService = banService;
             _interactionsService = interactionsService;
             _lavalink = lavalink;
+            _audioService = audioService;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -133,6 +135,34 @@ namespace SoraBot_v2
             
             // Ready
             _client.Ready += ClientOnReady;
+            
+            // lavalink shit
+            _lavalink.Log += LavalinkOnLog;
+            
+        }
+
+        private Task LavalinkOnLog(LogMessage msg)
+        {
+            switch (msg.Severity)
+            {
+                case LogSeverity.Critical:
+                case LogSeverity.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case LogSeverity.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case LogSeverity.Info:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case LogSeverity.Verbose:
+                case LogSeverity.Debug:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    break;
+            }
+            Console.WriteLine($"{DateTime.Now,-19} [{msg.Severity,8}] {msg.Source}: {msg.Message} {msg.Exception}");
+            Console.ResetColor();
+            return Task.CompletedTask;
         }
 
         private async Task ClientOnReady()
@@ -148,10 +178,12 @@ namespace SoraBot_v2
                     Host = ConfigService.GetConfigData("lavalinkip")
                 },
                 MaxTries = 5,
-                Severity = LogSeverity.Verbose,
+                Severity = LogSeverity.Info,
                 BufferSize = 2048
             });
-            _services.GetRequiredService<AudioService>().Initialize(node);
+            _audioService.Initialize(node, _client.CurrentUser.Id);
+            // voice shit
+            _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)

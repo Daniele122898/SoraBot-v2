@@ -64,6 +64,11 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
+        [Command("msys"), Alias("musicsys")]
+        public Task Msys()
+            => ReplyAsync("",
+                embed: _audio.PlayerStats(Context.Client.CurrentUser.GetAvatarUrl(), Context.User).Build());        
+
         [Command("pause")]
         public Task Pause()
             => ReplyAsync("", embed: Utility.ResultFeedback(
