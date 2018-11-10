@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
 using Victoria;
 using Victoria.Objects;
 using Victoria.Objects.Enums;
+using Discord.Addons.Interactive;
 
 namespace SoraBot_v2.Services
 {
@@ -16,7 +18,13 @@ namespace SoraBot_v2.Services
     {
 
         private LavaNode _lavaNode;
+        private InteractiveService _interactive;
         private readonly ConcurrentDictionary<ulong, (LavaTrack track, List<ulong> votes)> _voteSkip;
+
+        public AudioService(InteractiveService service)
+        {
+            _interactive = service;
+        }
         
         public void Initialize(LavaNode node)
         {
@@ -48,23 +56,142 @@ namespace SoraBot_v2.Services
                 .Build());
         }
 
-        public async Task<(LavaTrack track, bool enqued)> PlayAsync(ulong guildId, string query)
+        private void loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
         {
-            // if url get that otherwise search yt
-            var search = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute)
-                ? await _lavaNode.GetTracksAsync(query)
-                : await _lavaNode.SearchYouTubeAsync(query);
+            // load in playlist
+            foreach (LavaTrack track in tracks)
+            {
+                try
+                {
+                    if (player.CurrentTrack != null)
+                        player.Enqueue(track);
+                    else
+                        player.Play(track);
+                }
+                catch
+                {
+                    continue;
+                }
+            }         
+        }
 
-            // get first track
-            var track = search.Tracks.FirstOrDefault();
-            var player = _lavaNode.GetPlayer(guildId);
+        private async Task<(LavaTrack track, string reason)> GetSongFromSelect(SocketCommandContext context, LavaResult search)
+        {
+             // now lets build the embed to ask the user what to use
+            EmbedBuilder eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = "Top Search Results",
+                Description = "Send index of the track you want.",
+                Footer = Utility.RequestedBy(context.User)
+            };
+
+            int maxCount = (search.Tracks.Count() < 10 ? search.Tracks.Count() : 10);
+            int count = 1;
+
+            foreach (LavaTrack track in search.Tracks)
+            {
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = $"#{count} by {track.Author}";
+                    x.Value = $"[{track.Length.ToString(@"mm\:ss")}] - **[{track.Title}]({track.Uri})**";
+                });
+
+                count++;
+                if (count >= maxCount) break;
+            }
+            
+            var msg = await context.Channel.SendMessageAsync("", embed: eb.Build());
+            var response =
+                await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
+            await msg.DeleteAsync();
+            if (response == null)
+                return (null, $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/");
+            
+            if (!Int32.TryParse(response.Content, out var index))
+                return (null, "Only send the Index!");
+
+            if (index > maxCount || index < 1)
+                return (null, "Invalid Index!");
+
+            LavaTrack finalTrack = search.Tracks.ElementAt(index);
+            return (finalTrack, null);
+        }
+
+        public async Task YoutubeSearch(SocketCommandContext context, string query)
+        {
+            var search = await _lavaNode.SearchYouTubeAsync(query);
+            if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Couldn't find anything.")
+                    .Build());
+                return;
+            }
+
+            var result = await GetSongFromSelect(context, search);
+
+            if (result.track == null)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed, 
+                    Utility.SuccessLevelEmoji[2], 
+                    result.reason)
+                    .Build());
+                return;
+            }
+            
+            var player = _lavaNode.GetPlayer(context.Guild.Id);
+            bool queued = false;
             if (player.CurrentTrack != null)
             {
-                player.Enqueue(track);
-                return (track, true);
+                player.Enqueue(result.track);
+                queued = true;
             }
-            player.Play(track);
-            return (track, false);
+            player.Play(result.track);
+            
+            await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.MusicalNote,
+                    $"{(queued ? "Enqueued" : "Playing")}: [{result.track.Length.ToString(@"mm\:ss")}] - **{result.track.Title}**")
+                .WithUrl(result.track.Uri.ToString())
+                .Build());
+        }
+
+        public async Task<(LavaTrack track, bool enqued, string name, int num)> PlayAsync(ulong guildId, string query)
+        {
+            // if url get that otherwise search yt
+            bool isLink = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute);
+            
+            var search = isLink
+                ? await _lavaNode.GetTracksAsync(query)
+                : await _lavaNode.SearchYouTubeAsync(query);
+            
+            if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
+            {
+                return (null, false, null, 0);
+            }
+
+            if (!isLink || search.Tracks.Count() == 1)
+            {
+                // get first track
+                var track = search.Tracks.FirstOrDefault();
+                var player = _lavaNode.GetPlayer(guildId);
+                if (player.CurrentTrack != null)
+                {
+                    player.Enqueue(track);
+                    return (track, true, null, 1);
+                }
+                player.Play(track);
+                return (track, false, null, 1);
+            }
+            
+            // get playlist
+            loadPlaylist(_lavaNode.GetPlayer(guildId), search.Tracks);
+            return (null, false, search.PlaylistInfo.Name, search.Tracks.Count());
         }
 
         public async Task<string> DisconnectAsync(ulong guildId)
@@ -204,8 +331,16 @@ namespace SoraBot_v2.Services
                 Utility.BlueInfoEmbed,
                 Utility.MusicalNote,
                 "Not playing anything currently.").Build();
-            
-            
+
+            if (player.Queue.Count == 0)
+            {
+                player.Stop();
+                return Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    "The Queue is empty. Player has been stopped.")
+                    .Build();
+            }
 
             using (var soraContext = new SoraContext())
             {

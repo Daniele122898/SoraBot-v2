@@ -26,15 +26,37 @@ namespace SoraBot_v2.Module
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
 
-        [Command("play"), Alias("add")]
+        [Command("yt", RunMode = RunMode.Async), Alias("youtube")]
+        public async Task YtSearch(string query)
+            => await _audio.YoutubeSearch(Context, query);            
+
+        [Command("play", RunMode = RunMode.Async), Alias("add")]
         public async Task PlayAsync([Remainder] string query)
         {
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
+            if (info.num == 0)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Couldn't find anything.")
+                    .Build());
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(info.name))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.GreenSuccessEmbed,
+                        Utility.MusicalNote,
+                        $"{(info.enqued ? "Enqueued" : "Playing")}: [{info.track.Length.ToString(@"mm\:ss")}] - **{info.track.Title}**")
+                    .WithUrl(info.track.Uri.ToString())
+                    .Build());
+                return;
+            }
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.MusicalNote,
-                    $"{(info.enqued ? "Enqueued" : "Playing")}: [{info.track.Length.ToString(@"mm\:ss")}] - **{info.track.Title}**")
-                .WithUrl(info.track.Uri.ToString())
+                    $"Loaded {info.name} with {info.num} Songs.")
                 .Build());
         }
 
