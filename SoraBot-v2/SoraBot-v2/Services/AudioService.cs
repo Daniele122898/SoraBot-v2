@@ -119,9 +119,9 @@ namespace SoraBot_v2.Services
             return (finalTrack, null);
         }
 
-        public async Task YoutubeSearch(SocketCommandContext context, string query)
+        public async Task YoutubeOrSoundCloudSearch(SocketCommandContext context, string query, bool youtube)
         {
-            var search = await _lavaNode.SearchYouTubeAsync(query);
+            var search = youtube ? await _lavaNode.SearchYouTubeAsync(query) : await _lavaNode.SearchSoundCloudAsync(query);
             if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(

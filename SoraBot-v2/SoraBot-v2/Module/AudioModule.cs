@@ -25,10 +25,14 @@ namespace SoraBot_v2.Module
                     Utility.SuccessLevelEmoji[3],
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
+        
+        [Command("sc", RunMode = RunMode.Async), Alias("soundcloud")]
+        public async Task ScSearch(string query)
+            => await _audio.YoutubeOrSoundCloudSearch(Context, query, false);      
 
         [Command("yt", RunMode = RunMode.Async), Alias("youtube")]
         public async Task YtSearch(string query)
-            => await _audio.YoutubeSearch(Context, query);            
+            => await _audio.YoutubeOrSoundCloudSearch(Context, query, true);            
 
         [Command("play", RunMode = RunMode.Async), Alias("add")]
         public async Task PlayAsync([Remainder] string query)
