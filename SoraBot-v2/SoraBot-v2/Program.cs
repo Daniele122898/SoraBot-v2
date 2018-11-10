@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Services;
+using Victoria;
 
 namespace SoraBot_v2
 {
@@ -97,13 +98,6 @@ namespace SoraBot_v2
             serviceProvider.GetRequiredService<RatelimitingService>().SetTimer();
 
 
-            //Set up an event handler to execute some state-reliant startup tasks
-            _client.Ready += async () =>
-            {
-                SentryService.Install(_client);
-            };
-            
-
             //Connect to Discord
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
@@ -163,6 +157,8 @@ namespace SoraBot_v2
             //// Disabled by Catherine Renelle - Memory leak fix
             ////services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
 
+            services.AddSingleton<Lavalink>();
+            services.AddSingleton<AudioService>();
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
             services.AddSingleton(_banService);

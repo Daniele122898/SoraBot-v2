@@ -153,7 +153,6 @@ namespace SoraBot_v2.Module
                     guildDb.IsDjRestricted = false;
                     await _soraContext.SaveChangesAsync();
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!").Build());
-                    await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!").Build());
                     return;
                 }
                 //Restrict them

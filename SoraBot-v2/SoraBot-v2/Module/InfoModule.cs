@@ -289,7 +289,7 @@ namespace SoraBot_v2.Module
                         ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
                         Footer = Utility.RequestedBy(Context.User),
                         Title = $"{Utility.SuccessLevelEmoji[3]} **Sora Shard Sys Info**",
-                        Url = "http://git.argus.moe/serenity/SoraBot-v2",
+                        Url = "https://github.com/Daniele122898/SoraBot-v2",
                         Description = "These stats are limited to the shard you're running on"
                     };
                     eb.AddField((x) =>
