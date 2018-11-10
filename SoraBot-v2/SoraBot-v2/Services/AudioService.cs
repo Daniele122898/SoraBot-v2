@@ -48,6 +48,16 @@ namespace SoraBot_v2.Services
             return $"Cleared Queue. Removed {songs} Songs";
         }
 
+        public EmbedBuilder PlayerStats()
+        {
+            EmbedBuilder eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = $"{Utility.SuccessLevelEmoji[3]} LavaNode Stats (Shard {Utility.SHARD_ID})"
+                
+            };
+        }
+
         public async Task ConnectAsync(ulong guildId, IVoiceState state, IMessageChannel channel)
         {
             if (state.VoiceChannel == null)

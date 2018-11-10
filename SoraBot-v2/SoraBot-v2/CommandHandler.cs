@@ -64,7 +64,7 @@ namespace SoraBot_v2
                         string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
                         await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
                             .WithDescription($"I'm glad you invited me over :)\n" +
-                                             $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n" +
+                                             $"You can find the [list of commands and help here](https://github.com/Daniele122898/SoraBot-v2/wiki)\n" +
                                              $"To restrict tag creation and Sora's mod functions you must create\n" +
                                              $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
                                              $"tags or use Sora's mod functionality. You can make him create one with: " +
