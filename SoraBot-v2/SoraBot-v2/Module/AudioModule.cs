@@ -84,6 +84,14 @@ namespace SoraBot_v2.Module
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
 
+        [Command("clear"), Alias("clearqueue")]
+        public Task ClearQueue()
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.ClearQueue(Context.Guild.Id))
+                .Build());
+        
         [Command("skip"), Alias("next")]
         public async Task SkipAsync()
             => await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));

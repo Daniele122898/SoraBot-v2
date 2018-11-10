@@ -36,6 +36,18 @@ namespace SoraBot_v2.Services
             node.Updated += NodeOnUpdated;
         }
 
+        public string ClearQueue(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player == null)
+                return "Not playing anything currently.";
+            if (player.Queue.Count == 0)
+                return "Queue already empty";
+            int songs = player.Queue.Count;
+            player.Queue.Clear();
+            return $"Cleared Queue. Removed {songs} Songs";
+        }
+
         public async Task ConnectAsync(ulong guildId, IVoiceState state, IMessageChannel channel)
         {
             if (state.VoiceChannel == null)
@@ -401,13 +413,11 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
-            player.Dequeue();
-            player.Enqueue(track);
             await player.TextChannel.SendMessageAsync(
                 "",embed:Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
-                        $"Track {track.Title} threw an exception. Track has been requeued.")
+                        $"Track {track.Title} threw an exception. Track has been removed.")
                     .WithDescription(string.IsNullOrWhiteSpace(arg3) ? "Unknown Exception" : arg3)
                     .Build());
         }
@@ -416,12 +426,15 @@ namespace SoraBot_v2.Services
         {
             // TODO internal counter for more accurate measurement of time passed.
         }
+        
+        private bool ShouldPlayNext(TrackReason reason)
+            => reason == TrackReason.Finished || reason == TrackReason.LoadFailed;
 
         private async Task NodeOnFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
         {
             if (player == null)
                 return;
-            if (reason != TrackReason.Finished || reason != TrackReason.LoadFailed)
+            if (!ShouldPlayNext(reason))
                 return;
             
             // player.Remove(track);
@@ -449,13 +462,11 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
         {
-            player.Dequeue();
-            player.Enqueue(track);
             await player.TextChannel.SendMessageAsync(
                 "", embed:Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
-                        $"Track {track.Title} got stuck: {arg3}. Track has been requeued.")
+                        $"Track {track.Title} got stuck: {arg3}. Track has been removed.")
                     .WithUrl(track.Uri.ToString())
                     .Build());
         }
