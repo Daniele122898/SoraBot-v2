@@ -46,8 +46,3 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <h3>Rewards & Engagement</h3>
 <p>Sora also has many tools to keep your member base engaged. You can reward users Roles for gaining EXP in the Guild which is earned by texting and being active. With that give them access to custom channels and more.</p>
 <hr/>
-
-## Live Stats
-<p align="center">
-	<img src="https://discordbots.org/api/widget/270931284489011202.png" alt="Discord Bots">
-</p>
