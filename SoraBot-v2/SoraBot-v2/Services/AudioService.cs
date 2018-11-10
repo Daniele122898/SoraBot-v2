@@ -268,6 +268,8 @@ namespace SoraBot_v2.Services
 
         public async Task<(LavaTrack track, bool enqued, string name, int num)> PlayAsync(ulong guildId, string query)
         {
+            if (query.StartsWith("<") && query.EndsWith(">"))
+                query = query.TrimStart('<').TrimEnd('>');
             // if url get that otherwise search yt
             bool isLink = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute);
             
