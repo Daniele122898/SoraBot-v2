@@ -115,7 +115,7 @@ namespace SoraBot_v2.Services
             if (index > maxCount || index < 1)
                 return (null, "Invalid Index!");
 
-            LavaTrack finalTrack = search.Tracks.ElementAt(index);
+            LavaTrack finalTrack = search.Tracks.ElementAt(index-1);
             return (finalTrack, null);
         }
 
