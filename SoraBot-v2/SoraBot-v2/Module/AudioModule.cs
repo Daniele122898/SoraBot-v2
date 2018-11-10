@@ -27,11 +27,11 @@ namespace SoraBot_v2.Module
                 .Build());
         
         [Command("sc", RunMode = RunMode.Async), Alias("soundcloud")]
-        public async Task ScSearch(string query)
+        public async Task ScSearch([Remainder] string query)
             => await _audio.YoutubeOrSoundCloudSearch(Context, query, false);      
 
         [Command("yt", RunMode = RunMode.Async), Alias("youtube")]
-        public async Task YtSearch(string query)
+        public async Task YtSearch([Remainder] string query)
             => await _audio.YoutubeOrSoundCloudSearch(Context, query, true);            
 
         [Command("play", RunMode = RunMode.Async), Alias("add")]
