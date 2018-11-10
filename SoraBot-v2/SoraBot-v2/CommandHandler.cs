@@ -12,6 +12,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
+using Victoria;
 
 namespace SoraBot_v2
 {
@@ -32,6 +33,8 @@ namespace SoraBot_v2
         private readonly GuildCountUpdaterService _guildCount;
         private BanService _banService;
         private InteractionsService _interactionsService;
+        private Lavalink _lavalink;
+        private AudioService _audioService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -62,7 +65,7 @@ namespace SoraBot_v2
                         string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
                         await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
                             .WithDescription($"I'm glad you invited me over :)\n" +
-                                             $"You can find the [list of commands and help here](http://git.argus.moe/serenity/SoraBot-v2/wikis/home)\n" +
+                                             $"You can find the [list of commands and help here](https://github.com/Daniele122898/SoraBot-v2/wiki)\n" +
                                              $"To restrict tag creation and Sora's mod functions you must create\n" +
                                              $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
                                              $"tags or use Sora's mod functionality. You can make him create one with: " +
@@ -91,8 +94,10 @@ namespace SoraBot_v2
         }
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
-            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, SelfAssignableRolesService selfService, AnnouncementService announcementService,
-            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, BanService banService, InteractionsService interactionsService)
+            AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, 
+            SelfAssignableRolesService selfService, AnnouncementService announcementService,
+            ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, 
+            BanService banService, InteractionsService interactionsService, Lavalink lavalink, AudioService audioService)
         {
             _client = client;
             _commands = commandService;
@@ -106,6 +111,8 @@ namespace SoraBot_v2
             _guildCount = guildUpdate;
             _banService = banService;
             _interactionsService = interactionsService;
+            _lavalink = lavalink;
+            _audioService = audioService;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -125,6 +132,58 @@ namespace SoraBot_v2
             //mod Service
             _client.UserBanned += _modService.ClientOnUserBanned;
             _client.UserUnbanned += _modService.ClientOnUserUnbanned;
+            
+            // Ready
+            _client.Ready += ClientOnReady;
+            
+            // lavalink shit
+            _lavalink.Log += LavalinkOnLog;
+            
+        }
+
+        private Task LavalinkOnLog(LogMessage msg)
+        {
+            switch (msg.Severity)
+            {
+                case LogSeverity.Critical:
+                case LogSeverity.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case LogSeverity.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case LogSeverity.Info:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case LogSeverity.Verbose:
+                case LogSeverity.Debug:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    break;
+            }
+            Console.WriteLine($"{DateTime.Now,-19} [{msg.Severity,8}] {msg.Source}: {msg.Message} {msg.Exception}");
+            Console.ResetColor();
+            return Task.CompletedTask;
+        }
+
+        private async Task ClientOnReady()
+        {
+            SentryService.Install(_client);
+            // setup lavalink
+            var node = await _lavalink.ConnectAsync(_client, new LavaConfig()
+            {
+                Authorization = ConfigService.GetConfigData("lavalinkpw"),
+                Endpoint = new Endpoint
+                {
+                    Port = Int32.Parse(ConfigService.GetConfigData("lavalinkport")),
+                    Host = ConfigService.GetConfigData("lavalinkip")
+                },
+                MaxTries = 5,
+                Severity = LogSeverity.Info,
+                BufferSize = 2048
+            });
+            _audioService.Initialize(node, _client.CurrentUser.Id);
+            // voice shit
+            _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -144,7 +203,7 @@ namespace SoraBot_v2
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _services = provider;
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
             // create interactions
             await _interactionsService.AddOtherCommands(_commands);
         }
