@@ -277,7 +277,10 @@ namespace SoraBot_v2.Services
                 ? await _lavaNode.GetTracksAsync(query)
                 : await _lavaNode.SearchYouTubeAsync(query);
             
-            if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
+            if (search.LoadResultType == LoadResultType.NoMatches 
+                || search.LoadResultType == LoadResultType.LoadFailed
+                || search.Tracks == null
+                || !search.Tracks.Any())
             {
                 return (null, false, null, 0);
             }
