@@ -510,6 +510,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
+            player.Queue.Remove(track);
             await player.TextChannel.SendMessageAsync(
                 "",embed:Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
@@ -558,6 +559,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
         {
+            player.Queue.Remove(track);
             await player.TextChannel.SendMessageAsync(
                 "", embed:Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,

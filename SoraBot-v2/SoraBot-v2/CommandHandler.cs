@@ -179,7 +179,7 @@ namespace SoraBot_v2
                 },
                 MaxTries = 5,
                 Severity = LogSeverity.Info,
-                BufferSize = 2048
+                BufferSize = 1024
             });
             _audioService.Initialize(node, _client.CurrentUser.Id);
             // voice shit
