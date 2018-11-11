@@ -107,8 +107,8 @@ namespace SoraBot_v2.Services
             EmbedBuilder eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
-                Title = $"{Utility.SuccessLevelEmoji[3]} LavaNode Stats (Shard {Utility.SHARD_ID})",
-                Description = "These stats are limited to the current Shard and thus LavaNode.",
+                Title = $"{Utility.SuccessLevelEmoji[3]} LavaNode Stats",
+                Description = "These stats are Global for LavaLink",
                 ThumbnailUrl = avatarUrl,
                 Footer = Utility.RequestedBy(requestor)
             };
