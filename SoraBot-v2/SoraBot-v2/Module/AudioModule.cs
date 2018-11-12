@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -14,29 +15,74 @@ namespace SoraBot_v2.Module
             _audio = service;
         }
 
+        private ulong? GetVoiceChannelId(SocketUser user)
+            => (user as SocketGuildUser)?.VoiceChannel?.Id;
+
         [Command("join")]
         public Task Join() 
             => _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
 
         [Command("leave"), Alias("stop")]
         public async Task StopAsync()
-            => await ReplyAsync("", embed: Utility.ResultFeedback(
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.SuccessLevelEmoji[3],
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
-        
+        }
+
         [Command("sc", RunMode = RunMode.Async), Alias("soundcloud")]
         public async Task ScSearch([Remainder] string query)
-            => await _audio.YoutubeOrSoundCloudSearch(Context, query, false);      
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await _audio.YoutubeOrSoundCloudSearch(Context, query, false);
+        }
 
         [Command("yt", RunMode = RunMode.Async), Alias("youtube")]
         public async Task YtSearch([Remainder] string query)
-            => await _audio.YoutubeOrSoundCloudSearch(Context, query, true);            
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await _audio.YoutubeOrSoundCloudSearch(Context, query, true);
+        }
 
         [Command("play", RunMode = RunMode.Async), Alias("add")]
         public async Task PlayAsync([Remainder] string query)
         {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
             if (info.num == 0)
             {
@@ -67,47 +113,102 @@ namespace SoraBot_v2.Module
         [Command("msys"), Alias("musicsys")]
         public Task Msys()
             => ReplyAsync("",
-                embed: _audio.PlayerStats(Context.Client.CurrentUser.GetAvatarUrl(), Context.User).Build());        
+                embed: _audio.PlayerStats(Context.Client.CurrentUser.GetAvatarUrl(), Context.User).Build());
 
         [Command("pause")]
-        public Task Pause()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        public async Task Pause()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.Pause(Context.Guild.Id))
                 .Build());
-        
+        }
+
         [Command("resume")]
-        public Task Resume()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        public async Task Resume()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.Resume(Context.Guild.Id))
                 .Build());
+        }
 
         [Command("queue"), Alias("list")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
 
         [Command("clear"), Alias("clearqueue")]
-        public Task ClearQueue()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        public async Task ClearQueue()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.ClearQueue(Context.Guild.Id))
                 .Build());
-        
+        }
+
         [Command("skip"), Alias("next")]
         public async Task SkipAsync()
-            => await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));
-        
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));
+        }
+
         [Command("volume"), Alias("vol")]
-        public Task Volume(int vol)
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        public async Task Volume(int vol)
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.Volume(Context.Guild.Id, vol))
                 .Build());
+        }
 
         [Command("nowplaying"), Alias("now playing", "np")]
         public Task Np()

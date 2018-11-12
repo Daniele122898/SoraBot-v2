@@ -26,6 +26,14 @@ namespace SoraBot_v2.Services
         {
             _interactive = service;
         }
+
+        public bool CheckSameVoiceChannel(ulong guildId, ulong? voiceId)
+        {
+            if (voiceId == null || voiceId == 0) return false;
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player == null) return false;
+            return player.VoiceChannel.Id == voiceId;
+        }
         
         public async Task ClientOnUserVoiceStateUpdated(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
         {
