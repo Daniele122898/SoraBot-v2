@@ -463,7 +463,7 @@ namespace SoraBot_v2.Services
 
         }
 
-        public async Task<Embed> SkipAsync(ulong guildId, ulong userId)
+        public async Task<Embed> SkipAsync(ulong guildId, SocketGuildUser user)
         {
             var player = _lavaNode.GetPlayer(guildId);
             if(player?.CurrentTrack == null) return Utility.ResultFeedback(
@@ -496,19 +496,29 @@ namespace SoraBot_v2.Services
                 }
             }
 
-            var users = (await player.VoiceChannel.GetUsersAsync().FlattenAsync()).Count(x => !x.IsBot);
-            if (!_voteSkip.ContainsKey(guildId))
-                _voteSkip.TryAdd(guildId, (player.CurrentTrack, new List<ulong>()));
-            _voteSkip.TryGetValue(guildId, out var skipInfo);
+            _options.TryGetValue(guildId, out var options);
             
-            if(!skipInfo.votes.Contains(userId)) skipInfo.votes.Add(userId);
-            var perc = (int) Math.Round((100.0 * skipInfo.votes.Count) / users);
-            if(perc <= 50) return Utility.ResultFeedback(
-                Utility.BlueInfoEmbed,
-                Utility.SuccessLevelEmoji[3],
-                "More votes needed.").Build();
-            _voteSkip.TryUpdate(guildId, skipInfo, skipInfo);
-            var temp = player.CurrentTrack;
+            if(options == null)
+                return Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Something went terribly wrong. Reconnect Sora to the Voice Channel!")
+                    .Build();
+            
+            if (options.Voters.Contains(user.Id))
+                return Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You've already voted. Please don't vote again.")
+                    .Build();
+
+            options.VotedTrack = player.Queue.Peek();
+            options.Voters.Add(user.Id);
+            
+            var perc = options.Voters.Count / user.VoiceChannel.Users.Count(x => !x.IsBot) * 100;
+
+            
+           
             player.Skip();
             return Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
