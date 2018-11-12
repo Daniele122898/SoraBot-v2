@@ -515,16 +515,34 @@ namespace SoraBot_v2.Services
             options.VotedTrack = player.Queue.Peek();
             options.Voters.Add(user.Id);
             
-            var perc = options.Voters.Count / user.VoiceChannel.Users.Count(x => !x.IsBot) * 100;
+            var perc = (float)options.Voters.Count / user.VoiceChannel.Users.Count(x => !x.IsBot) * 100;
 
-            
-           
-            player.Skip();
+            if (perc < 50f)
+                return Utility.ResultFeedback(
+                        Utility.YellowWarningEmbed,
+                        Utility.SuccessLevelEmoji[1],
+                        "More votes needed to skip. It requires more than 50% of users in the Voice Channel.")
+                    .Build();
+
+            var next = player.Skip();
+            RemoveVotes(guildId, options);
+
             return Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    $"Skipped: {temp.Title}")
-                .WithUrl(temp.Uri.ToString()).Build();
+                    $"Now playing: {next.Title}")
+                .WithUrl(next.Uri.ToString()).Build();
+        }
+
+        private void RemoveVotes(ulong guildId, AudioOptions options = null)
+        {
+            if (options == null)
+            {
+                if (!_options.TryGetValue(guildId, out options))
+                    return;
+            }
+            options.VotedTrack = null;
+            options.Voters.Clear();
         }
 
         public string Volume(ulong guildId, int vol)
@@ -549,6 +567,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
+            RemoveVotes(player.Guild.Id);
             player.Queue.Remove(track);
             await player.TextChannel.SendMessageAsync(
                 "",embed:Utility.ResultFeedback(
@@ -577,6 +596,7 @@ namespace SoraBot_v2.Services
             // player.Remove(track);
             
             var nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
+            RemoveVotes(player.Guild.Id);
             if (nextTrack == null)
             {
                 await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
@@ -598,6 +618,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
         {
+            RemoveVotes(player.Guild.Id);
             player.Queue.Remove(track);
             await player.TextChannel.SendMessageAsync(
                 "", embed:Utility.ResultFeedback(
