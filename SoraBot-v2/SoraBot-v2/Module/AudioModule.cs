@@ -188,7 +188,7 @@ namespace SoraBot_v2.Module
                     .Build());
                 return;
             }
-            await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, Context.User.Id));
+            await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, (SocketGuildUser)Context.User));
         }
 
         [Command("volume"), Alias("vol")]
