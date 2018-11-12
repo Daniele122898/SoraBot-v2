@@ -77,6 +77,17 @@ namespace SoraBot_v2.Services
             node.Updated += NodeOnUpdated;
         }
 
+        public string ToggleRepeat(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player?.CurrentTrack == null)
+                return "Not playing anything currently.";
+            if (!_options.TryGetValue(guildId, out var options))
+                return "Something went wrong. Reconnect Sora please.";
+            options.RepeatTrack = !options.RepeatTrack;
+            return options.RepeatTrack ? "Song will now repeat." : "Repeat is now turned off.";
+        }
+
         public string ClearQueue(ulong guildId)
         {
             var player = _lavaNode.GetPlayer(guildId);
@@ -594,8 +605,17 @@ namespace SoraBot_v2.Services
                 return;
             
             // player.Remove(track);
+
+            _options.TryGetValue(player.Guild.Id, out var options);
             
-            var nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
+            var nextTrack = player.Queue.Count == 0 ? 
+                null : 
+                (options == null ? 
+                    player.Queue.Dequeue() : 
+                    (options.RepeatTrack ? 
+                        track : 
+                        player.Queue.Dequeue()));
+            
             RemoveVotes(player.Guild.Id);
             if (nextTrack == null)
             {

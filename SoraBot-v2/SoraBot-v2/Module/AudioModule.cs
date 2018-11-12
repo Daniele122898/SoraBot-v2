@@ -156,6 +156,14 @@ namespace SoraBot_v2.Module
         [Command("queue"), Alias("list")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
+        
+        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song")]
+        public Task ToggleRepeat()
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.ToggleRepeat(Context.Guild.Id))
+                .Build());
 
         [Command("clear"), Alias("clearqueue")]
         public async Task ClearQueue()
