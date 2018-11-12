@@ -11,6 +11,7 @@ using Victoria;
 using Victoria.Objects;
 using Victoria.Objects.Enums;
 using Discord.Addons.Interactive;
+using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Services
 {
@@ -20,7 +21,7 @@ namespace SoraBot_v2.Services
         private LavaNode _lavaNode;
         private InteractiveService _interactive;
         private ulong _soraId;
-        private readonly ConcurrentDictionary<ulong, (LavaTrack track, List<ulong> votes)> _voteSkip;
+        private readonly ConcurrentDictionary<ulong, AudioOptions> _options = new ConcurrentDictionary<ulong, AudioOptions>();
 
         public AudioService(InteractiveService service)
         {
@@ -148,9 +149,9 @@ namespace SoraBot_v2.Services
             return eb;
         }
 
-        public async Task ConnectAsync(ulong guildId, IVoiceState state, IMessageChannel channel)
+        public async Task ConnectAsync(ulong guildId, IGuildUser user, IMessageChannel channel)
         {
-            if (state.VoiceChannel == null)
+            if (user.VoiceChannel == null)
             {
                 await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
@@ -159,12 +160,28 @@ namespace SoraBot_v2.Services
                     .Build());
                 return;
             }
+            
+            // check if someone summoned me before
+            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id)
+            {
+                await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"I can't join another Voice Channel until {options.Summoner.Username}#{options.Summoner.Discriminator} disconnects me. >.<")
+                    .Build());
+                return;
+            }
 
-            var player = await _lavaNode.JoinAsync(state.VoiceChannel, channel);
+            var player = await _lavaNode.JoinAsync(user.VoiceChannel, channel);
+            _options.TryAdd(guildId, new AudioOptions()
+            {
+                Summoner = user,
+                Voters = new HashSet<ulong>()
+            });
             await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed,
                 Utility.SuccessLevelEmoji[0],
-                $"Connected to {state.VoiceChannel}.")
+                $"Connected to {user.VoiceChannel} and bound to {channel.Name}.")
                 .Build());
         }
 
@@ -313,7 +330,11 @@ namespace SoraBot_v2.Services
         }
 
         public async Task<string> DisconnectAsync(ulong guildId)
-            => await _lavaNode.LeaveAsync(guildId) ? "Disconnected." : "Not connected to any voice channels.";
+        {
+            // remove options
+            _options.TryRemove(guildId, out _);
+            return await _lavaNode.LeaveAsync(guildId) ? "Disconnected." : "Not connected to any voice channels.";
+        }
 
         public string Pause(ulong guildId)
         {
