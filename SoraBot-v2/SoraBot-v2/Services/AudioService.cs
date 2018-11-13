@@ -12,6 +12,7 @@ using Victoria.Objects;
 using Victoria.Objects.Enums;
 using Discord.Addons.Interactive;
 using SoraBot_v2.Data.Entities.SubEntities;
+using SoraBot_v2.Extensions;
 
 namespace SoraBot_v2.Services
 {
@@ -75,6 +76,15 @@ namespace SoraBot_v2.Services
             node.Finished += NodeOnFinished;
             node.Exception += NodeOnException;
             node.Updated += NodeOnUpdated;
+        }
+
+        public string ShuffleQueue(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player?.CurrentTrack == null)
+                return "Not playing anything currently.";
+            player.Queue.Shuffle();
+            return "Shuffled Queue :>";
         }
 
         public string ToggleRepeat(ulong guildId)

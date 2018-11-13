@@ -164,6 +164,14 @@ namespace SoraBot_v2.Module
                     Utility.MusicalNote,
                     _audio.ToggleRepeat(Context.Guild.Id))
                 .Build());
+        
+        [Command("shuffle"), Alias("shufflequeue", "shufflelist")]
+        public Task ShuffleQueue()
+            => ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.BlueInfoEmbed,
+                    Utility.MusicalNote,
+                    _audio.ShuffleQueue(Context.Guild.Id))
+                .Build());
 
         [Command("clear"), Alias("clearqueue")]
         public async Task ClearQueue()

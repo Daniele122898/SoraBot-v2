@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using Victoria;
+using Victoria.Objects;
 
 namespace SoraBot_v2.Extensions
 {
@@ -28,6 +31,23 @@ namespace SoraBot_v2.Extensions
         }
         
         private static Random rng = new Random();  
+        
+        public static void Shuffle(this LavaQueue<LavaTrack> queue)  
+        {  
+            int n = queue.Count;
+            var list = queue.Items.ToList();
+            while (n > 1) {  
+                n--;  
+                int k = rng.Next(n + 1);  
+                LavaTrack value = list[k];  
+                list[k] = list[n];  
+                list[n] = value;  
+            }
+            // clear old queue
+            queue.Clear();
+            // populate with new shuffled queue.
+            list.ForEach(queue.Enqueue);
+        }
 
         public static void Shuffle<T>(this IList<T> list)  
         {  
