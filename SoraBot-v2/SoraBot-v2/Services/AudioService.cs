@@ -513,21 +513,21 @@ namespace SoraBot_v2.Services
                 Utility.MusicalNote,
                 "Not playing anything currently.").Build();
 
-            if (player.Queue.Count == 0)
-            {
-                player.Stop();
-                return Utility.ResultFeedback(
-                    Utility.BlueInfoEmbed,
-                    Utility.MusicalNote,
-                    "The Queue is empty. Player has been stopped.")
-                    .Build();
-            }
-
             using (var soraContext = new SoraContext())
             {
                 var guildDb = Utility.GetOrCreateGuild(guildId, soraContext);
                 if (!guildDb.NeedVotes)
                 {
+                    if (player.Queue.Count == 0)
+                    {
+                        player.Stop();
+                        return Utility.ResultFeedback(
+                                Utility.BlueInfoEmbed,
+                                Utility.MusicalNote,
+                                "The Queue is empty. Player has been stopped.")
+                            .Build();
+                    }
+                    
                     var track = player.Skip();
 
                     return Utility.ResultFeedback(
@@ -554,17 +554,27 @@ namespace SoraBot_v2.Services
                         "You've already voted. Please don't vote again.")
                     .Build();
 
-            options.VotedTrack = player.Queue.Peek();
+            options.VotedTrack = player.CurrentTrack;
             options.Voters.Add(user.Id);
             
             var perc = (float)options.Voters.Count / user.VoiceChannel.Users.Count(x => !x.IsBot) * 100;
 
-            if (perc < 50f)
+            if (perc < 51f)
                 return Utility.ResultFeedback(
                         Utility.YellowWarningEmbed,
                         Utility.SuccessLevelEmoji[1],
-                        "More votes needed to skip. It requires more than 50% of users in the Voice Channel.")
+                        "More votes needed to skip. It requires **more** than 50% of users in the Voice Channel.")
                     .Build();
+            
+            if (player.Queue.Count == 0)
+            {
+                player.Stop();
+                return Utility.ResultFeedback(
+                        Utility.BlueInfoEmbed,
+                        Utility.MusicalNote,
+                        "The Queue is empty. Player has been stopped.")
+                    .Build();
+            }
 
             var next = player.Skip();
             RemoveVotes(guildId, options);
