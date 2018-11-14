@@ -7,6 +7,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Searches")]
     public class Searches: ModuleBase<SocketCommandContext>
     {
         private GiphyService _giphyService;

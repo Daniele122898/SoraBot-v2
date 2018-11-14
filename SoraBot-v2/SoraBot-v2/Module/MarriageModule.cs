@@ -6,6 +6,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Marriage")]
     public class MarriageModule : ModuleBase<SocketCommandContext>
     {
         private MarriageService _marriageService;

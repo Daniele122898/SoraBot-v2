@@ -5,6 +5,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Announcements")]
     public class AnnouncementModule : ModuleBase<SocketCommandContext>
     {
         private AnnouncementService _announcement;

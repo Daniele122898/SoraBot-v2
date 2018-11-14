@@ -11,6 +11,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("SARs")]
     public class SelfAssignableRolesModule : ModuleBase<SocketCommandContext>
     {
         private readonly SelfAssignableRolesService _sarService;

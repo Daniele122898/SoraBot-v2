@@ -8,6 +8,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Waifu")]
     public class WaifuModule : ModuleBase<SocketCommandContext>
     {
         private WaifuService _waifuService;

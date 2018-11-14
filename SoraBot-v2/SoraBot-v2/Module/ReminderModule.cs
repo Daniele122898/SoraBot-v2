@@ -4,6 +4,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Reminder")]
     public class ReminderModule : ModuleBase<SocketCommandContext>
     {
         private ReminderService _reminderService;

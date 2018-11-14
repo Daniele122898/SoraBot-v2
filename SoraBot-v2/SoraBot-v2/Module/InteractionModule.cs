@@ -10,6 +10,7 @@ using Weeb.net;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Interaction")]
     public class InteractionModule : ModuleBase<SocketCommandContext>
     {
         
