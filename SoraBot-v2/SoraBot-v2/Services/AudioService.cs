@@ -619,27 +619,25 @@ namespace SoraBot_v2.Services
             // TODO internal counter for more accurate measurement of time passed.
         }
         
-        private bool ShouldPlayNext(TrackReason reason)
-            => reason == TrackReason.Finished || reason == TrackReason.LoadFailed;
-
         private async Task NodeOnFinished(LavaPlayer player, LavaTrack track, TrackReason reason)
         {
             if (player == null)
                 return;
-            if (!ShouldPlayNext(reason))
+            if (reason != TrackReason.Finished)
                 return;
             
             // player.Remove(track);
 
             _options.TryGetValue(player.Guild.Id, out var options);
-            
-            var nextTrack = player.Queue.Count == 0 ? 
-                null : 
-                (options == null ? 
-                    player.Queue.Dequeue() : 
-                    (options.RepeatTrack ? 
-                        track : 
-                        player.Queue.Dequeue()));
+
+            LavaTrack nextTrack = null;
+
+            if (options != null && options.RepeatTrack)
+                nextTrack = track;
+            else
+            {
+                nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
+            }            
             
             RemoveVotes(player.Guild.Id);
             if (nextTrack == null)
