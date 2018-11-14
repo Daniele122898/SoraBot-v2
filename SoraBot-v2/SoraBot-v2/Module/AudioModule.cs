@@ -7,6 +7,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Music")]
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
         private AudioService _audio;
