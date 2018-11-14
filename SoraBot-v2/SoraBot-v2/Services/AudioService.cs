@@ -321,6 +321,12 @@ namespace SoraBot_v2.Services
                 .Build());
         }
 
+        private async Task<LavaTrack> RepeatTrackPlay(string uri)
+        {
+            var search = await _lavaNode.GetTracksAsync(uri);
+            return search.Tracks.FirstOrDefault();
+        }
+
         public async Task<(LavaTrack track, bool enqued, string name, int num)> PlayAsync(ulong guildId, string query)
         {
             var player = _lavaNode.GetPlayer(guildId);
@@ -633,7 +639,7 @@ namespace SoraBot_v2.Services
             LavaTrack nextTrack = null;
 
             if (options != null && options.RepeatTrack)
-                nextTrack = track;
+                nextTrack = await RepeatTrackPlay(track.Uri.ToString());
             else
             {
                 nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
