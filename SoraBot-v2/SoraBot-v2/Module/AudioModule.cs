@@ -84,6 +84,15 @@ namespace SoraBot_v2.Module
                 return;
             }
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
+            if (info.num == -1)
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Connect me to a Voice Channel first!")
+                    .Build());
+                return;
+            }
             if (info.num == 0)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(

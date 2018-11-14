@@ -271,6 +271,16 @@ namespace SoraBot_v2.Services
 
         public async Task YoutubeOrSoundCloudSearch(SocketCommandContext context, string query, bool youtube)
         {
+            var player = _lavaNode.GetPlayer(context.Guild.Id);
+            if (player == null)
+            {
+                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Connect me to a Voice Channel first!")
+                    .Build());
+                return;
+            }
             var search = youtube ? await _lavaNode.SearchYouTubeAsync(query) : await _lavaNode.SearchSoundCloudAsync(query);
             if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
             {
@@ -294,7 +304,6 @@ namespace SoraBot_v2.Services
                 return;
             }
             
-            var player = _lavaNode.GetPlayer(context.Guild.Id);
             bool queued = false;
             if (player.CurrentTrack != null)
             {
@@ -314,6 +323,13 @@ namespace SoraBot_v2.Services
 
         public async Task<(LavaTrack track, bool enqued, string name, int num)> PlayAsync(ulong guildId, string query)
         {
+            var player = _lavaNode.GetPlayer(guildId);
+
+            if (player == null)
+            {
+                return (null, false, null, -1);
+            }
+            
             if (query.StartsWith("<") && query.EndsWith(">"))
                 query = query.TrimStart('<').TrimEnd('>');
             // if url get that otherwise search yt
@@ -335,7 +351,6 @@ namespace SoraBot_v2.Services
             {
                 // get first track
                 var track = search.Tracks.FirstOrDefault();
-                var player = _lavaNode.GetPlayer(guildId);
                 if (player.CurrentTrack != null)
                 {
                     player.Enqueue(track);
