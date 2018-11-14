@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -216,6 +217,35 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, (SocketGuildUser)Context.User));
         }
 
+        [Command("voteskip")]
+        public async Task ToggleVoteSkip()
+        {
+            var invoker = (SocketGuildUser)Context.User;
+            if (!invoker.GuildPermissions.Has(GuildPermission.Administrator) && !Utility.IsSoraAdmin(invoker))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed, 
+                    Utility.SuccessLevelEmoji[2], 
+                    $"You need Administrator permissions or the {Utility.SORA_ADMIN_ROLE_NAME} role to force vote skip!")
+                    .Build()
+                );
+                return;
+            }
+            // he has perms so lets toggle it
+            using (var soraContext = new SoraContext())
+            {
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
+                guildDb.NeedVotes = !guildDb.NeedVotes;
+                await soraContext.SaveChangesAsync();
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.GreenSuccessEmbed,
+                    Utility.SuccessLevelEmoji[0],
+                    $"Successfully turned {(guildDb.NeedVotes ? "ON" : "OFF")} vote skipping.")
+                .Build()
+                );
+            }
+        }
+        
         [Command("volume"), Alias("vol")]
         public async Task Volume(int vol)
         {
