@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -7,6 +8,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Help")]
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private CommandService _service;
@@ -18,8 +20,7 @@ namespace SoraBot_v2.Module
 
         [Command("help2")]
         public async Task Help2()
-        {
-            
+        { 
             Dictionary<string, List<CommandInfo>> cmds = new Dictionary<string, List<CommandInfo>>();
             int count = 0;
             foreach (var module in _service.Modules)
@@ -69,17 +70,98 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: eb.Build());
         }
 
-        [Command("help"), Alias("h"), Summary("Provides Help")]
-        public async Task Help([Remainder] string cmdName = null)
+        [Command("help"), Alias("h"), Summary("Provides more help for a specific Category")]
+        public async Task HelpCategory([Remainder] string category)
         {
-            if (cmdName == null)
+            var module =
+                _service.Modules.FirstOrDefault(x => x.Name.Equals(category, StringComparison.OrdinalIgnoreCase));
+            if (module == null)
             {
-                await Context.Channel.SendMessageAsync("", embed:
-                    Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], "Click here for Wiki")
-                        .WithUrl("https://github.com/Daniele122898/SoraBot-v2/wiki").Build()); 
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2], 
+                    "Couldn't find specific Category. Make sure to spell it right!")
+                .Build());
                 return;
             }
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = $"{Utility.SuccessLevelEmoji[3]} {module.Name} Help",
+                Footer = Utility.RequestedBy(Context.User),
+                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
+            };
+            string commands = "";
+            foreach (var command in module.Commands)
+            {
+                commands += $"`{command.Name}`, ";
+            }
+            commands = commands.Trim().TrimEnd(',');
+            eb.Description = "Use `help command commandName` to get specific Help on the command! Commands that show up twice have different parameters. [Check the wiki for more info!](https://github.com/Daniele122898/SoraBot-v2/wiki) \n\n"+commands;
 
+            await ReplyAsync("", embed: eb.Build());
+        }
+
+        [Command("help"), Alias("h"), Summary("Shows all the categories and the wiki")]
+        public async Task Help()
+        {
+            Dictionary<string, int> cmds = new Dictionary<string, int>();
+            int count = 0;
+            foreach (var module in _service.Modules)
+            {
+                if(string.IsNullOrWhiteSpace(module.Name))
+                    continue;
+                if(module.Preconditions.Any(p=> p is RequireOwnerAttribute))
+                    continue;
+                if (!cmds.ContainsKey(module.Name))
+                {
+                    cmds.TryAdd(module.Name, 0);
+                }
+                var num = cmds[module.Name];
+                foreach (var command in module.Commands)
+                {
+                    if(command.Preconditions.Any(p => p is RequireOwnerAttribute))
+                        continue;
+                    num++;
+                    count++;
+                }
+                cmds[module.Name] = num;
+            }
+            var eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = Utility.SuccessLevelEmoji[3] + " Sora Commands",
+                Description = "This shows all the available categories. Use `help categoryName` to get all commands in that category. " +
+                              "You can also use the Wiki which is very detailed and will provide the most help.",
+                Footer = Utility.RequestedBy(Context.User),
+                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
+            };
+
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Wiki";
+                x.Value = "[Click here to get to the Wiki](https://github.com/Daniele122898/SoraBot-v2/wiki)";
+            });
+            
+            foreach (KeyValuePair<string,int> pair in cmds)
+            {
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = pair.Key;
+                    x.Value = $"{pair.Value} commands";
+                });
+            }
+
+            await ReplyAsync("", embed: eb.Build());
+        }
+        
+        
+        [Command("help command"), Alias("h command", "h c"), Summary("Provides Help for a specific command."), Priority(10)]
+        public async Task Help([Remainder] string cmdName)
+        {
             var eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
@@ -94,7 +176,7 @@ namespace SoraBot_v2.Module
 
                 eb.AddField((efb) =>
                 {
-                    efb.Name = c.Parameters.Aggregate(c.Name + "\n",
+                    efb.Name = c.Parameters.Aggregate(c.Name + " ",
                         (current, cmd) => $"{current} {(cmd.IsOptional ? $"[<{cmd.Name}>]" : $"<{cmd.Name}>")}");
                     efb.Value =
                         c.Parameters.Aggregate(
