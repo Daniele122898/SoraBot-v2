@@ -4,7 +4,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
-    [Name("Exp / Profile")]
+    [Name("Profile")]
     public class ExpModule : ModuleBase<SocketCommandContext>
     {
         private ExpService _service;
