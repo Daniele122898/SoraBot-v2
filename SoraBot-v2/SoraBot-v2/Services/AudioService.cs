@@ -137,7 +137,7 @@ namespace SoraBot_v2.Services
             EmbedBuilder eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
-                Title = $"{Utility.SuccessLevelEmoji[3]} LavaNode Stats",
+                Title = $"{Utility.SuccessLevelEmoji[3]} LavaLink Stats",
                 Description = "These stats are Global for LavaLink",
                 ThumbnailUrl = avatarUrl,
                 Footer = Utility.RequestedBy(requestor)
@@ -157,13 +157,13 @@ namespace SoraBot_v2.Services
             eb.AddField(x =>
             {
                 x.IsInline = true;
-                x.Name = "LavaNode CPU Count";
+                x.Name = "LavaLink CPU Count";
                 x.Value = $"{_lavaNode.Statistics.CpuCoreCount}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
-                x.Name = "LavaNode CPU Usage";
+                x.Name = "LavaLink CPU Usage";
                 x.Value = $"{(_lavaNode.Statistics.CpuLavalinkLoad*100):f2}%";
             });
 

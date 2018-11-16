@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -178,16 +179,34 @@ namespace SoraBot_v2.Module
                 {
                     efb.Name = c.Parameters.Aggregate(c.Name + " ",
                         (current, cmd) => $"{current} {(cmd.IsOptional ? $"[<{cmd.Name}>]" : $"<{cmd.Name}>")}");
-                    efb.Value =
-                        c.Parameters.Aggregate(
+                    efb.Value = string.IsNullOrWhiteSpace(c.Summary) ? "No summary." : c.Summary;
+                        /*c.Parameters.Aggregate(
                             c.Summary + "\n\n" +
                             c.Aliases.Aggregate("**Aliases**\n",
                                 (current, alias) =>
                                     $"{current}{(c.Aliases.ElementAt(0) == alias ? string.Empty : ", ")}{alias}") +
                             "\n\n**Parameters** ",
                             (current, cmd) =>
-                                $"{current}\n{cmd.Name} {(cmd.IsOptional ? "(optional)" : "")}: `{cmd.Summary}`");
+                                $"{current}\n{cmd.Name} {(cmd.IsOptional ? "(optional)" : "")}: `{cmd.Summary}`");*/
                 });
+
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "Aliases";
+                    x.Value = c.Aliases.Count == 0 ? "No aliases." : c.Aliases.Join(", ");
+                });
+
+                if (c.Parameters.Count != 0)
+                {
+                    eb.AddField(x =>
+                    {
+                        x.IsInline = false;
+                        x.Name = "Parameters";
+                        x.Value = c.Parameters.Aggregate("",(current, cmd)=>  $"{current}\n{cmd.Name} {(cmd.IsOptional ? "(optional)" : "")}: `{cmd.Summary}`");
+                    });
+                }
+                
                 found = true;
             }
             if (found)
