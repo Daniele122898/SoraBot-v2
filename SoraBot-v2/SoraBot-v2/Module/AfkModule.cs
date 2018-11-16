@@ -6,6 +6,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Misc")]
     public class AfkModule : ModuleBase<SocketCommandContext>
     {
         private AfkService _afkService;

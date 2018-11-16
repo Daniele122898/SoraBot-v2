@@ -4,6 +4,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Anime / Manga")]
     public class AnimeSearchModule :ModuleBase<SocketCommandContext>
     {
         private AnimeSearchService _animeSearchService;

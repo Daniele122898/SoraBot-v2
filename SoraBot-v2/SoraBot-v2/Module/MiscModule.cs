@@ -12,6 +12,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Misc")]
     public class MiscModule : ModuleBase<SocketCommandContext>
     {
         public MiscModule()

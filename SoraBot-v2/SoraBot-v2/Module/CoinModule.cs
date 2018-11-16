@@ -9,6 +9,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Coins")]
     public class CoinModule : ModuleBase<SocketCommandContext>
     {
         private CoinService _coinService;

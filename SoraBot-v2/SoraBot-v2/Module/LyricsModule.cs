@@ -13,6 +13,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Music")]
     public class LyricsModule : InteractiveBase<SocketCommandContext>
     {
         [Command("lyrics", RunMode = RunMode.Async), Alias("searchlyrics"), Summary("Search lyrics")]

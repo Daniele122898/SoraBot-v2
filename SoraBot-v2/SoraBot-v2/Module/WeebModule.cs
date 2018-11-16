@@ -4,6 +4,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [RequireOwner]
     public class WeebModule : ModuleBase<SocketCommandContext>
     {
         private WeebService _weebService;

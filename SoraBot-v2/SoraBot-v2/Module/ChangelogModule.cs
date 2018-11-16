@@ -5,6 +5,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Misc")]
     public class ChangelogModule : ModuleBase<SocketCommandContext>
     {
         [Command("changelog"), Alias("update"), Summary("Gives you a nice changelog <3")]

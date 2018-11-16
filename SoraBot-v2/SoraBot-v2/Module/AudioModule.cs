@@ -7,6 +7,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Music")]
     public class AudioModule : ModuleBase<SocketCommandContext>
     {
         private AudioService _audio;
@@ -19,11 +20,11 @@ namespace SoraBot_v2.Module
         private ulong? GetVoiceChannelId(SocketUser user)
             => (user as SocketGuildUser)?.VoiceChannel?.Id;
 
-        [Command("join")]
+        [Command("join"), Summary("Makes Sora join the Voice Channel you're in.")]
         public Task Join() 
             => _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
 
-        [Command("leave"), Alias("stop")]
+        [Command("leave"), Alias("stop"), Summary("Makes sora leave your Voice Channel. This also empties the queue and resets all options.")]
         public async Task StopAsync()
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -42,7 +43,7 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("sc", RunMode = RunMode.Async), Alias("soundcloud")]
+        [Command("sc", RunMode = RunMode.Async), Alias("soundcloud"), Summary("Searches Soundcloud for the track and gives you a list of found items to choose from.")]
         public async Task ScSearch([Remainder] string query)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -57,7 +58,7 @@ namespace SoraBot_v2.Module
             await _audio.YoutubeOrSoundCloudSearch(Context, query, false);
         }
 
-        [Command("yt", RunMode = RunMode.Async), Alias("youtube")]
+        [Command("yt", RunMode = RunMode.Async), Alias("youtube"), Summary("Searches Youtube for the track and gives you a list of found items to choose from.")]
         public async Task YtSearch([Remainder] string query)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -72,7 +73,7 @@ namespace SoraBot_v2.Module
             await _audio.YoutubeOrSoundCloudSearch(Context, query, true);
         }
 
-        [Command("play", RunMode = RunMode.Async), Alias("add")]
+        [Command("play", RunMode = RunMode.Async), Alias("add"), Summary("If you add a link it will add that song or playlist. You can also add a name of a song and it will search youtube and take the first result.")]
         public async Task PlayAsync([Remainder] string query)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -120,12 +121,12 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("msys"), Alias("musicsys")]
+        [Command("msys"), Alias("musicsys"), Summary("Some stats for Lavalink")]
         public Task Msys()
             => ReplyAsync("",
                 embed: _audio.PlayerStats(Context.Client.CurrentUser.GetAvatarUrl(), Context.User).Build());
 
-        [Command("pause")]
+        [Command("pause"), Summary("Pauses music playback")]
         public async Task Pause()
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -144,7 +145,7 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("resume")]
+        [Command("resume"), Summary("Resumes music playback")]
         public async Task Resume()
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -163,11 +164,11 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("queue"), Alias("list")]
+        [Command("queue"), Alias("list"), Summary("Shows the current Queue.")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
         
-        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song")]
+        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song"), Summary("Repeats the current song once its finished.")]
         public Task ToggleRepeat()
             => ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
@@ -175,7 +176,7 @@ namespace SoraBot_v2.Module
                     _audio.ToggleRepeat(Context.Guild.Id))
                 .Build());
         
-        [Command("shuffle"), Alias("shufflequeue", "shufflelist")]
+        [Command("shuffle"), Alias("shufflequeue", "shufflelist"), Summary("Shuffles the entire queue. Cannot be undone.")]
         public Task ShuffleQueue()
             => ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
@@ -183,7 +184,7 @@ namespace SoraBot_v2.Module
                     _audio.ShuffleQueue(Context.Guild.Id))
                 .Build());
 
-        [Command("clear"), Alias("clearqueue")]
+        [Command("clear"), Alias("clearqueue"), Summary("Clears the entire queue. Cannot be undone.")]
         public async Task ClearQueue()
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -202,7 +203,7 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("skip"), Alias("next")]
+        [Command("skip"), Alias("next"), Summary("Skips the current song.")]
         public async Task SkipAsync()
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -217,7 +218,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: await _audio.SkipAsync(Context.Guild.Id, (SocketGuildUser)Context.User));
         }
 
-        [Command("voteskip")]
+        [Command("voteskip"), Summary("Toggles Voteskipping ON or OFF")]
         public async Task ToggleVoteSkip()
         {
             var invoker = (SocketGuildUser)Context.User;
@@ -246,7 +247,7 @@ namespace SoraBot_v2.Module
             }
         }
         
-        [Command("volume"), Alias("vol")]
+        [Command("volume"), Alias("vol"), Summary("To set the volume of the player.")]
         public async Task Volume(int vol)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
@@ -265,7 +266,7 @@ namespace SoraBot_v2.Module
                 .Build());
         }
 
-        [Command("nowplaying"), Alias("now playing", "np")]
+        [Command("nowplaying"), Alias("now playing", "np"), Summary("Shows the song that is currently playing.")]
         public Task Np()
             => ReplyAsync("", embed: _audio.NowPlaying(Context.Guild.Id));
     }

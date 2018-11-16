@@ -9,6 +9,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Moderation")]
     public class ModModule : ModuleBase<SocketCommandContext>
     {
         private ModService _modService;
