@@ -9,6 +9,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Misc")]
     public class Shipping : ModuleBase<SocketCommandContext>
     {
         private float multiplier = 100f / 18;

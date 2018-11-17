@@ -10,6 +10,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Tags")]
     public class TagModule : InteractiveBase<SocketCommandContext>
     {
         private TagService _tagService;

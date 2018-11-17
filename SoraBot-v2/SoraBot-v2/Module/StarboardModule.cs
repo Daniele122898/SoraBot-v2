@@ -9,12 +9,10 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Starboard")]
     public class StarboardModule : ModuleBase<SocketCommandContext>
     {
-        public StarboardModule()
-        {
-        }
-
+        
         private bool CheckPerms(SocketCommandContext context)
         {
             var invoker = (SocketGuildUser)context.User;

@@ -10,6 +10,7 @@ using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
 {
+    [Name("Moderation")]
     public class UtilityModule : ModuleBase<SocketCommandContext>
     {
         private BanService _banService;
