@@ -58,13 +58,17 @@ namespace SoraBot_v2.Services
             // there are no real users -> leave
             if (userCount == 0)
             {
+                _options.TryRemove(guild.Id, out _);
                 await _lavaNode.LeaveAsync(guild.Id);
                 return;
             }
             
             // lastly check if the channel is an AFK channel and leave as well
-            if(guild.AFKChannel.Id == ourChannel.Id)
+            if (guild.AFKChannel.Id == ourChannel.Id)
+            {
+                _options.TryRemove(guild.Id, out _);
                 await _lavaNode.LeaveAsync(guild.Id);
+            }
         }
         
         public void Initialize(LavaNode node, ulong soraId)
