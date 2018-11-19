@@ -135,10 +135,6 @@ namespace SoraBot_v2
             
             // Ready
             _client.Ready += ClientOnReady;
-            
-            // lavalink shit
-            _lavalink.Log += LavalinkOnLog;
-            
         }
 
         private Task LavalinkOnLog(LogMessage msg)
@@ -167,12 +163,14 @@ namespace SoraBot_v2
 
         private async Task ClientOnReady()
         {
+            // lavalink shit
+            _lavalink.Log = LavalinkOnLog;
             SentryService.Install(_client);
             // setup lavalink
             var node = await _lavalink.AddNodeAsync(_client, new Configuration()
             {
                 Authorization = ConfigService.GetConfigData("lavalinkpw"),
-                Severity = LogSeverity.Info,
+                Severity = LogSeverity.Debug,
                 BufferSize = 1024,
                 ReconnectAttempts = 3,
                 Host = ConfigService.GetConfigData("lavalinkip"),

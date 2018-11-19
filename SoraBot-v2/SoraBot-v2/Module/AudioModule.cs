@@ -27,7 +27,8 @@ namespace SoraBot_v2.Module
         [Command("leave"), Alias("stop"), Summary("Makes sora leave your Voice Channel. This also empties the queue and resets all options.")]
         public async Task StopAsync()
         {
-            if (await _audio.PlayerExistsAndConnected(Context.Guild.Id) &&  !_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            //await _audio.PlayerExistsAndConnected(Context.Guild.Id) &&  
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
