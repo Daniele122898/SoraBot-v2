@@ -21,12 +21,14 @@ namespace SoraBot_v2.Services
 
         private LavaNode _lavaNode;
         private InteractiveService _interactive;
+        private DiscordSocketClient _client;
         private ulong _soraId;
         private readonly ConcurrentDictionary<ulong, AudioOptions> _options = new ConcurrentDictionary<ulong, AudioOptions>();
 
-        public AudioService(InteractiveService service)
+        public AudioService(InteractiveService service, DiscordSocketClient client)
         {
             _interactive = service;
+            _client = client;
         }
 
         public bool CheckSameVoiceChannel(ulong guildId, ulong? voiceId)
@@ -35,6 +37,80 @@ namespace SoraBot_v2.Services
             var player = _lavaNode.GetPlayer(guildId);
             if (player == null) return false;
             return player.VoiceChannel.Id == voiceId;
+        }
+        
+        public async Task ClientOnDisconnected(Exception arg)
+        {
+            //Make sure this shit is in a background thread.
+            Task.Run(async () =>
+            {
+                Console.WriteLine("RE-CONFIGURING MUSIC STUFF");
+                
+                async Task LeavePlayer(ulong guildId)
+                {
+                    _options.TryRemove(guildId, out _);
+                    await _lavaNode.LeaveAsync(guildId);
+                }
+                
+                async Task ForceLeave(ulong guildId)
+                {
+                    _options.TryRemove(guildId, out _);
+                    try
+                    {
+                        if (!await _lavaNode.LeaveAsync(guildId))
+                        {
+                            await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
+                        } 
+                    }
+                    catch
+                    {
+                        await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
+                    }
+                }
+
+                int tries = 0;
+                while (_client.ConnectionState != ConnectionState.Connected)
+                {
+                    await Task.Delay(3000);
+                    tries++;
+                    // only try this a couple times otherwise give up since the service is probably getting restarted
+                    if (tries >= 3)
+                    {
+                        Console.WriteLine("FAILED RECONNECTION IN MUSIC RESUME. ABORTING");
+                        return;
+                    }
+                }
+                
+                // now lets check all the guilds Sora is in a VoiceChannel.
+                var VCs = _client.Guilds.SelectMany(x => x.VoiceChannels.Where(y => y.Users.Any(z => z.Id == _soraId)));
+                // now lets do some checks for these VCs
+                foreach (var vc in VCs)
+                {
+                    // check if we are alone
+                    if (vc.Users.Count(x => !x.IsBot) == 0)
+                    {
+                        // we are alone
+                        // check if there is a player
+                        if (_lavaNode.GetPlayer(vc.Guild.Id) == null)
+                        {
+                            // there is no player so we force leave
+                            await ForceLeave(vc.Guild.Id);
+                        }
+                        else
+                        {
+                            // there is a player so leave gracefully
+                            await LeavePlayer(vc.Guild.Id);
+                        }
+                    }
+                    // we're not alone
+                    // check if the player still exists tho. otherwise force leave
+                    if (_lavaNode.GetPlayer(vc.Guild.Id) == null)
+                    {
+                        // we're not alone but the player doesn't exist anymore
+                        await ForceLeave(vc.Guild.Id);
+                    }
+                }
+            });
         }
         
         public async Task ClientOnUserVoiceStateUpdated(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)

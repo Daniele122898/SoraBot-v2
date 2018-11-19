@@ -167,22 +167,46 @@ namespace SoraBot_v2.Module
         [Command("queue"), Alias("list"), Summary("Shows the current Queue.")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
-        
-        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song"), Summary("Repeats the current song once its finished.")]
-        public Task ToggleRepeat()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+
+        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song"),
+         Summary("Repeats the current song once its finished.")]
+        public async Task ToggleRepeat()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }     
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.ToggleRepeat(Context.Guild.Id))
                 .Build());
-        
-        [Command("shuffle"), Alias("shufflequeue", "shufflelist"), Summary("Shuffles the entire queue. Cannot be undone.")]
-        public Task ShuffleQueue()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        }
+
+        [Command("shuffle"), Alias("shufflequeue", "shufflelist"),
+         Summary("Shuffles the entire queue. Cannot be undone.")]
+        public async Task ShuffleQueue()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.ShuffleQueue(Context.Guild.Id))
                 .Build());
+        }
 
         [Command("clear"), Alias("clearqueue"), Summary("Clears the entire queue. Cannot be undone.")]
         public async Task ClearQueue()

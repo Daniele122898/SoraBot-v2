@@ -184,6 +184,8 @@ namespace SoraBot_v2
             _audioService.Initialize(node, _client.CurrentUser.Id);
             // voice shit
             _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
+            _client.Disconnected += _audioService.ClientOnDisconnected;
+
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
