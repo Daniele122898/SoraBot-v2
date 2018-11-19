@@ -169,17 +169,14 @@ namespace SoraBot_v2
         {
             SentryService.Install(_client);
             // setup lavalink
-            var node = await _lavalink.ConnectAsync(_client, new LavaConfig()
+            var node = await _lavalink.AddNodeAsync(_client, new Configuration()
             {
                 Authorization = ConfigService.GetConfigData("lavalinkpw"),
-                Endpoint = new Endpoint
-                {
-                    Port = Int32.Parse(ConfigService.GetConfigData("lavalinkport")),
-                    Host = ConfigService.GetConfigData("lavalinkip")
-                },
-                MaxTries = 5,
                 Severity = LogSeverity.Info,
-                BufferSize = 1024
+                BufferSize = 1024,
+                ReconnectAttempts = 3,
+                Host = ConfigService.GetConfigData("lavalinkip"),
+                Port = ushort.Parse(ConfigService.GetConfigData("lavalinkport"))
             });
             _audioService.Initialize(node, _client.CurrentUser.Id);
             // voice shit

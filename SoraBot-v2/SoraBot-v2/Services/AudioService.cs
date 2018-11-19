@@ -46,26 +46,16 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine("RE-CONFIGURING MUSIC STUFF");
                 
-                async Task LeavePlayer(ulong guildId)
+                async Task LeavePlayer(ulong guildId, LavaPlayer player)
                 {
                     _options.TryRemove(guildId, out _);
-                    await _lavaNode.LeaveAsync(guildId);
+                    await player.DisconnectAsync();
                 }
                 
                 async Task ForceLeave(ulong guildId)
                 {
                     _options.TryRemove(guildId, out _);
-                    try
-                    {
-                        if (!await _lavaNode.LeaveAsync(guildId))
-                        {
-                            await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
-                        } 
-                    }
-                    catch
-                    {
-                        await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
-                    }
+                    await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
                 }
 
                 int tries = 0;
@@ -86,12 +76,13 @@ namespace SoraBot_v2.Services
                 // now lets do some checks for these VCs
                 foreach (var vc in VCs)
                 {
+                    var player = _lavaNode.GetPlayer(vc.Guild.Id);
                     // check if we are alone
                     if (vc.Users.Count(x => !x.IsBot) == 0)
                     {
                         // we are alone
                         // check if there is a player
-                        if (_lavaNode.GetPlayer(vc.Guild.Id) == null)
+                        if (player == null)
                         {
                             // there is no player so we force leave
                             await ForceLeave(vc.Guild.Id);
@@ -99,12 +90,12 @@ namespace SoraBot_v2.Services
                         else
                         {
                             // there is a player so leave gracefully
-                            await LeavePlayer(vc.Guild.Id);
+                            await LeavePlayer(vc.Guild.Id, player);
                         }
                     }
                     // we're not alone
                     // check if the player still exists tho. otherwise force leave
-                    if (_lavaNode.GetPlayer(vc.Guild.Id) == null)
+                    if (player == null)
                     {
                         // we're not alone but the player doesn't exist anymore
                         await ForceLeave(vc.Guild.Id);
