@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Discord;
-using Victoria.Objects;
+using Victoria.Entities;
 
 namespace SoraBot_v2.Data.Entities.SubEntities
 {

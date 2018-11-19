@@ -141,7 +141,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Pause(Context.Guild.Id))
+                    await _audio.Pause(Context.Guild.Id))
                 .Build());
         }
 
@@ -160,7 +160,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Resume(Context.Guild.Id))
+                    await _audio.Resume(Context.Guild.Id))
                 .Build());
         }
 
@@ -272,7 +272,7 @@ namespace SoraBot_v2.Module
         }
         
         [Command("volume"), Alias("vol"), Summary("To set the volume of the player.")]
-        public async Task Volume(int vol)
+        public async Task Volume(ushort vol)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
             {
@@ -286,7 +286,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Volume(Context.Guild.Id, vol))
+                    await _audio.Volume(Context.Guild.Id, vol))
                 .Build());
         }
 
