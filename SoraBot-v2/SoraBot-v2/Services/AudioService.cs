@@ -112,6 +112,32 @@ namespace SoraBot_v2.Services
                 }
             });
         }
+
+        public async Task<bool> PlayerExistsAndConnected(ulong guildId)
+        {
+            // get player
+            var player = _lavaNode.GetPlayer(guildId);
+            var vc = _client.GetGuild(guildId).CurrentUser.VoiceChannel;
+            if (player != null)
+            {
+                // the player exists check if we are connected to the VC in d.net as well
+                if (vc?.Id == player.VoiceChannel?.Id)
+                    return true;
+                
+                // in d.net we are not connected so remove the player.
+                await _lavaNode.LeaveAsync(guildId);
+                return false;
+            }
+            // player is null lets check if he's connected tho.
+            _options.TryRemove(guildId, out _);
+            // player is null and vc is null so its disconnected
+            if (vc == null)
+                return false;
+            
+            // we are connected so lets force disconnect
+            await vc.DisconnectAsync();
+            return false;
+        }
         
         public async Task ClientOnUserVoiceStateUpdated(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
         {
@@ -263,7 +289,7 @@ namespace SoraBot_v2.Services
             }
             
             // check if someone summoned me before
-            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id)
+            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id && await PlayerExistsAndConnected(guildId))
             {
                 await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
