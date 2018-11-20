@@ -2,8 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Victoria;
-using Victoria.Objects;
+using Victoria.Entities;
 
 namespace SoraBot_v2.Extensions
 {
@@ -32,7 +31,7 @@ namespace SoraBot_v2.Extensions
         
         private static Random rng = new Random();  
         
-        public static void Shuffle(this LavaQueue<LavaTrack> queue)  
+        public static void ShuffleFisher(this LavaQueue<LavaTrack> queue)  
         {  
             int n = queue.Count;
             var list = queue.Items.ToList();

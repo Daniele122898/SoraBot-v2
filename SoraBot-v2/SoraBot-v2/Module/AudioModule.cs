@@ -27,7 +27,7 @@ namespace SoraBot_v2.Module
         [Command("leave"), Alias("stop"), Summary("Makes sora leave your Voice Channel. This also empties the queue and resets all options.")]
         public async Task StopAsync()
         {
-            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            if (await _audio.PlayerExistsAndConnected(Context.Guild.Id) &&  !_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
@@ -141,7 +141,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Pause(Context.Guild.Id))
+                    await _audio.Pause(Context.Guild.Id))
                 .Build());
         }
 
@@ -160,29 +160,53 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Resume(Context.Guild.Id))
+                    await _audio.Resume(Context.Guild.Id))
                 .Build());
         }
 
         [Command("queue"), Alias("list"), Summary("Shows the current Queue.")]
         public Task Queue()
             => ReplyAsync("", embed: _audio.DisplayQueue(Context.Guild.Id, Context.User, Context.Channel));
-        
-        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song"), Summary("Repeats the current song once its finished.")]
-        public Task ToggleRepeat()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+
+        [Command("repeat"), Alias("togglerepeat", "toggle repeat", "repeat song"),
+         Summary("Repeats the current song once its finished.")]
+        public async Task ToggleRepeat()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }     
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.ToggleRepeat(Context.Guild.Id))
                 .Build());
-        
-        [Command("shuffle"), Alias("shufflequeue", "shufflelist"), Summary("Shuffles the entire queue. Cannot be undone.")]
-        public Task ShuffleQueue()
-            => ReplyAsync("", embed: Utility.ResultFeedback(
+        }
+
+        [Command("shuffle"), Alias("shufflequeue", "shufflelist"),
+         Summary("Shuffles the entire queue. Cannot be undone.")]
+        public async Task ShuffleQueue()
+        {
+            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            {
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "You must be in the same Voice Channel as me!")
+                    .Build());
+                return;
+            }
+            await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
                     _audio.ShuffleQueue(Context.Guild.Id))
                 .Build());
+        }
 
         [Command("clear"), Alias("clearqueue"), Summary("Clears the entire queue. Cannot be undone.")]
         public async Task ClearQueue()
@@ -248,7 +272,7 @@ namespace SoraBot_v2.Module
         }
         
         [Command("volume"), Alias("vol"), Summary("To set the volume of the player.")]
-        public async Task Volume(int vol)
+        public async Task Volume(ushort vol)
         {
             if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
             {
@@ -262,7 +286,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
-                    _audio.Volume(Context.Guild.Id, vol))
+                    await _audio.Volume(Context.Guild.Id, vol))
                 .Build());
         }
 
