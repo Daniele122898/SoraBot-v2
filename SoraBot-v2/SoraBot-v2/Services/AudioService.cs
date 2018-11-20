@@ -118,6 +118,7 @@ namespace SoraBot_v2.Services
                     return true;
                 
                 // in d.net we are not connected so remove the player.
+                _options.TryRemove(guildId, out _);
                 await _lavaNode.DisconnectAsync(guildId);
                 return false;
             }
@@ -304,7 +305,7 @@ namespace SoraBot_v2.Services
             }
             
             // check if someone summoned me before
-            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id) // && await PlayerExistsAndConnected(guildId)
+            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id && await PlayerExistsAndConnected(guildId))
             {
                 await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
@@ -314,7 +315,7 @@ namespace SoraBot_v2.Services
                 return;
             }
 
-            var player = await _lavaNode.ConnectAsync(user.VoiceChannel, channel);
+            await _lavaNode.ConnectAsync(user.VoiceChannel, channel);
             _options.TryAdd(guildId, new AudioOptions()
             {
                 Summoner = user,
