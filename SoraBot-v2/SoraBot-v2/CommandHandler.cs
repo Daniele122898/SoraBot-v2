@@ -135,10 +135,6 @@ namespace SoraBot_v2
             
             // Ready
             _client.Ready += ClientOnReady;
-            
-            // lavalink shit
-            _lavalink.Log += LavalinkOnLog;
-            
         }
 
         private Task LavalinkOnLog(LogMessage msg)
@@ -167,23 +163,24 @@ namespace SoraBot_v2
 
         private async Task ClientOnReady()
         {
+            // lavalink shit
+            _lavalink.Log = LavalinkOnLog;
             SentryService.Install(_client);
             // setup lavalink
-            var node = await _lavalink.ConnectAsync(_client, new LavaConfig()
+            var node = await _lavalink.AddNodeAsync(_client, new Configuration()
             {
                 Authorization = ConfigService.GetConfigData("lavalinkpw"),
-                Endpoint = new Endpoint
-                {
-                    Port = Int32.Parse(ConfigService.GetConfigData("lavalinkport")),
-                    Host = ConfigService.GetConfigData("lavalinkip")
-                },
-                MaxTries = 5,
                 Severity = LogSeverity.Info,
-                BufferSize = 1024
+                BufferSize = 1024,
+                ReconnectAttempts = 3,
+                Host = ConfigService.GetConfigData("lavalinkip"),
+                Port = ushort.Parse(ConfigService.GetConfigData("lavalinkport"))
             });
             _audioService.Initialize(node, _client.CurrentUser.Id);
             // voice shit
             _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
+            _client.Disconnected += _audioService.ClientOnDisconnected;
+
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)

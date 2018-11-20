@@ -8,11 +8,12 @@ using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
 using Victoria;
-using Victoria.Objects;
-using Victoria.Objects.Enums;
 using Discord.Addons.Interactive;
+using Humanizer;
 using SoraBot_v2.Data.Entities.SubEntities;
-using SoraBot_v2.Extensions;
+using Victoria.Entities;
+using Victoria.Entities.Enums;
+using Victoria.Entities.Stats;
 
 namespace SoraBot_v2.Services
 {
@@ -21,12 +22,15 @@ namespace SoraBot_v2.Services
 
         private LavaNode _lavaNode;
         private InteractiveService _interactive;
+        private DiscordSocketClient _client;
+        private Server? _server = null;
         private ulong _soraId;
         private readonly ConcurrentDictionary<ulong, AudioOptions> _options = new ConcurrentDictionary<ulong, AudioOptions>();
 
-        public AudioService(InteractiveService service)
+        public AudioService(InteractiveService service, DiscordSocketClient client)
         {
             _interactive = service;
+            _client = client;
         }
 
         public bool CheckSameVoiceChannel(ulong guildId, ulong? voiceId)
@@ -34,14 +38,108 @@ namespace SoraBot_v2.Services
             if (voiceId == null || voiceId == 0) return false;
             var player = _lavaNode.GetPlayer(guildId);
             if (player == null) return false;
-            return player.VoiceChannel.Id == voiceId;
+            return player.VoiceChannel?.Id == voiceId;
+        }
+        
+        public async Task ClientOnDisconnected(Exception arg)
+        {
+            //Make sure this shit is in a background thread.
+            Task.Run(async () =>
+            {
+                Console.WriteLine("RE-CONFIGURING MUSIC STUFF");
+                
+                async Task LeavePlayer(ulong guildId)
+                {
+                    _options.TryRemove(guildId, out _);
+                    await _lavaNode.DisconnectAsync(guildId);
+                }
+                
+                async Task ForceLeave(ulong guildId)
+                {
+                    _options.TryRemove(guildId, out _);
+                    await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
+                }
+
+                int tries = 0;
+                while (_client.ConnectionState != ConnectionState.Connected)
+                {
+                    await Task.Delay(3000);
+                    tries++;
+                    // only try this a couple times otherwise give up since the service is probably getting restarted
+                    if (tries >= 3)
+                    {
+                        Console.WriteLine("FAILED RECONNECTION IN MUSIC RESUME. ABORTING");
+                        return;
+                    }
+                }
+                
+                Console.WriteLine("RESETTING NEEDED MUSIC STUFF");
+                
+                // now lets check all the guilds Sora is in a VoiceChannel.
+                var VCs = _client.Guilds.SelectMany(x => x.VoiceChannels.Where(y => y.Users.Any(z => z.Id == _soraId)));
+                // now lets do some checks for these VCs
+                foreach (var vc in VCs)
+                {
+                    var player = _lavaNode.GetPlayer(vc.Guild.Id);
+                    // check if we are alone
+                    if (vc.Users.Count(x => !x.IsBot) == 0)
+                    {
+                        // we are alone
+                        // check if there is a player
+                        if (player == null)
+                        {
+                            // there is no player so we force leave
+                            await ForceLeave(vc.Guild.Id);
+                        }
+                        else
+                        {
+                            // there is a player so leave gracefully
+                            await LeavePlayer(vc.Guild.Id);
+                        }
+                    }
+                    // we're not alone
+                    // check if the player still exists tho. otherwise force leave
+                    if (player == null)
+                    {
+                        // we're not alone but the player doesn't exist anymore
+                        await ForceLeave(vc.Guild.Id);
+                    }
+                }
+                Console.WriteLine("DONE");
+            });
+        }
+
+        public async Task<bool> PlayerExistsAndConnected(ulong guildId)
+        {
+            // get player
+            var player = _lavaNode.GetPlayer(guildId);
+            var vc = _client.GetGuild(guildId).CurrentUser.VoiceChannel;
+            if (player != null)
+            {
+                // the player exists check if we are connected to the VC in d.net as well
+                if (vc?.Id == player.VoiceChannel?.Id)
+                    return true;
+                
+                // in d.net we are not connected so remove the player.
+                _options.TryRemove(guildId, out _);
+                await _lavaNode.DisconnectAsync(guildId);
+                return false;
+            }
+            // player is null lets check if he's connected tho.
+            _options.TryRemove(guildId, out _);
+            // player is null and vc is null so its disconnected
+            if (vc == null)
+                return false;
+            
+            // we are connected so lets force disconnect
+            await vc.DisconnectAsync();
+            return false;
         }
         
         public async Task ClientOnUserVoiceStateUpdated(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
         {
             var guild = newState.VoiceChannel?.Guild ?? oldState.VoiceChannel?.Guild;
             if (guild == null) return;
-
             if (_lavaNode.GetPlayer(guild.Id) == null) return;
             
             // now we know its a voice channel that we actually care about. So lets do shit
@@ -59,7 +157,7 @@ namespace SoraBot_v2.Services
             if (userCount == 0)
             {
                 _options.TryRemove(guild.Id, out _);
-                await _lavaNode.LeaveAsync(guild.Id);
+                await _lavaNode.DisconnectAsync(guild.Id);
                 return;
             }
             
@@ -67,7 +165,7 @@ namespace SoraBot_v2.Services
             if (guild.AFKChannel.Id == ourChannel.Id)
             {
                 _options.TryRemove(guild.Id, out _);
-                await _lavaNode.LeaveAsync(guild.Id);
+                await _lavaNode.DisconnectAsync(guild.Id);
             }
         }
         
@@ -76,10 +174,24 @@ namespace SoraBot_v2.Services
             _soraId = soraId;
             _lavaNode = node;
             // lavanode events
-            node.Stuck += NodeOnStuck;
-            node.Finished += NodeOnFinished;
-            node.Exception += NodeOnException;
-            node.Updated += NodeOnUpdated;
+            node.TrackStuck = NodeOnStuck;
+            node.TrackFinished = NodeOnFinished;
+            node.TrackException = NodeOnException;
+            node.StatsUpdated = StatsUpdated;
+            //node.PlayerUpdated = PlayerUpdated;
+        }
+
+        private Task PlayerUpdated(LavaPlayer player, LavaTrack track, TimeSpan time)
+        {
+            Console.WriteLine($"Update: {player.VoiceChannel.GuildId}: {track.Title} - {time.TotalSeconds}");
+            return Task.CompletedTask;
+        }
+
+        private Task StatsUpdated(Server server)
+        {
+            Console.WriteLine("GOT STATS");
+            _server = server;
+            return Task.CompletedTask;
         }
 
         public string ShuffleQueue(ulong guildId)
@@ -116,6 +228,15 @@ namespace SoraBot_v2.Services
 
         public EmbedBuilder PlayerStats(string avatarUrl, SocketUser requestor)
         {
+
+            if (_server == null)
+            {
+                return new EmbedBuilder()
+                {
+                    Color = Utility.RedFailiureEmbed,
+                    Title = Utility.SuccessLevelEmoji[2] + " Stats are not yet available. Try later again."
+                };
+            }
             
             long FormatRamValue(long d)
             {
@@ -150,27 +271,27 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = "Active -/ Total Players";
-                x.Value = $"{_lavaNode.Statistics.ActivePlayers.ToString()} / {_lavaNode.Statistics.TotalPlayers.ToString()}";
+                x.Value = $"{_server.Value.PlayingPlayers} / {_server.Value.Players}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "RAM usage";
-                x.Value = $"{FormatRamValue(_lavaNode.Statistics.RamUsed):f2} {FormatRamUnit(_lavaNode.Statistics.RamUsed)} / {FormatRamValue(_lavaNode.Statistics.RamAllocated):f2} {FormatRamUnit(_lavaNode.Statistics.RamAllocated)}";
+                x.Value = $"{FormatRamValue(_server.Value.Memory.Used):f2} {FormatRamUnit(_server.Value.Memory.Used)} / {FormatRamValue(_server.Value.Memory.Allocated):f2} {FormatRamUnit(_server.Value.Memory.Allocated)}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "LavaLink CPU Count";
-                x.Value = $"{_lavaNode.Statistics.CpuCoreCount}";
+                x.Value = $"{_server.Value.CPU.Cores}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "LavaLink CPU Usage";
-                x.Value = $"{(_lavaNode.Statistics.CpuLavalinkLoad*100):f2}%";
+                x.Value = $"{(_server.Value.CPU.LavalinkLoad*100):f2}%";
             });
-
+    
             return eb;
         }
 
@@ -187,7 +308,7 @@ namespace SoraBot_v2.Services
             }
             
             // check if someone summoned me before
-            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id)
+            if (_options.TryGetValue(guildId, out var options) && options.Summoner.Id != user.Id && await PlayerExistsAndConnected(guildId))
             {
                 await channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
@@ -197,7 +318,7 @@ namespace SoraBot_v2.Services
                 return;
             }
 
-            var player = await _lavaNode.JoinAsync(user.VoiceChannel, channel);
+            await _lavaNode.ConnectAsync(user.VoiceChannel, channel);
             _options.TryAdd(guildId, new AudioOptions()
             {
                 Summoner = user,
@@ -210,7 +331,7 @@ namespace SoraBot_v2.Services
                 .Build());
         }
 
-        private void loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
+        private async Task loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
         {
             // load in playlist
             foreach (LavaTrack track in tracks)
@@ -218,9 +339,9 @@ namespace SoraBot_v2.Services
                 try
                 {
                     if (player.CurrentTrack != null)
-                        player.Enqueue(track);
+                        player.Queue.Enqueue(track);
                     else
-                        player.Play(track);
+                        await player.PlayAsync(track);
                 }
                 catch
                 {
@@ -285,7 +406,7 @@ namespace SoraBot_v2.Services
                     .Build());
                 return;
             }
-            var search = youtube ? await _lavaNode.SearchYouTubeAsync(query) : await _lavaNode.SearchSoundCloudAsync(query);
+            var search = youtube ? await _lavaNode.SearchYouTubeAsync(query) : await _lavaNode.SearchSoundcloudAsync(query);
             if (search.LoadResultType == LoadResultType.NoMatches || search.LoadResultType == LoadResultType.LoadFailed)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
@@ -311,11 +432,11 @@ namespace SoraBot_v2.Services
             bool queued = false;
             if (player.CurrentTrack != null)
             {
-                player.Enqueue(result.track);
+                player.Queue.Enqueue(result.track);
                 queued = true;
             }
             else
-                player.Play(result.track);
+                await player.PlayAsync(result.track);
             
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
@@ -363,38 +484,41 @@ namespace SoraBot_v2.Services
                 var track = search.Tracks.FirstOrDefault();
                 if (player.CurrentTrack != null)
                 {
-                    player.Enqueue(track);
+                    player.Queue.Enqueue(track);
                     return (track, true, null, 1);
                 }
-                player.Play(track);
+                await player.PlayAsync(track);
                 return (track, false, null, 1);
             }
             
             // get playlist
-            loadPlaylist(_lavaNode.GetPlayer(guildId), search.Tracks);
+            await loadPlaylist(_lavaNode.GetPlayer(guildId), search.Tracks);
             return (null, false, search.PlaylistInfo.Name, search.Tracks.Count());
         }
 
         public async Task<string> DisconnectAsync(ulong guildId)
         {
             // remove options
+            if (_lavaNode.GetPlayer(guildId) == null)
+                return "Not connected to any voice channels.";
             _options.TryRemove(guildId, out _);
-            return await _lavaNode.LeaveAsync(guildId) ? "Disconnected." : "Not connected to any voice channels.";
+            await _lavaNode.DisconnectAsync(guildId);
+            return "Disconnected.";
         }
 
-        public string Pause(ulong guildId)
+        public async Task<string> Pause(ulong guildId)
         {
             var player = _lavaNode.GetPlayer(guildId);
             if(player?.CurrentTrack == null) return "Not playing anything currently.";
-            player.Pause();
+            await player.PauseAsync();
             return $"Paused: {player.CurrentTrack.Title}";
         }
 
-        public string Resume(ulong guildId)
+        public async Task<string> Resume(ulong guildId)
         {
             var player = _lavaNode.GetPlayer(guildId);
             if(player?.CurrentTrack == null) return "Not playing anything currently.";
-            player.Resume();
+            await player.ResumeAsync();
             return $"Resumed: {player.CurrentTrack.Title}";
         }
 
@@ -415,7 +539,7 @@ namespace SoraBot_v2.Services
             }
 
             double percentageDone = (100.0 / player.CurrentTrack.Length.TotalSeconds) *
-                                    player.Position.TotalSeconds;
+                                    player.CurrentTrack.Position.TotalSeconds;
 
             int rounded = (int) Math.Floor(percentageDone / 10);
             string progress = "";
@@ -438,7 +562,7 @@ namespace SoraBot_v2.Services
                     x.IsInline = false;
                     x.Name = "Progress";
                     x.Value =
-                        $"[{player.Position.ToString(@"mm\:ss")}] {progress} [{player.CurrentTrack.Length.ToString(@"mm\:ss")}]";
+                        $"[{player.CurrentTrack.Position.ToString(@"mm\:ss")}] {progress} [{player.CurrentTrack.Length.ToString(@"mm\:ss")}]";
                 })
                 .Build();    
         }
@@ -496,7 +620,7 @@ namespace SoraBot_v2.Services
             }
             
             // also add currently playing song
-            span = span.Add(player.CurrentTrack.Length.Subtract(player.Position));
+            span = span.Add(player.CurrentTrack.Length.Subtract(player.CurrentTrack.Position));
 
             eb.AddField(x =>
             {
@@ -524,7 +648,7 @@ namespace SoraBot_v2.Services
                 {
                     if (player.Queue.Count == 0)
                     {
-                        player.Stop();
+                        await player.StopAsync();
                         return Utility.ResultFeedback(
                                 Utility.BlueInfoEmbed,
                                 Utility.MusicalNote,
@@ -532,7 +656,7 @@ namespace SoraBot_v2.Services
                             .Build();
                     }
                     
-                    var track = player.Skip();
+                    var track = await player.SkipAsync();
 
                     return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
@@ -572,7 +696,7 @@ namespace SoraBot_v2.Services
             
             if (player.Queue.Count == 0)
             {
-                player.Stop();
+                await player.StopAsync();
                 return Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
@@ -580,7 +704,7 @@ namespace SoraBot_v2.Services
                     .Build();
             }
 
-            var next = player.Skip();
+            var next = await player.SkipAsync();
             RemoveVotes(guildId, options);
 
             return Utility.ResultFeedback(
@@ -601,7 +725,7 @@ namespace SoraBot_v2.Services
             options.Voters.Clear();
         }
 
-        public string Volume(ulong guildId, int vol)
+        public async Task<string> Volume(ulong guildId, ushort vol)
         {
             var player = _lavaNode.GetPlayer(guildId);
             if (player == null) return "Not playing anything currently.";
@@ -612,7 +736,7 @@ namespace SoraBot_v2.Services
                     vol = 1;
                 else if (vol > 100)
                     vol = 100;
-                player.Volume(vol);
+                await player.SetVolumeAsync(vol);
                 return $"Volume has been set to {vol}";
             }
             catch (ArgumentException e)
@@ -623,7 +747,7 @@ namespace SoraBot_v2.Services
 
         private async Task NodeOnException(LavaPlayer player, LavaTrack track, string arg3)
         {
-            RemoveVotes(player.Guild.Id);
+            RemoveVotes(player.VoiceChannel.GuildId);
             player.Queue.Remove(track);
             await player.TextChannel.SendMessageAsync(
                 "",embed:Utility.ResultFeedback(
@@ -648,7 +772,9 @@ namespace SoraBot_v2.Services
             
             // player.Remove(track);
 
-            _options.TryGetValue(player.Guild.Id, out var options);
+            ulong guildId = player.VoiceChannel.GuildId;
+
+            _options.TryGetValue(guildId, out var options);
 
             LavaTrack nextTrack = null;
 
@@ -659,7 +785,7 @@ namespace SoraBot_v2.Services
                 nextTrack = player.Queue.Count == 0 ? null : player.Queue.Dequeue();
             }            
             
-            RemoveVotes(player.Guild.Id);
+            RemoveVotes(guildId);
             if (nextTrack == null)
             {
                 await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
@@ -670,7 +796,7 @@ namespace SoraBot_v2.Services
                 return;
             }
 
-            player.Play(nextTrack);
+            await player.PlayAsync(nextTrack);
             await player.TextChannel.SendMessageAsync("", embed:Utility.ResultFeedback(
                     Utility.BlueInfoEmbed,
                     Utility.MusicalNote,
@@ -679,16 +805,16 @@ namespace SoraBot_v2.Services
                 .Build());
         }
 
-        private async Task NodeOnStuck(LavaPlayer player, LavaTrack track, long arg3)
+        private async Task NodeOnStuck(LavaPlayer player, LavaTrack lavaTrack, long arg3)
         {
-            RemoveVotes(player.Guild.Id);
-            player.Queue.Remove(track);
+            RemoveVotes(player.VoiceChannel.GuildId);
+            player.Queue.Remove(lavaTrack);
             await player.TextChannel.SendMessageAsync(
                 "", embed:Utility.ResultFeedback(
                         Utility.BlueInfoEmbed,
                         Utility.MusicalNote,
-                        $"Track {track.Title} got stuck: {arg3}. Track has been removed.")
-                    .WithUrl(track.Uri.ToString())
+                        $"Track {lavaTrack.Title} got stuck: {arg3}. Track has been removed.")
+                    .WithUrl(lavaTrack.Uri.ToString())
                     .Build());
         }
     }
