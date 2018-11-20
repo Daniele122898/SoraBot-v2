@@ -170,7 +170,7 @@ namespace SoraBot_v2
             var node = await _lavalink.AddNodeAsync(_client, new Configuration()
             {
                 Authorization = ConfigService.GetConfigData("lavalinkpw"),
-                Severity = LogSeverity.Debug,
+                Severity = LogSeverity.Info,
                 BufferSize = 1024,
                 ReconnectAttempts = 3,
                 Host = ConfigService.GetConfigData("lavalinkip"),
