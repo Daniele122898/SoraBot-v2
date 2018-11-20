@@ -73,6 +73,8 @@ namespace SoraBot_v2.Services
                     }
                 }
                 
+                Console.WriteLine("RESETTING NEEDED MUSIC STUFF");
+                
                 // now lets check all the guilds Sora is in a VoiceChannel.
                 var VCs = _client.Guilds.SelectMany(x => x.VoiceChannels.Where(y => y.Users.Any(z => z.Id == _soraId)));
                 // now lets do some checks for these VCs
@@ -103,6 +105,7 @@ namespace SoraBot_v2.Services
                         await ForceLeave(vc.Guild.Id);
                     }
                 }
+                Console.WriteLine("DONE");
             });
         }
 
