@@ -514,6 +514,17 @@ namespace SoraBot_v2.Services
             return $"Paused: {player.CurrentTrack.Title}";
         }
 
+        public async Task<string> ForceDisconnect(ulong guildId)
+        {
+            if (await _lavaNode.DisconnectAsync(guildId))
+            {
+                return "Gracefully Disconnected from the VC";
+            }
+            // check if we're in VC anyway and if so leave.
+            var vc = _client.GetGuild(guildId).CurrentUser.VoiceChannel;
+            _options.TryRemove(guildId, out _);
+        }
+
         public async Task<string> Resume(ulong guildId)
         {
             var player = _lavaNode.GetPlayer(guildId);

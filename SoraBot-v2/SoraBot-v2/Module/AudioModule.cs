@@ -42,6 +42,8 @@ namespace SoraBot_v2.Module
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
         }
+        
+        
 
         [Command("sc", RunMode = RunMode.Async), Alias("soundcloud"), Summary("Searches Soundcloud for the track and gives you a list of found items to choose from.")]
         public async Task ScSearch([Remainder] string query)
