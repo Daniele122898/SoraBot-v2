@@ -728,7 +728,7 @@ namespace SoraBot_v2.Services
         public async Task<string> Volume(ulong guildId, ushort vol)
         {
             var player = _lavaNode.GetPlayer(guildId);
-            if (player == null) return "Not playing anything currently.";
+            if (player == null || !player.IsPlaying) return "Not playing anything currently.";
 
             try
             {
