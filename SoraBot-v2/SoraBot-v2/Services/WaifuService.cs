@@ -53,9 +53,10 @@ namespace SoraBot_v2.Services
         private List<Waifu> _boxCache = new List<Waifu>();
         private List<Waifu> _specialWaifu = new List<Waifu>();
 
-        private int BOX_COST = 500;
-        private int SPECIAL_COST = 750;
-        private byte BOX_CARD_AMOUNT = 3;
+        private const int BOX_COST = 500;
+        private const int SPECIAL_COST = 750;
+        private const byte BOX_CARD_AMOUNT = 3;
+        private const WaifuRarity CURRENT_SPECIAL = WaifuRarity.Christmas;
         
         public void Initialize()
         {
@@ -76,7 +77,9 @@ namespace SoraBot_v2.Services
                     // special waifus should not be added to normal pot
                     if (amount == 0)
                     {
-                        _specialWaifu.Add(waifu);
+                        // add to special waifu list if its the current Special.
+                        if(waifu.Rarity == CURRENT_SPECIAL)
+                            _specialWaifu.Add(waifu);
                         continue;
                     }
                     // add normal waifus to normal pot
@@ -88,6 +91,10 @@ namespace SoraBot_v2.Services
                 // shuffle for some extra RNG
                 _boxCache.Shuffle();
                 _boxCache.Shuffle();
+                
+                // if the special list is empty, thus no special waifus exist rn remove the allocated ram for the list
+                if (_specialWaifu.Count == 0)
+                    _specialWaifu = null;
             }
         }
 
@@ -503,7 +510,7 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a Halloween WaifuBox for {SPECIAL_COST} SC.",
+                    Description = $"You opened a {GetRarityString(CURRENT_SPECIAL)} WaifuBox for {SPECIAL_COST} SC.",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl
@@ -595,7 +602,7 @@ namespace SoraBot_v2.Services
             return _boxCache[ThreadSafeRandom.ThisThreadsRandom.Next(0, _boxCache.Count)];
         }
 
-        private void AddWaifuToCache(Waifu waifu)
+        public void AddWaifuToCache(Waifu waifu)
         {
             int amount = GetRarityAmount(waifu.Rarity);
             for (int i = 0; i < amount; i++)
@@ -622,6 +629,8 @@ namespace SoraBot_v2.Services
                     return "Ultimate Waifu";
                 case WaifuRarity.Halloween:
                     return "Halloween";
+                case WaifuRarity.Christmas:
+                    return "Christmas";
             }
             return "";
         }
@@ -641,12 +650,13 @@ namespace SoraBot_v2.Services
                 case WaifuRarity.UltimateWaifu:
                     return 1500;
                 case WaifuRarity.Halloween:
+                case WaifuRarity.Christmas:
                     return 300;
             }
             return 0;
         }
 
-        private WaifuRarity GetRarityByInt(int rarity)
+        public WaifuRarity GetRarityByInt(int rarity)
         {
             switch (rarity)
             {
@@ -658,10 +668,12 @@ namespace SoraBot_v2.Services
                     return WaifuRarity.Rare;
                 case 3:
                     return WaifuRarity.Epic;
-                case 4:
+                case 99:
                     return WaifuRarity.UltimateWaifu;
                 case 5:
                     return WaifuRarity.Halloween;
+                case 6:
+                    return WaifuRarity.Christmas;
             }
             return WaifuRarity.Common;
         }
@@ -681,6 +693,7 @@ namespace SoraBot_v2.Services
                     case WaifuRarity.UltimateWaifu:
                         return 20;
                     case WaifuRarity.Halloween:
+                    case WaifuRarity.Christmas:
                         return 0;
             }
             return 0;
