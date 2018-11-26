@@ -510,7 +510,7 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a Christmas WaifuBox for {SPECIAL_COST} SC.",
+                    Description = $"You opened a {GetRarityString(CURRENT_SPECIAL)} WaifuBox for {SPECIAL_COST} SC.",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl
@@ -602,7 +602,7 @@ namespace SoraBot_v2.Services
             return _boxCache[ThreadSafeRandom.ThisThreadsRandom.Next(0, _boxCache.Count)];
         }
 
-        private void AddWaifuToCache(Waifu waifu)
+        public void AddWaifuToCache(Waifu waifu)
         {
             int amount = GetRarityAmount(waifu.Rarity);
             for (int i = 0; i < amount; i++)
@@ -656,7 +656,7 @@ namespace SoraBot_v2.Services
             return 0;
         }
 
-        private WaifuRarity GetRarityByInt(int rarity)
+        public WaifuRarity GetRarityByInt(int rarity)
         {
             switch (rarity)
             {
@@ -668,7 +668,7 @@ namespace SoraBot_v2.Services
                     return WaifuRarity.Rare;
                 case 3:
                     return WaifuRarity.Epic;
-                case 4:
+                case 99:
                     return WaifuRarity.UltimateWaifu;
                 case 5:
                     return WaifuRarity.Halloween;

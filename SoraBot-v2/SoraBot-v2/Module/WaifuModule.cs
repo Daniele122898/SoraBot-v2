@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -34,12 +41,14 @@ namespace SoraBot_v2.Module
         [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
         public async Task SpecialWaifus()
         {
+            /*
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2],
                     "There are no special waifus available right now.")
                 .Build());
-            // await _waifuService.UnboxSpecialWaifu(Context);
+            */
+            await _waifuService.UnboxSpecialWaifu(Context);
         }
 
         [Command("mywaifus"), Alias("waifus"), Summary("Shows all the waifus you or the specified user owns")]
@@ -208,5 +217,120 @@ namespace SoraBot_v2.Module
             }
             await _waifuService.MakeTradeOffer(Context, user, wantId, offerId);
         }
+        
+        [Command("addwaifujson", RunMode = RunMode.Async)]
+        [RequireOwner]
+        public async Task AddWaifuJson()
+        {
+            if (Context.Message.Attachments.Count != 1)
+            {
+                await ReplyAsync("Please add a json file");
+                return;
+            }
+
+            var url = Context.Message.Attachments.ToArray()[0].Url;
+            if (!url.EndsWith(".json"))
+            {
+                await ReplyAsync("This is not a json u fucktard u programmed this!");
+                return;
+            }
+
+            try
+            {
+                // remove if it already exists for some reason
+                if (File.Exists("waifuJsonTemp.json"))
+                {
+                    File.Delete("waifuJsonTemp.json");
+                }
+                
+                Uri requestUri = new Uri(url);
+
+                //DOWNLOAD IMAGE
+                using (var client = new HttpClient())
+                using (var request = new HttpRequestMessage(HttpMethod.Get, requestUri))
+                using (Stream contentStream = await (await client.SendAsync(request)).Content.ReadAsStreamAsync(),
+                    stream = new FileStream($"waifuJsonTemp.json", FileMode.Create,
+                        FileAccess.Write, FileShare.None, 3145728, true))
+                {
+                    await contentStream.CopyToAsync(stream);
+                    await contentStream.FlushAsync();
+                    contentStream.Dispose();
+                    await stream.FlushAsync();
+                    stream.Dispose();
+                }
+
+                if (!File.Exists("waifuJsonTemp.json"))
+                {
+                    await ReplyAsync("Smth went wrong when downloading...");
+                    return;
+                }
+
+                WaifuDownload down = null;
+                
+                using (StreamReader sr = File.OpenText("waifuJsonTemp.json"))
+                using (JsonReader reader = new JsonTextReader(sr))
+                {
+                    JsonSerializer JsonSerializer = new JsonSerializer();
+                    JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
+                    down = JsonSerializer.Deserialize<WaifuDownload>(reader);
+                }
+                // now lets try to add all of them.
+                using (var soraContext = new SoraContext())
+                {
+                    string errors = "";
+                    int count = 0;
+                    foreach (var waifuJson in down.Waifus)
+                    {
+                        waifuJson.Name = waifuJson.Name.Trim();
+                        waifuJson.ImageUrl = waifuJson.ImageUrl.Trim();
+                        // check if waifu already exists
+                        if (soraContext.Waifus.Any(x=> x.Name.Equals(waifuJson.Name, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            errors += $"\nCouldn't add {waifuJson.Name} as it already exists!";
+                            continue;
+                        }
+                        // otherwise add it
+                        var waifu = new Waifu()
+                        {
+                            ImageUrl = waifuJson.ImageUrl,
+                            Name = waifuJson.Name,
+                            Rarity = _waifuService.GetRarityByInt(waifuJson.Rarity)
+                        };
+                        soraContext.Waifus.Add(waifu);
+                        await soraContext.SaveChangesAsync();
+                        count++;
+                    }
+
+                    await ReplyAsync($"Added {count} Waifus.{errors}");
+                }
+            }
+            catch (Exception e)
+            {
+                await ReplyAsync("Something broke, removing all remains...\n"+e);
+                
+                if (File.Exists("waifuJsonTemp.json"))
+                {
+                    File.Delete("waifuJsonTemp.json");
+                }
+            }
+        }
+    }
+
+    class WaifuDownload
+    {
+        [JsonProperty("waifus")]
+        public List<WaifuJson> Waifus { get; set; }
+    }
+
+    class WaifuJson
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
+        [JsonProperty("imageURl")]
+        public string ImageUrl { get; set; }
+        
+        [JsonProperty("rarity")]
+        public int Rarity { get; set; }
     }
 }
