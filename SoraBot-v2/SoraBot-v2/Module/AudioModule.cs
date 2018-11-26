@@ -42,8 +42,19 @@ namespace SoraBot_v2.Module
                     await _audio.DisconnectAsync(Context.Guild.Id))
                 .Build());
         }
-        
-        
+
+        [Command("forcedc"), Alias("forcedisconnect", "forceleave", "fdc", "fleave"),
+         Summary("If Sora gets stuck in a Voice Channel you can use this command to unfuck the situation.")]
+        public async Task ForceDc()
+        {
+            var res = await _audio.ForceDisconnect(Context.Guild.Id);
+            await ReplyAsync("", embed: Utility.ResultFeedback(
+            res.error ? Utility.RedFailiureEmbed : Utility.GreenSuccessEmbed,
+                res.error ? Utility.SuccessLevelEmoji[2] : Utility.SuccessLevelEmoji[0],
+                res.message)
+                .Build());
+        }
+
 
         [Command("sc", RunMode = RunMode.Async), Alias("soundcloud"), Summary("Searches Soundcloud for the track and gives you a list of found items to choose from.")]
         public async Task ScSearch([Remainder] string query)

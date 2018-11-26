@@ -514,15 +514,25 @@ namespace SoraBot_v2.Services
             return $"Paused: {player.CurrentTrack.Title}";
         }
 
-        public async Task<string> ForceDisconnect(ulong guildId)
+        public async Task<(string message, bool error)> ForceDisconnect(ulong guildId)
         {
-            if (await _lavaNode.DisconnectAsync(guildId))
+            if (_lavaNode.GetPlayer(guildId) != null)
             {
-                return "Gracefully Disconnected from the VC";
+                return ("The player seems alright. Use normal disconnect!", true);
             }
+            // the player is FACKED so lets actually force DC
             // check if we're in VC anyway and if so leave.
             var vc = _client.GetGuild(guildId).CurrentUser.VoiceChannel;
+
+            if (vc == null)
+            {
+                return ("Sora is not connected to any Voice channel!", true);
+            }
+            // remove options if they are still there
             _options.TryRemove(guildId, out _);
+            // forcefully disconnect Sora
+            await vc.DisconnectAsync();
+            return ("Forcefully disconnected Sora. You should be able to use him again. Gomen >.<", false);
         }
 
         public async Task<string> Resume(ulong guildId)
