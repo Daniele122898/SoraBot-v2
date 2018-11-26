@@ -15,6 +15,13 @@ namespace SoraBot_v2.Services
 
         public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
         {
+            if (context.User.Id == userId)
+            {
+                await context.Channel.SendMessageAsync("",
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                        "You can't send money to yourself... Because... Why would you?").Build());
+                return;
+            }
             if (amount < 1)
             {
                 await context.Channel.SendMessageAsync("",
