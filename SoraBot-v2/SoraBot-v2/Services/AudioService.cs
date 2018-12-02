@@ -189,7 +189,6 @@ namespace SoraBot_v2.Services
 
         private Task StatsUpdated(Server server)
         {
-            Console.WriteLine("GOT STATS");
             _server = server;
             return Task.CompletedTask;
         }
