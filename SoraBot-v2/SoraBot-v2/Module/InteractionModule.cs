@@ -59,11 +59,6 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            /*
-            var r = new Random();
-            
-            eb.ImageUrl = $"{Utility.Pats[r.Next(0, Utility.Pats.Length)]}";
-            */
 
             eb.Footer = new EmbedFooterBuilder()
             {
@@ -119,9 +114,6 @@ namespace SoraBot_v2.Module
             {
                 await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
             }
-            /*
-            var r = new Random();
-            eb.ImageUrl = $"{Utility.Hugs[r.Next(0, Utility.Hugs.Length)]}";*/
             
             eb.Footer = new EmbedFooterBuilder()
             {
@@ -192,7 +184,6 @@ namespace SoraBot_v2.Module
             var users = usersT.Distinct().ToList();
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
-            var r = new Random();
             string poked = "";
             users.ForEach(x=> poked+=Utility.GiveUsernameDiscrimComb(x)+", ");
             poked = (poked.Length > 200 ? $"{poked.Remove(200)}..." : poked);
@@ -232,7 +223,6 @@ namespace SoraBot_v2.Module
 
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             
-            var r = new Random();
             var eb = new EmbedBuilder()
             {
                 Color = Utility.PurpleEmbed
@@ -255,6 +245,7 @@ namespace SoraBot_v2.Module
             }
             string kissed = "";
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
+            kissed = (kissed.Length > 200 ? $"{kissed.Remove(200)}..." : kissed);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} kissed {kissed.Remove(kissed.Length-2)} (✿ ♥‿♥)♥";
             
@@ -296,7 +287,6 @@ namespace SoraBot_v2.Module
             {
                 Color = Utility.PurpleEmbed
             };
-            var r = new Random();
             if (sameAsInvoker != null)
             {
                 users.Remove(sameAsInvoker);
