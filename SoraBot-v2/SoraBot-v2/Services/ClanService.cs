@@ -31,7 +31,8 @@ namespace SoraBot_v2.Services
         
         private const int CLAN_CREATION_COST = 2000;
         private const int CLAN_RENAME_COST = 500;
-        private const int CLAN_LVLUP_COST = 10000;
+        private const int CLAN_LVLUP_COST = 7500;
+        private const int CLAN_MAX_LEVEL = 3;
         
         private struct ClanListing
         {
@@ -41,7 +42,7 @@ namespace SoraBot_v2.Services
         
         private int GetMaxUsers(Clan clan)
         {
-            return MAX_MEMBERCOUNT + (clan.Level*10);
+            return MAX_MEMBERCOUNT + (clan.Level*5);
         }
 
         public async Task LevelUpClan(SocketCommandContext context)
@@ -77,6 +78,18 @@ namespace SoraBot_v2.Services
                         embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You are not the owner of this clan nor a staff member!").Build());
                     return;
                 }
+                // check if clan is already lvl 2.
+                if (clan.Level >= CLAN_MAX_LEVEL)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed, 
+                            Utility.SuccessLevelEmoji[2], 
+                            "Clan is already max level. Can't upgrade any further.")
+                            .Build());
+                    return;
+                }
+                
                 // check available money
                 if (userDb.Money < CLAN_LVLUP_COST)
                 {
@@ -203,11 +216,7 @@ namespace SoraBot_v2.Services
 
                 short count = 1;
                 foreach (var clan in sorted)
-                {
-                    // only show 20 for lvl up shit.
-                    if (count > 20)
-                        break;
-                    
+                {   
                     eb.AddField((x) =>
                     {
                         x.IsInline = false;
@@ -969,18 +978,64 @@ namespace SoraBot_v2.Services
                     eb.WithThumbnailUrl(clan.AvatarUrl);
                 }
                 var members = clan.Members.OrderByDescending(x => x.Exp).ThenByDescending(x => x.ClanStaff).ToList();
-                for (int i = 0; i < members.Count; i++)
+                bool overflow = members.Count > 25;
+                int count =  overflow ? 22 : members.Count;
+                for (int i = 0; i < count; i++)
                 {
-                    IUser user = context.Client.GetUser(members[i].UserId) ?? await _restClient.GetUserAsync(members[i].UserId) as IUser;
-                    var userName = (user == null ? members[i].UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
+                    var mbm = members[i];
+                    IUser user = context.Client.GetUser(mbm.UserId) ?? await _restClient.GetUserAsync(mbm.UserId) as IUser;
+                    var userName = (user == null ? mbm.UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
                     eb.AddField(x =>
                     {
                         x.IsInline = true;
-                        x.Name = $"{i + 1}. {(members[i].ClanStaff ? "[S] " : "")}{userName}";
+                        x.Name = $"{i + 1}. {(mbm.ClanStaff ? "[S] " : "")}{userName}";
                         x.Value =
-                            $"Lvl. {ExpService.CalculateLevel(members[i].Exp)} \tEXP: {members[i].Exp}\n*Joined: {(members[i].JoinedClan.ToString("dd/MM/yyyy"))}*";
+                            $"Lvl. {ExpService.CalculateLevel(mbm.Exp)} \tEXP: {mbm.Exp}\n*Joined: {(mbm.JoinedClan.ToString("dd/MM/yyyy"))}*";
                     });
                 }
+                if (!overflow)
+                {
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
+                    return;                    
+                }
+                // now lets add the overflow. 2 more fields to add
+                // all others. 22 normal of a max of 35 -> 13, 7,6
+                bool two = members.Count > 29;
+                string first = "";
+                for (int i = 22; i < (two ? 29 : members.Count); i++)
+                {
+                    var mbm = members[i];
+                    IUser user = context.Client.GetUser(mbm.UserId) ?? await _restClient.GetUserAsync(mbm.UserId) as IUser;
+                    var userName = (user == null ? mbm.UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
+                    first += $"**{i + 1}. {(mbm.ClanStaff ? "[S] " : "")}{userName}**\n" +
+                             $"*Joined: {(mbm.JoinedClan.ToString("dd/MM/yyyy"))}*\n";
+                }
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = $"More members";
+                    x.Value = first;
+                });
+                if (!two)
+                {
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
+                    return;   
+                }
+                string second = "";
+                for (int i = 29; i < members.Count; i++)
+                {
+                    var mbm = members[i];
+                    IUser user = context.Client.GetUser(mbm.UserId) ?? await _restClient.GetUserAsync(mbm.UserId) as IUser;
+                    var userName = (user == null ? mbm.UserId.ToString() : Utility.GiveUsernameDiscrimComb(user));
+                    second += $"**{i + 1}. {(mbm.ClanStaff ? "[S] " : "")}{userName}**\n" +
+                             $"*Joined: {(mbm.JoinedClan.ToString("dd/MM/yyyy"))}*\n";
+                }
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = $"Even more members";
+                    x.Value = second;
+                });
                 await context.Channel.SendMessageAsync("", embed: eb.Build());
             }
         }
