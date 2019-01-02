@@ -90,7 +90,7 @@ namespace SoraBot_v2.Services
                                 await user.RemoveRoleAsync(r);
                                 soraContext.ExpiringRoles.Remove(role);
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 await Task.Delay(3000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
                                 await user.RemoveRoleAsync(r);

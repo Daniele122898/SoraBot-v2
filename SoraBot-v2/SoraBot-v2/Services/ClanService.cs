@@ -359,7 +359,7 @@ namespace SoraBot_v2.Services
                 {
                     await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to clan owner!").Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -436,7 +436,7 @@ namespace SoraBot_v2.Services
                 {
                     await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been removed from the staff team!").Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -513,7 +513,7 @@ namespace SoraBot_v2.Services
                 {
                     await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"You have been promoted to staff!").Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -578,7 +578,7 @@ namespace SoraBot_v2.Services
                         await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, 
                             Utility.SuccessLevelEmoji[3], $"You have been kicked from {clan.Name}!").Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -732,7 +732,7 @@ namespace SoraBot_v2.Services
                         await (await mod.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
@@ -846,7 +846,7 @@ namespace SoraBot_v2.Services
                     };
                     await (await user.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     send = false;
                 }

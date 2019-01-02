@@ -70,7 +70,7 @@ namespace SoraBot_v2.Services
                     $"You have successfully transfered {amount} SC to {Utility.GiveUsernameDiscrimComb(user)}! They've been notified."
                 ).Build());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.YellowWarningEmbed,

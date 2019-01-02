@@ -212,7 +212,7 @@ namespace SoraBot_v2.Controllers
                                 ReadMessageHistory = b.ReadMessageHistory,
                                 ManageRoles = b.ManageRoles,
                                 ManageMessages = b.ManageMessages,
-                                ReadMessages = b.ReadMessages,
+                                ReadMessages = b.ViewChannel,
                                 EmbedLinks = b.EmbedLinks,
                                 SendMessages = b.SendMessages
                             }

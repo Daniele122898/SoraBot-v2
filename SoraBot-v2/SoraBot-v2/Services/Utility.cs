@@ -229,9 +229,9 @@ namespace SoraBot_v2.Services
                 return true;
                         
             if(!guildPerms.Has(GuildPermission.SendMessages) ||
-               !guildPerms.Has(GuildPermission.ReadMessages) ||
+               !guildPerms.Has(GuildPermission.ViewChannel) ||
                !guildPerms.Has(GuildPermission.ReadMessageHistory)||
-               !chanPerms.ReadMessages ||
+               !chanPerms.ViewChannel ||
                !chanPerms.ReadMessageHistory ||
                !chanPerms.SendMessages)
             {
