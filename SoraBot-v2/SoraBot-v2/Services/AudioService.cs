@@ -39,6 +39,13 @@ namespace SoraBot_v2.Services
             if (player == null) return false;
             return player.VoiceChannel?.Id == voiceId;
         }
+
+        public bool PlayerIsntConnectedInGuild(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player == null) return true;
+            return false;
+        }
         
         public async Task ClientOnDisconnected(Exception arg)
         {
@@ -294,7 +301,7 @@ namespace SoraBot_v2.Services
             return eb;
         }
 
-        public async Task ConnectAsync(ulong guildId, IGuildUser user, IMessageChannel channel)
+        public async Task<bool> ConnectAsync(ulong guildId, IGuildUser user, IMessageChannel channel)
         {
             if (user.VoiceChannel == null)
             {
@@ -303,7 +310,7 @@ namespace SoraBot_v2.Services
                         Utility.SuccessLevelEmoji[2],
                         "You aren't connected to any voice channels.")
                     .Build());
-                return;
+                return false;
             }
             
             // check if someone summoned me before
@@ -314,7 +321,7 @@ namespace SoraBot_v2.Services
                         Utility.SuccessLevelEmoji[2],
                         $"I can't join another Voice Channel until {options.Summoner.Username}#{options.Summoner.Discriminator} disconnects me. >.<")
                     .Build());
-                return;
+                return false;
             }
 
             await _lavaNode.ConnectAsync(user.VoiceChannel, channel);
@@ -328,6 +335,7 @@ namespace SoraBot_v2.Services
                 Utility.SuccessLevelEmoji[0],
                 $"Connected to {user.VoiceChannel} and bound to {channel.Name}.")
                 .Build());
+            return true;
         }
 
         private async Task loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
