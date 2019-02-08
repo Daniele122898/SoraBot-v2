@@ -300,13 +300,28 @@ namespace SoraBot_v2.Services
                 }
                 // get all waifus that he has dupes of
                 var dupes = userdb.UserWaifus.Where(x => x.Count > 1).ToList();
+                // cant remove them so we cache and count...
+                // save them in a dictionary so we can cache them
+                Dictionary<int, Waifu> cached = new Dictionary<int, Waifu>();
+                int minus = 0;
+                foreach (var waifu in dupes)
+                {
+                    // get waifu
+                    var w = soraContext.Waifus.FirstOrDefault(x => x.Id == waifu.WaifuId);
+                    if (w == null)
+                        continue;
+                    cached.Add(waifu.Id, w);
+                    // check if its ultimate 
+                    if (w.Rarity == WaifuRarity.UltimateWaifu)
+                        minus++;
+                }
                 // check if he has dupes
-                if (dupes.Count == 0)
+                if ((dupes.Count - minus) == 0)
                 {
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
-                        "You don't have any dupes at the moment."
+                        "You don't have any dupes at the moment. Ultimate Waifus don't get sold with this method!"
                     ).Build());
                     return; 
                 }
@@ -315,13 +330,16 @@ namespace SoraBot_v2.Services
                 int totalCoins = 0;
                 foreach (var waifu in dupes)
                 {
+                    // get waifu from cache
+                    var w = cached[waifu.Id];
+                    if (w == null || w.Rarity == WaifuRarity.UltimateWaifu)
+                        continue;
                     // remove the waifus
                     int amount = waifu.Count - 1;
                     totalWaifus += amount;
                     waifu.Count -= amount;
                     // calculate coins
-                    var w = soraContext.Waifus.FirstOrDefault(x => x.Id == waifu.WaifuId);
-                    int cash = GetWaifuQuickSellCost(w?.Rarity ?? 0) * amount;
+                    int cash = GetWaifuQuickSellCost(w.Rarity) * amount;
                     totalCoins += cash;
                 }
                 // add total coins to user
