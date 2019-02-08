@@ -89,7 +89,14 @@ namespace SoraBot_v2.Module
         [Command("play", RunMode = RunMode.Async), Alias("add"), Summary("If you add a link it will add that song or playlist. You can also add a name of a song and it will search youtube and take the first result.")]
         public async Task PlayAsync([Remainder] string query)
         {
-            if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
+            // if we're not connected in this guild we should connect and then play the music.
+            if (_audio.PlayerIsntConnectedInGuild(Context.Guild.Id))
+            {
+                //no player exists in this guild. connect him
+                bool success = await _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
+                if (!success) return;
+            }
+            else if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(
                         Utility.RedFailiureEmbed,
@@ -98,6 +105,7 @@ namespace SoraBot_v2.Module
                     .Build());
                 return;
             }
+            
             var info = await _audio.PlayAsync(Context.Guild.Id, query);
             if (info.num == -1)
             {

@@ -26,7 +26,7 @@ namespace SoraBot_v2.Services
                 await _weebClient.Authenticate(_token, TokenType.Bearer);
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await SentryService.SendMessage("COULND'T CONNECT TO WEEB.SH SERVICES");
             }

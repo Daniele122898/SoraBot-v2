@@ -20,6 +20,7 @@ namespace SoraBot_v2.Module
         }
 
         [Command("help2")]
+        [RequireOwner]
         public async Task Help2()
         { 
             Dictionary<string, List<CommandInfo>> cmds = new Dictionary<string, List<CommandInfo>>();
@@ -74,9 +75,9 @@ namespace SoraBot_v2.Module
         [Command("help"), Alias("h"), Summary("Provides more help for a specific Category")]
         public async Task HelpCategory([Remainder] string category)
         {
-            var module =
-                _service.Modules.FirstOrDefault(x => x.Name.Equals(category, StringComparison.OrdinalIgnoreCase));
-            if (module == null)
+            var modules =
+                _service.Modules.Where(x => x.Name.Equals(category, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (modules.Length == 0)
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
@@ -89,15 +90,22 @@ namespace SoraBot_v2.Module
             var eb = new EmbedBuilder()
             {
                 Color = Utility.BlueInfoEmbed,
-                Title = $"{Utility.SuccessLevelEmoji[3]} {module.Name} Help",
+                Title = $"{Utility.SuccessLevelEmoji[3]} {modules[0].Name} Help",
                 Footer = Utility.RequestedBy(Context.User),
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
             };
             string commands = "";
-            foreach (var command in module.Commands)
+
+            foreach (var module in modules)
             {
-                commands += $"`{command.Name}`, ";
+                foreach (var command in module.Commands)
+                {
+                    if (command.Preconditions.Any(x => x is RequireOwnerAttribute))
+                        continue;
+                    commands += $"`{command.Name}`, ";
+                }
             }
+
             commands = commands.Trim().TrimEnd(',');
             eb.Description = "Use `help command commandName` to get specific Help on the command! Commands that show up twice have different parameters. [Check the wiki for more info!](https://github.com/Daniele122898/SoraBot-v2/wiki) \n\n"+commands;
 

@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Humanizer;
 using SoraBot_v2.Data;
@@ -19,13 +20,13 @@ namespace SoraBot_v2.Module
     [Name("Info")]
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
-        private CommandHandler _commandHandler;
         private CoinService _coinService;
-
-        public InfoModule(CommandHandler commandHandler, CoinService coinService)
+        private DiscordRestClient _restClient;
+        
+        public InfoModule(CoinService coinService, DiscordRestClient restClient)
         {
-            _commandHandler = commandHandler;
             _coinService = coinService;
+            _restClient = restClient;
         }
 
         [Command("userinfo"), Alias("whois", "uinfo"),
@@ -123,7 +124,7 @@ namespace SoraBot_v2.Module
                     string marriages = "";
                     foreach (var marriage in dbUser.Marriages)
                     {
-                        SocketUser partner = Context.Client.GetUser(marriage.PartnerId);
+                        IUser partner = Context.Client.GetUser(marriage.PartnerId) ?? await _restClient.GetUserAsync(marriage.PartnerId) as IUser;
                         if (partner == null)
                             continue;
                         marriages += $"{Utility.GiveUsernameDiscrimComb(partner)}, ";

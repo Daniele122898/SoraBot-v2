@@ -18,7 +18,7 @@ namespace SoraBot_v2.Module
         }
 
         [Command("clevelup"), Alias("cupgrade", "upgradeclan", "memberlimit"),
-         Summary("Upgrade clan to increase member limit")]
+         Summary("Upgrade clan to increase member limit by 5. Costs 7'500 SC")]
         public async Task UpgradeClan()
         {
             await _clanService.LevelUpClan(Context);
@@ -318,7 +318,7 @@ namespace SoraBot_v2.Module
             await _clanService.EditClanInvite(Context, clanName, false);
         }
 
-        [Command("clanlist"), Alias("clantop", "clantop10", "top10clans", "bestclans", "clist", "clans"),
+        [Command("clanlist", RunMode = RunMode.Async), Alias("clantop", "clantop10", "top10clans", "bestclans", "clist", "clans"),
          Summary("Shows all the clans in a list")]
         public async Task ClanList()
         {

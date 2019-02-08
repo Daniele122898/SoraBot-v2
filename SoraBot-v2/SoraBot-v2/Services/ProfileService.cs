@@ -14,6 +14,7 @@ using SixLabors.ImageSharp.Processing.Transforms;
 using SixLabors.Primitives;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
+using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Services
 {
@@ -188,7 +189,11 @@ namespace SoraBot_v2.Services
                     var username = (user.Username.Length > 18 ? user.Username.Remove(18) + "..." : user.Username);
                     //Get Local Rank
                     var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                    var sortedUsers = guildDb.Users.OrderByDescending(x => x.Exp).ToList();
+                    // remove all the users that are no longer in the guild
+                    List<GuildUser> cleanedList =
+                        guildDb.Users.Where(x => context.Guild.GetUser(x.UserId) != null).ToList();
+                    // sort the clean list
+                    var sortedUsers = cleanedList.OrderByDescending(x => x.Exp).ToList();
                     var localRank = sortedUsers.FindIndex(x => x.UserId == user.Id)+1;
                     //Get local LVL
                     var guildUser = Utility.GetOrCreateGuildUser(user.Id, context.Guild.Id, soraContext);

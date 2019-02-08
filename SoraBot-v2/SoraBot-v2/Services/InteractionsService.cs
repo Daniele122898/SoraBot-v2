@@ -153,7 +153,7 @@ namespace SoraBot_v2.Services
                             {
                                 string interacted ="";
                                 users.ForEach(x=>interacted += UserDiscrimCombo(context.Guild.GetUserAsync(x).Result)+", ");
-                                interacted = (interacted.Length > 200 ? $"{interacted.Remove(200)}..." : interacted);
+                                interacted = (interacted.Length > 150 ? $"{interacted.Remove(150)}..." : interacted);
                                 title = GetTitle(type, context, interacted);
                             }
                         }

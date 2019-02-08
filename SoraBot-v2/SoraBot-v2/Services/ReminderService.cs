@@ -201,7 +201,7 @@ namespace SoraBot_v2.Services
                                         .ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], $"**Reminder** ⏰")
                                         .WithDescription($"{reminder.Message}").Build());
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 //Ignore
                             }

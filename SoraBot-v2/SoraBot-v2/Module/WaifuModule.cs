@@ -41,13 +41,13 @@ namespace SoraBot_v2.Module
         [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
         public async Task SpecialWaifus()
         {
-            /*
+            
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2],
                     "There are no special waifus available right now.")
                 .Build());
-            */
+            return;
             await _waifuService.UnboxSpecialWaifu(Context);
         }
 
@@ -64,7 +64,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
-        [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have.")]
+        [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have. This does not sell Ultimate Waifus!")]
         public async Task SellDupes()
         {
             await _waifuService.SellDupes(Context);

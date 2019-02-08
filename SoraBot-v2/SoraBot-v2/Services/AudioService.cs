@@ -9,11 +9,10 @@ using Discord.WebSocket;
 using SoraBot_v2.Data;
 using Victoria;
 using Discord.Addons.Interactive;
-using Humanizer;
 using SoraBot_v2.Data.Entities.SubEntities;
 using Victoria.Entities;
 using Victoria.Entities.Enums;
-using Victoria.Entities.Stats;
+using Victoria.Entities.Statistics;
 
 namespace SoraBot_v2.Services
 {
@@ -23,7 +22,7 @@ namespace SoraBot_v2.Services
         private LavaNode _lavaNode;
         private InteractiveService _interactive;
         private DiscordSocketClient _client;
-        private Server? _server = null;
+        private Stats? _stats = null;
         private ulong _soraId;
         private readonly ConcurrentDictionary<ulong, AudioOptions> _options = new ConcurrentDictionary<ulong, AudioOptions>();
 
@@ -39,6 +38,13 @@ namespace SoraBot_v2.Services
             var player = _lavaNode.GetPlayer(guildId);
             if (player == null) return false;
             return player.VoiceChannel?.Id == voiceId;
+        }
+
+        public bool PlayerIsntConnectedInGuild(ulong guildId)
+        {
+            var player = _lavaNode.GetPlayer(guildId);
+            if (player == null) return true;
+            return false;
         }
         
         public async Task ClientOnDisconnected(Exception arg)
@@ -177,20 +183,19 @@ namespace SoraBot_v2.Services
             node.TrackStuck = NodeOnStuck;
             node.TrackFinished = NodeOnFinished;
             node.TrackException = NodeOnException;
-            node.StatsUpdated = StatsUpdated;
+            node.StatsUpdated  = StatsUpdated;
             //node.PlayerUpdated = PlayerUpdated;
+        }
+
+        private Task StatsUpdated(Stats stats)
+        {
+            _stats = stats;
+            return Task.CompletedTask;
         }
 
         private Task PlayerUpdated(LavaPlayer player, LavaTrack track, TimeSpan time)
         {
             Console.WriteLine($"Update: {player.VoiceChannel.GuildId}: {track.Title} - {time.TotalSeconds}");
-            return Task.CompletedTask;
-        }
-
-        private Task StatsUpdated(Server server)
-        {
-            Console.WriteLine("GOT STATS");
-            _server = server;
             return Task.CompletedTask;
         }
 
@@ -229,7 +234,7 @@ namespace SoraBot_v2.Services
         public EmbedBuilder PlayerStats(string avatarUrl, SocketUser requestor)
         {
 
-            if (_server == null)
+            if (_stats == null)
             {
                 return new EmbedBuilder()
                 {
@@ -271,31 +276,32 @@ namespace SoraBot_v2.Services
             {
                 x.IsInline = true;
                 x.Name = "Active -/ Total Players";
-                x.Value = $"{_server.Value.PlayingPlayers} / {_server.Value.Players}";
+                x.Value = $"{_stats.Value.PlayingPlayers} / {_stats.Value.Players}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "RAM usage";
-                x.Value = $"{FormatRamValue(_server.Value.Memory.Used):f2} {FormatRamUnit(_server.Value.Memory.Used)} / {FormatRamValue(_server.Value.Memory.Allocated):f2} {FormatRamUnit(_server.Value.Memory.Allocated)}";
+                x.Value = $"{FormatRamValue(_stats.Value.Memory.Used):f2} {FormatRamUnit(_stats.Value.Memory.Used)} / " +
+                          $"{FormatRamValue(_stats.Value.Memory.Allocated):f2} {FormatRamUnit(_stats.Value.Memory.Allocated)}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "LavaLink CPU Count";
-                x.Value = $"{_server.Value.CPU.Cores}";
+                x.Value = $"{_stats.Value.CPU.Cores}";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "LavaLink CPU Usage";
-                x.Value = $"{(_server.Value.CPU.LavalinkLoad*100):f2}%";
+                x.Value = $"{(_stats.Value.CPU.LavalinkLoad*100):f2}%";
             });
     
             return eb;
         }
 
-        public async Task ConnectAsync(ulong guildId, IGuildUser user, IMessageChannel channel)
+        public async Task<bool> ConnectAsync(ulong guildId, IGuildUser user, IMessageChannel channel)
         {
             if (user.VoiceChannel == null)
             {
@@ -304,7 +310,7 @@ namespace SoraBot_v2.Services
                         Utility.SuccessLevelEmoji[2],
                         "You aren't connected to any voice channels.")
                     .Build());
-                return;
+                return false;
             }
             
             // check if someone summoned me before
@@ -315,7 +321,7 @@ namespace SoraBot_v2.Services
                         Utility.SuccessLevelEmoji[2],
                         $"I can't join another Voice Channel until {options.Summoner.Username}#{options.Summoner.Discriminator} disconnects me. >.<")
                     .Build());
-                return;
+                return false;
             }
 
             await _lavaNode.ConnectAsync(user.VoiceChannel, channel);
@@ -329,6 +335,7 @@ namespace SoraBot_v2.Services
                 Utility.SuccessLevelEmoji[0],
                 $"Connected to {user.VoiceChannel} and bound to {channel.Name}.")
                 .Build());
+            return true;
         }
 
         private async Task loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
@@ -510,6 +517,7 @@ namespace SoraBot_v2.Services
         {
             var player = _lavaNode.GetPlayer(guildId);
             if(player?.CurrentTrack == null) return "Not playing anything currently.";
+            if (player.IsPaused) return "Player is already paused.";
             await player.PauseAsync();
             return $"Paused: {player.CurrentTrack.Title}";
         }
@@ -539,7 +547,8 @@ namespace SoraBot_v2.Services
         {
             var player = _lavaNode.GetPlayer(guildId);
             if(player?.CurrentTrack == null) return "Not playing anything currently.";
-            await player.ResumeAsync();
+            if (!player.IsPaused) return "Player is not paused.";
+            await player.PauseAsync();
             return $"Resumed: {player.CurrentTrack.Title}";
         }
 
