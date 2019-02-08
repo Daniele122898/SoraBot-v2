@@ -68,7 +68,7 @@ namespace SoraBot_v2.Module
             eb.ImageUrl = image.Url;
             string patted ="";
             users.ForEach(x=>patted += Utility.GiveUsernameDiscrimComb(x)+", ");
-            patted = (patted.Length > 200 ? $"{patted.Remove(200)}..." : patted);
+            patted = (patted.Length > 150 ? $"{patted.Remove(150)}..." : patted);
             eb.Title =
                 $"{Utility.GiveUsernameDiscrimComb(Context.User)} pats {patted.Remove(patted.Length-2)} ｡◕ ‿ ◕｡";
 
@@ -124,7 +124,7 @@ namespace SoraBot_v2.Module
             
             string hugged = "";
             users.ForEach(x=> hugged+= Utility.GiveUsernameDiscrimComb(x)+", ");
-            hugged = (hugged.Length > 200 ? $"{hugged.Remove(200)}..." : hugged);
+            hugged = (hugged.Length > 150 ? $"{hugged.Remove(150)}..." : hugged);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} hugged {hugged.Remove(hugged.Length-2)} °˖✧◝(⁰▿⁰)◜✧˖°";
             await Context.Channel.SendMessageAsync("", embed: eb.Build());
@@ -165,7 +165,7 @@ namespace SoraBot_v2.Module
             }
             var high5ed = "";
             users.ForEach(x=>high5ed+= Utility.GiveUsernameDiscrimComb(x)+", ");
-            high5ed = (high5ed.Length > 200 ? $"{high5ed.Remove(200)}..." : high5ed);
+            high5ed = (high5ed.Length > 150 ? $"{high5ed.Remove(150)}..." : high5ed);
 
             eb.ImageUrl = $"{Utility.High5[r.Next(0, Utility.High5.Length)]}";
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} high fived {high5ed.Remove(high5ed.Length -2)} °˖✧◝(⁰▿⁰)◜✧˖°";
@@ -186,7 +186,7 @@ namespace SoraBot_v2.Module
             var sameAsInvoker = users.FirstOrDefault(x => x.Id == Context.User.Id);
             string poked = "";
             users.ForEach(x=> poked+=Utility.GiveUsernameDiscrimComb(x)+", ");
-            poked = (poked.Length > 200 ? $"{poked.Remove(200)}..." : poked);
+            poked = (poked.Length > 150 ? $"{poked.Remove(150)}..." : poked);
             
             var image = await _weebService.GetRandImage("poke", new string[] { }, FileType.Gif, NsfwSearch.False);
 
@@ -245,7 +245,7 @@ namespace SoraBot_v2.Module
             }
             string kissed = "";
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
-            kissed = (kissed.Length > 200 ? $"{kissed.Remove(200)}..." : kissed);
+            kissed = (kissed.Length > 150 ? $"{kissed.Remove(150)}..." : kissed);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} kissed {kissed.Remove(kissed.Length-2)} (✿ ♥‿♥)♥";
             
@@ -306,7 +306,7 @@ namespace SoraBot_v2.Module
 
             string slapped = "";
             users.ForEach(x=> slapped+= Utility.GiveUsernameDiscrimComb(x)+ ", ");
-            slapped = (slapped.Length > 200 ? $"{slapped.Remove(200)}..." : slapped);
+            slapped = (slapped.Length > 150 ? $"{slapped.Remove(150)}..." : slapped);
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} slapped {slapped.Remove(slapped.Length-2)} (ᗒᗩᗕ)՞ ";
             
             eb.Footer = new EmbedFooterBuilder()
@@ -356,7 +356,7 @@ namespace SoraBot_v2.Module
             }
             string punched = "";
             users.ForEach(x=> punched+= Utility.GiveUsernameDiscrimComb(x)+", ");
-            punched = (punched.Length > 200 ? $"{punched.Remove(200)}..." : punched);
+            punched = (punched.Length > 150 ? $"{punched.Remove(150)}..." : punched);
 
             eb.Title = $"{Utility.GiveUsernameDiscrimComb(Context.User)} punched {punched} (ᗒᗩᗕ)՞";
             eb.ImageUrl= $"{Utility.Punches[r.Next(0, Utility.Punches.Length)]}";
