@@ -96,6 +96,8 @@ namespace SoraBot_v2.Module
             string commands = "";
             foreach (var command in module.Commands)
             {
+                if (command.Preconditions.Any(x=> x is RequireOwnerAttribute))
+                    continue;
                 commands += $"`{command.Name}`, ";
             }
             commands = commands.Trim().TrimEnd(',');
