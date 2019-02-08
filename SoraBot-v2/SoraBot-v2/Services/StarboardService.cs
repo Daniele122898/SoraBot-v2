@@ -140,6 +140,7 @@ namespace SoraBot_v2.Services
                     return;
                 //get Message
                 var msg = await cacheable.GetOrDownloadAsync();
+                if (msg?.Author == null) return;
                 //Dont do anything if the msg originates from a bot
                 if (msg.Author.IsBot)
                     return;
