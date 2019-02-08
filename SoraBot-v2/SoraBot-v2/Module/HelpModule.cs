@@ -20,6 +20,7 @@ namespace SoraBot_v2.Module
         }
 
         [Command("help2")]
+        [RequireOwner]
         public async Task Help2()
         { 
             Dictionary<string, List<CommandInfo>> cmds = new Dictionary<string, List<CommandInfo>>();
