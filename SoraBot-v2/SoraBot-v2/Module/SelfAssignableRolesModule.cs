@@ -25,13 +25,15 @@ namespace SoraBot_v2.Module
          Summary("Adds a self assignable role to the list. If it doesn't exist sora will create it")]
         public async Task AddSar(string roleName, int cost = 0, [Remainder] string expires = null)
         {
-            /* So we can create roles that are free but expire
-            if (cost == 0)
+            if (cost < 0)
             {
-                await _sarService.AddSarToList(Context, roleName.Trim());
+                await ReplyAsync("", embed: Utility.ResultFeedback(
+                    Utility.RedFailiureEmbed,
+                    Utility.SuccessLevelEmoji[2],
+                    "You may not add roles that give you money :)"
+                        ).Build());
                 return;
             }
-            */
 
             if (string.IsNullOrWhiteSpace(expires))
             {
