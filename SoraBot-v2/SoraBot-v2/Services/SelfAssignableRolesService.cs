@@ -89,9 +89,6 @@ namespace SoraBot_v2.Services
                             {
                                 await user.RemoveRoleAsync(r);
                                 soraContext.ExpiringRoles.Remove(role);
-                                // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task. 
-                                // we want to wait even on a successfull removal because of the ratelimiting
-                                await Task.Delay(3000);
                             }
                             catch (Exception)
                             {
@@ -99,6 +96,12 @@ namespace SoraBot_v2.Services
                                 // this means that smth is fucked with perms or smth and we don't want
                                 // an infinite loop of trying. We also don't wanna keep track bcs we don't care :)
                                 soraContext.ExpiringRoles.Remove(role);
+                            }
+                            finally
+                            {
+                                // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task. 
+                                // we want to wait even on a successfull removal because of the ratelimiting
+                                await Task.Delay(3000);
                             }
                         }
                     }
