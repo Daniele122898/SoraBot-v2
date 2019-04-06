@@ -85,7 +85,6 @@ namespace SoraBot_v2.Services
                             // ratelimit is super strict here so what we do is try it, 
                             // if it throws an exception we wait 2 seconds and try again. Hopefully that works.
                             // otherwise we run again and retry.
-                            bool waited = false;
                             try
                             {
                                 await user.RemoveRoleAsync(r);
@@ -93,18 +92,16 @@ namespace SoraBot_v2.Services
                             }
                             catch (Exception)
                             {
-                                // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
-                                await Task.Delay(3000); 
-                                waited = true;
-                                await user.RemoveRoleAsync(r);
+                                // if we fail to remove the role we just give up immediately. 
+                                // this means that smth is fucked with perms or smth and we don't want
+                                // an infinite loop of trying. We also don't wanna keep track bcs we don't care :)
                                 soraContext.ExpiringRoles.Remove(role);
                             }
                             finally
                             {
                                 // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task. 
                                 // we want to wait even on a successfull removal because of the ratelimiting
-                                if (!waited)
-                                    await Task.Delay(3000);
+                                await Task.Delay(3000);
                             }
                         }
                     }
