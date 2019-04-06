@@ -85,6 +85,7 @@ namespace SoraBot_v2.Services
                             // ratelimit is super strict here so what we do is try it, 
                             // if it throws an exception we wait 2 seconds and try again. Hopefully that works.
                             // otherwise we run again and retry.
+                            bool waited = false;
                             try
                             {
                                 await user.RemoveRoleAsync(r);
@@ -92,9 +93,18 @@ namespace SoraBot_v2.Services
                             }
                             catch (Exception)
                             {
-                                await Task.Delay(3000); // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
+                                // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task.
+                                await Task.Delay(3000); 
+                                waited = true;
                                 await user.RemoveRoleAsync(r);
                                 soraContext.ExpiringRoles.Remove(role);
+                            }
+                            finally
+                            {
+                                // Role ratelimit is quite severe. so after removing one role we'll just wait since this is no pushing task. 
+                                // we want to wait even on a successfull removal because of the ratelimiting
+                                if (!waited)
+                                    await Task.Delay(3000);
                             }
                         }
                     }
@@ -110,15 +120,16 @@ namespace SoraBot_v2.Services
 
         private void ChangeToClosestInterval()
         {
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                if (_soraContext.ExpiringRoles.ToList().Count == 0)
+                var roleList = soraContext.ExpiringRoles.ToList();
+                if (roleList.Count == 0)
                 {
                     _timer.Change(Timeout.Infinite, Timeout.Infinite);
                     return;
                 }
 
-                var sortedRoles = _soraContext.ExpiringRoles.ToList().OrderBy(x => x.ExpiresAt).ToList();
+                var sortedRoles = roleList.OrderBy(x => x.ExpiresAt).ToList();
                 var time = sortedRoles[0].ExpiresAt.Subtract(DateTime.UtcNow).TotalSeconds;
                 if (time < 0)
                 {
@@ -613,23 +624,22 @@ namespace SoraBot_v2.Services
                     userDb.Money -= roleDb.Cost;
                     // only send 50% of it to the owner. the rest is tax to remove money from the economy.
                     ownerDb.Money += (int)Math.Floor(roleDb.Cost / 2.0);
-                    // check if duration
-                    if (roleDb.CanExpire)
+                }
+                // check if duration
+                if (roleDb.CanExpire)
+                {
+                    // add role to list of expiring roles.
+                    soraContext.ExpiringRoles.Add(new ExpiringRole()
                     {
-                        // add role to list of expiring roles.
-                        soraContext.ExpiringRoles.Add(new ExpiringRole()
-                        {
-                            RoleForeignId = role.Id,
-                            ExpiresAt = DateTime.UtcNow.Add(roleDb.Duration),
-                            GuildForeignId = context.Guild.Id,
-                            UserForeignId = user.Id
-                        });
-                        Console.WriteLine($"EXPIRES AT: {DateTime.UtcNow.Add(roleDb.Duration)}");
-                    }
-                    await soraContext.SaveChangesAsync();
-                    ChangeToClosestInterval();
-                }                
+                        RoleForeignId = role.Id,
+                        ExpiresAt = DateTime.UtcNow.Add(roleDb.Duration),
+                        GuildForeignId = context.Guild.Id,
+                        UserForeignId = user.Id
+                    });
+                }
+                await soraContext.SaveChangesAsync();
                 await user.AddRoleAsync(role);
+                ChangeToClosestInterval();
             }
             await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                 Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
