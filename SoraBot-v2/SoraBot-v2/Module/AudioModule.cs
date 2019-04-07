@@ -22,7 +22,7 @@ namespace SoraBot_v2.Module
 
         [Command("join"), Summary("Makes Sora join the Voice Channel you're in.")]
         public Task Join() 
-            => _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
+            => _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel as ITextChannel);
 
         [Command("leave"), Alias("stop"), Summary("Makes sora leave your Voice Channel. This also empties the queue and resets all options.")]
         public async Task StopAsync()
@@ -93,7 +93,7 @@ namespace SoraBot_v2.Module
             if (_audio.PlayerIsntConnectedInGuild(Context.Guild.Id))
             {
                 //no player exists in this guild. connect him
-                bool success = await _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel);
+                bool success = await _audio.ConnectAsync(Context.Guild.Id, ((IGuildUser)Context.User), Context.Channel as ITextChannel);
                 if (!success) return;
             }
             else if (!_audio.CheckSameVoiceChannel(Context.Guild.Id, GetVoiceChannelId(Context.User)))
