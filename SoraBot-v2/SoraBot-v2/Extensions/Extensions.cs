@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Victoria.Entities;
+using Victoria.Queue;
 
 namespace SoraBot_v2.Extensions
 {
