@@ -32,12 +32,6 @@ namespace SoraBot_v2.Services
             _client = client;
         }
 
-        private Task PlayerUpdated(LavaPlayer player, LavaTrack track, TimeSpan time)
-        {
-            Console.WriteLine($"Update: {player.VoiceChannel.GuildId}: {track.Title} - {time.TotalSeconds}");
-            return Task.CompletedTask;
-        }
-
         public string ShuffleQueue(ulong guildId)
         {
             var player = _lavaSocketClient.GetPlayer(guildId);
@@ -177,69 +171,6 @@ namespace SoraBot_v2.Services
             return true;
         }
 
-        private async Task loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
-        {
-            // load in playlist
-            foreach (LavaTrack track in tracks)
-            {
-                try
-                {
-                    if (player.CurrentTrack != null)
-                        player.Queue.Enqueue(track);
-                    else
-                        await player.PlayAsync(track);
-                }
-                catch
-                {
-                    continue;
-                }
-            }         
-        }
-
-        private async Task<(LavaTrack track, string reason)> GetSongFromSelect(SocketCommandContext context, SearchResult search)
-        {
-             // now lets build the embed to ask the user what to use
-            EmbedBuilder eb = new EmbedBuilder()
-            {
-                Color = Utility.BlueInfoEmbed,
-                Title = "Top Search Results",
-                Description = "Send index of the track you want.",
-                Footer = Utility.RequestedBy(context.User)
-            };
-
-            int maxCount = (search.Tracks.Count() < 10 ? search.Tracks.Count() : 10);
-            int count = 1;
-
-            foreach (LavaTrack track in search.Tracks)
-            {
-                eb.AddField(x =>
-                {
-                    x.IsInline = false;
-                    x.Name = $"#{count} by {track.Author}";
-                    x.Value = $"[{track.Length.ToString(@"mm\:ss")}] - **[{track.Title}]({track.Uri})**";
-                });
-
-                count++;
-                if (count >= maxCount) break;
-            }
-            
-            var msg = await context.Channel.SendMessageAsync("", embed: eb.Build());
-            var response =
-                await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
-            await msg.DeleteAsync();
-            if (response == null)
-                return (null, $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/");
-            
-            if (!Int32.TryParse(response.Content, out var index))
-                return (null, "Only send the Index!");
-
-            if (index > maxCount || index < 1)
-                return (null, "Invalid Index!");
-
-            LavaTrack finalTrack = search.Tracks.ElementAt(index-1);
-            return (finalTrack, null);
-        }
-
         public async Task YoutubeOrSoundCloudSearch(SocketCommandContext context, string query, bool youtube)
         {
             var player = _lavaSocketClient.GetPlayer(context.Guild.Id);
@@ -290,12 +221,6 @@ namespace SoraBot_v2.Services
                     $"{(queued ? "Enqueued" : "Playing")}: [{result.track.Length.ToString(@"mm\:ss")}] - **{result.track.Title}**")
                 .WithUrl(result.track.Uri.ToString())
                 .Build());
-        }
-
-        private async Task<LavaTrack> RepeatTrackPlay(string uri)
-        {
-            var search = await _lavaRestClient.SearchTracksAsync(uri);
-            return search.Tracks.FirstOrDefault();
         }
 
         public async Task<(LavaTrack track, bool enqued, string name, int num)> PlayAsync(ulong guildId, string query)
@@ -586,17 +511,6 @@ namespace SoraBot_v2.Services
                     Utility.MusicalNote,
                     $"Now playing: {next.Title}")
                 .WithUrl(next.Uri.ToString()).Build();
-        }
-
-        private void RemoveVotes(ulong guildId, AudioOptions options = null)
-        {
-            if (options == null)
-            {
-                if (!_options.TryGetValue(guildId, out options))
-                    return;
-            }
-            options.VotedTrack = null;
-            options.Voters.Clear();
         }
 
         public async Task<string> Volume(ulong guildId, ushort vol)

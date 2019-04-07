@@ -1,8 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
+using SoraBot_v2.Data.Entities.SubEntities;
+using Victoria;
+using Victoria.Entities;
+using SearchResult = Victoria.Entities.SearchResult;
 
 namespace SoraBot_v2.Services
 {
@@ -21,6 +27,86 @@ namespace SoraBot_v2.Services
             var player = _lavaSocketClient.GetPlayer(guildId);
             if (player == null) return true;
             return false;
+        }
+        
+        private async Task<LavaTrack> RepeatTrackPlay(string uri)
+        {
+            var search = await _lavaRestClient.SearchTracksAsync(uri);
+            return search.Tracks.FirstOrDefault();
+        }
+        
+        private void RemoveVotes(ulong guildId, AudioOptions options = null)
+        {
+            if (options == null)
+            {
+                if (!_options.TryGetValue(guildId, out options))
+                    return;
+            }
+            options.VotedTrack = null;
+            options.Voters.Clear();
+        }
+        
+        private async Task loadPlaylist(LavaPlayer player, IEnumerable<LavaTrack> tracks)
+        {
+            // load in playlist
+            foreach (LavaTrack track in tracks)
+            {
+                try
+                {
+                    if (player.CurrentTrack != null)
+                        player.Queue.Enqueue(track);
+                    else
+                        await player.PlayAsync(track);
+                }
+                catch
+                {
+                    continue;
+                }
+            }         
+        }
+        
+        private async Task<(LavaTrack track, string reason)> GetSongFromSelect(SocketCommandContext context, SearchResult search)
+        {
+            // now lets build the embed to ask the user what to use
+            EmbedBuilder eb = new EmbedBuilder()
+            {
+                Color = Utility.BlueInfoEmbed,
+                Title = "Top Search Results",
+                Description = "Send index of the track you want.",
+                Footer = Utility.RequestedBy(context.User)
+            };
+
+            int maxCount = (search.Tracks.Count() < 10 ? search.Tracks.Count() : 10);
+            int count = 1;
+
+            foreach (LavaTrack track in search.Tracks)
+            {
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = $"#{count} by {track.Author}";
+                    x.Value = $"[{track.Length.ToString(@"mm\:ss")}] - **[{track.Title}]({track.Uri})**";
+                });
+
+                count++;
+                if (count >= maxCount) break;
+            }
+            
+            var msg = await context.Channel.SendMessageAsync("", embed: eb.Build());
+            var response =
+                await _interactive.NextMessageAsync(context, true, true, TimeSpan.FromSeconds(45));
+            await msg.DeleteAsync();
+            if (response == null)
+                return (null, $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/");
+            
+            if (!Int32.TryParse(response.Content, out var index))
+                return (null, "Only send the Index!");
+
+            if (index > maxCount || index < 1)
+                return (null, "Invalid Index!");
+
+            LavaTrack finalTrack = search.Tracks.ElementAt(index-1);
+            return (finalTrack, null);
         }
         
         public async Task<bool> PlayerExistsAndConnected(ulong guildId)
