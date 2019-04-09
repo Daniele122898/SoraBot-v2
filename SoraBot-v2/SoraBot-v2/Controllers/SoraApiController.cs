@@ -29,6 +29,95 @@ namespace SoraBot_v2.Controllers
             _restClient = restClient;
             _banService = banService;
         }
+
+        private WaifuRarity GetOfficialRarity(short rarity)
+        {
+            switch (rarity)
+            {
+                case 0:
+                    return WaifuRarity.Common;
+                case 1:
+                    return WaifuRarity.Uncommon;
+                case 2:
+                    return WaifuRarity.Rare;
+                case 3:
+                    return WaifuRarity.Epic;
+                case 98:
+                    return WaifuService.CURRENT_SPECIAL;
+                case 99:
+                    return WaifuRarity.UltimateWaifu;
+                default:
+                    return WaifuRarity.Common;
+            }
+        }
+
+        [HttpPost("waifuRequest/", Name = "waifuRequest")]
+        [EnableCors("waifuRequest")]
+        public async Task<WaifuRequestResponse> PostWaifuRequest([FromBody] WaifuRequestWeb request)
+        {
+            try
+            {
+                // lets check if the user has requests already
+                using (var soraContext = new SoraContext())
+                {
+                    ulong uid = ulong.Parse(request.UserId);
+                    var reqs = soraContext.WaifuRequests.Where(x => x.UserId == uid).ToList();
+                    // if there are more than 2 requests we need to check if he did 3 in the last 24h.
+                    // otherwise we can skip this step
+                    if (reqs.Count > 2)
+                    {
+                        if (reqs.Count(x => x.TimeStamp.CompareTo(DateTime.UtcNow.Subtract(TimeSpan.FromHours(24))) > 0) >= 3)
+                        {
+                            // use has 3 or more requests from the past 24 hours. So we cannot fulfill this request
+                            return new WaifuRequestResponse()
+                            {
+                                Success = false,
+                                Error = "You already made 3 requests in the past 24 hours"
+                            };
+                        }
+                    }
+                    // now check if waifu already exists
+                    if (soraContext.Waifus.Any(x =>
+                        x.Name.Equals(request.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return new WaifuRequestResponse()
+                        {
+                            Success = false,
+                            Error = "This Waifu already exists"
+                        };
+                    }
+                    
+                    // else we can add the request
+                    var req = new WaifuRequest()
+                    {
+                        ImageUrl = request.ImageUrl,
+                        Name = request.Name,
+                        TimeStamp = DateTime.UtcNow,
+                        UserId = uid,
+                        Rarity = GetOfficialRarity(request.Rarity)
+                    };
+                    
+                    // add to DB
+                    soraContext.WaifuRequests.Add(req);
+                    // save changes
+                    await soraContext.SaveChangesAsync();
+                    
+                    return new WaifuRequestResponse()
+                    {
+                        Success = true,
+                        Error = ""
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                return new WaifuRequestResponse()
+                {
+                    Success = false,
+                    Error = "Something went horribly wrong :("
+                };
+            }
+        }
         
         [HttpGet("GetSoraStats/", Name = "SoraStats")]
         [EnableCors("AllowLocal")]
