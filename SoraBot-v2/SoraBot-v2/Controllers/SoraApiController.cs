@@ -51,6 +51,59 @@ namespace SoraBot_v2.Controllers
             }
         }
 
+        private short GetWebRarity(WaifuRarity rarity)
+        {
+            switch (rarity)
+            {
+                    case WaifuRarity.Common:
+                        return 0;
+                    case WaifuRarity.Uncommon:
+                        return 1;
+                    case WaifuRarity.Rare:
+                        return 2;
+                    case WaifuRarity.Epic:
+                        return 3;
+                    case WaifuRarity.UltimateWaifu:
+                        return 99;
+                    default:
+                        return 98;
+            }
+        }
+
+        [HttpGet("getAllRequests/{userId}", Name = "getAllRequests")]
+        [EnableCors("getAllRequests")]
+        public List<WaifuRequestWeb> GetAllWaifuRequestsForUser(ulong userId)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var reqs = soraContext.WaifuRequests.Where(x => x.UserId == userId).ToList();
+                    
+                    var resp = new List<WaifuRequestWeb>();
+
+                    foreach (var req in reqs)
+                    {
+                        resp.Add(new WaifuRequestWeb()
+                        {
+                            Id = req.Id.ToString(),
+                            ImageUrl = req.ImageUrl,
+                            Name = req.Name,
+                            Rarity = GetWebRarity(req.Rarity)
+                        });
+                    }
+
+                    return resp;
+
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+
         [HttpPost("waifuRequest/", Name = "waifuRequest")]
         [EnableCors("waifuRequest")]
         public async Task<WaifuRequestResponse> PostWaifuRequest([FromBody] WaifuRequestWeb request)

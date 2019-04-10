@@ -20,6 +20,7 @@ namespace SoraBot_v2.WebApiModels
         public string ImageUrl { get; set; }
         public short Rarity { get; set; }
         public string UserId { get; set; }
+        public string Id { get; set; }
     }
 
     public class WaifuRequestResponse
