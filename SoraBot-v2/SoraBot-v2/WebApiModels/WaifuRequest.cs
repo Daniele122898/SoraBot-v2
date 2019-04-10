@@ -26,5 +26,6 @@ namespace SoraBot_v2.WebApiModels
     {
         public bool Success { get; set; }
         public string Error { get; set; }
+        public string RequestId { get; set; }
     }
 }

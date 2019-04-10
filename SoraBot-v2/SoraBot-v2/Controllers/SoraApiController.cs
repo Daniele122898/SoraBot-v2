@@ -105,7 +105,8 @@ namespace SoraBot_v2.Controllers
                     return new WaifuRequestResponse()
                     {
                         Success = true,
-                        Error = ""
+                        Error = "",
+                        RequestId = req.Id.ToString()
                     };
                 }
             }
