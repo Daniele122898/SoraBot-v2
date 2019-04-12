@@ -62,7 +62,7 @@ namespace SoraBot_v2.Services
         private const byte BOX_CARD_AMOUNT = 3;
         public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Christmas;
 
-        private const int CACHE_DELAY = 1;
+        private const int CACHE_DELAY = 5;
         
         private Random _random = new Random();
         private object _randomLock = new object();
