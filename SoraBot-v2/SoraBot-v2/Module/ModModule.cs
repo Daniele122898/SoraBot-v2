@@ -72,7 +72,7 @@ namespace SoraBot_v2.Module
             if (!sora.GuildPermissions.Has(GuildPermission.ManageMessages))
             {
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
-                    Utility.SuccessLevelEmoji[2], $"Sore needs Manage Messages permissions!").Build());
+                    Utility.SuccessLevelEmoji[2], $"Sora needs Manage Messages permissions!").Build());
                 return;
             }
             if (amount > 500)
