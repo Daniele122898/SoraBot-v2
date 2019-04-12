@@ -1,12 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Services;
 using System.IO;
+using SoraBot_v2.WebApiModels;
 
 namespace SoraBot_v2.Data
 {
@@ -24,6 +21,7 @@ namespace SoraBot_v2.Data
         
         // Waifu
         public DbSet<Waifu> Waifus { get; set; }
+        public DbSet<WaifuRequest> WaifuRequests { get; set; }
 
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -87,6 +85,8 @@ namespace SoraBot_v2.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<WaifuRequest>(x => { x.HasKey(d => d.Id); });
+            
             modelBuilder.Entity<Interactions>(x =>
             {
                 x.HasOne(d => d.User)

@@ -33,7 +33,7 @@ namespace SoraBot_v2
         private readonly GuildCountUpdaterService _guildCount;
         private BanService _banService;
         private InteractionsService _interactionsService;
-        private Lavalink _lavalink;
+        private LavaSocketClient _lavaSocketClient;
         private AudioService _audioService;
 
         private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
@@ -97,7 +97,7 @@ namespace SoraBot_v2
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService, 
             SelfAssignableRolesService selfService, AnnouncementService announcementService,
             ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService, 
-            BanService banService, InteractionsService interactionsService, Lavalink lavalink, AudioService audioService)
+            BanService banService, InteractionsService interactionsService, LavaSocketClient lavaSocketClient, AudioService audioService)
         {
             _client = client;
             _commands = commandService;
@@ -111,7 +111,7 @@ namespace SoraBot_v2
             _guildCount = guildUpdate;
             _banService = banService;
             _interactionsService = interactionsService;
-            _lavalink = lavalink;
+            _lavaSocketClient = lavaSocketClient;
             _audioService = audioService;
             
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
@@ -137,7 +137,7 @@ namespace SoraBot_v2
             _client.Ready += ClientOnReady;
         }
 
-        private Task LavalinkOnLog(LogMessage msg)
+        private Task LavaSocketClientOnLog(LogMessage msg)
         {
             switch (msg.Severity)
             {
@@ -163,20 +163,24 @@ namespace SoraBot_v2
 
         private async Task ClientOnReady()
         {
-            // lavalink shit
-            _lavalink.Log = LavalinkOnLog;
             SentryService.Install(_client);
+            // lavalink shit
+            _lavaSocketClient.Log += LavaSocketClientOnLog;
             // setup lavalink
-            var node = await _lavalink.AddNodeAsync(_client, new Configuration()
+            var conf = new Configuration()
             {
-                Authorization = ConfigService.GetConfigData("lavalinkpw"),
-                Severity = LogSeverity.Info,
+                Host = ConfigService.GetConfigData("lavalinkip"),
+                Port = ushort.Parse(ConfigService.GetConfigData("lavalinkport")),
                 BufferSize = 1024,
                 ReconnectAttempts = 3,
-                Host = ConfigService.GetConfigData("lavalinkip"),
-                Port = ushort.Parse(ConfigService.GetConfigData("lavalinkport"))
-            });
-            _audioService.Initialize(node, _client.CurrentUser.Id);
+                Password = ConfigService.GetConfigData("lavalinkpw"),
+                LogSeverity = LogSeverity.Info
+            };
+            await _lavaSocketClient.StartAsync(_client, conf);
+            
+            LavaRestClient lavaRestClient = new LavaRestClient(conf);
+            
+            _audioService.Initialize(_lavaSocketClient, lavaRestClient, _client.CurrentUser.Id);
             // voice shit
             _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
             _client.Disconnected += _audioService.ClientOnDisconnected;

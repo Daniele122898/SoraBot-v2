@@ -354,13 +354,20 @@ namespace SoraBot_v2.Services
                 Timestamp = DateTime.Now,
                 Description = (attachMent ? $"{messageContent}\n{attachmentUrls}" : messageContent)
             };
+            var msgUrl = msg.GetJumpUrl();
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Original";
+                x.Value = $"[Show me!]({msgUrl})";
+            });
             if (picAttachment)
             {
                 eb.ImageUrl = picAttach;
             }
             try
             {
-                var postedMsg = await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}> \n", embed: eb.Build());
+                var postedMsg = await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}>\n", embed: eb.Build());
                 return postedMsg.Id;
             }
             catch (Exception e)

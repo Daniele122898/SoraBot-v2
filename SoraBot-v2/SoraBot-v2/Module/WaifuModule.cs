@@ -25,6 +25,13 @@ namespace SoraBot_v2.Module
             _waifuService = waifuService;
         }
         
+        [Command("currentcache")]
+        [RequireOwner]
+        public async Task CheckCurrentCache()
+        {
+            await _waifuService.CheckCurrentCache(Context);
+        }
+        
         [Command("addwaifu")]
         [RequireOwner]
         public async Task AddWaifu(string name, string image, int rarity)

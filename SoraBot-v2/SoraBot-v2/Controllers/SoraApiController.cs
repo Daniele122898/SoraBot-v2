@@ -29,6 +29,294 @@ namespace SoraBot_v2.Controllers
             _restClient = restClient;
             _banService = banService;
         }
+
+        private WaifuRarity GetOfficialRarity(short rarity)
+        {
+            switch (rarity)
+            {
+                case 0:
+                    return WaifuRarity.Common;
+                case 1:
+                    return WaifuRarity.Uncommon;
+                case 2:
+                    return WaifuRarity.Rare;
+                case 3:
+                    return WaifuRarity.Epic;
+                case 98:
+                    return WaifuService.CURRENT_SPECIAL;
+                case 99:
+                    return WaifuRarity.UltimateWaifu;
+                default:
+                    return WaifuRarity.Common;
+            }
+        }
+
+        private short GetWebRarity(WaifuRarity rarity)
+        {
+            switch (rarity)
+            {
+                    case WaifuRarity.Common:
+                        return 0;
+                    case WaifuRarity.Uncommon:
+                        return 1;
+                    case WaifuRarity.Rare:
+                        return 2;
+                    case WaifuRarity.Epic:
+                        return 3;
+                    case WaifuRarity.UltimateWaifu:
+                        return 99;
+                    default:
+                        return 98;
+            }
+        }
+
+        [HttpGet("getAdminRequests/{userId}", Name = "getAdminRequests")]
+        [EnableCors("getAdminRequests")]
+        public List<WaifuRequestWeb> GetAdminRequests(ulong userId)
+        {
+            try
+            {
+                // if its not the owner id we dont return anything...
+                if (userId != Utility.OWNER_ID) return null;
+                using (var soraContext = new SoraContext())
+                {
+                    var reqs = soraContext.WaifuRequests.ToList();
+                    
+                    var resp = new List<WaifuRequestWeb>();
+
+                    foreach (var req in reqs)
+                    {
+                        resp.Add(new WaifuRequestWeb()
+                        {
+                            Id = req.Id.ToString(),
+                            ImageUrl = req.ImageUrl,
+                            Name = req.Name,
+                            Rarity = req.Rarity
+                        });
+                    }
+
+                    return resp;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        [HttpGet("getAllRequests/{userId}", Name = "getAllRequests")]
+        [EnableCors("getAllRequests")]
+        public List<WaifuRequestWeb> GetAllWaifuRequestsForUser(ulong userId)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    var reqs = soraContext.WaifuRequests.Where(x => x.UserId == userId).ToList();
+                    
+                    var resp = new List<WaifuRequestWeb>();
+
+                    foreach (var req in reqs)
+                    {
+                        resp.Add(new WaifuRequestWeb()
+                        {
+                            Id = req.Id.ToString(),
+                            ImageUrl = req.ImageUrl,
+                            Name = req.Name,
+                            Rarity = req.Rarity
+                        });
+                    }
+
+                    return resp;
+
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        [HttpPost("requestApproval/", Name = "requestApproval")]
+        [EnableCors("requestApproval")]
+        public async Task<WaifuRequestResponse> PostRequestApproval([FromBody] RequestApproval approval)
+        {
+            try
+            {
+                if (ulong.Parse(approval.UserId) != Utility.OWNER_ID) return null;
+                using (var soraContext = new SoraContext())
+                {
+                    var req = soraContext.WaifuRequests.FirstOrDefault(x => x.Id == int.Parse(approval.WaifuId));
+                    if (req == null)
+                    {
+                        return new WaifuRequestResponse()
+                        {
+                            Success = false,
+                            Error = "This request does not exist"
+                        };
+                    }
+                    // else check if accept or decline
+                    if (!approval.Accept)
+                    {
+                        // decline
+                        soraContext.WaifuRequests.Remove(req);
+                        await soraContext.SaveChangesAsync();
+                        // return success
+                        return new WaifuRequestResponse()
+                        {
+                            Success = true,
+                            Error = ""
+                        };
+                    }
+                    // else we accepted
+                    var userDb = Utility.GetOrCreateUser(req.UserId, soraContext);
+                    // give him money
+                    userDb.Money += 1000;
+                    // now we add it to the waifu db
+                    soraContext.Waifus.Add(new Waifu()
+                    {
+                        ImageUrl = req.ImageUrl,
+                        Name = req.Name,
+                        Rarity = GetOfficialRarity(req.Rarity)
+                    });
+                    // and remove it from the requests
+                    soraContext.WaifuRequests.Remove(req);
+                    // save all the changes
+                    await soraContext.SaveChangesAsync();
+                    
+                    return new WaifuRequestResponse()
+                    {
+                        Success = true,
+                        Error = ""
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
+        [HttpPost("editWaifu/", Name = "editWaifu")]
+        [EnableCors("editWaifu")]
+        public async Task<WaifuRequestResponse> PostWaifuEdit([FromBody] WaifuRequestWeb request)
+        {
+            try
+            {
+                using (var soraContext = new SoraContext())
+                {
+                    // get user id
+                    ulong uid = ulong.Parse(request.UserId);
+                    // check if the user even has this request. otherwise error out
+                    var req = soraContext.WaifuRequests.FirstOrDefault(x =>x.Id == int.Parse(request.Id));
+                    // it straight out doesnt exist
+                    if (req == null)
+                    {
+                        return new WaifuRequestResponse()
+                        {
+                            Success = false,
+                            Error = "This request does not exist"
+                        };
+                    }
+                    // now check if he's owner or its the bot owner
+                    if (req.UserId != uid && req.UserId != Utility.OWNER_ID) 
+                        return new WaifuRequestResponse()
+                            {
+                                Success = false,
+                                Error = "This is not your request"
+                            };
+                    // else we can edit the entry
+                    req.Name = request.Name;
+                    req.Rarity = request.Rarity;
+                    req.ImageUrl = request.ImageUrl;
+                    await soraContext.SaveChangesAsync();
+                    //return success
+                    return new WaifuRequestResponse()
+                    {
+                        Success = true,
+                        Error = ""
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                return new WaifuRequestResponse()
+                {
+                    Success = false,
+                    Error = "Something went horribly wrong :("
+                };
+            }
+        }
+
+        [HttpPost("waifuRequest/", Name = "waifuRequest")]
+        [EnableCors("waifuRequest")]
+        public async Task<WaifuRequestResponse> PostWaifuRequest([FromBody] WaifuRequestWeb request)
+        {
+            try
+            {
+                // lets check if the user has requests already
+                using (var soraContext = new SoraContext())
+                {
+                    ulong uid = ulong.Parse(request.UserId);
+                    var reqs = soraContext.WaifuRequests.Where(x => x.UserId == uid).ToList();
+                    // if there are more than 2 requests we need to check if he did 3 in the last 24h.
+                    // otherwise we can skip this step
+                    if (reqs.Count > 2)
+                    {
+                        if (reqs.Count(x => x.TimeStamp.CompareTo(DateTime.UtcNow.Subtract(TimeSpan.FromHours(24))) > 0) >= 3)
+                        {
+                            // use has 3 or more requests from the past 24 hours. So we cannot fulfill this request
+                            return new WaifuRequestResponse()
+                            {
+                                Success = false,
+                                Error = "You already made 3 requests in the past 24 hours"
+                            };
+                        }
+                    }
+                    // now check if waifu already exists
+                    if (soraContext.Waifus.Any(x =>
+                        x.Name.Equals(request.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return new WaifuRequestResponse()
+                        {
+                            Success = false,
+                            Error = "This waifu already exists"
+                        };
+                    }
+                    
+                    // else we can add the request
+                    var req = new WaifuRequest()
+                    {
+                        ImageUrl = request.ImageUrl,
+                        Name = request.Name,
+                        TimeStamp = DateTime.UtcNow,
+                        UserId = uid,
+                        Rarity = request.Rarity
+                    };
+                    
+                    // add to DB
+                    soraContext.WaifuRequests.Add(req);
+                    // save changes
+                    await soraContext.SaveChangesAsync();
+                    
+                    return new WaifuRequestResponse()
+                    {
+                        Success = true,
+                        Error = "",
+                        RequestId = req.Id.ToString()
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                return new WaifuRequestResponse()
+                {
+                    Success = false,
+                    Error = "Something went horribly wrong :("
+                };
+            }
+        }
         
         [HttpGet("GetSoraStats/", Name = "SoraStats")]
         [EnableCors("AllowLocal")]
