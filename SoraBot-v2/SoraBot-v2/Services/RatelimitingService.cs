@@ -10,12 +10,12 @@ namespace SoraBot_v2.Services
 {
     public class RatelimitingService
     {
-        private const int INITIAL_FILL= 12;
-        private const int MAX_FILL = 24;
+        private const int INITIAL_FILL= 18;
+        private const int MAX_FILL = 30;
         private const int SIZE_PER_DROP = 1;
-        private const int INITIAL_DELAY = 20;
-        private const int BUCKET_DROP_INTERVAL = 10;
-        private const int ADDITIONAL_DELETION = 2;
+        private const int INITIAL_DELAY = 10;
+        private const int BUCKET_DROP_INTERVAL = 7;
+        private const int ADDITIONAL_DELETION = 0;
 
         private DiscordSocketClient _client;
         
