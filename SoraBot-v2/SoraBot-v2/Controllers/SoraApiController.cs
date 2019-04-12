@@ -281,7 +281,7 @@ namespace SoraBot_v2.Controllers
                         return new WaifuRequestResponse()
                         {
                             Success = false,
-                            Error = "This Waifu already exists"
+                            Error = "This waifu already exists"
                         };
                     }
                     
