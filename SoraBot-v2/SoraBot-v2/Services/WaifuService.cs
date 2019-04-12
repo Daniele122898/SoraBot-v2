@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -19,12 +22,12 @@ namespace SoraBot_v2.Services
         ---------------
         
         Rarities
-        ---------
-        common				500 - 50
-        uncommon			300 - 100
-        rare				100 - 300
-        epic				50 - 600
-        ultimate Waifu		10 - 1500
+        ---------            TOTAL: 970
+        common				40%    - 500 - 50
+        uncommon			32%    - 300 - 100
+        rare				15%  - 100 - 300
+        epic				8%   - 50  - 600
+        ultimate Waifu		5%     - 20  - 1500
         
         Waifu
         ---------
@@ -44,58 +47,65 @@ namespace SoraBot_v2.Services
     public class WaifuService
     {
         private readonly InteractiveService _interactive;
+        private Timer _timer;
+
 
         public WaifuService(InteractiveService service)
         {
             _interactive = service;
         }
         
-        private List<Waifu> _boxCache = new List<Waifu>();
-        private List<Waifu> _specialWaifu = new List<Waifu>();
+        private List<Waifu> _cache = new List<Waifu>();
 
         private const int BOX_COST = 500;
         private const int SPECIAL_COST = 750;
         private const byte BOX_CARD_AMOUNT = 3;
         public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Christmas;
+
+        private const int CACHE_DELAY = 5;
+        
+        private Random _random = new Random();
+        private object _randomLock = new object();
         
         public void Initialize()
         {
             // initial setup
-            CreateRandomCache();
+            CacheWaifus(null);
+            // recreate cache all 10 minutes
+            _timer = new Timer(CacheWaifus, null, TimeSpan.FromMinutes(CACHE_DELAY),
+                TimeSpan.FromMinutes(CACHE_DELAY));
         }
 
-        private void CreateRandomCache()
+        private async void CacheWaifus(Object stateInfo)
         {
-            using (var soraContext = new SoraContext())
+            try
             {
-                // get all waifus
-                var waifus = soraContext.Waifus.ToArray();
-                foreach (var waifu in waifus)
+                using (var soraContext = new SoraContext())
                 {
-                    // add each waifu * rarity amount to cache
-                    int amount = GetRarityAmount(waifu.Rarity);
-                    // special waifus should not be added to normal pot
-                    if (amount == 0)
-                    {
-                        // add to special waifu list if its the current Special.
-                        if(waifu.Rarity == CURRENT_SPECIAL)
-                            _specialWaifu.Add(waifu);
-                        continue;
-                    }
-                    // add normal waifus to normal pot
-                    for (int i = 0; i < amount; i++)
-                    {
-                        _boxCache.Add(waifu);
-                    }
+                    List<Waifu> cache = soraContext.Waifus.ToList();
+                    // update it if it is different.
+                    if (cache.Count != _cache.Count)
+                        _cache = cache;
                 }
-                // shuffle for some extra RNG
-                _boxCache.Shuffle();
-                _boxCache.Shuffle();
-                
-                // if the special list is empty, thus no special waifus exist rn remove the allocated ram for the list
-                if (_specialWaifu.Count == 0)
-                    _specialWaifu = null;
             }
+            catch (Exception e)
+            {
+                await SentryService.SendMessage(e.ToString());
+            }
+        }
+
+        public async Task CheckCurrentCache(SocketCommandContext context)
+        {
+            var serializer = new JsonSerializer();
+            using (StreamWriter sw = File.CreateText(@"tempWaifu.json"))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, _cache);
+            }
+
+            await context.Channel.SendFileAsync(@"tempWaifu.json", "All waifus in cache rn:");
+            
+            File.Delete(@"tempWaifu.json");
         }
 
         public async Task SetFavoriteWaifu(SocketCommandContext context, int waifuId)
@@ -467,9 +477,7 @@ namespace SoraBot_v2.Services
                 };
                 soraContext.Waifus.Add(waifu);
                 await soraContext.SaveChangesAsync();
-                var withId =
-                    soraContext.Waifus.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-                AddWaifuToCache(withId);
+                
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
@@ -516,7 +524,7 @@ namespace SoraBot_v2.Services
                 // the others are normal waifus.
                 for (int i = 0; i < BOX_CARD_AMOUNT-1; i++)
                 {
-                    var waifu = GetRandomFromBox();
+                    var waifu = GetRandomFromBox(GetRandomRarity());
                     waifus.Add(waifu);
                     // add to user
                     GiveWaifuToId(context.User.Id, waifu.Id, userdb);
@@ -571,7 +579,7 @@ namespace SoraBot_v2.Services
                 var waifus = new List<Waifu>();
                 for (int i = 0; i < BOX_CARD_AMOUNT; i++)
                 {
-                    var waifu = GetRandomFromBox();
+                    var waifu = GetRandomFromBox(GetRandomRarity());
                     waifus.Add(waifu);
                     // add to user
                     GiveWaifuToId(context.User.Id, waifu.Id, userdb);
@@ -608,27 +616,54 @@ namespace SoraBot_v2.Services
         private Waifu GetRandomSpecialWaifu(User db)
         {
             // remove all Dupes from list
-            var specialListWithoutDupes = _specialWaifu.Where(y => db.UserWaifus.All(x => x.WaifuId != y.Id)).ToList();
+            var specialListWithoutDupes = _cache.Where(y => y.Rarity == CURRENT_SPECIAL && db.UserWaifus.All(x => x.WaifuId != y.Id)).ToList();
             // return null if he has all waifus so we can handle that case
             if (specialListWithoutDupes.Count == 0) return null;
             // otherwise give a random waifu of the remaining ones
-            return specialListWithoutDupes[ThreadSafeRandom.ThisThreadsRandom.Next(0, specialListWithoutDupes.Count)];
+            return specialListWithoutDupes[GetRandomNumber(0, specialListWithoutDupes.Count)];
         }
 
-        private Waifu GetRandomFromBox()
+        /*
+          Rarities
+        ---------            TOTAL: 970
+        common				52%    - 500 - 50
+        uncommon			32%    - 300 - 100
+        rare				12%  - 100 - 300
+        epic				3%   - 50  - 600
+        ultimate Waifu		1%     - 20  - 1500
+         
+         */
+
+        private const int COMMON_CHANCE = 520;
+        private const int UNCOMMON_CHANCE = 350;
+        private const int RARE_CHANCE = 85;
+        private const int EPIC_CHANCE = 27;
+        private const int ULTI_CHANCE = 18;
+        
+        private WaifuRarity GetRandomRarity()
         {
-            return _boxCache[ThreadSafeRandom.ThisThreadsRandom.Next(0, _boxCache.Count)];
+            // get a number from 0 - 999
+            int num = GetRandomNumber(0, 1000);
+
+            if (num < COMMON_CHANCE)
+                return WaifuRarity.Common;
+
+            if (num < COMMON_CHANCE+UNCOMMON_CHANCE)
+                return WaifuRarity.Uncommon;                
+
+            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + RARE_CHANCE)
+                return WaifuRarity.Rare;
+
+            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + RARE_CHANCE + EPIC_CHANCE)
+                return WaifuRarity.Epic;
+
+            return WaifuRarity.UltimateWaifu;
         }
 
-        public void AddWaifuToCache(Waifu waifu)
+        private Waifu GetRandomFromBox(WaifuRarity rarity)
         {
-            int amount = GetRarityAmount(waifu.Rarity);
-            for (int i = 0; i < amount; i++)
-            {
-                _boxCache.Add(waifu);
-            }
-            // reshuffle
-            _boxCache.Shuffle();
+            var rarityList = _cache.Where(x => x.Rarity == rarity).ToList();
+            return rarityList[GetRandomNumber(0, rarityList.Count)];
         }
 
         public static string GetRarityString(WaifuRarity rarity)
@@ -715,6 +750,14 @@ namespace SoraBot_v2.Services
                         return 0;
             }
             return 0;
+        }
+
+        private int GetRandomNumber(int minVal, int maxVal)
+        {
+            lock (_randomLock)
+            {
+                return _random.Next(minVal, maxVal);
+            }
         }
     }
 }
