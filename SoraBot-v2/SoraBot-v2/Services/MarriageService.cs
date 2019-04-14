@@ -205,7 +205,6 @@ namespace SoraBot_v2.Services
                     PartnerId = user.Id,
                     Since = DateTime.UtcNow
                 });
-                //_soraContext.SaveChangesThreadSafe();
                 askedDb.Marriages.Add(new Marriage()
                 {
                     PartnerId = context.User.Id,

@@ -39,6 +39,13 @@ namespace SoraBot_v2.Module
             await _waifuService.AddWaifu(Context, name, image, rarity);
         }
 
+        [Command("request"), Alias("request waifu", "requestwaifu"),
+         Summary("Posts the link where you can request waifus")]
+        public async Task RequestWaifuLink()
+        {
+            await ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
+        }
+
         [Command("unbox", RunMode = RunMode.Async), Alias("waifu"), Summary("Unbox Waifus")]
         public async Task UnboxWaifus()
         {

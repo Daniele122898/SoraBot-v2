@@ -373,7 +373,6 @@ namespace SoraBot_v2.Services
                     });
                     //Set Default action to be false! // Interactions = new Interactions() , Afk = new Afk()
                     //addedUser.Entity.Afk.IsAfk = false; CHANGED
-                    //soraContext.SaveChangesThreadSafe();
                     soraContext.SaveChanges();
                     return addedUser.Entity;
                 }
@@ -402,7 +401,6 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
-            //soraContext.SaveChangesThreadSafe();
             soraContext.SaveChanges();
             return result;
         }
@@ -438,7 +436,6 @@ namespace SoraBot_v2.Services
                 {
                     //Guild not found => Create
                     var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1, Users = new List<GuildUser>(), LevelRoles = new List<GuildLevelRole>()});
-                    //soraContext.SaveChangesThreadSafe();
                     soraContext.SaveChanges();
                     return addGuild.Entity;
                 }
@@ -475,7 +472,6 @@ namespace SoraBot_v2.Services
             }
             
             //guild found
-            //soraContext.SaveChangesThreadSafe();
             soraContext.SaveChanges();
             return result;
 
