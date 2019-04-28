@@ -103,7 +103,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 // add 24h cooldown
-                userdb.NextDaily = DateTime.UtcNow.AddHours(24);
+                userdb.NextDaily = DateTime.UtcNow.AddHours(22);
                 // give coins
                 userdb.Money += GAIN_COINS;
                 // save changes
