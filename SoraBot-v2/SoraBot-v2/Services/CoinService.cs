@@ -94,16 +94,17 @@ namespace SoraBot_v2.Services
                             "Something went wrong soryy :c").Build());
                     return;
                 }
-                if (userdb.NextDaily.CompareTo(DateTime.UtcNow) >= 0)
+                var now = DateTime.UtcNow;
+                if (userdb.LastDailyClaim.Day == now.Day)
                 {
-                    var timeRemaining = userdb.NextDaily.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
+                    var timeRemaining = DateTime.UtcNow.AddDays(1).AtMidnight() - now;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
                     return;
                 }
                 // add 24h cooldown
-                userdb.NextDaily = DateTime.UtcNow.AddHours(24);
+                userdb.LastDailyClaim = now;
                 // give coins
                 userdb.Money += GAIN_COINS;
                 // save changes

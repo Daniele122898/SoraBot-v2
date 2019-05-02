@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -360,16 +360,16 @@ namespace SoraBot_v2.Services
                     //User Not found => CREATE
                     var addedUser = soraContext.Users.Add(new User()
                     {
-                        UserId = Id, ShareCentrals = new List<ShareCentral>(), 
-                        Interactions = new Interactions(),Votings = new List<Voting>(),
-                        Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),
+                        UserId = Id, ShareCentrals = new List<ShareCentral>(),
+                        Interactions = new Interactions(), Votings = new List<Voting>(),
+                        Reminders = new List<Reminders>(), Marriages = new List<Marriage>(),
                         UserWaifus = new List<UserWaifu>(),
-                        HasBg = false, 
-                        Notified = false, 
-                        ClanStaff = false, 
+                        HasBg = false,
+                        Notified = false,
+                        ClanStaff = false,
                         ClanName = "",
                         Money = 0,
-                        NextDaily = DateTime.UtcNow
+                        LastDailyClaim = DateTime.UtcNow.AddDays(-1)
                     });
                     //Set Default action to be false! // Interactions = new Interactions() , Afk = new Afk()
                     //addedUser.Entity.Afk.IsAfk = false; CHANGED
