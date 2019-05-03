@@ -95,9 +95,10 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 var now = DateTime.UtcNow;
-                if (userdb.LastDailyClaim.Day == now.Day)
+                var midnight = now.AtMidnight();
+                if (userdb.LastDailyClaim >= midnight)
                 {
-                    var timeRemaining = DateTime.UtcNow.AddDays(1).AtMidnight() - now;
+                    var timeRemaining = midnight.AddDays(1) - userdb.LastDailyClaim;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
