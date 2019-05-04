@@ -96,9 +96,10 @@ namespace SoraBot_v2.Services
                 }
                 var now = DateTime.UtcNow;
                 var midnight = now.AtMidnight();
+                var nextMidnight = midnight.AddDays(1);
                 if (userdb.LastDailyClaim >= midnight)
                 {
-                    var timeRemaining = midnight.AddDays(1) - userdb.LastDailyClaim;
+                    var timeRemaining = nextMidnight - userdb.LastDailyClaim;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
                         $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
@@ -111,10 +112,11 @@ namespace SoraBot_v2.Services
                 // save changes
                 await soraContext.SaveChangesAsync();
 
+                var timeUntilNextClaim = nextMidnight - now;
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in 24h.").Build());
+                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in {timeUntilNextClaim.Humanize(minUnit: TimeUnit.Second)} (resets daily at 00:00 GMT+0).").Build());
             }       
         }
 
