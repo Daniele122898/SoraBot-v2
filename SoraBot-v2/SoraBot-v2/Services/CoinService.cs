@@ -102,8 +102,8 @@ namespace SoraBot_v2.Services
                         $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
                     return;
                 }
-                // add 24h cooldown
-                userdb.NextDaily = DateTime.UtcNow.AddHours(24);
+                // add 20h cooldown
+                userdb.NextDaily = DateTime.UtcNow.AddHours(20);
                 // give coins
                 userdb.Money += GAIN_COINS;
                 // save changes

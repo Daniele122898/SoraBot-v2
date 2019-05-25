@@ -39,6 +39,13 @@ namespace SoraBot_v2.Module
             await _waifuService.AddWaifu(Context, name, image, rarity);
         }
 
+        [Command("request"), Alias("request waifu", "requestwaifu"),
+         Summary("Posts the link where you can request waifus")]
+        public async Task RequestWaifuLink()
+        {
+            await ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
+        }
+
         [Command("unbox", RunMode = RunMode.Async), Alias("waifu"), Summary("Unbox Waifus")]
         public async Task UnboxWaifus()
         {
@@ -48,13 +55,14 @@ namespace SoraBot_v2.Module
         [Command("special", RunMode = RunMode.Async), Alias("halloween"), Summary("Open Halloween Waifuboxes")]
         public async Task SpecialWaifus()
         {
-            
+            /*
             await ReplyAsync("", embed: Utility.ResultFeedback(
                     Utility.RedFailiureEmbed,
                     Utility.SuccessLevelEmoji[2],
                     "There are no special waifus available right now.")
                 .Build());
             return;
+            */
             await _waifuService.UnboxSpecialWaifu(Context);
         }
 

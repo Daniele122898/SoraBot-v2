@@ -220,7 +220,7 @@ namespace SoraBot_v2.Controllers
                         };
                     }
                     // now check if he's owner or its the bot owner
-                    if (req.UserId != uid && req.UserId != Utility.OWNER_ID) 
+                    if (req.UserId != uid && uid != Utility.OWNER_ID) 
                         return new WaifuRequestResponse()
                             {
                                 Success = false,
