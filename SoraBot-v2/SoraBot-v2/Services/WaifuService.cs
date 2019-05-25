@@ -651,13 +651,13 @@ namespace SoraBot_v2.Services
             if (num < COMMON_CHANCE+UNCOMMON_CHANCE)
                 return WaifuRarity.Uncommon;                
 
-            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + RARE_CHANCE)
+            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + ULTI_CHANCE)
+                return WaifuRarity.UltimateWaifu;
+
+            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + ULTI_CHANCE + RARE_CHANCE)
                 return WaifuRarity.Rare;
 
-            if (num < COMMON_CHANCE + UNCOMMON_CHANCE + RARE_CHANCE + EPIC_CHANCE)
-                return WaifuRarity.Epic;
-
-            return WaifuRarity.UltimateWaifu;
+            return WaifuRarity.Epic;
         }
 
         private Waifu GetRandomFromBox(WaifuRarity rarity)
