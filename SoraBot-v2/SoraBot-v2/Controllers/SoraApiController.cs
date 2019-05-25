@@ -168,6 +168,16 @@ namespace SoraBot_v2.Controllers
                             Error = ""
                         };
                     }
+                    // check if already in DB
+                    if (soraContext.Waifus.Any(x =>
+                        x.Name.Equals(req.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return new WaifuRequestResponse()
+                        {
+                            Success = false,
+                            Error = "This waifu already exists"
+                        };
+                    }
                     // else we accepted
                     var userDb = Utility.GetOrCreateUser(req.UserId, soraContext);
                     // give him money
