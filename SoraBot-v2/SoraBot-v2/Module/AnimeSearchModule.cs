@@ -22,12 +22,14 @@ namespace SoraBot_v2.Module
 
         [Command("manga", RunMode = RunMode.Async), Summary("Gets the stats of your desired Manga")]
         public async Task GetManga([Summary("Manga to search"), Remainder]string manga)
-        {
+        {            
+            await _animeSearchService.GetManga(Context, manga);
         }
 
         [Command("character", RunMode = RunMode.Async), Alias("char"), Summary("Gets the stats of your desired Character")]
         public async Task GetChar([Summary("Character to search"), Remainder]string charName)
         {
+            await _animeSearchService.GetChar(Context, charName);
         }
     }
 }
