@@ -634,11 +634,11 @@ namespace SoraBot_v2.Services
          
          */
 
-        private const int COMMON_CHANCE = 520;
-        private const int UNCOMMON_CHANCE = 350;
+        private const int COMMON_CHANCE = 521;
+        private const int UNCOMMON_CHANCE = 353;
         private const int RARE_CHANCE = 85;
         private const int EPIC_CHANCE = 27;
-        private const int ULTI_CHANCE = 18;
+        private const int ULTI_CHANCE = 14;
         
         private WaifuRarity GetRandomRarity()
         {
@@ -684,6 +684,8 @@ namespace SoraBot_v2.Services
                     return "Halloween";
                 case WaifuRarity.Christmas:
                     return "Christmas";
+                case WaifuRarity.Summer:
+                    return "Summer";
             }
             return "";
         }
@@ -704,6 +706,7 @@ namespace SoraBot_v2.Services
                     return 1500;
                 case WaifuRarity.Halloween:
                 case WaifuRarity.Christmas:
+                case WaifuRarity.Summer:
                     return 300;
             }
             return 0;
@@ -727,29 +730,10 @@ namespace SoraBot_v2.Services
                     return WaifuRarity.Halloween;
                 case 6:
                     return WaifuRarity.Christmas;
+                case 7:
+                    return WaifuRarity.Summer;
             }
             return WaifuRarity.Common;
-        }
-
-        private int GetRarityAmount(WaifuRarity rarity)
-        {
-            switch (rarity)
-            {
-                    case WaifuRarity.Common:
-                        return 500;
-                    case WaifuRarity.Uncommon:
-                        return 300;
-                    case WaifuRarity.Rare:
-                        return 100;
-                    case WaifuRarity.Epic:
-                        return 50;
-                    case WaifuRarity.UltimateWaifu:
-                        return 20;
-                    case WaifuRarity.Halloween:
-                    case WaifuRarity.Christmas:
-                        return 0;
-            }
-            return 0;
         }
 
         private int GetRandomNumber(int minVal, int maxVal)
