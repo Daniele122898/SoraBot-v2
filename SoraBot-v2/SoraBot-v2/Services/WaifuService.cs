@@ -60,7 +60,7 @@ namespace SoraBot_v2.Services
         private const int BOX_COST = 500;
         private const int SPECIAL_COST = 750;
         private const byte BOX_CARD_AMOUNT = 3;
-        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Christmas;
+        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
 
         private const int CACHE_DELAY = 5;
         

@@ -11,7 +11,8 @@ namespace SoraBot_v2.Data.Entities.SubEntities
         Epic = 3, 
         UltimateWaifu = 99, 
         Halloween = 5, 
-        Christmas = 6
+        Christmas = 6,
+        Summer = 7
     }
     
     public class Waifu
