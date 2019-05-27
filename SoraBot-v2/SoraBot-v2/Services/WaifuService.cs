@@ -634,11 +634,11 @@ namespace SoraBot_v2.Services
          
          */
 
-        private const int COMMON_CHANCE = 521;
-        private const int UNCOMMON_CHANCE = 353;
+        private const int COMMON_CHANCE = 525;
+        private const int UNCOMMON_CHANCE = 355;
         private const int RARE_CHANCE = 85;
         private const int EPIC_CHANCE = 27;
-        private const int ULTI_CHANCE = 14;
+        private const int ULTI_CHANCE = 8;
         
         private WaifuRarity GetRandomRarity()
         {
