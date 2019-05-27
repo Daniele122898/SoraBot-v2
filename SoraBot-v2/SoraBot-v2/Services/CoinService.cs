@@ -12,6 +12,7 @@ namespace SoraBot_v2.Services
     public class CoinService
     {
         private const int GAIN_COINS = 500;
+        private const int DAILY_COOLDOWN = 20;
 
         public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
         {
@@ -103,7 +104,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 // add 20h cooldown
-                userdb.NextDaily = DateTime.UtcNow.AddHours(20);
+                userdb.NextDaily = DateTime.UtcNow.AddHours(DAILY_COOLDOWN);
                 // give coins
                 userdb.Money += GAIN_COINS;
                 // save changes
@@ -112,7 +113,7 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in 24h.").Build());
+                    $"You gained {GAIN_COINS} Sora Coins! You can earn again in {DAILY_COOLDOWN}h.").Build());
             }       
         }
 
