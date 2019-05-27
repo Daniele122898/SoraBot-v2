@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
-using Humanizer;
-using Humanizer.Localisation;
-using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -50,7 +46,7 @@ namespace SoraBot_v2.Module
             await ReplyAsync("", embed: Utility.ResultFeedback(
                 Utility.BlueInfoEmbed,
                 Utility.SuccessLevelEmoji[4],
-                $"💰 You have {amount.ToString()} Sora Coins."
+                $"💰 {(user.Id == Context.User.Id ? "You have" : $"{Utility.GiveUsernameDiscrimComb(user)} has")} {amount.ToString()} Sora Coins."
                 ).Build());
         }
         
