@@ -100,7 +100,7 @@ namespace SoraBot_v2.Services
                     var timeRemaining = userdb.NextDaily.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
                         Utility.SuccessLevelEmoji[2],
-                        $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second)}!").Build());
+                        $"You can't earn anymore, please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second, precision: 2)}!").Build());
                     return;
                 }
                 // add 20h cooldown
