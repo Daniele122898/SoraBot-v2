@@ -176,14 +176,20 @@ namespace SoraBot_v2
                 Password = ConfigService.GetConfigData("lavalinkpw"),
                 LogSeverity = LogSeverity.Info
             };
-            await _lavaSocketClient.StartAsync(_client, conf);
             
-            LavaRestClient lavaRestClient = new LavaRestClient(conf);
+            // We want to NOT await this as it blocks the gw thread. this should run on a separate thread.
+            Task.Run(async () =>
+            {
+                await _lavaSocketClient.StartAsync(_client, conf);
             
-            _audioService.Initialize(_lavaSocketClient, lavaRestClient, _client.CurrentUser.Id);
-            // voice shit
-            _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
-            _client.Disconnected += _audioService.ClientOnDisconnected;
+                LavaRestClient lavaRestClient = new LavaRestClient(conf);
+            
+                _audioService.Initialize(_lavaSocketClient, lavaRestClient, _client.CurrentUser.Id);
+                // voice shit
+                _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
+                _client.Disconnected += _audioService.ClientOnDisconnected;
+            });
+            
 
         }
 
