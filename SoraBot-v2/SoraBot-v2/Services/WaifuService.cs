@@ -567,7 +567,10 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC.",
+                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC." +
+                                  $@"{(IsSpecialWaifu ? $"\n\n**ATTENTION:** There are currently special {GetRarityString(CURRENT_SPECIAL)} " + 
+                                                       $"themed waifus available for a limited time only. Open them with " +
+                                                       $"`{Utility.GetGuildPrefixFast(soraContext, context.Guild.Id, "$")}special`" : "")}",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl
