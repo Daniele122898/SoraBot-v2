@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -77,6 +78,26 @@ namespace SoraBot_v2.Module
         public async Task ClanInfo([Remainder] string clanName ="")
         {
             await _clanService.ShowClanInfo(Context, clanName.Trim());
+        }
+        
+        
+        [Command("claninfo"), Alias("cinfo"), Summary("Shows info about clan")]
+        public async Task ClanInfo(SocketUser user)
+        {
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.GetOrCreateUser(user.Id, soraContext);
+                if (string.IsNullOrWhiteSpace(userdb.ClanName))
+                {
+                    await ReplyAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        $"{Utility.GiveUsernameDiscrimComb(user)} is in no clan!").Build());
+                    return;
+                }
+                // else get clan info
+                await _clanService.ShowClanInfo(Context, userdb.ClanName);
+            }
         }
 
         [Command("rmclanavatar"), Alias("rmcavatar", "rmcava"), Summary("Remove Clan Avatar")]

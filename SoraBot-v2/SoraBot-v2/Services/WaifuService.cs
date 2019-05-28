@@ -17,42 +17,20 @@ using SoraBot_v2.Extensions;
 namespace SoraBot_v2.Services
 {
     
-    /*
-        Waifu trade
-        ---------------
-        
-        Rarities
-        ---------            TOTAL: 970
-        common				40%    - 500 - 50
-        uncommon			32%    - 300 - 100
-        rare				15%  - 100 - 300
-        epic				8%   - 50  - 600
-        ultimate Waifu		5%     - 20  - 1500
-        
-        Waifu
-        ---------
-        id
-        name
-        imageurl
-        rarity
-        
-        User Ownership
-        -----------------
-        id increment
-        userid
-        waifuId
-        count
-     */
-    
     public class WaifuService
     {
+        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
+
+        public bool IsSpecialWaifu { get; private set; }
+        
         private readonly InteractiveService _interactive;
         private Timer _timer;
-
 
         public WaifuService(InteractiveService service)
         {
             _interactive = service;
+            // check config if special waifus are a thing
+            IsSpecialWaifu = ConfigService.GetConfigData("specialWaifus").Equals("True", StringComparison.OrdinalIgnoreCase);
         }
         
         private List<Waifu> _cache = new List<Waifu>();
@@ -60,8 +38,6 @@ namespace SoraBot_v2.Services
         private const int BOX_COST = 500;
         private const int SPECIAL_COST = 750;
         private const byte BOX_CARD_AMOUNT = 3;
-        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
-
         private const int CACHE_DELAY = 5;
         
         private Random _random = new Random();
@@ -591,7 +567,10 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC.",
+                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC." +
+                                  $@"{(IsSpecialWaifu ? $"\n\n**ATTENTION:** There are currently special {GetRarityString(CURRENT_SPECIAL)} " + 
+                                                       $"themed waifus available for a limited time only. Open them with " +
+                                                       $"`{Utility.GetGuildPrefixFast(soraContext, context.Guild.Id, "$")}special`" : "")}",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl
@@ -634,11 +613,11 @@ namespace SoraBot_v2.Services
          
          */
 
-        private const int COMMON_CHANCE = 521;
-        private const int UNCOMMON_CHANCE = 353;
+        private const int COMMON_CHANCE = 525;
+        private const int UNCOMMON_CHANCE = 355;
         private const int RARE_CHANCE = 85;
         private const int EPIC_CHANCE = 27;
-        private const int ULTI_CHANCE = 14;
+        private const int ULTI_CHANCE = 8;
         
         private WaifuRarity GetRandomRarity()
         {
