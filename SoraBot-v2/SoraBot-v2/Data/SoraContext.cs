@@ -22,6 +22,7 @@ namespace SoraBot_v2.Data
         // Waifu
         public DbSet<Waifu> Waifus { get; set; }
         public DbSet<WaifuRequest> WaifuRequests { get; set; }
+        public DbSet<RequestLog> RequestLogs { get; set; }
 
         //Guild Database
         public DbSet<Guild> Guilds { get; set; }
@@ -85,6 +86,8 @@ namespace SoraBot_v2.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<RequestLog>(x => { x.HasKey(d => d.Id); });
+            
             modelBuilder.Entity<WaifuRequest>(x => { x.HasKey(d => d.Id); });
             
             modelBuilder.Entity<Interactions>(x =>
