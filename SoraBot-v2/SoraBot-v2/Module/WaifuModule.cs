@@ -39,6 +39,53 @@ namespace SoraBot_v2.Module
             await _waifuService.AddWaifu(Context, name, image, rarity);
         }
 
+        [Command("waifustats", RunMode = RunMode.Async), Alias("wstats"), Summary("Shows your waifu stats")]
+        public async Task GetWaifuStats(SocketUser userT = null)
+        {
+            var user = userT ?? Context.User;
+            using (var soraContext = new SoraContext())
+            {
+                var userdb = Utility.GetOrCreateUser(user.Id, soraContext);
+                // now get a rundown
+                var eb = new EmbedBuilder
+                {
+                    Color = Utility.PurpleEmbed,
+                    Footer = Utility.RequestedBy(user),
+                    Description = "This shows you how many waifus you own of each category and your completion percentage." +
+                                  " This does not take dupes into account!",
+                    ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
+                };
+                // enumerate through the rarities
+                int totalHas = 0;
+                int totalExists = 0;
+                foreach (var rarity in (WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity)))
+                {
+                    // holy shit this is cancer
+                    int has = userdb.UserWaifus.Count(
+                        x => soraContext.Waifus.FirstOrDefault(y=> y.Id == x.WaifuId)?.Rarity == rarity);
+                    totalHas += has;
+                    int exists = soraContext.Waifus.Count(x => x.Rarity == rarity);
+                    totalExists += exists;
+                    
+                    eb.AddField(x =>
+                    {
+                        x.Name = WaifuService.GetRarityString(rarity);
+                        x.IsInline = true;
+                        x.Value = $"{has} / {exists} ({((float) has / exists):P})";
+                    });
+                }
+                eb.AddField(x =>
+                {
+                    x.Name = "Total";
+                    x.IsInline = true;
+                    x.Value = $"{totalHas} / {totalExists} ({((float) totalHas / totalExists):P})";
+                });
+                
+                // send message
+                await ReplyAsync("", embed: eb.Build());
+            }
+        }
+
         [Command("request"), Alias("request waifu", "requestwaifu"),
          Summary("Posts the link where you can request waifus")]
         public async Task RequestWaifuLink()
