@@ -53,7 +53,8 @@ namespace SoraBot_v2.Module
                     Footer = Utility.RequestedBy(user),
                     Description = "This shows you how many waifus you own of each category and your completion percentage." +
                                   " This does not take dupes into account!",
-                    ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar
+                    ThumbnailUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                    Title = "Waifu Stats"
                 };
                 // enumerate through the rarities
                 int totalHas = 0;
@@ -71,14 +72,14 @@ namespace SoraBot_v2.Module
                     {
                         x.Name = WaifuService.GetRarityString(rarity);
                         x.IsInline = true;
-                        x.Value = $"{has} / {exists} ({((float) has / exists):P})";
+                        x.Value = $"{has} / {exists} ({((float) has / exists):P2})";
                     });
                 }
                 eb.AddField(x =>
                 {
                     x.Name = "Total";
                     x.IsInline = true;
-                    x.Value = $"{totalHas} / {totalExists} ({((float) totalHas / totalExists):P})";
+                    x.Value = $"{totalHas} / {totalExists} ({((float) totalHas / totalExists):P2})";
                 });
                 
                 // send message
