@@ -134,7 +134,7 @@ namespace SoraBot_v2.Module
             await _waifuService.SellDupes(Context);
         }
         
-        [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
+        [Command("sell", RunMode = RunMode.Async), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
         public async Task QuickSell(string name, int amount = 1)
         {
             // if amount is omitted it will default to one
@@ -167,7 +167,7 @@ namespace SoraBot_v2.Module
             await _waifuService.QuickSellWaifus(Context, waifuId, amount);
         }
 
-        [Command("sell"), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
+        [Command("sell", RunMode = RunMode.Async), Alias("quicksell"), Summary("Quick sell waifus for some fast Sora Coins")]
         public async Task QuickSell(int waifuId, int amount = 1)
         {
             if (amount < 1)
