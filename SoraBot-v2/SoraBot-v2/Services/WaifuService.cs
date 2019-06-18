@@ -407,7 +407,7 @@ namespace SoraBot_v2.Services
                                       $"a {GetRarityString(waifu.Rarity)}!\n" +
                                       $"If you still want to sell please respond with " +
                                       $"`yes` or `y` and decline by writing anything else.",
-                        ThumbnailUrl = waifu.ImageUrl,
+                        ImageUrl = waifu.ImageUrl,
                         Footer = Utility.RequestedBy(context.User)
                     };
                     var msg = await context.Channel.SendMessageAsync("", embed: warn.Build());
@@ -430,7 +430,7 @@ namespace SoraBot_v2.Services
                         await context.Channel.SendMessageAsync("",
                             embed: Utility.ResultFeedback(
                                 Utility.GreenSuccessEmbed,
-                                Utility.SuccessLevelEmoji[2], 
+                                Utility.SuccessLevelEmoji[0], 
                                 "Ok. Selling aborted")
                                 .Build());
                         return;
@@ -450,7 +450,7 @@ namespace SoraBot_v2.Services
                 var eb = Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You successfully sold {amount} for {cash} SC."
+                    $"You successfully sold {amount} {waifu.Name} for {cash} SC."
                 );
                 if (fav)
                 {
