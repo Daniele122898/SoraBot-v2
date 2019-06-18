@@ -199,7 +199,7 @@ namespace SoraBot_v2.Services
                 {
                     x.IsInline = false;
                     x.Name = "Accept?";
-                    x.Value = "You can accept this trade by writing `y` and decline by writing anything else.";
+                    x.Value = "You can accept this trade by writing `y` or `yes` and decline by writing anything else.";
                 });
                 
                 await context.Channel.SendMessageAsync("", embed: eb.Build());
@@ -217,7 +217,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
 
-                if (!response.Content.Equals("y", StringComparison.OrdinalIgnoreCase))
+                if (!StringIsYes(response.Content))
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -406,7 +406,7 @@ namespace SoraBot_v2.Services
                         Description = $"You are about to sell {waifu.Name} which is " +
                                       $"a {GetRarityString(waifu.Rarity)}!\n" +
                                       $"If you still want to sell please respond with " +
-                                      $"`yes` or `y`.",
+                                      $"`yes` or `y` and decline by writing anything else.",
                         ThumbnailUrl = waifu.ImageUrl,
                         Footer = Utility.RequestedBy(context.User)
                     };
