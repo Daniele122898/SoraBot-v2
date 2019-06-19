@@ -208,7 +208,7 @@ namespace SoraBot_v2.Services
             {
                 Color = Utility.PurpleEmbed,
                 Author = GetMalAuthor(),
-                Title = manga.TitleEnglish,
+                Title = string.IsNullOrWhiteSpace(manga.TitleEnglish) ? manga.Title : manga.TitleEnglish,
                 Url = manga.LinkCanonical,
                 Description = desc,
             };
@@ -216,12 +216,14 @@ namespace SoraBot_v2.Services
             if (!string.IsNullOrWhiteSpace(manga.ImageURL))
                 resEb.ImageUrl = manga.ImageURL;
                 
-            resEb.AddField(x =>
-            {
-                x.Name = "Type 📚";
-                x.IsInline = true;
-                x.Value = $"{manga.Type}";
-            });
+            if (!string.IsNullOrWhiteSpace(manga.Type))
+                resEb.AddField(x =>
+                {
+                    x.Name = "Type 📚";
+                    x.IsInline = true;
+                    x.Value = $"{manga.Type}";
+                });
+            
             if (manga.Type.Equals("Manga", StringComparison.OrdinalIgnoreCase))
             {
                 if (!string.IsNullOrWhiteSpace(manga.Chapters) || !string.IsNullOrWhiteSpace(manga.Volumes))
@@ -232,12 +234,13 @@ namespace SoraBot_v2.Services
                         x.Value = $" {(string.IsNullOrWhiteSpace(manga.Chapters) ? "" : $"{manga.Chapters} Ch / ")}{(string.IsNullOrWhiteSpace(manga.Volumes) ? "" : $"{manga.Volumes} V")}";
                     });
                 
-                resEb.AddField(x =>
-                {
-                    x.Name = "Status ⏯️";
-                    x.IsInline = true;
-                    x.Value = $"{manga.Status}";
-                });
+                if (!string.IsNullOrWhiteSpace(manga.Status))
+                    resEb.AddField(x =>
+                    {
+                        x.Name = "Status ⏯️";
+                        x.IsInline = true;
+                        x.Value = $"{manga.Status}";
+                    });
             } 
             else if (manga.Type.Contains("Novel", StringComparison.OrdinalIgnoreCase))
             {
@@ -346,7 +349,7 @@ namespace SoraBot_v2.Services
             {
                 Color = Utility.PurpleEmbed,
                 Author = GetMalAuthor(),
-                Title = anime.TitleEnglish,
+                Title = string.IsNullOrWhiteSpace(anime.TitleEnglish) ? anime.Title : anime.TitleEnglish,
                 Url = anime.LinkCanonical,
                 Description = desc,
             };
@@ -354,36 +357,47 @@ namespace SoraBot_v2.Services
             if (!string.IsNullOrWhiteSpace(anime.ImageURL))
                 resEb.ImageUrl = anime.ImageURL;
                 
-            resEb.AddField(x =>
-            {
-                x.Name = "Type 📺";
-                x.IsInline = true;
-                x.Value = $"{anime.Type}";
-            });
-            if (anime.Type.Equals("TV", StringComparison.OrdinalIgnoreCase))
-            {
+            if (!string.IsNullOrWhiteSpace(anime.Type))
                 resEb.AddField(x =>
                 {
-                    x.Name = "Episodes 🔢";
+                    x.Name = "Type 📺";
                     x.IsInline = true;
-                    x.Value = $"{anime.Episodes}";
+                    x.Value = $"{anime.Type}";
                 });
                 
-                resEb.AddField(x =>
+            if (anime.Type.Equals("TV", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(anime.Episodes))
                 {
-                    x.Name = "Status ⏯️";
-                    x.IsInline = true;
-                    x.Value = $"{anime.Status}";
-                });
+                    resEb.AddField(x =>
+                    {
+                        x.Name = "Episodes 🔢";
+                        x.IsInline = true;
+                        x.Value = $"{anime.Episodes}";
+                    });
+                }
+
+                if (!string.IsNullOrWhiteSpace(anime.Status))
+                {
+                    resEb.AddField(x =>
+                    {
+                        x.Name = "Status ⏯️";
+                        x.IsInline = true;
+                        x.Value = $"{anime.Status}";
+                    });
+                }
             } 
             else if (anime.Type.Equals("movie", StringComparison.OrdinalIgnoreCase))
             {
-                resEb.AddField(x =>
+                if (!string.IsNullOrWhiteSpace(anime.Duration))
                 {
-                    x.Name = "Duration ⏳";
-                    x.IsInline = true;
-                    x.Value = $"{anime.Duration}";
-                });
+                    resEb.AddField(x =>
+                    {
+                        x.Name = "Duration ⏳";
+                        x.IsInline = true;
+                        x.Value = $"{anime.Duration}";
+                    });
+                }
             }
             if (anime.Genres.Count != 0)
                 resEb.AddField(x =>
