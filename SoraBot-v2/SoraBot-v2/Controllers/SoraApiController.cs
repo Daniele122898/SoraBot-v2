@@ -409,11 +409,8 @@ namespace SoraBot_v2.Controllers
                     var waifus = new AllWaifus();
                     // add up all waifus
                     var sorted = soraContext.Waifus.OrderByDescending(x => x.Rarity);
-                    foreach (var waifu in sorted)
-                    {
-                        waifus.Waifus.Add(waifu);
-                    }
-                    // send all waifus
+                    waifus.Waifus = sorted.ToList();
+                    // send all Waifus
                     return waifus;
                 }
             }
@@ -421,7 +418,6 @@ namespace SoraBot_v2.Controllers
             {
                 Console.WriteLine(e);
             }
-
             return null;
         }
 
