@@ -411,7 +411,7 @@ namespace SoraBot_v2.Controllers
 
                     userwaifus.Success = true;
                     userwaifus.Username = user?.Username ?? "Undefined";
-                    userwaifus.AvatarUrl = user?.GetAvatarUrl();
+                    userwaifus.AvatarUrl = user?.GetAvatarUrl() ?? _client.CurrentUser.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
 
                     foreach (var userWaifu in userdb.UserWaifus)
                     {
