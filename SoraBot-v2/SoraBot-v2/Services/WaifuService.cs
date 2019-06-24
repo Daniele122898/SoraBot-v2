@@ -17,42 +17,20 @@ using SoraBot_v2.Extensions;
 namespace SoraBot_v2.Services
 {
     
-    /*
-        Waifu trade
-        ---------------
-        
-        Rarities
-        ---------            TOTAL: 970
-        common				40%    - 500 - 50
-        uncommon			32%    - 300 - 100
-        rare				15%  - 100 - 300
-        epic				8%   - 50  - 600
-        ultimate Waifu		5%     - 20  - 1500
-        
-        Waifu
-        ---------
-        id
-        name
-        imageurl
-        rarity
-        
-        User Ownership
-        -----------------
-        id increment
-        userid
-        waifuId
-        count
-     */
-    
     public class WaifuService
     {
+        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
+
+        public bool IsSpecialWaifu { get; private set; }
+        
         private readonly InteractiveService _interactive;
         private Timer _timer;
-
 
         public WaifuService(InteractiveService service)
         {
             _interactive = service;
+            // check config if special waifus are a thing
+            IsSpecialWaifu = ConfigService.GetConfigData("specialWaifus").Equals("True", StringComparison.OrdinalIgnoreCase);
         }
         
         private List<Waifu> _cache = new List<Waifu>();
@@ -60,8 +38,6 @@ namespace SoraBot_v2.Services
         private const int BOX_COST = 500;
         private const int SPECIAL_COST = 750;
         private const byte BOX_CARD_AMOUNT = 3;
-        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
-
         private const int CACHE_DELAY = 5;
         
         private Random _random = new Random();
@@ -223,7 +199,7 @@ namespace SoraBot_v2.Services
                 {
                     x.IsInline = false;
                     x.Name = "Accept?";
-                    x.Value = "You can accept this trade by writing `y` and decline by writing anything else.";
+                    x.Value = "You can accept this trade by writing `y` or `yes` and decline by writing anything else.";
                 });
                 
                 await context.Channel.SendMessageAsync("", embed: eb.Build());
@@ -241,7 +217,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
 
-                if (!response.Content.Equals("y", StringComparison.OrdinalIgnoreCase))
+                if (!StringIsYes(response.Content))
                 {
                     await context.Channel.SendMessageAsync("", embed:
                         Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -365,6 +341,14 @@ namespace SoraBot_v2.Services
             }
         }
 
+        private bool IsSpecialOrUltiWaifu(WaifuRarity rarity)
+        => (rarity != WaifuRarity.Common && rarity != WaifuRarity.Uncommon
+                            && rarity != WaifuRarity.Rare && rarity != WaifuRarity.Epic);
+
+        private bool StringIsYes(string message) =>
+            (message.Equals("yes", StringComparison.OrdinalIgnoreCase)
+             || message.Equals("y", StringComparison.OrdinalIgnoreCase));
+
         public async Task QuickSellWaifus(SocketCommandContext context, int waifuId, int amount)
         {
             using (var soraContext = new SoraContext())
@@ -400,9 +384,60 @@ namespace SoraBot_v2.Services
                     ).Build());
                     return; 
                 }
-
-                selected.Count -= amount;
+                // Before we sell check if ulti or special
                 var waifu = soraContext.Waifus.FirstOrDefault(x => x.Id == waifuId);
+                if (waifu == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "This waifu doesn't exist!")
+                        .Build());
+                    return;
+                }
+                // if its an ulti or special waifu we confirm that he wants to sell
+                if (IsSpecialOrUltiWaifu(waifu.Rarity))
+                {
+                    // Build nice embed with warning and preview
+                    var warn = new EmbedBuilder
+                    {
+                        Color = Utility.YellowWarningEmbed,
+                        Title = "Are you sure?",
+                        Description = $"You are about to sell {waifu.Name} which is " +
+                                      $"a {GetRarityString(waifu.Rarity)}!\n" +
+                                      $"If you still want to sell please respond with " +
+                                      $"`yes` or `y` and decline by writing anything else.",
+                        ImageUrl = waifu.ImageUrl,
+                        Footer = Utility.RequestedBy(context.User)
+                    };
+                    var msg = await context.Channel.SendMessageAsync("", embed: warn.Build());
+                    // now wait for response
+                    var response = await _interactive.NextMessageAsync(
+                        context,
+                        true,
+                        true,
+                        TimeSpan.FromSeconds(30));
+                    await msg.DeleteAsync();
+                    // handle response
+                    if (response == null)
+                    {
+                        await context.Channel.SendMessageAsync("",
+                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{Utility.GiveUsernameDiscrimComb(context.User)} did not reply :/").Build());
+                        return;
+                    }
+                    if (!StringIsYes(response.Content))
+                    {
+                        await context.Channel.SendMessageAsync("",
+                            embed: Utility.ResultFeedback(
+                                Utility.GreenSuccessEmbed,
+                                Utility.SuccessLevelEmoji[0], 
+                                "Ok. Selling aborted")
+                                .Build());
+                        return;
+                    }
+                }
+                // Here is where we do the selling
+                selected.Count -= amount;
                 int cash = GetWaifuQuickSellCost(waifu?.Rarity ?? 0) * amount;
                 userdb.Money += cash;
                 bool fav = false;
@@ -415,7 +450,7 @@ namespace SoraBot_v2.Services
                 var eb = Utility.ResultFeedback(
                     Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0],
-                    $"You successfully sold {amount} for {cash} SC."
+                    $"You successfully sold {amount} {waifu.Name} for {cash} SC."
                 );
                 if (fav)
                 {
@@ -591,7 +626,10 @@ namespace SoraBot_v2.Services
                 var eb = new EmbedBuilder()
                 {
                     Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC.",
+                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC." +
+                                  $@"{(IsSpecialWaifu ? $"\n\n**ATTENTION:** There are currently special {GetRarityString(CURRENT_SPECIAL)} " + 
+                                                       $"themed waifus available for a limited time only. Open them with " +
+                                                       $"`{Utility.GetGuildPrefixFast(soraContext, context.Guild.Id, "$")}special`" : "")}",
                     Footer = Utility.RequestedBy(context.User),
                     Color = Utility.PurpleEmbed,
                     ImageUrl = ordered[0].ImageUrl

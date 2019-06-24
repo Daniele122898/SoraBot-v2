@@ -106,14 +106,14 @@ namespace SoraBot_v2.Controllers
 
         [HttpGet("getAllRequests/{userId}", Name = "getAllRequests")]
         [EnableCors("getAllRequests")]
-        public List<WaifuRequestWeb> GetAllWaifuRequestsForUser(ulong userId)
+        public GetAllRequestsWeb GetAllWaifuRequestsForUser(ulong userId)
         {
             try
             {
                 using (var soraContext = new SoraContext())
                 {
                     var reqs = soraContext.WaifuRequests.Where(x => x.UserId == userId).ToList();
-                    
+                    // get waifu requests
                     var resp = new List<WaifuRequestWeb>();
 
                     foreach (var req in reqs)
@@ -126,8 +126,15 @@ namespace SoraBot_v2.Controllers
                             Rarity = req.Rarity
                         });
                     }
+                    
+                    // get logs
+                    var logs = soraContext.RequestLogs.Where(x=> x.UserId == userId).ToList();
 
-                    return resp;
+                    return new GetAllRequestsWeb
+                    {
+                        RequestLogs = logs,
+                        WaifuRequests = resp
+                    };
 
                 }
             }
@@ -141,6 +148,28 @@ namespace SoraBot_v2.Controllers
         [EnableCors("requestApproval")]
         public async Task<WaifuRequestResponse> PostRequestApproval([FromBody] RequestApproval approval)
         {
+
+            void _createLog(SoraContext soraContext, WaifuRequest req, RequestApproval app)
+            {
+                // first get requests from user to see if we need to delete an old one
+                var logs = soraContext.RequestLogs.Where(x => x.UserId == req.UserId).ToList();
+                if (logs.Count == 10)
+                {
+                    // sort list so oldest is first element
+                    logs.Sort((x, y) => DateTime.Compare(x.ProcessedTime, y.ProcessedTime));
+                    // remove oldest element
+                    soraContext.RequestLogs.Remove(logs[0]);
+                }
+                // create new log
+                soraContext.RequestLogs.Add(new RequestLog
+                {
+                    Accepted = app.Accept,
+                    ProcessedTime = DateTime.UtcNow,
+                    UserId = req.UserId,
+                    WaifuName = req.Name
+                });
+            }
+            
             try
             {
                 if (ulong.Parse(approval.UserId) != Utility.OWNER_ID) return null;
@@ -158,6 +187,8 @@ namespace SoraBot_v2.Controllers
                     // else check if accept or decline
                     if (!approval.Accept)
                     {
+                        // create log
+                        _createLog(soraContext, req, approval);
                         // decline
                         soraContext.WaifuRequests.Remove(req);
                         await soraContext.SaveChangesAsync();
@@ -178,6 +209,8 @@ namespace SoraBot_v2.Controllers
                             Error = "This waifu already exists"
                         };
                     }
+                    // create log
+                    _createLog(soraContext, req, approval);
                     // else we accepted
                     var userDb = Utility.GetOrCreateUser(req.UserId, soraContext);
                     // give him money
@@ -376,11 +409,8 @@ namespace SoraBot_v2.Controllers
                     var waifus = new AllWaifus();
                     // add up all waifus
                     var sorted = soraContext.Waifus.OrderByDescending(x => x.Rarity);
-                    foreach (var waifu in sorted)
-                    {
-                        waifus.Waifus.Add(waifu);
-                    }
-                    // send all waifus
+                    waifus.Waifus = sorted.ToList();
+                    // send all Waifus
                     return waifus;
                 }
             }
@@ -388,7 +418,6 @@ namespace SoraBot_v2.Controllers
             {
                 Console.WriteLine(e);
             }
-
             return null;
         }
 

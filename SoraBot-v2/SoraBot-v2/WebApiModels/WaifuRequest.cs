@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.WebApiModels
@@ -19,6 +20,12 @@ namespace SoraBot_v2.WebApiModels
         public short Rarity { get; set; }
         public ulong UserId { get; set; }
         public DateTime TimeStamp { get; set; }
+    }
+
+    public class GetAllRequestsWeb
+    {
+        public List<WaifuRequestWeb> WaifuRequests { get; set; }
+        public List<RequestLog> RequestLogs { get; set; }
     }
     
     public class WaifuRequestWeb
