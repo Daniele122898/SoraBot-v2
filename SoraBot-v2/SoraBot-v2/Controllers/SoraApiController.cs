@@ -425,18 +425,17 @@ namespace SoraBot_v2.Controllers
                             Id = waifu.Id,
                             ImageUrl = waifu.ImageUrl,
                             Name = waifu.Name,
-                            Rarity = WaifuService.GetRarityString(waifu.Rarity),
-                            SortRarity = waifu.Rarity
+                            Rarity = waifu.Rarity
                         });
                     }
 
                     if (userwaifus.Waifus.Count ==0)
                     {
                         userwaifus.Success = false;
-                        return userwaifus;
+                        return userwaifus; 
                     }
 
-                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.SortRarity).ToList();
+                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.Rarity).ToList();
 
                     return userwaifus;
 
