@@ -439,7 +439,7 @@ namespace SoraBot_v2.Controllers
                     }
 
                     userwaifus.Success = true;
-                    userwaifus.Username = user?.Username ?? "Undefined";
+                    userwaifus.Username = user?.Username ?? "Unknown";
                     userwaifus.AvatarUrl = user?.GetAvatarUrl() ?? _client.CurrentUser.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
 
                     foreach (var userWaifu in userdb.UserWaifus)
@@ -769,7 +769,6 @@ namespace SoraBot_v2.Controllers
                             Discrim = user.Discriminator,
                             Exp = (int)guser.Exp,
                             Name = user.Username,
-                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(guser.Exp)+1),
                             UserId = user.Id+""
                         });
                         if(resp.Ranks.Count >= 100)
@@ -849,7 +848,6 @@ namespace SoraBot_v2.Controllers
                             Discrim = u.Discriminator,
                             Exp = (int)user.Exp,
                             Name = u.Username,
-                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(user.Exp)+1),
                             Rank = rank
                         });
                         rank++;

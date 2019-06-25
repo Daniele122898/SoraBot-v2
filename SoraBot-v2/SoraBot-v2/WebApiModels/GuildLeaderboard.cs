@@ -31,7 +31,6 @@ namespace SoraBot_v2.WebApiModels
         public int Rank { get; set; }
         public string AvatarUrl { get; set; }
         public int Exp { get; set; }
-        public int NextExp { get; set; }
         public string UserId { get; set; }
     }
 }
