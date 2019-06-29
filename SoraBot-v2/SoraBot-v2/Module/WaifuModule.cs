@@ -119,13 +119,13 @@ namespace SoraBot_v2.Module
         public async Task ShowMyWaifus(SocketUser userT = null)
         {
             var user = userT ?? Context.User;
-            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: http://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: https://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
         
         [Command("allwaifus"), Alias("waifulist", "wlist"), Summary("Shows all the waifus that exist")]
         public async Task ShowAllWaifus()
         {
-            await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            await ReplyAsync($"Check out **all Waifus** here: https://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
         [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have. This does not sell Ultimate Waifus!")]
