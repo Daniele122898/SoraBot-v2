@@ -777,7 +777,7 @@ namespace SoraBot_v2.Controllers
                             Discrim = user.Discriminator,
                             Exp = (int)guser.Exp,
                             Name = user.Username,
-                            UserId = user.Id+""
+                            UserId = user.Id.ToString()
                         });
                         if(resp.Ranks.Count >= 100)
                             break;
