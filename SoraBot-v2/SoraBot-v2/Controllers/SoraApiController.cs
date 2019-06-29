@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -55,23 +56,23 @@ namespace SoraBot_v2.Controllers
         {
             switch (rarity)
             {
-                    case WaifuRarity.Common:
-                        return 0;
-                    case WaifuRarity.Uncommon:
-                        return 1;
-                    case WaifuRarity.Rare:
-                        return 2;
-                    case WaifuRarity.Epic:
-                        return 3;
-                    case WaifuRarity.UltimateWaifu:
-                        return 99;
-                    default:
-                        return 98;
+                case WaifuRarity.Common:
+                    return 0;
+                case WaifuRarity.Uncommon:
+                    return 1;
+                case WaifuRarity.Rare:
+                    return 2;
+                case WaifuRarity.Epic:
+                    return 3;
+                case WaifuRarity.UltimateWaifu:
+                    return 99;
+                default:
+                    return 98;
             }
         }
 
         [HttpGet("getAdminRequests/{userId}", Name = "getAdminRequests")]
-        [EnableCors("getAdminRequests")]
+        [EnableCors("AllowLocal")]
         public List<WaifuRequestWeb> GetAdminRequests(ulong userId)
         {
             try
@@ -81,7 +82,7 @@ namespace SoraBot_v2.Controllers
                 using (var soraContext = new SoraContext())
                 {
                     var reqs = soraContext.WaifuRequests.ToList();
-                    
+
                     var resp = new List<WaifuRequestWeb>();
 
                     foreach (var req in reqs)
@@ -103,9 +104,35 @@ namespace SoraBot_v2.Controllers
                 return null;
             }
         }
+        
+        [HttpGet("GetSoraStats/", Name = "SoraStats")]
+        [EnableCors("AllowLocal")]
+        public SoraStats GetSoraStats()
+        {
+            var userCount = 0;
+            foreach (var g in _client.Guilds)
+            {
+                userCount += g.MemberCount;
+            }
+
+            using (var proc = Process.GetCurrentProcess())
+            {
+                return new SoraStats()
+                {
+                    CommandsExecuted = CommandHandler.CommandsExecuted,
+                    MessagesReceived = CommandHandler.MessagesReceived.ToString(),
+                    Version = Utility.SORA_VERSION,
+                    Ping = _client.Latency,
+                    GuildCount = _client.Guilds.Count,
+                    UserCount = userCount,
+                    ShardNum = Utility.TOTAL_SHARDS,
+                    Uptime = (DateTime.Now - proc.StartTime).ToString(@"d'd 'hh\:mm\:ss")
+                };
+            }
+        }
 
         [HttpGet("getAllRequests/{userId}", Name = "getAllRequests")]
-        [EnableCors("getAllRequests")]
+        [EnableCors("AllowLocal")]
         public GetAllRequestsWeb GetAllWaifuRequestsForUser(ulong userId)
         {
             try
@@ -145,7 +172,7 @@ namespace SoraBot_v2.Controllers
         }
 
         [HttpPost("requestApproval/", Name = "requestApproval")]
-        [EnableCors("requestApproval")]
+        [EnableCors("AllowLocal")]
         public async Task<WaifuRequestResponse> PostRequestApproval([FromBody] RequestApproval approval)
         {
 
@@ -242,7 +269,7 @@ namespace SoraBot_v2.Controllers
         }
 
         [HttpPost("editWaifu/", Name = "editWaifu")]
-        [EnableCors("editWaifu")]
+        [EnableCors("AllowLocal")]
         public async Task<WaifuRequestResponse> PostWaifuEdit([FromBody] WaifuRequestWeb request)
         {
             try
@@ -293,7 +320,7 @@ namespace SoraBot_v2.Controllers
         }
 
         [HttpPost("waifuRequest/", Name = "waifuRequest")]
-        [EnableCors("waifuRequest")]
+        [EnableCors("AllowLocal")]
         public async Task<WaifuRequestResponse> PostWaifuRequest([FromBody] WaifuRequestWeb request)
         {
             try
@@ -360,25 +387,6 @@ namespace SoraBot_v2.Controllers
                 };
             }
         }
-        
-        [HttpGet("GetSoraStats/", Name = "SoraStats")]
-        [EnableCors("AllowLocal")]
-        public SoraStats GetSoraStats()
-        {
-            var userCount = 0;
-            foreach (var g in _client.Guilds)
-            {
-                userCount += g.MemberCount;
-            }
-            return new SoraStats() {
-                CommandsExecuted = CommandHandler.CommandsExecuted,
-                MessagesReceived = CommandHandler.MessagesReceived,
-                Version = Utility.SORA_VERSION,
-                Ping = _client.Latency,
-                GuildCount = _client.Guilds.Count,
-                UserCount = userCount
-            };
-        }
 
         public List<SocketGuild> GetPermGuilds(ulong userId)
         {
@@ -409,11 +417,8 @@ namespace SoraBot_v2.Controllers
                     var waifus = new AllWaifus();
                     // add up all waifus
                     var sorted = soraContext.Waifus.OrderByDescending(x => x.Rarity);
-                    foreach (var waifu in sorted)
-                    {
-                        waifus.Waifus.Add(waifu);
-                    }
-                    // send all waifus
+                    waifus.Waifus = sorted.ToList();
+                    // send all Waifus
                     return waifus;
                 }
             }
@@ -421,7 +426,6 @@ namespace SoraBot_v2.Controllers
             {
                 Console.WriteLine(e);
             }
-
             return null;
         }
 
@@ -443,8 +447,8 @@ namespace SoraBot_v2.Controllers
                     }
 
                     userwaifus.Success = true;
-                    userwaifus.Username = user?.Username ?? "Undefined";
-                    userwaifus.AvatarUrl = user?.GetAvatarUrl();
+                    userwaifus.Username = user?.Username ?? "Unknown";
+                    userwaifus.AvatarUrl = user?.GetAvatarUrl() ?? _client.CurrentUser.GetAvatarUrl() ?? Utility.StandardDiscordAvatar;
 
                     foreach (var userWaifu in userdb.UserWaifus)
                     {
@@ -458,18 +462,17 @@ namespace SoraBot_v2.Controllers
                             Id = waifu.Id,
                             ImageUrl = waifu.ImageUrl,
                             Name = waifu.Name,
-                            Rarity = WaifuService.GetRarityString(waifu.Rarity),
-                            SortRarity = waifu.Rarity
+                            Rarity = waifu.Rarity
                         });
                     }
 
                     if (userwaifus.Waifus.Count ==0)
                     {
                         userwaifus.Success = false;
-                        return userwaifus;
+                        return userwaifus; 
                     }
 
-                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.SortRarity).ToList();
+                    userwaifus.Waifus = userwaifus.Waifus.OrderByDescending(x => x.Rarity).ToList();
 
                     return userwaifus;
 
@@ -774,8 +777,7 @@ namespace SoraBot_v2.Controllers
                             Discrim = user.Discriminator,
                             Exp = (int)guser.Exp,
                             Name = user.Username,
-                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(guser.Exp)+1),
-                            UserId = user.Id+""
+                            UserId = user.Id.ToString()
                         });
                         if(resp.Ranks.Count >= 100)
                             break;
@@ -854,7 +856,6 @@ namespace SoraBot_v2.Controllers
                             Discrim = u.Discriminator,
                             Exp = (int)user.Exp,
                             Name = u.Username,
-                            NextExp = ExpService.CalculateNeededExp(ExpService.CalculateLevel(user.Exp)+1),
                             Rank = rank
                         });
                         rank++;

@@ -18,7 +18,7 @@ namespace SoraBot_v2
 {
     public class CommandHandler
     {
-        public static double MessagesReceived;
+        public static ulong MessagesReceived;
         public static int CommandsExecuted;
 
         private IServiceProvider _services;

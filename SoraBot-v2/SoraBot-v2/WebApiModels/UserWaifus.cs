@@ -15,8 +15,7 @@ namespace SoraBot_v2.WebApiModels
     {
         public int Id { get; set; }
         public int Count { get; set; }
-        public string Rarity { get; set; }
-        public WaifuRarity SortRarity { get; set; }
+        public WaifuRarity Rarity { get; set; }
         public string ImageUrl { get; set; }
         public string Name { get; set; }
     }
