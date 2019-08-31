@@ -46,6 +46,7 @@ namespace SoraBot_v2.Module
             using (var soraContext = new SoraContext())
             {
                 var userdb = Utility.GetOrCreateUser(user.Id, soraContext);
+                var userWaifus = userdb.UserWaifus;
                 // now get a rundown
                 var eb = new EmbedBuilder
                 {
@@ -59,13 +60,14 @@ namespace SoraBot_v2.Module
                 // enumerate through the rarities
                 int totalHas = 0;
                 int totalExists = 0;
+                var waifus = soraContext.Waifus;
                 foreach (var rarity in (WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity)))
                 {
                     // holy shit this is cancer
-                    int has = userdb.UserWaifus.Count(
-                        x => soraContext.Waifus.FirstOrDefault(y=> y.Id == x.WaifuId)?.Rarity == rarity);
+                    int has = userWaifus.Count(
+                        x => _waifuService.Cache.FirstOrDefault(y=> y.Id == x.WaifuId)?.Rarity == rarity);
                     totalHas += has;
-                    int exists = soraContext.Waifus.Count(x => x.Rarity == rarity);
+                    int exists = waifus.Count(x => x.Rarity == rarity);
                     totalExists += exists;
                     
                     eb.AddField(x =>

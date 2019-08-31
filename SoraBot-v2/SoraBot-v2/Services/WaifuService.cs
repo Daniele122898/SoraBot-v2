@@ -32,8 +32,8 @@ namespace SoraBot_v2.Services
             // check config if special waifus are a thing
             IsSpecialWaifu = ConfigService.GetConfigData("specialWaifus").Equals("True", StringComparison.OrdinalIgnoreCase);
         }
-        
-        private List<Waifu> _cache = new List<Waifu>();
+
+        public List<Waifu> Cache { private set; get; } = new List<Waifu>();
 
         private const int BOX_COST = 500;
         private const int SPECIAL_COST = 750;
@@ -60,8 +60,8 @@ namespace SoraBot_v2.Services
                 {
                     List<Waifu> cache = soraContext.Waifus.ToList();
                     // update it if it is different.
-                    if (cache.Count != _cache.Count)
-                        _cache = cache;
+                    if (cache.Count != this.Cache.Count)
+                        this.Cache = cache;
                 }
             }
             catch (Exception e)
@@ -76,7 +76,7 @@ namespace SoraBot_v2.Services
             using (StreamWriter sw = File.CreateText(@"tempWaifu.json"))
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                serializer.Serialize(writer, _cache);
+                serializer.Serialize(writer, Cache);
             }
 
             await context.Channel.SendFileAsync(@"tempWaifu.json", "All waifus in cache rn:");
@@ -654,7 +654,7 @@ namespace SoraBot_v2.Services
         private Waifu GetRandomSpecialWaifu(User db)
         {
             // remove all Dupes from list
-            var specialListWithoutDupes = _cache.Where(y => y.Rarity == CURRENT_SPECIAL && db.UserWaifus.All(x => x.WaifuId != y.Id)).ToList();
+            var specialListWithoutDupes = Cache.Where(y => y.Rarity == CURRENT_SPECIAL && db.UserWaifus.All(x => x.WaifuId != y.Id)).ToList();
             // return null if he has all waifus so we can handle that case
             if (specialListWithoutDupes.Count == 0) return null;
             // otherwise give a random waifu of the remaining ones
@@ -700,7 +700,7 @@ namespace SoraBot_v2.Services
 
         private Waifu GetRandomFromBox(WaifuRarity rarity)
         {
-            var rarityList = _cache.Where(x => x.Rarity == rarity).ToList();
+            var rarityList = Cache.Where(x => x.Rarity == rarity).ToList();
             return rarityList[GetRandomNumber(0, rarityList.Count)];
         }
 
