@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
-using Microsoft.AspNetCore.Hosting.Internal;
 using SoraBot_v2.Data;
 
 namespace SoraBot_v2.Services
@@ -13,6 +13,36 @@ namespace SoraBot_v2.Services
     {
         private const int GAIN_COINS = 500;
         private const int DAILY_COOLDOWN = 20;
+
+        public const int LOCK_TIMOUT_MSECONDS = 10000;
+        public readonly ConcurrentDictionary<ulong, SemaphoreSlim> CoinLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
+
+        public SemaphoreSlim GetOrCreateLock(ulong id)
+        {
+            if (CoinLocks.TryGetValue(id, out var key)) return key;
+            key = new SemaphoreSlim(1, 1);
+            CoinLocks.TryAdd(id, key);
+
+            return key;
+        }
+
+        public void GetSortedLocks(ulong id1, ulong id2, out SemaphoreSlim lock1, out SemaphoreSlim lock2)
+        {
+            ulong first, second;
+            if (id1 > id2)
+            {
+                first = id1;
+                second = id2;
+            }
+            else
+            {
+                first = id2;
+                second = id1;
+            }
+
+            lock1 = GetOrCreateLock(first);
+            lock2 = GetOrCreateLock(second);
+        }
 
         public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
         {
@@ -32,23 +62,34 @@ namespace SoraBot_v2.Services
             }
             using (var soraContext = new SoraContext())
             {
-                // get current userDb
-                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                // check if user exists and if he has the money
-                if (userdb == null || userdb.Money < amount)
+                GetSortedLocks(context.User.Id, userId, out var lock1, out var lock2);
+                try
                 {
-                    await context.Channel.SendMessageAsync("",
-                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You don't have enough Sora Coins!").Build());
-                    return;
+                    await lock1.WaitAsync(LOCK_TIMOUT_MSECONDS);
+                    await lock2.WaitAsync(LOCK_TIMOUT_MSECONDS);
+                    // get current userDb
+                    var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                    // check if user exists and if he has the money
+                    if (userdb == null || userdb.Money < amount)
+                    {
+                        await context.Channel.SendMessageAsync("",
+                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                "You don't have enough Sora Coins!").Build());
+                        return;
+                    }
+                    // get or create other userDb
+                    var otherDb = Utility.GetOrCreateUser(userId, soraContext);
+                    // transfer the money
+                    userdb.Money -= amount;
+                    otherDb.Money += amount;
+                    // save changes
+                    await soraContext.SaveChangesAsync();
                 }
-                // get or create other userDb
-                var otherDb = Utility.GetOrCreateUser(userId, soraContext);
-                // transfer the money
-                userdb.Money -= amount;
-                otherDb.Money += amount;
-                // save changes
-                await soraContext.SaveChangesAsync();
+                finally
+                {
+                    lock1.Release();
+                    lock2.Release();
+                }
             }
 
             var user = context.Client.GetUser(userId);
