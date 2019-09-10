@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
 using SoraBot_v2.Data;
@@ -24,6 +25,13 @@ namespace SoraBot_v2.Services
             _coinLocks.TryAdd(id, key);
 
             return key;
+        }
+
+        public async Task LockingErrorMessage(ISocketMessageChannel channel)
+        {
+            await channel.SendMessageAsync("",
+                embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                    "Locking error. Please try again.").Build());
         }
 
         public void GetSortedLocks(ulong id1, ulong id2, out SemaphoreSlim lock1, out SemaphoreSlim lock2)
@@ -67,17 +75,13 @@ namespace SoraBot_v2.Services
                 {
                     if (!await lock1.WaitAsync(LOCK_TIMOUT_MSECONDS))
                     {
-                        await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "Something went wrong sorry :c").Build());
+                        await LockingErrorMessage(context.Channel);
                         return;
                     }
 
                     if (!await lock2.WaitAsync(LOCK_TIMOUT_MSECONDS))
                     {
-                        await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "Something went wrong sorry :c").Build());
+                        await LockingErrorMessage(context.Channel);
                         return;
                     }
                     // get current userDb
@@ -144,9 +148,7 @@ namespace SoraBot_v2.Services
                 {
                     if (!await lck.WaitAsync(LOCK_TIMOUT_MSECONDS))
                     {
-                        await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "Something went wrong sorry :c").Build());
+                        await LockingErrorMessage(context.Channel);
                         return;
                     }
                     // get user db data

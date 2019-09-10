@@ -600,17 +600,13 @@ namespace SoraBot_v2.Services
                 {
                     if (!await lock1.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
                     {
-                        await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "Something went wrong sorry :c").Build());
+                        await _coinService.LockingErrorMessage(context.Channel);
                         return;
                     }
 
                     if (!await lock2.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
                     {
-                        await context.Channel.SendMessageAsync("",
-                            embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                "Something went wrong sorry :c").Build());
+                        await _coinService.LockingErrorMessage(context.Channel);
                         return;
                     }
                     //check if the role is self assignable
