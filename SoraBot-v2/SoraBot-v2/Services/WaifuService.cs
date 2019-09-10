@@ -555,71 +555,85 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
-                var userdb = Utility.GetOrCreateUser(context.User.Id, soraContext);
-                // check sora coins
-                if (userdb.Money < SPECIAL_COST)
+                var lck = _coinService.GetOrCreateLock(context.User.Id);
+                try
                 {
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2],
-                        $"You don't have enough Sora Coins! You need {SPECIAL_COST} SC."
-                    ).Build());
-                    return;
-                }
-                // remove money
-                userdb.Money -= SPECIAL_COST;
-                // open box
-                var waifus = new List<Waifu>();
-                // one special waifu
-                // this CANNOT be a dupe.
-                var wspecial = GetRandomSpecialWaifu(userdb);
-                // check if its null so he has ALL special waifus
-                if (wspecial == null)
-                {
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2],
-                        $"You already own ALL the available special waifus. Open normal boxes now."
-                    ).Build());
-                    return;
-                }
-                waifus.Add(wspecial);
-                // add to user
-                GiveWaifuToId(context.User.Id, wspecial.Id, userdb);
-                // the others are normal waifus.
-                for (int i = 0; i < BOX_CARD_AMOUNT-1; i++)
-                {
-                    var waifu = GetRandomFromBox(GetRandomRarity());
-                    waifus.Add(waifu);
-                    // add to user
-                    GiveWaifuToId(context.User.Id, waifu.Id, userdb);
-                }
-                // save already if smth down there fails at least he got everything.
-                await soraContext.SaveChangesAsync();
-                // show what he got
-                var ordered = waifus.OrderByDescending(x => x.Rarity).ToArray();
-                var eb = new EmbedBuilder()
-                {
-                    Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a {GetRarityString(CURRENT_SPECIAL)} WaifuBox for {SPECIAL_COST} SC.",
-                    Footer = Utility.RequestedBy(context.User),
-                    Color = Utility.PurpleEmbed,
-                    ImageUrl = ordered[0].ImageUrl
-                };
-
-                foreach (var waifu in ordered)
-                {
-                    eb.AddField(x =>
+                    if (!await lck.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
                     {
-                        x.IsInline = true;
-                        x.Name = waifu.Name;
-                        x.Value = $"Rarity: {GetRarityString(waifu.Rarity)}\n" +
-                                  $"[Image Url]({waifu.ImageUrl})\n" +
-                                  $"*ID: {waifu.Id}*";
-                    });
-                }
+                        await _coinService.LockingErrorMessage(context.Channel);
+                        return;
+                    }
+                    var userdb = Utility.GetOrCreateUser(context.User.Id, soraContext);
+                    // check sora coins
+                    if (userdb.Money < SPECIAL_COST)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            $"You don't have enough Sora Coins! You need {SPECIAL_COST} SC."
+                        ).Build());
+                        return;
+                    }
+                    // remove money
+                    userdb.Money -= SPECIAL_COST;
+                    // open box
+                    var waifus = new List<Waifu>();
+                    // one special waifu
+                    // this CANNOT be a dupe.
+                    var wspecial = GetRandomSpecialWaifu(userdb);
+                    // check if its null so he has ALL special waifus
+                    if (wspecial == null)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            $"You already own ALL the available special waifus. Open normal boxes now."
+                        ).Build());
+                        return;
+                    }
+                    waifus.Add(wspecial);
+                    // add to user
+                    GiveWaifuToId(context.User.Id, wspecial.Id, userdb);
+                    // the others are normal waifus.
+                    for (int i = 0; i < BOX_CARD_AMOUNT-1; i++)
+                    {
+                        var waifu = GetRandomFromBox(GetRandomRarity());
+                        waifus.Add(waifu);
+                        // add to user
+                        GiveWaifuToId(context.User.Id, waifu.Id, userdb);
+                    }
+                    // save already if smth down there fails at least he got everything.
+                    await soraContext.SaveChangesAsync();
+                    // show what he got
+                    var ordered = waifus.OrderByDescending(x => x.Rarity).ToArray();
+                    var eb = new EmbedBuilder()
+                    {
+                        Title = "Congrats! You've got some nice waifus",
+                        Description = $"You opened a {GetRarityString(CURRENT_SPECIAL)} WaifuBox for {SPECIAL_COST} SC.",
+                        Footer = Utility.RequestedBy(context.User),
+                        Color = Utility.PurpleEmbed,
+                        ImageUrl = ordered[0].ImageUrl
+                    };
 
-                await context.Channel.SendMessageAsync("", embed: eb.Build());
+                    foreach (var waifu in ordered)
+                    {
+                        eb.AddField(x =>
+                        {
+                            x.IsInline = true;
+                            x.Name = waifu.Name;
+                            x.Value = $"Rarity: {GetRarityString(waifu.Rarity)}\n" +
+                                      $"[Image Url]({waifu.ImageUrl})\n" +
+                                      $"*ID: {waifu.Id}*";
+                        });
+                    }
+
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
+                
+                }
+                finally
+                {
+                    lck.Release();
+                }
             }
         }
         
@@ -627,57 +641,70 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
-                var userdb = Utility.GetOrCreateUser(context.User.Id, soraContext);
-                // check cash
-                if (userdb.Money < BOX_COST)
+                var lck = _coinService.GetOrCreateLock(context.User.Id);
+                try
                 {
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2],
-                        $"You don't have enough Sora Coins! You need {BOX_COST} SC."
-                    ).Build());
-                    return;
-                }
-                // remove money
-                userdb.Money -= BOX_COST;
-                // open box
-                var waifus = new List<Waifu>();
-                for (int i = 0; i < BOX_CARD_AMOUNT; i++)
-                {
-                    var waifu = GetRandomFromBox(GetRandomRarity());
-                    waifus.Add(waifu);
-                    // add to user
-                    GiveWaifuToId(context.User.Id, waifu.Id, userdb);
-                }
-                // save already if smth down there fails at least he got everything.
-                await soraContext.SaveChangesAsync();
-                // show what he got
-                var ordered = waifus.OrderByDescending(x => x.Rarity).ToArray();
-                var eb = new EmbedBuilder()
-                {
-                    Title = "Congrats! You've got some nice waifus",
-                    Description = $"You opened a regular WaifuBox for {BOX_COST} SC." +
-                                  $@"{(IsSpecialWaifu ? $"\n\n**ATTENTION:** There are currently special {GetRarityString(CURRENT_SPECIAL)} " + 
-                                                       $"themed waifus available for a limited time only. Open them with " +
-                                                       $"`{Utility.GetGuildPrefixFast(soraContext, context.Guild.Id, "$")}special`" : "")}",
-                    Footer = Utility.RequestedBy(context.User),
-                    Color = Utility.PurpleEmbed,
-                    ImageUrl = ordered[0].ImageUrl
-                };
-
-                foreach (var waifu in ordered)
-                {
-                    eb.AddField(x =>
+                    if (!await lck.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
                     {
-                        x.IsInline = true;
-                        x.Name = waifu.Name;
-                        x.Value = $"Rarity: {GetRarityString(waifu.Rarity)}\n" +
-                                  $"[Image Url]({waifu.ImageUrl})\n" +
-                                  $"*ID: {waifu.Id}*";
-                    });
-                }
+                        await _coinService.LockingErrorMessage(context.Channel);
+                        return;
+                    }
+                    var userdb = Utility.GetOrCreateUser(context.User.Id, soraContext);
+                    // check cash
+                    if (userdb.Money < BOX_COST)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            $"You don't have enough Sora Coins! You need {BOX_COST} SC."
+                        ).Build());
+                        return;
+                    }
+                    // remove money
+                    userdb.Money -= BOX_COST;
+                    // open box
+                    var waifus = new List<Waifu>();
+                    for (int i = 0; i < BOX_CARD_AMOUNT; i++)
+                    {
+                        var waifu = GetRandomFromBox(GetRandomRarity());
+                        waifus.Add(waifu);
+                        // add to user
+                        GiveWaifuToId(context.User.Id, waifu.Id, userdb);
+                    }
+                    // save already if smth down there fails at least he got everything.
+                    await soraContext.SaveChangesAsync();
+                    // show what he got
+                    var ordered = waifus.OrderByDescending(x => x.Rarity).ToArray();
+                    var eb = new EmbedBuilder()
+                    {
+                        Title = "Congrats! You've got some nice waifus",
+                        Description = $"You opened a regular WaifuBox for {BOX_COST} SC." +
+                                      $@"{(IsSpecialWaifu ? $"\n\n**ATTENTION:** There are currently special {GetRarityString(CURRENT_SPECIAL)} " + 
+                                                           $"themed waifus available for a limited time only. Open them with " +
+                                                           $"`{Utility.GetGuildPrefixFast(soraContext, context.Guild.Id, "$")}special`" : "")}",
+                        Footer = Utility.RequestedBy(context.User),
+                        Color = Utility.PurpleEmbed,
+                        ImageUrl = ordered[0].ImageUrl
+                    };
 
-                await context.Channel.SendMessageAsync("", embed: eb.Build());
+                    foreach (var waifu in ordered)
+                    {
+                        eb.AddField(x =>
+                        {
+                            x.IsInline = true;
+                            x.Name = waifu.Name;
+                            x.Value = $"Rarity: {GetRarityString(waifu.Rarity)}\n" +
+                                      $"[Image Url]({waifu.ImageUrl})\n" +
+                                      $"*ID: {waifu.Id}*";
+                        });
+                    }
+
+                    await context.Channel.SendMessageAsync("", embed: eb.Build());
+                }
+                finally
+                {
+                    lck.Release();
+                }
             }
         }
 
