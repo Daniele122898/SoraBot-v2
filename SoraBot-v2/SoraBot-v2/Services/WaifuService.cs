@@ -19,16 +19,18 @@ namespace SoraBot_v2.Services
     
     public class WaifuService
     {
-        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Summer;
+        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Halloween;
 
         public bool IsSpecialWaifu { get; private set; }
         
         private readonly InteractiveService _interactive;
+        private readonly CoinService _coinService;
         private Timer _timer;
 
-        public WaifuService(InteractiveService service)
+        public WaifuService(InteractiveService service, CoinService coinService)
         {
             _interactive = service;
+            _coinService = coinService;
             // check config if special waifus are a thing
             IsSpecialWaifu = ConfigService.GetConfigData("specialWaifus").Equals("True", StringComparison.OrdinalIgnoreCase);
         }
@@ -273,6 +275,7 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
+                
                 var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
                 // check if user even has waifus
                 if (userdb == null || userdb.UserWaifus.Count == 0)
