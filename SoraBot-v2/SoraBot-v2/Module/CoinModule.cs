@@ -16,21 +16,21 @@ namespace SoraBot_v2.Module
         }
         
         // Gain coins
-        [Command("daily"), Alias("earn", "dailies"), Summary("Gives you a daily reward of Sora Coins")]
+        [Command("daily", RunMode = RunMode.Async), Alias("earn", "dailies"), Summary("Gives you a daily reward of Sora Coins")]
         public async Task GetDaily()
         {
             await _coinService.DoDaily(Context);
         }
         
         // give coins
-        [Command("send"), Alias("transfer", "sctransfer", "sendcoins", "sendsc", "give"),
+        [Command("send", RunMode = RunMode.Async), Alias("transfer", "sctransfer", "sendcoins", "sendsc", "give"),
          Summary("Sends specified amount of sc to specified user")]
         public async Task SendCoins(int amount, ulong userId)
         {
             await _coinService.SendMoney(Context, amount, userId);
         }
         
-        [Command("send"), Alias("transfer", "sctransfer", "sendcoins", "sendsc", "give"),
+        [Command("send", RunMode = RunMode.Async), Alias("transfer", "sctransfer", "sendcoins", "sendsc", "give"),
          Summary("Sends specified amount of sc to specified user")]
         public async Task SendCoins(int amount, SocketUser user)
         {

@@ -15,13 +15,13 @@ namespace SoraBot_v2.Services
         private const int DAILY_COOLDOWN = 20;
 
         public const int LOCK_TIMOUT_MSECONDS = 10000;
-        public readonly ConcurrentDictionary<ulong, SemaphoreSlim> CoinLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
+        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _coinLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
 
         public SemaphoreSlim GetOrCreateLock(ulong id)
         {
-            if (CoinLocks.TryGetValue(id, out var key)) return key;
+            if (_coinLocks.TryGetValue(id, out var key)) return key;
             key = new SemaphoreSlim(1, 1);
-            CoinLocks.TryAdd(id, key);
+            _coinLocks.TryAdd(id, key);
 
             return key;
         }

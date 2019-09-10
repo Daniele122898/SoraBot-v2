@@ -275,72 +275,81 @@ namespace SoraBot_v2.Services
         {
             using (var soraContext = new SoraContext())
             {
-                
-                var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
-                // check if user even has waifus
-                if (userdb == null || userdb.UserWaifus.Count == 0)
+                var lck = _coinService.GetOrCreateLock(context.User.Id);
+                try
                 {
+                    await lck.WaitAsync();
+                    var userdb = Utility.OnlyGetUser(context.User.Id, soraContext);
+                    // check if user even has waifus
+                    if (userdb == null || userdb.UserWaifus.Count == 0)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            "You have no waifus to sell! Open some WaifuBoxes!"
+                        ).Build());
+                        return;
+                    }
+                    // get all waifus that he has dupes of
+                    var dupes = userdb.UserWaifus.Where(x => x.Count > 1).ToList();
+                    // cant remove them so we cache and count...
+                    // save them in a dictionary so we can cache them
+                    Dictionary<int, Waifu> cached = new Dictionary<int, Waifu>();
+                    int minus = 0;
+                    foreach (var waifu in dupes)
+                    {
+                        // get waifu
+                        var w = soraContext.Waifus.FirstOrDefault(x => x.Id == waifu.WaifuId);
+                        if (w == null)
+                            continue;
+                        cached.Add(waifu.Id, w);
+                        // check if its ultimate 
+                        if (w.Rarity == WaifuRarity.UltimateWaifu)
+                            minus++;
+                    }
+                    // check if he has dupes
+                    if ((dupes.Count - minus) == 0)
+                    {
+                        await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed,
+                            Utility.SuccessLevelEmoji[2],
+                            "You don't have any dupes at the moment. Ultimate Waifus don't get sold with this method!"
+                        ).Build());
+                        return; 
+                    }
+                    // iterate through all the dupes
+                    int totalWaifus = 0;
+                    int totalCoins = 0;
+                    foreach (var waifu in dupes)
+                    {
+                        // get waifu from cache
+                        var w = cached[waifu.Id];
+                        if (w == null || w.Rarity == WaifuRarity.UltimateWaifu)
+                            continue;
+                        // remove the waifus
+                        int amount = waifu.Count - 1;
+                        totalWaifus += amount;
+                        waifu.Count -= amount;
+                        // calculate coins
+                        int cash = GetWaifuQuickSellCost(w.Rarity) * amount;
+                        totalCoins += cash;
+                    }
+                    // add total coins to user
+                    userdb.Money += totalCoins;
+                    // save everything
+                    await soraContext.SaveChangesAsync();
+                    // report back to user
                     await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2],
-                        "You have no waifus to sell! Open some WaifuBoxes!"
-                    ).Build());
-                    return;
+                        Utility.GreenSuccessEmbed,
+                        Utility.SuccessLevelEmoji[0],
+                        $"You successfully sold {totalWaifus} Waifus for {totalCoins} Sora Coins!")
+                        .Build());
+                    
                 }
-                // get all waifus that he has dupes of
-                var dupes = userdb.UserWaifus.Where(x => x.Count > 1).ToList();
-                // cant remove them so we cache and count...
-                // save them in a dictionary so we can cache them
-                Dictionary<int, Waifu> cached = new Dictionary<int, Waifu>();
-                int minus = 0;
-                foreach (var waifu in dupes)
+                finally
                 {
-                    // get waifu
-                    var w = soraContext.Waifus.FirstOrDefault(x => x.Id == waifu.WaifuId);
-                    if (w == null)
-                        continue;
-                    cached.Add(waifu.Id, w);
-                    // check if its ultimate 
-                    if (w.Rarity == WaifuRarity.UltimateWaifu)
-                        minus++;
+                    lck.Release();
                 }
-                // check if he has dupes
-                if ((dupes.Count - minus) == 0)
-                {
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed,
-                        Utility.SuccessLevelEmoji[2],
-                        "You don't have any dupes at the moment. Ultimate Waifus don't get sold with this method!"
-                    ).Build());
-                    return; 
-                }
-                // iterate through all the dupes
-                int totalWaifus = 0;
-                int totalCoins = 0;
-                foreach (var waifu in dupes)
-                {
-                    // get waifu from cache
-                    var w = cached[waifu.Id];
-                    if (w == null || w.Rarity == WaifuRarity.UltimateWaifu)
-                        continue;
-                    // remove the waifus
-                    int amount = waifu.Count - 1;
-                    totalWaifus += amount;
-                    waifu.Count -= amount;
-                    // calculate coins
-                    int cash = GetWaifuQuickSellCost(w.Rarity) * amount;
-                    totalCoins += cash;
-                }
-                // add total coins to user
-                userdb.Money += totalCoins;
-                // save everything
-                await soraContext.SaveChangesAsync();
-                // report back to user
-                await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                    Utility.GreenSuccessEmbed,
-                    Utility.SuccessLevelEmoji[0],
-                    $"You successfully sold {totalWaifus} Waifus for {totalCoins} Sora Coins!")
-                    .Build());
             }
         }
 
