@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
@@ -17,7 +18,12 @@ namespace SoraBot_v2.Services
 
         public const int LOCK_TIMOUT_MSECONDS = 10000;
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _coinLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
-
+        private readonly DiscordRestClient _restClient;
+        public CoinService(DiscordRestClient restClient)
+        {
+            _restClient = restClient;
+        }
+        
         public SemaphoreSlim GetOrCreateLock(ulong id)
         {
             if (_coinLocks.TryGetValue(id, out var key)) return key;
@@ -52,7 +58,7 @@ namespace SoraBot_v2.Services
             lock2 = GetOrCreateLock(second);
         }
 
-        public async Task SendMoney(SocketCommandContext context, int amount, ulong userId)
+        public async Task SendMoney(SocketCommandContext context, int amount, ulong userId, bool check = false)
         {
             if (context.User.Id == userId)
             {
@@ -68,6 +74,19 @@ namespace SoraBot_v2.Services
                         "Amount must be greater than 1!").Build());
                 return;
             }
+
+            if (check)
+            {
+                var restUser = await _restClient.GetUserAsync(userId);
+                if (restUser == null)
+                {
+                    await context.Channel.SendMessageAsync("",
+                        embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                            "This user does not exist or I am not connected to him.").Build());
+                    return;
+                }
+            }
+            
             using (var soraContext = new SoraContext())
             {
                 GetSortedLocks(context.User.Id, userId, out var lock1, out var lock2);

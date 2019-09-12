@@ -327,7 +327,17 @@ namespace SoraBot_v2
                 case CommandError.UnknownCommand:
                     break;
                 case CommandError.ParseFailed:
-                    await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"Couldn't parse entered value! Make sure you enter the requested data type").WithDescription("If a whole number is asked then please provide one. If two strings are asked or smth after the first string please wrap the string in \"\" if it consists of more than one word!").Build());
+                    await context.Channel.SendMessageAsync($"", 
+                        embed: Utility.ResultFeedback(
+                            Utility.RedFailiureEmbed, 
+                            Utility.SuccessLevelEmoji[2], 
+                            $"Couldn't parse entered value! Make sure you enter the requested data type")
+                            .WithDescription("If a whole number is asked then please provide one. " +
+                                             "If two strings are asked or smth after the first string please " +
+                                             "wrap the string in \"\" if it consists of more than one word!\n" +
+                                             "If you are using a @mention it sometimes fails if the user has not been seen for a while. " +
+                                             "If that is the case use his User Id instead of the mention.")
+                            .Build());
                     break;
                 default:
                     await context.Channel.SendMessageAsync($"", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"{result.ErrorReason}").Build());
