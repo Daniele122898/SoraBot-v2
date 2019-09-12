@@ -21,12 +21,15 @@ namespace SoraBot_v2.Services
     {
         private InteractiveService _interactive;
         private DiscordSocketClient _client;
+        private CoinService _coinService;
         private Timer _timer;
 
-        public SelfAssignableRolesService(InteractiveService service, DiscordSocketClient client)
+        public SelfAssignableRolesService(InteractiveService service, DiscordSocketClient client,
+                                            CoinService coinService)
         {
             _interactive = service;
             _client = client;
+            _coinService = coinService;
         }
 
         public void Initialize()
@@ -592,49 +595,69 @@ namespace SoraBot_v2.Services
 
             using (SoraContext soraContext = new SoraContext())
             {
-                //check if the role is self assignable
-                var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
-                var roleDb = guildDb.SelfAssignableRoles.FirstOrDefault(x => x.RoleId == role.Id);
-                if (roleDb == null)
+                _coinService.GetSortedLocks(user.Id, context.Guild.OwnerId, out var lock1, out var lock2);
+                try
                 {
-                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                        "This role is not self-assignable!").Build());
-                    return;
-                }
-                // role exists and IS self assignable
-                // check if it costs. 
-                if (roleDb.Cost > 0)
-                {
-                    // check if user has enough money.
-                    var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
-                    if (userDb.Money < roleDb.Cost)
+                    if (!await lock1.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
+                    {
+                        await _coinService.LockingErrorMessage(context.Channel);
+                        return;
+                    }
+
+                    if (!await lock2.WaitAsync(CoinService.LOCK_TIMOUT_MSECONDS))
+                    {
+                        await _coinService.LockingErrorMessage(context.Channel);
+                        return;
+                    }
+                    //check if the role is self assignable
+                    var guildDb = Utility.GetOrCreateGuild(context.Guild.Id, soraContext);
+                    var roleDb = guildDb.SelfAssignableRoles.FirstOrDefault(x => x.RoleId == role.Id);
+                    if (roleDb == null)
                     {
                         await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
                             Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                            "You don't have enough Sora Coins for this role.").Build());
+                            "This role is not self-assignable!").Build());
                         return;
                     }
-                    // He has enough SC to buy
-                    // Get owner db
-                    var ownerDb = Utility.GetOrCreateUser(context.Guild.OwnerId, soraContext);
-                    userDb.Money -= roleDb.Cost;
-                    // only send 50% of it to the owner. the rest is tax to remove money from the economy.
-                    ownerDb.Money += (int)Math.Floor(roleDb.Cost / 2.0);
-                }
-                // check if duration
-                if (roleDb.CanExpire)
-                {
-                    // add role to list of expiring roles.
-                    soraContext.ExpiringRoles.Add(new ExpiringRole()
+                    // role exists and IS self assignable
+                    // check if it costs. 
+                    if (roleDb.Cost > 0)
                     {
-                        RoleForeignId = role.Id,
-                        ExpiresAt = DateTime.UtcNow.Add(roleDb.Duration),
-                        GuildForeignId = context.Guild.Id,
-                        UserForeignId = user.Id
-                    });
+                        // check if user has enough money.
+                        var userDb = Utility.GetOrCreateUser(user.Id, soraContext);
+                        if (userDb.Money < roleDb.Cost)
+                        {
+                            await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                "You don't have enough Sora Coins for this role.").Build());
+                            return;
+                        }
+                        // He has enough SC to buy
+                        // Get owner db
+                        var ownerDb = Utility.GetOrCreateUser(context.Guild.OwnerId, soraContext);
+                        userDb.Money -= roleDb.Cost;
+                        // only send 50% of it to the owner. the rest is tax to remove money from the economy.
+                        ownerDb.Money += (int)Math.Floor(roleDb.Cost / 2.0);
+                    }
+                    // check if duration
+                    if (roleDb.CanExpire)
+                    {
+                        // add role to list of expiring roles.
+                        soraContext.ExpiringRoles.Add(new ExpiringRole()
+                        {
+                            RoleForeignId = role.Id,
+                            ExpiresAt = DateTime.UtcNow.Add(roleDb.Duration),
+                            GuildForeignId = context.Guild.Id,
+                            UserForeignId = user.Id
+                        });
+                    }
+                    await soraContext.SaveChangesAsync();
                 }
-                await soraContext.SaveChangesAsync();
+                finally
+                {
+                    lock1.Release();
+                    lock2.Release();
+                }
                 await user.AddRoleAsync(role);
                 ChangeToClosestInterval();
             }
