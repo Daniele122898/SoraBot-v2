@@ -74,12 +74,12 @@ namespace SoraBot_v2.Services
 
         public async Task GetLocalTop10List(SocketCommandContext context)
         {
-            await context.Channel.SendMessageAsync($"Check out **{context.Guild.Name}'s leaderboard** here: http://sorabot.pw/guild/{context.Guild.Id}/leaderboard ｡◕ ‿ ◕｡");
+            await context.Channel.SendMessageAsync($"Check out **{context.Guild.Name}'s leaderboard** here: https://sorabot.pw/guild/{context.Guild.Id}/leaderboard ｡◕ ‿ ◕｡");
         }
 
         public async Task GetGlobalTop10(SocketCommandContext context)
         {
-            await context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: http://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
+            await context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: https://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
 

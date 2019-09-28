@@ -46,6 +46,7 @@ namespace SoraBot_v2.Module
             using (var soraContext = new SoraContext())
             {
                 var userdb = Utility.GetOrCreateUser(user.Id, soraContext);
+                var userWaifus = userdb.UserWaifus;
                 // now get a rundown
                 var eb = new EmbedBuilder
                 {
@@ -59,13 +60,14 @@ namespace SoraBot_v2.Module
                 // enumerate through the rarities
                 int totalHas = 0;
                 int totalExists = 0;
+                var waifus = soraContext.Waifus;
                 foreach (var rarity in (WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity)))
                 {
                     // holy shit this is cancer
-                    int has = userdb.UserWaifus.Count(
-                        x => soraContext.Waifus.FirstOrDefault(y=> y.Id == x.WaifuId)?.Rarity == rarity);
+                    int has = userWaifus.Count(
+                        x => _waifuService.Cache.FirstOrDefault(y=> y.Id == x.WaifuId)?.Rarity == rarity);
                     totalHas += has;
-                    int exists = soraContext.Waifus.Count(x => x.Rarity == rarity);
+                    int exists = waifus.Count(x => x.Rarity == rarity);
                     totalExists += exists;
                     
                     eb.AddField(x =>
@@ -119,16 +121,16 @@ namespace SoraBot_v2.Module
         public async Task ShowMyWaifus(SocketUser userT = null)
         {
             var user = userT ?? Context.User;
-            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: http://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: https://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
         
         [Command("allwaifus"), Alias("waifulist", "wlist"), Summary("Shows all the waifus that exist")]
         public async Task ShowAllWaifus()
         {
-            await ReplyAsync($"Check out **all Waifus** here: http://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
+            await ReplyAsync($"Check out **all Waifus** here: https://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
 
-        [Command("selldupes"), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have. This does not sell Ultimate Waifus!")]
+        [Command("selldupes", RunMode = RunMode.Async), Alias("dupes", "quickselldupes"), Summary("Sells all dupes that you have. This does not sell Ultimate Waifus!")]
         public async Task SellDupes()
         {
             await _waifuService.SellDupes(Context);

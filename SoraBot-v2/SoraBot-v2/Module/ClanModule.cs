@@ -18,7 +18,7 @@ namespace SoraBot_v2.Module
             _clanService = clanService;
         }
 
-        [Command("clevelup"), Alias("cupgrade", "upgradeclan", "memberlimit"),
+        [Command("clevelup", RunMode = RunMode.Async), Alias("cupgrade", "upgradeclan", "memberlimit"),
          Summary("Upgrade clan to increase member limit by 5. Costs 7'500 SC")]
         public async Task UpgradeClan()
         {
@@ -50,7 +50,7 @@ namespace SoraBot_v2.Module
             await _clanService.RenameClan(Context, clanName);
         }
 
-        [Command("createclan"), Alias("cclan"), Summary("Create a clan. Costs 2000 SC.")]
+        [Command("createclan", RunMode = RunMode.Async), Alias("cclan"), Summary("Create a clan. Costs 2000 SC.")]
         public async Task CreateClan([Remainder] string clanName)
         {
             if (Context.Message.Content.Contains("<") && Context.Message.Content.Contains(">"))
