@@ -79,7 +79,7 @@ namespace SoraBot_v2.Controllers
             {
                 // set the notify bool
                 var user = await soraContext.Users.SingleOrDefaultAsync(x => x.UserId == requestNotify.UserId);
-                user.NotifyOnWaifuRequest = requestNotify.Notify;
+                user.NotifyOnWaifuRequest = requestNotify.NotifyOnWaifuRequest;
                 await soraContext.SaveChangesAsync();
             }
 
@@ -147,11 +147,15 @@ namespace SoraBot_v2.Controllers
                     
                     // get logs
                     var logs = soraContext.RequestLogs.Where(x=> x.UserId == userId).ToList();
+                    
+                    // get user notification preference
+                    var notify = soraContext.Users.SingleOrDefault(x => x.UserId == userId)?.NotifyOnWaifuRequest;
 
                     return new GetAllRequestsWeb
                     {
                         RequestLogs = logs,
-                        WaifuRequests = resp
+                        WaifuRequests = resp,
+                        NotifyOnWaifuRequest = notify ?? false
                     };
 
                 }
@@ -166,7 +170,7 @@ namespace SoraBot_v2.Controllers
         public async Task<WaifuRequestResponse> PostRequestApproval([FromBody] RequestApproval approval)
         {
 
-            void _createLog(SoraContext soraContext, WaifuRequest req, RequestApproval app)
+            void CreateLog(SoraContext soraContext, WaifuRequest req, RequestApproval app)
             {
                 // first get requests from user to see if we need to delete an old one
                 var logs = soraContext.RequestLogs.Where(x => x.UserId == req.UserId).ToList();
@@ -187,6 +191,26 @@ namespace SoraBot_v2.Controllers
                 });
             }
             
+            // function to notify user with error handling
+            async Task NotifyUser(ulong userId, string waifuName, bool accepted) 
+            {
+                try
+                {
+                    // get user
+                    var user = await _restClient.GetUserAsync(userId);
+                    // try and send message
+                    await user.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        (accepted ? Utility.GreenSuccessEmbed : Utility.RedFailiureEmbed),
+                        Utility.SuccessLevelEmoji[(accepted ? 0 : 2)],
+                        $"Your request for \"{waifuName}\" has been {(accepted ? "accepted" : "declined")}." +
+                        $"{(accepted ? " You are awarded with 1000 SC." : "")}").Build());
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+            }
+            
             try
             {
                 if (ulong.Parse(approval.UserId) != Utility.OWNER_ID) return null;
@@ -201,14 +225,23 @@ namespace SoraBot_v2.Controllers
                             Error = "This request does not exist"
                         };
                     }
+                    
+                    // check if user wants to be notified
+                    bool notify = (await soraContext.Users.SingleOrDefaultAsync(x => x.UserId == req.UserId)).NotifyOnWaifuRequest;
+                    
                     // else check if accept or decline
                     if (!approval.Accept)
                     {
                         // create log
-                        _createLog(soraContext, req, approval);
+                        CreateLog(soraContext, req, approval);
                         // decline
                         soraContext.WaifuRequests.Remove(req);
                         await soraContext.SaveChangesAsync();
+                        // notify user if wanted
+                        if (notify)
+                        {
+                            await NotifyUser(req.UserId, req.Name, approval.Accept);
+                        }
                         // return success
                         return new WaifuRequestResponse()
                         {
@@ -227,7 +260,7 @@ namespace SoraBot_v2.Controllers
                         };
                     }
                     // create log
-                    _createLog(soraContext, req, approval);
+                    CreateLog(soraContext, req, approval);
                     // else we accepted
                     var userDb = Utility.GetOrCreateUser(req.UserId, soraContext);
                     // give him money
@@ -243,6 +276,12 @@ namespace SoraBot_v2.Controllers
                     soraContext.WaifuRequests.Remove(req);
                     // save all the changes
                     await soraContext.SaveChangesAsync();
+                    
+                    // notify user if wanted
+                    if (notify)
+                    {
+                        await NotifyUser(req.UserId, req.Name, approval.Accept);
+                    }
                     
                     return new WaifuRequestResponse()
                     {

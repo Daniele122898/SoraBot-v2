@@ -26,6 +26,7 @@ namespace SoraBot_v2.WebApiModels
     {
         public List<WaifuRequestWeb> WaifuRequests { get; set; }
         public List<RequestLog> RequestLogs { get; set; }
+        public bool NotifyOnWaifuRequest { get; set; }
     }
     
     public class WaifuRequestWeb
