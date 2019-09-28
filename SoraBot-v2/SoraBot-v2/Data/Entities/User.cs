@@ -24,6 +24,7 @@ namespace SoraBot_v2.Data.Entities
         public int Money { get; set; }
         public DateTime NextDaily { get; set; }
         public int FavoriteWaifu { get; set; }
+        public bool NotifyOnWaifuRequest { get; set; }
         
         
         public virtual Interactions Interactions { get; set; }
