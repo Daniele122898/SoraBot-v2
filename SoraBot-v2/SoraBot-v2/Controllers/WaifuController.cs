@@ -21,55 +21,16 @@ namespace SoraBot_v2.Controllers
     [EnableCors("AllowLocal")]
     public class WaifuController : Controller
     {
-        
-
-        private WaifuRarity GetOfficialRarity(short rarity)
-        {
-            switch (rarity)
-            {
-                case 0:
-                    return WaifuRarity.Common;
-                case 1:
-                    return WaifuRarity.Uncommon;
-                case 2:
-                    return WaifuRarity.Rare;
-                case 3:
-                    return WaifuRarity.Epic;
-                case 98:
-                    return WaifuService.CURRENT_SPECIAL;
-                case 99:
-                    return WaifuRarity.UltimateWaifu;
-                default:
-                    return WaifuRarity.Common;
-            }
-        }
-
-        private short GetWebRarity(WaifuRarity rarity)
-        {
-            switch (rarity)
-            {
-                case WaifuRarity.Common:
-                    return 0;
-                case WaifuRarity.Uncommon:
-                    return 1;
-                case WaifuRarity.Rare:
-                    return 2;
-                case WaifuRarity.Epic:
-                    return 3;
-                case WaifuRarity.UltimateWaifu:
-                    return 99;
-                default:
-                    return 98;
-            }
-        }
 
         private readonly DiscordSocketClient _client;
         private readonly DiscordRestClient _restClient;
-        
-        public WaifuController(DiscordSocketClient client, DiscordRestClient restClient)
+        private readonly WaifuService _waifuService;
+
+        public WaifuController(DiscordSocketClient client, DiscordRestClient restClient, WaifuService waifuService)
         {
             _client = client;
             _restClient = restClient;
+            _waifuService = waifuService;
         }
 
         [HttpPost("setRequestNotify", Name = "setRequestNotify")]
@@ -493,6 +454,48 @@ namespace SoraBot_v2.Controllers
             }
 
             return null;
+        }
+        
+                
+
+        private WaifuRarity GetOfficialRarity(short rarity)
+        {
+            switch (rarity)
+            {
+                case 0:
+                    return WaifuRarity.Common;
+                case 1:
+                    return WaifuRarity.Uncommon;
+                case 2:
+                    return WaifuRarity.Rare;
+                case 3:
+                    return WaifuRarity.Epic;
+                case 98:
+                    return _waifuService.CURRENT_SPECIAL;
+                case 99:
+                    return WaifuRarity.UltimateWaifu;
+                default:
+                    return WaifuRarity.Common;
+            }
+        }
+
+        private short GetWebRarity(WaifuRarity rarity)
+        {
+            switch (rarity)
+            {
+                case WaifuRarity.Common:
+                    return 0;
+                case WaifuRarity.Uncommon:
+                    return 1;
+                case WaifuRarity.Rare:
+                    return 2;
+                case WaifuRarity.Epic:
+                    return 3;
+                case WaifuRarity.UltimateWaifu:
+                    return 99;
+                default:
+                    return 98;
+            }
         }
     }
 }

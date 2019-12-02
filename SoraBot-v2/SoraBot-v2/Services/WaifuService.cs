@@ -19,7 +19,7 @@ namespace SoraBot_v2.Services
     
     public class WaifuService
     {
-        public static readonly WaifuRarity CURRENT_SPECIAL = WaifuRarity.Halloween;
+        public readonly WaifuRarity CURRENT_SPECIAL;
 
         public bool IsSpecialWaifu { get; private set; }
         
@@ -33,6 +33,16 @@ namespace SoraBot_v2.Services
             _coinService = coinService;
             // check config if special waifus are a thing
             IsSpecialWaifu = ConfigService.GetConfigData("specialWaifus").Equals("True", StringComparison.OrdinalIgnoreCase);
+            // Get special waifu type
+            if (int.TryParse(ConfigService.GetConfigData("specialWaifuType"), out int specialType))
+            {
+                WaifuRarity rarity = GetRarityByInt(specialType);
+                CURRENT_SPECIAL = rarity;
+            }
+            else
+            {
+                CURRENT_SPECIAL = WaifuRarity.Summer;
+            }
         }
 
         public List<Waifu> Cache { private set; get; } = new List<Waifu>();
