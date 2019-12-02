@@ -817,7 +817,7 @@ namespace SoraBot_v2.Services
             return 0;
         }
 
-        public WaifuRarity GetRarityByInt(int rarity)
+        public static WaifuRarity GetRarityByInt(int rarity)
         {
             switch (rarity)
             {

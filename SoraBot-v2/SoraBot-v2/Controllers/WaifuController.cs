@@ -22,15 +22,25 @@ namespace SoraBot_v2.Controllers
     public class WaifuController : Controller
     {
 
+        private readonly WaifuRarity _currentSpecial;
+        
         private readonly DiscordSocketClient _client;
         private readonly DiscordRestClient _restClient;
-        private readonly WaifuService _waifuService;
 
-        public WaifuController(DiscordSocketClient client, DiscordRestClient restClient, WaifuService waifuService)
+        public WaifuController(DiscordSocketClient client, DiscordRestClient restClient)
         {
             _client = client;
             _restClient = restClient;
-            _waifuService = waifuService;
+            
+            if (int.TryParse(ConfigService.GetConfigData("specialWaifuType"), out int specialType))
+            {
+                WaifuRarity rarity = WaifuService.GetRarityByInt(specialType);
+                _currentSpecial = rarity;
+            }
+            else
+            {
+                _currentSpecial = WaifuRarity.Summer;
+            }
         }
 
         [HttpPost("setRequestNotify", Name = "setRequestNotify")]
@@ -471,7 +481,7 @@ namespace SoraBot_v2.Controllers
                 case 3:
                     return WaifuRarity.Epic;
                 case 98:
-                    return _waifuService.CURRENT_SPECIAL;
+                    return _currentSpecial;
                 case 99:
                     return WaifuRarity.UltimateWaifu;
                 default:

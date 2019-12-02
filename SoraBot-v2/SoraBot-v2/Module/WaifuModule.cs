@@ -360,7 +360,7 @@ namespace SoraBot_v2.Module
                         {
                             ImageUrl = waifuJson.ImageUrl,
                             Name = waifuJson.Name,
-                            Rarity = _waifuService.GetRarityByInt(waifuJson.Rarity)
+                            Rarity = WaifuService.GetRarityByInt(waifuJson.Rarity)
                         };
                         soraContext.Waifus.Add(waifu);
                         await soraContext.SaveChangesAsync();
