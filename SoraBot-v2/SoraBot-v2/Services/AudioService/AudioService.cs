@@ -11,7 +11,6 @@ using Victoria;
 using Discord.Addons.Interactive;
 using SoraBot_v2.Data.Entities.SubEntities;
 using Victoria.Entities;
-using SearchResult = Victoria.Entities.SearchResult;
 
 namespace SoraBot_v2.Services
 {

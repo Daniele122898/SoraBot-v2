@@ -36,9 +36,9 @@ namespace SoraBot_v2.Module
         }
         
         [Command("divorce")]
-        public async Task Divorce(ulong Id)
+        public async Task Divorce(ulong id)
         {
-            await _marriageService.Divorce(Context, Id);
+            await _marriageService.Divorce(Context, id);
         }
 
         [Command("marriages"), Alias("marrylist"), Summary("Shows all your marriages")]

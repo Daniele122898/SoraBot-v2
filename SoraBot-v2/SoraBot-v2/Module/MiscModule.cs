@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Xml.Linq;
 using Discord;
 using Discord.Commands;
 using SoraBot_v2.Data;
@@ -15,10 +13,6 @@ namespace SoraBot_v2.Module
     [Name("Misc")]
     public class MiscModule : ModuleBase<SocketCommandContext>
     {
-        public MiscModule()
-        {
-        }
-
         [Command("ping"), Summary("Gives the latency of the Bot to the Discord API")]
         public async Task Ping()
         {
@@ -99,7 +93,7 @@ namespace SoraBot_v2.Module
         [Command("about"), Summary("Some info on Sora himself")]
         public async Task About()
         {
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
                 var eb = new EmbedBuilder()
                 {
@@ -116,7 +110,7 @@ namespace SoraBot_v2.Module
                     x.Name = "How was I created?";
                     x.IsInline = false;
                     x.Value = $"I was written in C# using the Discord.NET wrapper.\n" +
-                              $"For more Info use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}info`\n" +
+                              $"For more Info use `{Utility.GetGuildPrefix(Context.Guild, soraContext)}info`\n" +
                               $"Or visit my [Github page](https://github.com/Daniele122898/SoraBot-v2)";
                 });
 

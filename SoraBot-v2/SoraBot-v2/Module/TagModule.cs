@@ -25,9 +25,9 @@ namespace SoraBot_v2.Module
         {
             try
             {
-                using (var _soraContext = new SoraContext())
+                using (var soraContext = new SoraContext())
                 {
-                    var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                    var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
 
                     if (guildDb.Tags.Count < 1)
                     {
@@ -112,20 +112,20 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
 
                 //Check if the sora admin role even exists!
                 if (!Utility.CheckIfSoraAdminExists(Context.Guild) && !guildDb.RestrictTags)
                 {
                     await ReplyAsync("",
-                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role does not exist! Please create it manually or use \"{Utility.GetGuildPrefix(Context.Guild, _soraContext)}createAdmin\"").Build());
+                    embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], $"The {Utility.SORA_ADMIN_ROLE_NAME} Role does not exist! Please create it manually or use \"{Utility.GetGuildPrefix(Context.Guild, soraContext)}createAdmin\"").Build());
                     return;
                 }
 
                 guildDb.RestrictTags = !guildDb.RestrictTags;
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"{(guildDb.RestrictTags ? $"Set the Tag Restriction to TRUE!\n=> Users need the {Utility.SORA_ADMIN_ROLE_NAME} Role to create Tags" : $"Set the Tag Restriction to FALSE!\n=> Everyone can create Tags")}").Build());
             }
@@ -162,29 +162,29 @@ namespace SoraBot_v2.Module
                 index = tag.IndexOf('|');
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _tagService.CreateTag(Context, _soraContext, (foundAttachment ? tag.Trim() : tag.Remove(index).Trim()), (foundAttachment ? "" : tag.Substring(index + 1).Trim()), forceEmbed);
+                await _tagService.CreateTag(Context, soraContext, (foundAttachment ? tag.Trim() : tag.Remove(index).Trim()), (foundAttachment ? "" : tag.Substring(index + 1).Trim()), forceEmbed);
             }
         }
 
         [Command("tag"), Alias("t"), Summary("Searches and displays the tag with the specified name")]
         public async Task SearchTag([Remainder] string name)
         {
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _tagService.FindAndDisplayTag(Context, _soraContext, name.Trim());
+                await _tagService.FindAndDisplayTag(Context, soraContext, name.Trim());
             }
         }
 
         [Command("removetag"), Alias("deletetag", "dt", "rt", "rmt"), Summary("Deletes the specified tag!")]
         public async Task RemoveTag([Remainder]string tag)
         {
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
                 var user = (SocketGuildUser)Context.User;
                 bool admin = (user.GuildPermissions.Has(GuildPermission.Administrator) || Utility.IsSoraAdmin(user));
-                await _tagService.RemoveTag(Context, _soraContext, tag, admin);
+                await _tagService.RemoveTag(Context, soraContext, tag, admin);
             }
         }
     }

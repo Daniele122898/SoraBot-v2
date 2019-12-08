@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -250,7 +246,7 @@ namespace SoraBot_v2.Module
         {
             using (var proc = Process.GetCurrentProcess())
             {
-                using (var _soraContext = new SoraContext())
+                using (var soraContext = new SoraContext())
                 {
 
                     long FormatRamValue(long d)
@@ -349,7 +345,7 @@ namespace SoraBot_v2.Module
                     {
                         x.Name = "Music";
                         x.IsInline = true;
-                        x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, _soraContext)}msys` for music stats";
+                        x.Value = $"Use `{Utility.GetGuildPrefix(Context.Guild, soraContext)}msys` for music stats";
                     });
                     eb.AddField((x) =>
                     {

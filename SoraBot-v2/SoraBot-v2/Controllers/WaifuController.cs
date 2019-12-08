@@ -176,7 +176,7 @@ namespace SoraBot_v2.Controllers
                         $"Your request for \"{waifuName}\" has been {(accepted ? "accepted" : "declined")}." +
                         $"{(accepted ? " You are awarded with 1000 SC." : "")}").Build());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }

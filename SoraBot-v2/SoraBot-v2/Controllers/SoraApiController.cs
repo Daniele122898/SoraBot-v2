@@ -13,7 +13,6 @@ using SoraBot_v2.WebApiModels;
 using Humanizer;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
-using RequestOptions = Discord.RequestOptions;
 
 namespace SoraBot_v2.Controllers
 {
@@ -345,7 +344,7 @@ namespace SoraBot_v2.Controllers
 
         [HttpGet("GetGlobalLeaderboard/", Name = "GetGlobalLeaderboard")]
         [EnableCors("AllowLocal")]
-        public async Task<GlobalLeaderboard> GetGlobalLeaderboard()
+        public GlobalLeaderboard GetGlobalLeaderboard()
         {
             try
             {

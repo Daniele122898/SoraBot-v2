@@ -69,7 +69,6 @@ namespace SoraBot_v2.Module
         public async Task AddDefaultRole([Remainder] string roleName)
         {
                 await _sarService.AddDefaultRole(Context, roleName.Trim());
-                return;
         }
 
         [Command("expiring"), Alias("expires"), Summary("Shows all your expiring sars")]

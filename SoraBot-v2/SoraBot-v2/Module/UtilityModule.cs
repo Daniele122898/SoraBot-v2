@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
@@ -63,9 +62,10 @@ namespace SoraBot_v2.Module
         
         [Command("gc")]
         [RequireOwner]
-        public async Task ForceGC()
+        public Task ForceGc()
         {
             GC.Collect();
+            return Task.CompletedTask;
         }
 
         [Command("reloadconfig"), Alias("reconf")]
@@ -145,14 +145,14 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
                 if (guildDb.IsDjRestricted)
                 {
                     //MAKE IT UNRESTRICTED
                     guildDb.IsDjRestricted = false;
-                    await _soraContext.SaveChangesAsync();
+                    await soraContext.SaveChangesAsync();
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0], $"Successfully unrestricted all music commands!").Build());
                     return;
                 }
@@ -183,7 +183,7 @@ namespace SoraBot_v2.Module
                 }
 
                 guildDb.IsDjRestricted = true;
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     $"Successfully restricted all music commands{(created ? $" and created {Utility.SORA_DJ_ROLE_NAME} role!" : "!")}").Build());
             }
