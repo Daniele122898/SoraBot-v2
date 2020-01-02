@@ -19,6 +19,14 @@ namespace SoraBot_v2.Module
             await ReplyAsync($"Pong! {Context.Client.Latency} ms :ping_pong:");
         }
 
+        [Command("reverse"), Alias("uno"), Summary("Send a uno reverse card")]
+        public async Task UnoReverse() => await ReplyAsync("", embed: (new EmbedBuilder()
+        {
+            Footer = Utility.RequestedBy(Context.User),
+            ImageUrl = "https://cdn.argonaut.pw/Gc2fOLaYJNRkKK04FmcGz3WPVoO10wRp.gif",
+            Color = Utility.PurpleEmbed
+        }).Build());
+
         [Command("git"), Alias("gitlab", "github"), Summary("Posts the link to Github")]
         public async Task GithubPage()
         {
