@@ -72,9 +72,9 @@ namespace SoraBot_v2.Module
             eb.Title =
                 $"{Utility.GiveUsernameDiscrimComb(Context.User)} pats {patted.Remove(patted.Length-2)} ｡◕ ‿ ◕｡";
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Pat, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Pat, users, Context, soraContext);
             }
 
             await Context.Channel.SendMessageAsync("", embed: eb.Build());
@@ -110,9 +110,9 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Hug, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Hug, users, Context, soraContext);
             }
             
             eb.Footer = new EmbedFooterBuilder()
@@ -159,9 +159,9 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.High5, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.High5, users, Context, soraContext);
             }
             var high5ed = "";
             users.ForEach(x=>high5ed+= Utility.GiveUsernameDiscrimComb(x)+", ");
@@ -202,9 +202,9 @@ namespace SoraBot_v2.Module
             };
             if(sameAsInvoker!= null)
                 users.Remove(sameAsInvoker);
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Poke, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Poke, users, Context, soraContext);
             }
 
             await Context.Channel.SendMessageAsync("", embed: eb.Build());
@@ -239,9 +239,9 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Kiss, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Kiss, users, Context, soraContext);
             }
             string kissed = "";
             users.ForEach(x=> kissed+= Utility.GiveUsernameDiscrimComb(x)+", ");
@@ -264,9 +264,9 @@ namespace SoraBot_v2.Module
         public async Task GetAffinity([Summary("Person to check")]SocketUser UserT = null)
         {
             var user = UserT ?? Context.User;
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.CheckAffinity(user, Context, _soraContext);
+                await _interactions.CheckAffinity(user, Context, soraContext);
             }
         }
 
@@ -299,9 +299,9 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Slap, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Slap, users, Context, soraContext);
             }
 
             string slapped = "";
@@ -350,9 +350,9 @@ namespace SoraBot_v2.Module
                     return;
                 }
             }
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _interactions.InteractMultiple(InteractionType.Punch, users, Context, _soraContext);
+                await _interactions.InteractMultiple(InteractionType.Punch, users, Context, soraContext);
             }
             string punched = "";
             users.ForEach(x=> punched+= Utility.GiveUsernameDiscrimComb(x)+", ");

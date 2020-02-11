@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
-using Humanizer;
 using JikanDotNet;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace SoraBot_v2.Services
 {

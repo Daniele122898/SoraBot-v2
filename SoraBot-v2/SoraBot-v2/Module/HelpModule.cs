@@ -116,7 +116,6 @@ namespace SoraBot_v2.Module
         public async Task Help()
         {
             Dictionary<string, int> cmds = new Dictionary<string, int>();
-            int count = 0;
             foreach (var module in _service.Modules)
             {
                 if(string.IsNullOrWhiteSpace(module.Name))
@@ -133,7 +132,6 @@ namespace SoraBot_v2.Module
                     if(command.Preconditions.Any(p => p is RequireOwnerAttribute))
                         continue;
                     num++;
-                    count++;
                 }
                 cmds[module.Name] = num;
             }

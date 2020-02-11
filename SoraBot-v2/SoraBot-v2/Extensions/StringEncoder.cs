@@ -5,12 +5,12 @@ namespace SoraBot_v2.Extensions
 {
     public static class StringEncoder
     {
-        static readonly char[] padding = { '=' };
+        private static readonly char[] Padding = { '=' };
 
         public static string Base64Encode(string plainText)
         {
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            return Convert.ToBase64String(plainTextBytes).TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+            return Convert.ToBase64String(plainTextBytes).TrimEnd(Padding).Replace('+', '-').Replace('/', '_');
         }
 
         public static string Base64Decode(string base64EncodedData)

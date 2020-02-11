@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Dynamic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Net;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 using Victoria;
@@ -25,18 +19,14 @@ namespace SoraBot_v2
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly AfkService _afkService;
-        private StarboardService _starboardService;
         private readonly RatelimitingService _ratelimitingService;
-        private SelfAssignableRolesService _selfAssignableRolesService;
-        private AnnouncementService _announcementService;
-        private ModService _modService;
         private readonly GuildCountUpdaterService _guildCount;
-        private BanService _banService;
-        private InteractionsService _interactionsService;
-        private LavaSocketClient _lavaSocketClient;
-        private AudioService _audioService;
+        private readonly BanService _banService;
+        private readonly InteractionsService _interactionsService;
+        private readonly LavaSocketClient _lavaSocketClient;
+        private readonly AudioService _audioService;
 
-        private async Task ClientOnJoinedGuild(SocketGuild socketGuild)
+        private Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
             Task.Run(async () => { 
                 //Notify discordbots that we joined a new guild :P
@@ -50,15 +40,6 @@ namespace SoraBot_v2
                 }
                 using (var soraContext = new SoraContext())
                 {
-                    var guild = Utility.GetOrCreateGuild(socketGuild.Id, soraContext);
-    
-                    //AUTO CREATE SORA ADMIN ROLE
-                    //var created = await Utility.CreateSoraRoleOnJoinAsync(socketGuild, _client, soraContext).ConfigureAwait(false);
-                    /*
-                    if (created)
-                    {
-                        guild.RestrictTags = socketGuild.MemberCount > 100;
-                    }*/
                     await soraContext.SaveChangesAsync();
                     try
                     {
@@ -91,6 +72,8 @@ namespace SoraBot_v2
                 await SentryService.SendMessage($"**JOINED GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
                 //TODO WELCOME MESSAGE
             });
+            
+            return Task.CompletedTask;
         }
 
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService commandService,
@@ -104,10 +87,6 @@ namespace SoraBot_v2
             _afkService = afkService;
             _services = provider;
             _ratelimitingService = ratelimitingService;
-            _starboardService = starboardService;
-            _selfAssignableRolesService = selfService;
-            _announcementService = announcementService;
-            _modService = modService;
             _guildCount = guildUpdate;
             _banService = banService;
             _interactionsService = interactionsService;
@@ -123,15 +102,15 @@ namespace SoraBot_v2
             _client.JoinedGuild += ClientOnJoinedGuild;
             _client.LeftGuild += ClientOnLeftGuild;
             _client.MessageReceived += expService.IncreaseEpOnMessageReceive;
-            _client.ReactionAdded += _starboardService.ClientOnReactionAdded;
-            _client.ReactionRemoved += _starboardService.ClientOnReactionRemoved;
-            _client.UserJoined += _selfAssignableRolesService.ClientOnUserJoined;
-            _client.UserJoined += _announcementService.ClientOnUserJoined;
-            _client.UserLeft += _announcementService.ClientOnUserLeft;
+            _client.ReactionAdded += starboardService.ClientOnReactionAdded;
+            _client.ReactionRemoved += starboardService.ClientOnReactionRemoved;
+            _client.UserJoined += selfService.ClientOnUserJoined;
+            _client.UserJoined += announcementService.ClientOnUserJoined;
+            _client.UserLeft += announcementService.ClientOnUserLeft;
 
             //mod Service
-            _client.UserBanned += _modService.ClientOnUserBanned;
-            _client.UserUnbanned += _modService.ClientOnUserUnbanned;
+            _client.UserBanned += modService.ClientOnUserBanned;
+            _client.UserUnbanned += modService.ClientOnUserUnbanned;
             
             // Ready
             _client.Ready += ClientOnReady;
@@ -161,7 +140,7 @@ namespace SoraBot_v2
             return Task.CompletedTask;
         }
 
-        private async Task ClientOnReady()
+        private Task ClientOnReady()
         {
             SentryService.Install(_client);
             // lavalink shit
@@ -189,8 +168,8 @@ namespace SoraBot_v2
                 _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
                 _client.Disconnected += _audioService.ClientOnDisconnected;
             });
-            
 
+            return Task.CompletedTask;
         }
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
@@ -264,8 +243,9 @@ namespace SoraBot_v2
                 using (var soraContext = new SoraContext())
                 {
                     //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
+#pragma warning disable 4014
                     _afkService.Client_MessageReceived(m, _services);
-
+#pragma warning restore 4014
                     // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
                     // TODO: Move this into the config file
                     var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");

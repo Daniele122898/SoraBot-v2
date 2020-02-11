@@ -19,11 +19,6 @@
 <img src="https://cdn.argonaut.pw/OAcaG8SEvdXOposXY4LWiMW3ftAgNOTk.png" alt="Dashbaord">
 <br>
 <hr/>
-<h2>Waifus</h2>
-<p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
-There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. <strong>Create the harem you always wanted!</strong></p>
-<img src="https://cdn.argonaut.pw/9mLsHwZ4XSIU2aaNy00d3QqnJNA8dROv.png" alt="Owned Waifus">
-<hr/>
 <h2>Economy</h2>
 <p>Sora has a fully integrated Economy system. You can get daily Sora Coins, trade them but also use them to buy custom Self-Assignable Roles in Guilds. 50% of the revenue goes to the Guild owner.
 They are also a tool to increase Clan member size to rise to the top of the leaderboard!</p>
@@ -46,3 +41,7 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <h3>Rewards & Engagement</h3>
 <p>Sora also has many tools to keep your member base engaged. You can reward users Roles for gaining EXP in the Guild which is earned by texting and being active. With that give them access to custom channels and more.</p>
 <hr/>
+<h2>Waifus</h2>
+<p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
+There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. <strong>Create the harem you always wanted!</strong></p>
+<img src="https://cdn.argonaut.pw/9mLsHwZ4XSIU2aaNy00d3QqnJNA8dROv.png" alt="Owned Waifus">

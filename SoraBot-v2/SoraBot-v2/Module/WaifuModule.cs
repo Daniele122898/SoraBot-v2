@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -336,9 +335,9 @@ namespace SoraBot_v2.Module
                 using (StreamReader sr = File.OpenText("waifuJsonTemp.json"))
                 using (JsonReader reader = new JsonTextReader(sr))
                 {
-                    JsonSerializer JsonSerializer = new JsonSerializer();
-                    JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
-                    down = JsonSerializer.Deserialize<WaifuDownload>(reader);
+                    JsonSerializer jsonSerializer = new JsonSerializer();
+                    jsonSerializer.NullValueHandling = NullValueHandling.Ignore;
+                    down = jsonSerializer.Deserialize<WaifuDownload>(reader);
                 }
                 // now lets try to add all of them.
                 using (var soraContext = new SoraContext())
@@ -360,7 +359,7 @@ namespace SoraBot_v2.Module
                         {
                             ImageUrl = waifuJson.ImageUrl,
                             Name = waifuJson.Name,
-                            Rarity = _waifuService.GetRarityByInt(waifuJson.Rarity)
+                            Rarity = WaifuService.GetRarityByInt(waifuJson.Rarity)
                         };
                         soraContext.Waifus.Add(waifu);
                         await soraContext.SaveChangesAsync();

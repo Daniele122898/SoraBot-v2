@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -37,18 +36,18 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _prefixService.UpdateGuildPrefix(Context, _soraContext, prefix);
+                await _prefixService.UpdateGuildPrefix(Context, soraContext, prefix);
             }
         }
 
         [Command("prefix"), Summary("Shows the current prefix for the Guild")]
         public async Task CheckPrefix()
         {
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                await _prefixService.ReturnGuildPrefix(Context, _soraContext);
+                await _prefixService.ReturnGuildPrefix(Context, soraContext);
             }
         }
     }

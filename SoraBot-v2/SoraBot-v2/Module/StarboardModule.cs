@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Remotion.Linq.Clauses.ResultOperators;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
@@ -35,11 +33,11 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
                 guildDb.StarChannelId = starChannel.Id;
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], "Successfully set starboard channel").WithDescription($"<#{starChannel.Id}>").Build());
             }
@@ -56,9 +54,9 @@ namespace SoraBot_v2.Module
                 return;
             }
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
                 if (guildDb.StarChannelId == 0)
                 {
                     await ReplyAsync("", embed: Utility.ResultFeedback(Utility.RedFailiureEmbed,
@@ -66,7 +64,7 @@ namespace SoraBot_v2.Module
                     return;
                 }
                 guildDb.StarChannelId = 0;
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully removed the starboard channel").Build());
             }
@@ -87,11 +85,11 @@ namespace SoraBot_v2.Module
             if (amount < 1)
                 amount = 1;
 
-            using (var _soraContext = new SoraContext())
+            using (var soraContext = new SoraContext())
             {
-                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, _soraContext);
+                var guildDb = Utility.GetOrCreateGuild(Context.Guild.Id, soraContext);
                 guildDb.StarMinimum = amount;
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 await ReplyAsync("", embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed,
                     Utility.SuccessLevelEmoji[0], $"Successfully changed minimum Star requirement to {amount}").Build());
             }

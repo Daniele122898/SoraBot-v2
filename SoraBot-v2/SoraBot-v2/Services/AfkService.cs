@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -71,7 +70,7 @@ namespace SoraBot_v2.Services
             await soraContext.SaveChangesAsync();
         }
 
-        public async Task Client_MessageReceived(SocketMessage msg, IServiceProvider _services)
+        public async Task Client_MessageReceived(SocketMessage msg, IServiceProvider services)
         {
             if (msg.Author.Id == 270931284489011202 || msg.Author.Id == 276304865934704642)
                 return;

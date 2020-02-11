@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Humanizer;
-using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -162,9 +160,9 @@ namespace SoraBot_v2.Module
         }
 
         [Command("door"), Summary("Shows the door to someone")]
-        public async Task Door(params SocketUser[] Users)
+        public async Task Door(params SocketUser[] users)
         {
-            if (Users.Length < 1)
+            if (users.Length < 1)
             {
                 await ReplyAsync("",
                     embed: Utility.ResultFeedback(Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
@@ -173,7 +171,7 @@ namespace SoraBot_v2.Module
             }
 
             string showDoors = "";
-            foreach (var socketUser in Users)
+            foreach (var socketUser in users)
             {
                 showDoors += $"{Utility.GiveUsernameDiscrimComb(socketUser)}, ";
             }
