@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace SoraBotv2.Migrations
 {
@@ -13,9 +12,9 @@ namespace SoraBotv2.Migrations
                 name: "Bans",
                 columns: table => new
                 {
-                    UserId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    BannedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Reason = table.Column<string>(type: "longtext", nullable: true)
+                    UserId = table.Column<ulong>(nullable: false),
+                    Reason = table.Column<string>(nullable: true),
+                    BannedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,11 +25,11 @@ namespace SoraBotv2.Migrations
                 name: "ClanInvites",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Id = table.Column<ulong>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ClanName = table.Column<string>(type: "longtext", nullable: true),
-                    StaffId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    StaffId = table.Column<ulong>(nullable: false),
+                    UserId = table.Column<ulong>(nullable: false),
+                    ClanName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,15 +40,15 @@ namespace SoraBotv2.Migrations
                 name: "Clans",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    AvatarUrl = table.Column<string>(type: "longtext", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    HasImage = table.Column<bool>(type: "bit", nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    Message = table.Column<string>(type: "longtext", nullable: true),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    OwnerId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Name = table.Column<string>(nullable: true),
+                    OwnerId = table.Column<ulong>(nullable: false),
+                    HasImage = table.Column<bool>(nullable: false),
+                    AvatarUrl = table.Column<string>(nullable: true),
+                    Message = table.Column<string>(nullable: true),
+                    Created = table.Column<DateTime>(nullable: false),
+                    Level = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,24 +59,25 @@ namespace SoraBotv2.Migrations
                 name: "Guilds",
                 columns: table => new
                 {
-                    GuildId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    DefaultRoleId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    EmbedLeave = table.Column<bool>(type: "bit", nullable: false),
-                    EmbedWelcome = table.Column<bool>(type: "bit", nullable: false),
-                    EnabledLvlUpMessage = table.Column<bool>(type: "bit", nullable: false),
-                    HasDefaultRole = table.Column<bool>(type: "bit", nullable: false),
-                    IsDjRestricted = table.Column<bool>(type: "bit", nullable: false),
-                    LeaveChannelId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    LeaveMessage = table.Column<string>(type: "longtext", nullable: true),
-                    LevelUpMessage = table.Column<string>(type: "longtext", nullable: true),
-                    Prefix = table.Column<string>(type: "longtext", nullable: true),
-                    PunishLogsId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    RestrictTags = table.Column<bool>(type: "bit", nullable: false),
-                    SendLvlDm = table.Column<bool>(type: "bit", nullable: false),
-                    StarChannelId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    StarMinimum = table.Column<int>(type: "int", nullable: false),
-                    WelcomeChannelId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    WelcomeMessage = table.Column<string>(type: "longtext", nullable: true)
+                    GuildId = table.Column<ulong>(nullable: false),
+                    Prefix = table.Column<string>(nullable: true),
+                    RestrictTags = table.Column<bool>(nullable: false),
+                    IsDjRestricted = table.Column<bool>(nullable: false),
+                    NeedVotes = table.Column<bool>(nullable: false),
+                    StarChannelId = table.Column<ulong>(nullable: false),
+                    StarMinimum = table.Column<int>(nullable: false),
+                    HasDefaultRole = table.Column<bool>(nullable: false),
+                    DefaultRoleId = table.Column<ulong>(nullable: false),
+                    WelcomeChannelId = table.Column<ulong>(nullable: false),
+                    LeaveChannelId = table.Column<ulong>(nullable: false),
+                    WelcomeMessage = table.Column<string>(nullable: true),
+                    LeaveMessage = table.Column<string>(nullable: true),
+                    EmbedWelcome = table.Column<bool>(nullable: false),
+                    EmbedLeave = table.Column<bool>(nullable: false),
+                    PunishLogsId = table.Column<ulong>(nullable: false),
+                    LevelUpMessage = table.Column<string>(nullable: true),
+                    EnabledLvlUpMessage = table.Column<bool>(nullable: false),
+                    SendLvlDm = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,13 +85,29 @@ namespace SoraBotv2.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RequestLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Accepted = table.Column<bool>(nullable: false),
+                    UserId = table.Column<ulong>(nullable: false),
+                    WaifuName = table.Column<string>(nullable: true),
+                    ProcessedTime = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RequestLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Songs",
                 columns: table => new
                 {
-                    Base64EncodedLink = table.Column<string>(type: "varchar(127)", nullable: false),
-                    Added = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    RequestorUserId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Base64EncodedLink = table.Column<string>(nullable: false),
+                    Added = table.Column<DateTime>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    RequestorUserId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,14 +115,31 @@ namespace SoraBotv2.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WaifuRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true),
+                    ImageUrl = table.Column<string>(nullable: true),
+                    Rarity = table.Column<short>(nullable: false),
+                    UserId = table.Column<ulong>(nullable: false),
+                    TimeStamp = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WaifuRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Waifus",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ImageUrl = table.Column<string>(type: "longtext", nullable: true),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    Rarity = table.Column<int>(type: "int", nullable: false)
+                    Name = table.Column<string>(nullable: true),
+                    ImageUrl = table.Column<string>(nullable: true),
+                    Rarity = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,19 +150,21 @@ namespace SoraBotv2.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    CanGainAgain = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ClanId = table.Column<int>(type: "int", nullable: true),
-                    ClanName = table.Column<string>(type: "longtext", nullable: true),
-                    ClanStaff = table.Column<bool>(type: "bit", nullable: false),
-                    Exp = table.Column<float>(type: "float", nullable: false),
-                    HasBg = table.Column<bool>(type: "bit", nullable: false),
-                    JoinedClan = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Money = table.Column<int>(type: "int", nullable: false),
-                    NextDaily = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Notified = table.Column<bool>(type: "bit", nullable: false),
-                    ShowProfileCardAgain = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdateBgAgain = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    UserId = table.Column<ulong>(nullable: false),
+                    Exp = table.Column<float>(nullable: false),
+                    CanGainAgain = table.Column<DateTime>(nullable: false),
+                    Notified = table.Column<bool>(nullable: false),
+                    HasBg = table.Column<bool>(nullable: false),
+                    UpdateBgAgain = table.Column<DateTime>(nullable: false),
+                    ShowProfileCardAgain = table.Column<DateTime>(nullable: false),
+                    Money = table.Column<int>(nullable: false),
+                    NextDaily = table.Column<DateTime>(nullable: false),
+                    FavoriteWaifu = table.Column<int>(nullable: false),
+                    NotifyOnWaifuRequest = table.Column<bool>(nullable: false),
+                    ClanName = table.Column<string>(nullable: true),
+                    ClanStaff = table.Column<bool>(nullable: false),
+                    JoinedClan = table.Column<DateTime>(nullable: false),
+                    ClanId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -146,17 +181,17 @@ namespace SoraBotv2.Migrations
                 name: "Cases",
                 columns: table => new
                 {
-                    CaseId = table.Column<int>(type: "int", nullable: false)
+                    CaseId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CaseNr = table.Column<int>(type: "int", nullable: false),
-                    GuildForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    ModId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    PunishMsgId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    Reason = table.Column<string>(type: "longtext", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserNameDisc = table.Column<string>(type: "longtext", nullable: true),
-                    WarnNr = table.Column<int>(type: "int", nullable: false)
+                    Type = table.Column<int>(nullable: false),
+                    CaseNr = table.Column<int>(nullable: false),
+                    ModId = table.Column<ulong>(nullable: false),
+                    UserId = table.Column<ulong>(nullable: false),
+                    UserNameDisc = table.Column<string>(nullable: true),
+                    Reason = table.Column<string>(nullable: true),
+                    PunishMsgId = table.Column<ulong>(nullable: false),
+                    WarnNr = table.Column<int>(nullable: false),
+                    GuildForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -173,12 +208,12 @@ namespace SoraBotv2.Migrations
                 name: "GuildLevelRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Banned = table.Column<bool>(type: "bit", nullable: false),
-                    GuildId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    RequiredLevel = table.Column<int>(type: "int", nullable: false),
-                    RoleId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    RoleId = table.Column<ulong>(nullable: false),
+                    RequiredLevel = table.Column<int>(nullable: false),
+                    Banned = table.Column<bool>(nullable: false),
+                    GuildId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,11 +230,11 @@ namespace SoraBotv2.Migrations
                 name: "GuildUsers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Exp = table.Column<float>(type: "float", nullable: false),
-                    GuildId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    UserId = table.Column<ulong>(nullable: false),
+                    Exp = table.Column<float>(nullable: false),
+                    GuildId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,11 +251,11 @@ namespace SoraBotv2.Migrations
                 name: "SelfAssignableRoles",
                 columns: table => new
                 {
-                    RoleId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    CanExpire = table.Column<bool>(type: "bit", nullable: false),
-                    Cost = table.Column<int>(type: "int", nullable: false),
-                    Duration = table.Column<TimeSpan>(type: "time(6)", nullable: false),
-                    GuildForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    RoleId = table.Column<ulong>(nullable: false),
+                    Cost = table.Column<int>(nullable: false),
+                    Duration = table.Column<TimeSpan>(nullable: false),
+                    CanExpire = table.Column<bool>(nullable: false),
+                    GuildForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -237,12 +272,12 @@ namespace SoraBotv2.Migrations
                 name: "StarMessages",
                 columns: table => new
                 {
-                    MessageId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    GuildForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    HitZeroCount = table.Column<byte>(type: "tinyint unsigned", nullable: false),
-                    IsPosted = table.Column<bool>(type: "bit", nullable: false),
-                    PostedMsgId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    StarCount = table.Column<int>(type: "int", nullable: false)
+                    MessageId = table.Column<ulong>(nullable: false),
+                    StarCount = table.Column<int>(nullable: false),
+                    HitZeroCount = table.Column<byte>(nullable: false),
+                    IsPosted = table.Column<bool>(nullable: false),
+                    PostedMsgId = table.Column<ulong>(nullable: false),
+                    GuildForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -259,15 +294,15 @@ namespace SoraBotv2.Migrations
                 name: "Tags",
                 columns: table => new
                 {
-                    TagId = table.Column<int>(type: "int", nullable: false)
+                    TagId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    AttachmentString = table.Column<string>(type: "longtext", nullable: true),
-                    CreatorId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    ForceEmbed = table.Column<bool>(type: "bit", nullable: false),
-                    GuildForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    PictureAttachment = table.Column<bool>(type: "bit", nullable: false),
-                    Value = table.Column<string>(type: "longtext", nullable: true)
+                    Name = table.Column<string>(nullable: true),
+                    Value = table.Column<string>(nullable: true),
+                    CreatorId = table.Column<ulong>(nullable: false),
+                    PictureAttachment = table.Column<bool>(nullable: false),
+                    AttachmentString = table.Column<string>(nullable: true),
+                    ForceEmbed = table.Column<bool>(nullable: false),
+                    GuildForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -284,12 +319,12 @@ namespace SoraBotv2.Migrations
                 name: "Afk",
                 columns: table => new
                 {
-                    AfkId = table.Column<int>(type: "int", nullable: false)
+                    AfkId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    IsAfk = table.Column<bool>(type: "bit", nullable: false),
-                    Message = table.Column<string>(type: "longtext", nullable: true),
-                    TimeToTriggerAgain = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    IsAfk = table.Column<bool>(nullable: false),
+                    TimeToTriggerAgain = table.Column<DateTime>(nullable: false),
+                    Message = table.Column<string>(nullable: true),
+                    UserForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -306,23 +341,23 @@ namespace SoraBotv2.Migrations
                 name: "Interactions",
                 columns: table => new
                 {
-                    InteractionsId = table.Column<int>(type: "int", nullable: false)
+                    InteractionsId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    High5 = table.Column<int>(type: "int", nullable: false),
-                    High5Given = table.Column<int>(type: "int", nullable: false),
-                    Hugs = table.Column<int>(type: "int", nullable: false),
-                    HugsGiven = table.Column<int>(type: "int", nullable: false),
-                    Kisses = table.Column<int>(type: "int", nullable: false),
-                    KissesGiven = table.Column<int>(type: "int", nullable: false),
-                    Pats = table.Column<int>(type: "int", nullable: false),
-                    PatsGiven = table.Column<int>(type: "int", nullable: false),
-                    Pokes = table.Column<int>(type: "int", nullable: false),
-                    PokesGiven = table.Column<int>(type: "int", nullable: false),
-                    Punches = table.Column<int>(type: "int", nullable: false),
-                    PunchesGiven = table.Column<int>(type: "int", nullable: false),
-                    Slaps = table.Column<int>(type: "int", nullable: false),
-                    SlapsGiven = table.Column<int>(type: "int", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Pats = table.Column<int>(nullable: false),
+                    Hugs = table.Column<int>(nullable: false),
+                    Kisses = table.Column<int>(nullable: false),
+                    High5 = table.Column<int>(nullable: false),
+                    Pokes = table.Column<int>(nullable: false),
+                    Slaps = table.Column<int>(nullable: false),
+                    Punches = table.Column<int>(nullable: false),
+                    PatsGiven = table.Column<int>(nullable: false),
+                    HugsGiven = table.Column<int>(nullable: false),
+                    KissesGiven = table.Column<int>(nullable: false),
+                    High5Given = table.Column<int>(nullable: false),
+                    PokesGiven = table.Column<int>(nullable: false),
+                    SlapsGiven = table.Column<int>(nullable: false),
+                    PunchesGiven = table.Column<int>(nullable: false),
+                    UserForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -339,11 +374,11 @@ namespace SoraBotv2.Migrations
                 name: "Marriages",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PartnerId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    Since = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Since = table.Column<DateTime>(nullable: false),
+                    PartnerId = table.Column<ulong>(nullable: false),
+                    UserForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -360,11 +395,11 @@ namespace SoraBotv2.Migrations
                 name: "Reminders",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Message = table.Column<string>(type: "longtext", nullable: true),
-                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Time = table.Column<DateTime>(nullable: false),
+                    Message = table.Column<string>(nullable: true),
+                    UserForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -381,13 +416,13 @@ namespace SoraBotv2.Migrations
                 name: "ShareCentrals",
                 columns: table => new
                 {
-                    ShareLink = table.Column<string>(type: "varchar(127)", nullable: false),
-                    CreatorId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    Downvotes = table.Column<int>(type: "int", nullable: false),
-                    IsPrivate = table.Column<bool>(type: "bit", nullable: false),
-                    Tags = table.Column<string>(type: "longtext", nullable: true),
-                    Titel = table.Column<string>(type: "longtext", nullable: true),
-                    Upvotes = table.Column<int>(type: "int", nullable: false)
+                    ShareLink = table.Column<string>(nullable: false),
+                    Upvotes = table.Column<int>(nullable: false),
+                    Downvotes = table.Column<int>(nullable: false),
+                    Tags = table.Column<string>(nullable: true),
+                    Titel = table.Column<string>(nullable: true),
+                    IsPrivate = table.Column<bool>(nullable: false),
+                    CreatorId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -404,24 +439,18 @@ namespace SoraBotv2.Migrations
                 name: "UserWaifus",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Count = table.Column<int>(type: "int", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    WaifuForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    Count = table.Column<int>(nullable: false),
+                    WaifuId = table.Column<int>(nullable: false),
+                    UserForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserWaifus", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserWaifus_Waifus_WaifuForeignId",
-                        column: x => x.WaifuForeignId,
-                        principalTable: "Waifus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserWaifus_Users_WaifuForeignId",
-                        column: x => x.WaifuForeignId,
+                        name: "FK_UserWaifus_Users_UserForeignId",
+                        column: x => x.UserForeignId,
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -431,12 +460,12 @@ namespace SoraBotv2.Migrations
                 name: "ExpiringRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    GuildForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    RoleForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false),
-                    UserForeignId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    ExpiresAt = table.Column<DateTime>(nullable: false),
+                    UserForeignId = table.Column<ulong>(nullable: false),
+                    RoleForeignId = table.Column<ulong>(nullable: false),
+                    GuildForeignId = table.Column<ulong>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -465,11 +494,11 @@ namespace SoraBotv2.Migrations
                 name: "Votings",
                 columns: table => new
                 {
-                    VoteId = table.Column<int>(type: "int", nullable: false)
+                    VoteId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ShareLink = table.Column<string>(type: "varchar(127)", nullable: true),
-                    UpOrDown = table.Column<bool>(type: "bit", nullable: false),
-                    VoterId = table.Column<ulong>(type: "bigint unsigned", nullable: false)
+                    ShareLink = table.Column<string>(nullable: true),
+                    VoterId = table.Column<ulong>(nullable: false),
+                    UpOrDown = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -566,9 +595,9 @@ namespace SoraBotv2.Migrations
                 column: "ClanId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserWaifus_WaifuForeignId",
+                name: "IX_UserWaifus_UserForeignId",
                 table: "UserWaifus",
-                column: "WaifuForeignId");
+                column: "UserForeignId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Votings_ShareLink",
@@ -614,6 +643,9 @@ namespace SoraBotv2.Migrations
                 name: "Reminders");
 
             migrationBuilder.DropTable(
+                name: "RequestLogs");
+
+            migrationBuilder.DropTable(
                 name: "Songs");
 
             migrationBuilder.DropTable(
@@ -629,10 +661,13 @@ namespace SoraBotv2.Migrations
                 name: "Votings");
 
             migrationBuilder.DropTable(
-                name: "SelfAssignableRoles");
+                name: "WaifuRequests");
 
             migrationBuilder.DropTable(
                 name: "Waifus");
+
+            migrationBuilder.DropTable(
+                name: "SelfAssignableRoles");
 
             migrationBuilder.DropTable(
                 name: "ShareCentrals");

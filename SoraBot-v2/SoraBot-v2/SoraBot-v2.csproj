@@ -65,7 +65,6 @@
     <None Remove="transfer\**" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Migrations" />
     <Folder Include="web" />
   </ItemGroup>
 </Project>
