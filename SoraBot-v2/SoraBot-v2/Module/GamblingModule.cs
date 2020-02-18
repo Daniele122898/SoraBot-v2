@@ -36,8 +36,8 @@ namespace SoraBot_v2.Module
                 if (string.Equals(side, "heads", StringComparison.CurrentCultureIgnoreCase)
                     || string.Equals(side, "tails", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    int score = GetResult(side);
-                    if (score == 1)
+                    bool score = GetResult(side);
+                    if (score.Equals(true))
                     {
                         //won
                         await Context.Channel.SendMessageAsync("You won!");
@@ -59,28 +59,14 @@ namespace SoraBot_v2.Module
             }
         }
 
-        public int GetResult(string side)
+        public bool GetResult(string side)
         {
-            int score = 0;
-            var random = new Random();
-            bool result = random.Next(100) % 2 == 0;
-            switch (result)
-            {
-                case true:
-                    if (string.Equals(side, "heads", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        score = 1;
-                    }
-                    break;
-
-                case false:
-                    if (string.Equals(side, "tails", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        score = 1;
-                    }
-                    break;
-            }
-            return score;
+            Random random = new Random();
+            return string.Equals(
+                side,
+                random.Next(100) % 2 == 0 ? "heads" : "tails",
+                StringComparison.InvariantCultureIgnoreCase
+            );
         }
     }
 }
