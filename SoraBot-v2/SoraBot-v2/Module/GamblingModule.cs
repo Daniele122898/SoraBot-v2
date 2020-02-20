@@ -18,9 +18,8 @@ namespace SoraBot_v2.Module
             _coinService = coinService;
         }
 
-        [Command("coinflip", RunMode = RunMode.Async), Alias("cf"),
-         Summary("Flips a coin!")]
-        public async Task FlipCoin(int bet, [Remainder]string side)
+        [Command("coinflip", RunMode = RunMode.Async), Alias("cf"), Summary("Flips a coin! Either win double your bet or loose it all")]
+        public async Task FlipCoin(int bet, [Remainder] string side)
         {
             using var soraContext = new SoraContext();
             var userDb = Utility.GetOrCreateUser(Context.User.Id, soraContext);
