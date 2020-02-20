@@ -11,12 +11,10 @@ namespace SoraBot_v2.Module
     public class GamblingModule : ModuleBase<SocketCommandContext>
     {
         private CoinService _coinService;
-        private DiscordRestClient _discordRestClient;
 
-        public GamblingModule(CoinService coinService, DiscordRestClient restClient)
+        public GamblingModule(CoinService coinService)
         {
             _coinService = coinService;
-            _discordRestClient = restClient;
         }
 
         [Command("coinflip", RunMode = RunMode.Async), Alias("cf"),
