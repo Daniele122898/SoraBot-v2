@@ -69,7 +69,7 @@ namespace SoraBot_v2.Module
             else
             {
                 await this.ReplySoraEmbedResponse(Utility.YellowWarningEmbed, Utility.NoEmoji,
-                    $"You lost :(");
+                    $"You lost :( Better luck next time!");
             }
         }
     }
