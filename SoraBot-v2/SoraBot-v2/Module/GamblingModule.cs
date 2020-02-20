@@ -45,7 +45,7 @@ namespace SoraBot_v2.Module
 
             bool userWon = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
                 StringComparison.InvariantCultureIgnoreCase);
-            int winnings = userWon ? bet * 2 : -bet;
+            int winnings = userWon ? bet : -bet;
             if (!await _coinService.AddCoinAmount(userDb, winnings))
             {
                 await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
