@@ -44,25 +44,30 @@ namespace SoraBot_v2.Module
                 
                 Random random = new Random();
 
-                bool score = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
+                bool userWon = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
                     StringComparison.InvariantCultureIgnoreCase);
                 var lck = _coinService.GetOrCreateLock(Context.User.Id);
-                if (score)
+                int winnings = userWon ? bet * 2 : -bet;
+                if (!await _coinService.AddCoinAmount(userDb, winnings))
                 {
-                    //won
-                    int winnings = bet * 2;
+                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
+                        "Failed to acquire your Sora coin information. Please try again.");
+                    return;
+                }
+                
+                await soraContext.SaveChangesAsync();
+
+                if (userWon)
+                {
                     await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
                         $"Congratulations! You won {winnings}!");
-                    userDb.Money += bet * 2;
-                    await soraContext.SaveChangesAsync();
                 }
                 else
                 {
-                    //lost
-                    await Context.Channel.SendMessageAsync("You lost!");
-                    userDb.Money -= bet;
-                    await soraContext.SaveChangesAsync();
+                    await this.ReplySoraEmbedResponse(Utility.YellowWarningEmbed, Utility.NoEmoji,
+                        $"You lost :(");
                 }
+                
             }
         }
     }
