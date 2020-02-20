@@ -18,7 +18,7 @@ namespace SoraBot_v2.Module
             _coinService = coinService;
         }
 
-        [Command("coinflip"), Alias("cf"),
+        [Command("coinflip", RunMode = RunMode.Async), Alias("cf"),
          Summary("Flips a coin!")]
         public async Task FlipCoin(int bet, [Remainder]string side)
         {
@@ -58,7 +58,7 @@ namespace SoraBot_v2.Module
             if (userWon)
             {
                 await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
-                    $"Congratulations! You won {winnings}!");
+                    $"Congratulations! You won {winnings} SC!");
             }
             else
             {
