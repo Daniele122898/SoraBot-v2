@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
 using SoraBot_v2.Data;
+using SoraBot_v2.Data.Entities;
 
 namespace SoraBot_v2.Services
 {
@@ -157,6 +158,38 @@ namespace SoraBot_v2.Services
                 ).WithDescription("But I failed to send him/her a DM, they have probably disabled that feature. You may want to notify him/her yourself.").Build());
             }
         }
+
+        public async Task<bool> AddCoinAmount(ulong userId, int amount)
+        {
+            using var soraContext = new SoraContext();
+            var userDb = Utility.GetOrCreateUser(userId, soraContext);
+            bool success = await AddCoinAmount(userDb, amount);
+            if (success)
+            {
+                await soraContext.SaveChangesAsync();
+            }
+
+            return success;
+        }
+
+        public async Task<bool> AddCoinAmount(User user, int amount)
+        {
+            var lck = GetOrCreateLock(user.UserId);
+            try
+            {
+                if (!await lck.WaitAsync(LOCK_TIMOUT_MSECONDS))
+                {
+                    return false;
+                }
+
+                user.Money += amount;
+                return true;
+            }
+            finally
+            {
+                lck.Release();
+            }
+        }
         
         public async Task DoDaily(SocketCommandContext context )
         {
@@ -204,7 +237,6 @@ namespace SoraBot_v2.Services
                         Utility.SuccessLevelEmoji[0],
                         $"You gained {GAIN_COINS} Sora Coins! You can earn again in {DAILY_COOLDOWN}h.").Build());
                 }
-                
                 finally
                 {
                     lck.Release();

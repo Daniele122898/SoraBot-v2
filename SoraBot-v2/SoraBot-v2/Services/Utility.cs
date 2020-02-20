@@ -33,7 +33,7 @@ namespace SoraBot_v2.Services
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
 
-        public static string[] SuccessLevelEmoji = new string[]
+        public static readonly string[] SuccessLevelEmoji = new string[]
         {
             "✅","⚠","❌","ℹ",""
         };
@@ -43,6 +43,7 @@ namespace SoraBot_v2.Services
         public static string FailiureEmoji => SuccessLevelEmoji[2];
         public static string InfoEmoji => SuccessLevelEmoji[3];
         public static string NoEmoji => SuccessLevelEmoji[4];
+        public static string PartyEmoji = "🎉";
 
         public static string MusicalNote = "🎵";
 

@@ -33,40 +33,37 @@ namespace SoraBot_v2.Module
                     return;
                 }
 
-                if (string.Equals(side, "heads", StringComparison.CurrentCultureIgnoreCase)
-                    || string.Equals(side, "tails", StringComparison.CurrentCultureIgnoreCase))
+                side = side.Trim(); // just in case D.net doesn't do that
+                if (!string.Equals(side, "heads", StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(side, "tails", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    bool score = GetResult(side);
-                    if (score)
-                    {
-                        //won
-                        await Context.Channel.SendMessageAsync("You won!");
-                        userDb.Money += bet * 2;
-                        await soraContext.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        //lost
-                        await Context.Channel.SendMessageAsync("You lost!");
-                        userDb.Money -= bet;
-                        await soraContext.SaveChangesAsync();
-                    }
+                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
+                        $"The side you chose is invalid. Please use `heads` or `tails`");
+                    return;
+                }
+                
+                Random random = new Random();
+
+                bool score = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
+                    StringComparison.InvariantCultureIgnoreCase);
+                var lck = _coinService.GetOrCreateLock(Context.User.Id);
+                if (score)
+                {
+                    //won
+                    int winnings = bet * 2;
+                    await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
+                        $"Congratulations! You won {winnings}!");
+                    userDb.Money += bet * 2;
+                    await soraContext.SaveChangesAsync();
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync($"{side} is not a valid option.");
+                    //lost
+                    await Context.Channel.SendMessageAsync("You lost!");
+                    userDb.Money -= bet;
+                    await soraContext.SaveChangesAsync();
                 }
             }
-        }
-
-        public bool GetResult(string side)
-        {
-            Random random = new Random();
-            return string.Equals(
-                side,
-                random.Next(100) % 2 == 0 ? "heads" : "tails",
-                StringComparison.InvariantCultureIgnoreCase
-            );
         }
     }
 }
