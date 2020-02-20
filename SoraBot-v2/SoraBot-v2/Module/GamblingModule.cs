@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.Rest;
 using SoraBot_v2.Data;
+using SoraBot_v2.Extensions;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -10,7 +11,7 @@ namespace SoraBot_v2.Module
     [Name("Gambling")]
     public class GamblingModule : ModuleBase<SocketCommandContext>
     {
-        private CoinService _coinService;
+        private readonly CoinService _coinService;
 
         public GamblingModule(CoinService coinService)
         {
@@ -27,7 +28,8 @@ namespace SoraBot_v2.Module
 
                 if (bet > _coinService.GetAmount(Context.User.Id))
                 {
-                    await ReplyAsync($"You only have {userDb.Money} Coins.");
+                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji, 
+                        $"You don't have enough money for this bet! You currently have {userDb.Money} SC");
                     return;
                 }
 
@@ -35,7 +37,7 @@ namespace SoraBot_v2.Module
                     || string.Equals(side, "tails", StringComparison.CurrentCultureIgnoreCase))
                 {
                     bool score = GetResult(side);
-                    if (score.Equals(true))
+                    if (score)
                     {
                         //won
                         await Context.Channel.SendMessageAsync("You won!");

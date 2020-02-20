@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -18,11 +15,11 @@ namespace SoraBot_v2.Services
     {
         public const ulong OWNER_ID = 192750776005689344;
         
-        public static Discord.Color PurpleEmbed = new Discord.Color(109, 41, 103);
-        public static Discord.Color YellowWarningEmbed = new Discord.Color(255,204,77);
-        public static Discord.Color GreenSuccessEmbed = new Discord.Color(119,178,85);
-        public static Discord.Color RedFailiureEmbed = new Discord.Color(221,46,68);
-        public static Discord.Color BlueInfoEmbed = new Discord.Color(59,136,195);
+        public static Color PurpleEmbed = new Color(109, 41, 103);
+        public static Color YellowWarningEmbed = new Color(255,204,77);
+        public static Color GreenSuccessEmbed = new Color(119,178,85);
+        public static Color RedFailiureEmbed = new Color(221,46,68);
+        public static Color BlueInfoEmbed = new Color(59,136,195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
         public static int TOTAL_SHARDS;
         public static int SHARD_ID;
@@ -40,6 +37,12 @@ namespace SoraBot_v2.Services
         {
             "✅","⚠","❌","ℹ",""
         };
+
+        public static string SuccessEmoji => SuccessLevelEmoji[0];
+        public static string WarnEmoji => SuccessLevelEmoji[1];
+        public static string FailiureEmoji => SuccessLevelEmoji[2];
+        public static string InfoEmoji => SuccessLevelEmoji[3];
+        public static string NoEmoji => SuccessLevelEmoji[4];
 
         public static string MusicalNote = "🎵";
 
@@ -194,7 +197,7 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/KP230Rp.gif"
         };
         #endregion
-
+        
         public static bool CheckIfSoraAdminExists(SocketGuild guild)
         {
             var admin = guild.Roles.FirstOrDefault(x=> x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.OrdinalIgnoreCase));
