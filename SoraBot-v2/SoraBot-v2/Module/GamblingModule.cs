@@ -21,6 +21,13 @@ namespace SoraBot_v2.Module
         [Command("coinflip", RunMode = RunMode.Async), Alias("cf"), Summary("Flips a coin! Either win double your bet or loose it all")]
         public async Task FlipCoin(int bet, [Remainder] string side)
         {
+            if (bet <= 0)
+            {
+                await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
+                    "Please bet a positive amount greater than 0");
+                return;
+            }
+            
             using var soraContext = new SoraContext();
             var userDb = Utility.GetOrCreateUser(Context.User.Id, soraContext);
 
