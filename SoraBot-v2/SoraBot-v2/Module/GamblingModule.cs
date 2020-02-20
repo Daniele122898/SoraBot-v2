@@ -22,52 +22,49 @@ namespace SoraBot_v2.Module
          Summary("Flips a coin!")]
         public async Task FlipCoin(int bet, [Remainder]string side)
         {
-            using (var soraContext = new SoraContext())
+            using var soraContext = new SoraContext();
+            var userDb = Utility.GetOrCreateUser(Context.User.Id, soraContext);
+
+            if (bet > _coinService.GetAmount(Context.User.Id))
             {
-                var userDb = Utility.GetOrCreateUser(Context.User.Id, soraContext);
+                await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji, 
+                    $"You don't have enough money for this bet! You currently have {userDb.Money} SC");
+                return;
+            }
 
-                if (bet > _coinService.GetAmount(Context.User.Id))
-                {
-                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji, 
-                        $"You don't have enough money for this bet! You currently have {userDb.Money} SC");
-                    return;
-                }
-
-                side = side.Trim(); // just in case D.net doesn't do that
-                if (!string.Equals(side, "heads", StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(side, "tails", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
-                        $"The side you chose is invalid. Please use `heads` or `tails`");
-                    return;
-                }
+            side = side.Trim(); // just in case D.net doesn't do that
+            if (!string.Equals(side, "heads", StringComparison.InvariantCultureIgnoreCase)
+                && !string.Equals(side, "tails", StringComparison.InvariantCultureIgnoreCase))
+            {
+                await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
+                    $"The side you chose is invalid. Please use `heads` or `tails`");
+                return;
+            }
                 
-                Random random = new Random();
+            Random random = new Random();
 
-                bool userWon = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
-                    StringComparison.InvariantCultureIgnoreCase);
-                var lck = _coinService.GetOrCreateLock(Context.User.Id);
-                int winnings = userWon ? bet * 2 : -bet;
-                if (!await _coinService.AddCoinAmount(userDb, winnings))
-                {
-                    await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
-                        "Failed to acquire your Sora coin information. Please try again.");
-                    return;
-                }
+            bool userWon = side.Equals(random.Next(100) % 2 == 0 ? "heads" : "tails",
+                StringComparison.InvariantCultureIgnoreCase);
+            var lck = _coinService.GetOrCreateLock(Context.User.Id);
+            int winnings = userWon ? bet * 2 : -bet;
+            if (!await _coinService.AddCoinAmount(userDb, winnings))
+            {
+                await this.ReplySoraEmbedResponse(Utility.RedFailiureEmbed, Utility.FailiureEmoji,
+                    "Failed to acquire your Sora coin information. Please try again.");
+                return;
+            }
                 
-                await soraContext.SaveChangesAsync();
+            await soraContext.SaveChangesAsync();
 
-                if (userWon)
-                {
-                    await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
-                        $"Congratulations! You won {winnings}!");
-                }
-                else
-                {
-                    await this.ReplySoraEmbedResponse(Utility.YellowWarningEmbed, Utility.NoEmoji,
-                        $"You lost :(");
-                }
-                
+            if (userWon)
+            {
+                await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
+                    $"Congratulations! You won {winnings}!");
+            }
+            else
+            {
+                await this.ReplySoraEmbedResponse(Utility.YellowWarningEmbed, Utility.NoEmoji,
+                    $"You lost :(");
             }
         }
     }
