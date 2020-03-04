@@ -137,14 +137,6 @@ namespace SoraBot_v2.Module
             }
         }
 
-        [Command("roll"), Alias("dice"), Summary("Roll a dice")]
-        public async Task RollDice()
-        {
-            Random r = new Random();
-            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)).Build());
-        }
-
         [Command("lenny"), Summary("Lenny's the Chat")]
         public async Task Lenny()
         {
