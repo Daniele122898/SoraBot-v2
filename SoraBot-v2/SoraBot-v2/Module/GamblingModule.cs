@@ -116,7 +116,7 @@ namespace SoraBot_v2.Module
             if (userWon)
             {
                 await this.ReplySoraEmbedResponse(Utility.GreenSuccessEmbed, Utility.PartyEmoji,
-                    $"Congratulations! You won {winnings} SC!");
+                    $"Congratulations! You won {(bet*2).ToString()} SC!");
             }
             else
             {
