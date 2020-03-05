@@ -69,7 +69,7 @@ namespace SoraBot_v2.Module
             }
         }
 
-        [Command("coinflip", RunMode = RunMode.Async), Alias("cf"),
+        [Command("coinflip", RunMode = RunMode.Async), Alias("cf", "flip"),
          Summary("Flips a coin! Either win double your bet or loose it all")]
         public async Task FlipCoin(int bet, [Remainder] string side)
         {
