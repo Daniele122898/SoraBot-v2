@@ -25,10 +25,10 @@ namespace SoraBot_v2.Services
         }
 
 
-        public async Task ClientOnUserBanned(SocketUser socketUser, SocketGuild socketGuild)
+        public Task ClientOnUserBanned(SocketUser socketUser, SocketGuild socketGuild)
         {
             //Make sure we dont logg twice
-            Task.Run(async () =>
+            var _ = Task.Run(async () =>
             {
                 await Task.Delay(1000);
                 //Check if case is already present
@@ -39,12 +39,17 @@ namespace SoraBot_v2.Services
                         return;
                 }
                 await Log(socketGuild, socketUser, Case.Ban);
-            });
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
-        public async Task ClientOnUserUnbanned(SocketUser socketUser, SocketGuild socketGuild)
+        public Task ClientOnUserUnbanned(SocketUser socketUser, SocketGuild socketGuild)
         {
-            await PardonUser(socketUser, socketGuild);
+            var _ = Task.Run(async () =>
+            {
+                await PardonUser(socketUser, socketGuild);
+            }).ConfigureAwait(false);  
+            return Task.CompletedTask;
         }
 
         public async Task<bool> CheckPermissions(SocketCommandContext context, Case modCase, SocketGuildUser sora
