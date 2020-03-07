@@ -123,7 +123,15 @@ namespace SoraBot_v2.Services
                         Color = new Color(255, 204, 77),
                         Title = $"🏆 You leveled up! You are now level {currentLevel} \\ (•◡•) /"
                     };
-                    await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
+                    try
+                    {
+                        // Catching bcs some ppl have DMs blocked etc. Don't want this to happen
+                        await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
                 }
             }).ConfigureAwait(false);
             return Task.CompletedTask;
