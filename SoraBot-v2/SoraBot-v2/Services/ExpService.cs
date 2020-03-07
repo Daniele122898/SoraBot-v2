@@ -83,21 +83,23 @@ namespace SoraBot_v2.Services
         }
 
 
-        public async Task IncreaseEpOnMessageReceive(SocketMessage msg)
+        public Task IncreaseEpOnMessageReceive(SocketMessage msg)
         {
-            using (var _soraContext = new SoraContext())
+            //Don't process the command if it was a system message
+            var message = msg as SocketUserMessage;
+            if (message == null) return Task.CompletedTask;
+            //dont process if it was a bot
+            if (message.Author.IsBot) return Task.CompletedTask;
+                
+            //Create a command Context
+            var context = new SocketCommandContext(_client, message);
+            if (context.IsPrivate) return Task.CompletedTask;
+            
+            // let's do all of this on a separate thread to relieve the main thread from some processing
+            var _ = Task.Run(async () =>
             {
-                //Don't prcoess the command if it was a system message
-                var message = msg as SocketUserMessage;
-                if (message == null) return;
-                //dont process if it was a bot
-                if (message.Author.IsBot) return;
-                
-                //Create a command Context
-                var context = new SocketCommandContext(_client, message);
-                if (context.IsPrivate) return;
-                
-                var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
+                using var soraContext = new SoraContext();
+                var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 //Check for cooldown
                 if (userDb.CanGainAgain.CompareTo(DateTime.UtcNow) > 0)
                     return;
@@ -109,12 +111,9 @@ namespace SoraBot_v2.Services
                     epGain = 50;
                 userDb.Exp += epGain;
                 int currentLevel = CalculateLevel(userDb.Exp);
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 //Guild user gain
-                Task.Run(async () =>
-                {
-                    await _roleService.OnUserExpGain(epGain, context);
-                });
+                await _roleService.OnUserExpGain(epGain, context);
                 
                 //Notifying
                 if (previousLevel != currentLevel && userDb.Notified)
@@ -126,7 +125,8 @@ namespace SoraBot_v2.Services
                     };
                     await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
                 }
-            }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
     }
 }
