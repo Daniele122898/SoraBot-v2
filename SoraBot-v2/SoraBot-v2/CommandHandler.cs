@@ -46,18 +46,13 @@ namespace SoraBot_v2
                         string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
                         await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
                             .WithDescription($"I'm glad you invited me over :)\n" +
-                                             $"You can find the [list of commands and help here](https://github.com/Daniele122898/SoraBot-v2/wiki)\n" +
+                                             $"You can find the list of commands and help by using `{prefix}help`.\n" +
                                              $"To restrict tag creation and Sora's mod functions you must create\n" +
                                              $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
                                              $"tags or use Sora's mod functionality. You can make him create one with: " +
                                              $"`{prefix}createAdmin`\n" +
                                              $"You can leave tag creation unrestricted if you want but its not\n" +
                                              $"recommended on larger servers as it will be spammed.\n" +
-                                             $"**Sora now has a Dashboard**\n" +
-                                             $"You can [find the dashboard here](http://argonaut.pw/Sora/) by clicking the login\n"+
-                                             $"button in the top right. It's still in pre-alpha but allows you to\n"+
-                                             $"customize levels and level rewards as well as other settings. It is required\n" + 
-                                             $"for proper setup of leveling.\n"+
                                              $"PS: Standard Prefix is `$` but you can change it with:\n" +
                                              $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})").Build());
     
@@ -166,7 +161,7 @@ namespace SoraBot_v2
                 _audioService.Initialize(_lavaSocketClient, lavaRestClient, _client.CurrentUser.Id);
                 // voice shit
                 _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
-                _client.Disconnected += _audioService.ClientOnDisconnected;
+                // _client.Disconnected += _audioService.ClientOnDisconnected;
             });
 
             return Task.CompletedTask;

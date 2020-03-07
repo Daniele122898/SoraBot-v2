@@ -170,72 +170,72 @@ namespace SoraBot_v2.Services
             }
         }
         
-        public async Task ClientOnDisconnected(Exception arg)
-        {
-            //Make sure this shit is in a background thread.
-            Task.Run(async () =>
-            {
-                Console.WriteLine("RE-CONFIGURING MUSIC STUFF");
-                
-                async Task LeavePlayer(ulong guildId, IVoiceChannel channel)
-                {
-                    _options.TryRemove(guildId, out _);
-                    await _lavaSocketClient.DisconnectAsync(channel);
-                }
-                
-                async Task ForceLeave(ulong guildId)
-                {
-                    _options.TryRemove(guildId, out _);
-                    await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
-                }
-
-                int tries = 0;
-                while (_client.ConnectionState != ConnectionState.Connected)
-                {
-                    await Task.Delay(3000);
-                    tries++;
-                    // only try this a couple times otherwise give up since the service is probably getting restarted
-                    if (tries >= 3)
-                    {
-                        Console.WriteLine("FAILED RECONNECTION IN MUSIC RESUME. ABORTING");
-                        return;
-                    }
-                }
-                
-                Console.WriteLine("RESETTING NEEDED MUSIC STUFF");
-                
-                // now lets check all the guilds Sora is in a VoiceChannel.
-                var VCs = _client.Guilds.SelectMany(x => x.VoiceChannels.Where(y => y.Users.Any(z => z.Id == _soraId)));
-                // now lets do some checks for these VCs
-                foreach (var vc in VCs)
-                {
-                    var player = _lavaSocketClient.GetPlayer(vc.Guild.Id);
-                    // check if we are alone
-                    if (vc.Users.Count(x => !x.IsBot) == 0)
-                    {
-                        // we are alone
-                        // check if there is a player
-                        if (player == null)
-                        {
-                            // there is no player so we force leave
-                            await ForceLeave(vc.Guild.Id);
-                        }
-                        else
-                        {
-                            // there is a player so leave gracefully
-                            await LeavePlayer(vc.Guild.Id, player.VoiceChannel);
-                        }
-                    }
-                    // we're not alone
-                    // check if the player still exists tho. otherwise force leave
-                    if (player == null)
-                    {
-                        // we're not alone but the player doesn't exist anymore
-                        await ForceLeave(vc.Guild.Id);
-                    }
-                }
-                Console.WriteLine("DONE");
-            });
-        }
+        // public async Task ClientOnDisconnected(Exception arg)
+        // {
+        //     //Make sure this shit is in a background thread.
+        //     Task.Run(async () =>
+        //     {
+        //         Console.WriteLine("RE-CONFIGURING MUSIC STUFF");
+        //         
+        //         async Task LeavePlayer(ulong guildId, IVoiceChannel channel)
+        //         {
+        //             _options.TryRemove(guildId, out _);
+        //             await _lavaSocketClient.DisconnectAsync(channel);
+        //         }
+        //         
+        //         async Task ForceLeave(ulong guildId)
+        //         {
+        //             _options.TryRemove(guildId, out _);
+        //             await _client.GetGuild(guildId).CurrentUser.VoiceChannel.DisconnectAsync();
+        //         }
+        //
+        //         int tries = 0;
+        //         while (_client.ConnectionState != ConnectionState.Connected)
+        //         {
+        //             await Task.Delay(3000);
+        //             tries++;
+        //             // only try this a couple times otherwise give up since the service is probably getting restarted
+        //             if (tries >= 3)
+        //             {
+        //                 Console.WriteLine("FAILED RECONNECTION IN MUSIC RESUME. ABORTING");
+        //                 return;
+        //             }
+        //         }
+        //         
+        //         Console.WriteLine("RESETTING NEEDED MUSIC STUFF");
+        //         
+        //         // now lets check all the guilds Sora is in a VoiceChannel.
+        //         var VCs = _client.Guilds.SelectMany(x => x.VoiceChannels.Where(y => y.Users.Any(z => z.Id == _soraId)));
+        //         // now lets do some checks for these VCs
+        //         foreach (var vc in VCs)
+        //         {
+        //             var player = _lavaSocketClient.GetPlayer(vc.Guild.Id);
+        //             // check if we are alone
+        //             if (vc.Users.Count(x => !x.IsBot) == 0)
+        //             {
+        //                 // we are alone
+        //                 // check if there is a player
+        //                 if (player == null)
+        //                 {
+        //                     // there is no player so we force leave
+        //                     await ForceLeave(vc.Guild.Id);
+        //                 }
+        //                 else
+        //                 {
+        //                     // there is a player so leave gracefully
+        //                     await LeavePlayer(vc.Guild.Id, player.VoiceChannel);
+        //                 }
+        //             }
+        //             // we're not alone
+        //             // check if the player still exists tho. otherwise force leave
+        //             if (player == null)
+        //             {
+        //                 // we're not alone but the player doesn't exist anymore
+        //                 await ForceLeave(vc.Guild.Id);
+        //             }
+        //         }
+        //         Console.WriteLine("DONE");
+        //     });
+        // }
     }
 }
