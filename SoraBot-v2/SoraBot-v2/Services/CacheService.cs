@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
 namespace SoraBot_v2.Services
 {

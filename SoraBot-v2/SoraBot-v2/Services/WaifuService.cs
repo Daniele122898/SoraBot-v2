@@ -184,6 +184,15 @@ namespace SoraBot_v2.Services
                 // now ask for the trade.
                 var otherW = soraContext.Waifus.FirstOrDefault(x => x.Id == wantId);
                 var userW = soraContext.Waifus.FirstOrDefault(x => x.Id == offerId);
+                if (userW == null || otherW == null)
+                {
+                    await context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
+                        Utility.RedFailiureEmbed,
+                        Utility.SuccessLevelEmoji[2],
+                        "Couldn't find one of the waifus. Sorry."
+                    ).Build());
+                    return;
+                }
                 var eb = new EmbedBuilder()
                 {
                     Title = "Waifu Trade Request",

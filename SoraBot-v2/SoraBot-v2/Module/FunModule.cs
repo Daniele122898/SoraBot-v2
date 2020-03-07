@@ -59,7 +59,7 @@ namespace SoraBot_v2.Module
 
 
         [Command("rps"), Alias("rockpaperscissor"), Summary("Play rock paper scissor with Sora")]
-        public async Task RPS([Remainder]string chose)
+        public async Task Rps([Remainder]string chose)
         {
             chose = chose.ToLower();
             Random r= new Random();

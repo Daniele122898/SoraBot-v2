@@ -7,7 +7,6 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -813,7 +812,6 @@ namespace SoraBot_v2.Services
                 await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                         $"The invite has been revoked!").WithDescription("No DM will be sent to the user in this case.").Build());
-                return;
             }
         }
 

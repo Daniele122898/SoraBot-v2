@@ -60,7 +60,7 @@ namespace SoraBot_v2.Services
                 }
                 catch
                 {
-                    continue;
+                    // ignored
                 }
             }         
         }
@@ -68,7 +68,7 @@ namespace SoraBot_v2.Services
         private async Task<(LavaTrack track, string reason)> GetSongFromSelect(SocketCommandContext context, SearchResult search)
         {
             // now lets build the embed to ask the user what to use
-            EmbedBuilder eb = new EmbedBuilder()
+            EmbedBuilder eb = new EmbedBuilder
             {
                 Color = Utility.BlueInfoEmbed,
                 Title = "Top Search Results",

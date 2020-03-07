@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities;
 using SoraBot_v2.Data.Entities.SubEntities;
@@ -564,13 +562,13 @@ namespace SoraBot_v2.Services
             }
         }
 
-        public async Task<bool> CanAddNewPlaylist(SocketCommandContext context, User userDb)
+        private async Task<bool> CanAddNewPlaylist(SocketCommandContext context, User userDb)
         {
             if (context.User.Id == Utility.OWNER_ID)//backdoor so i can add as many as i want
                 return true;
 
             int level = ExpService.CalculateLevel(userDb.Exp);
-            int amountGranted = (int)Math.Floor((double)((level - (MIN_LEVEL - NEED_FOR_EXTRA_PLAYLIST)) / NEED_FOR_EXTRA_PLAYLIST));
+            int amountGranted = (level - (MIN_LEVEL - NEED_FOR_EXTRA_PLAYLIST)) / NEED_FOR_EXTRA_PLAYLIST;
             int amountLeft = amountGranted - userDb.ShareCentrals.Count;
 
             if (amountLeft > 0)

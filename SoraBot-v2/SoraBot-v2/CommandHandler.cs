@@ -285,7 +285,7 @@ namespace SoraBot_v2
             switch (result.Error)
             {
                 case CommandError.Exception:
-                    if (exception != null)
+                    if (exception != null && exception.InnerException != null)
                     {
                         await SentryService.SendMessage(
                             $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");

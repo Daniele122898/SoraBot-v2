@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
-using SoraBot_v2.Data.Entities;
-using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Services
 {
@@ -50,26 +46,6 @@ namespace SoraBot_v2.Services
             await context.Channel.SendMessageAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     "You will NOT be notified on level up!").Build());
-        }
-        
-        private int GetIndexOfItem(List<User> list, ulong key)
-        {
-            for (int index = 0; index < list.Count; index++)
-            {
-                if (list[index].UserId == key)
-                    return index;
-            }
-            return -1;
-        }
-        
-        private int GetIndexOfItem(List<GuildUser> list, ulong key)
-        {
-            for (int index = 0; index < list.Count; index++)
-            {
-                if (list[index].UserId == key)
-                    return index;
-            }
-            return -1;
         }
 
         public async Task GetLocalTop10List(SocketCommandContext context)

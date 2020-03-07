@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
@@ -114,6 +113,6 @@ namespace SoraBot_v2.Services
     internal class Bucket
     {
         public sbyte Fill { get; set; }
-        public bool SendMessage { get; set; } = false;
+        public bool SendMessage { get; set; }
     }
 }

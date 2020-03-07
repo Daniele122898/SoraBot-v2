@@ -8,8 +8,6 @@ using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 
@@ -233,6 +231,7 @@ namespace SoraBot_v2.Services
             using (var _soraContext = new SoraContext())
             {
                 // format was incorrect
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if (time == 0)
                 {
                     await context.Channel.SendMessageAsync("",
@@ -243,6 +242,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 // no message to reminder 
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if (time == -1)
                 {
                     await context.Channel.SendMessageAsync("",
@@ -307,7 +307,7 @@ namespace SoraBot_v2.Services
 
                 if (!Double.TryParse(captures[1].ToString(), out amount))
                 {
-                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1].ToString()}");
+                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1]}");
                     return 0;
                 }
 

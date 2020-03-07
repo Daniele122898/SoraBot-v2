@@ -270,15 +270,15 @@ namespace SoraBot_v2.Services
 
                 var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
 
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
+                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList() ?? new List<Marriage>();
 
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList() ?? new List<Reminders>();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList() ?? new List<ShareCentral>();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList() ?? new List<Voting>();
                 
-                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id)?.ToList() ?? new List<UserWaifu>();
+                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id).ToList() ?? new List<UserWaifu>();
 
                 result.UserWaifus = waifus;
                 result.Votings = votings;
@@ -485,14 +485,16 @@ namespace SoraBot_v2.Services
         {
             double total = interactions.Pats+ interactions.High5 + interactions.Hugs * 2 + interactions.Kisses* 3 + interactions.Slaps + interactions.Punches*2;
             double good = interactions.Pats + interactions.High5+interactions.Hugs * 2 + interactions.Kisses * 3;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (total == 0)
                 return 0;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (good == 0)
                 return 0;
             return Math.Round((100.0 / total * good), 2);
         }
 
-        public static EmbedBuilder ResultFeedback(Discord.Color color, string symbol, string text)
+        public static EmbedBuilder ResultFeedback(Color color, string symbol, string text)
         {
             var eb = new EmbedBuilder()
             {

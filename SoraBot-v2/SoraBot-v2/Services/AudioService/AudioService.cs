@@ -23,7 +23,7 @@ namespace SoraBot_v2.Services
         private DiscordSocketClient _client;
         private ulong _soraId;
         private readonly ConcurrentDictionary<ulong, AudioOptions> _options = new ConcurrentDictionary<ulong, AudioOptions>();
-        private ServerStats _serverStats = null;
+        private ServerStats _serverStats;
 
         public AudioService(InteractiveService service, DiscordSocketClient client)
         {
@@ -86,7 +86,7 @@ namespace SoraBot_v2.Services
 
             string FormatRamUnit(long d)
             {
-                var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB" };
+                var units = new[] { "B", "KB", "MB", "GB", "TB", "PB" };
                 var unitCount = 0;
                 while (d > 1000)
                 {

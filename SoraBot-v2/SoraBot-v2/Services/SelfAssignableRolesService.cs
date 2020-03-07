@@ -9,7 +9,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Extensions;
@@ -201,7 +200,6 @@ namespace SoraBot_v2.Services
             //check perms
             if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            var sora = context.Guild.CurrentUser;
             //Try to find role
             var role = context.Guild.Roles.FirstOrDefault(x =>
                 x.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));

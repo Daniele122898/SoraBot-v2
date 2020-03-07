@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Extensions;
@@ -20,8 +16,6 @@ namespace SoraBot_v2.Services
     {
         private readonly InteractiveService _interactive;
         private DiscordRestClient _restClient;
-
-        private const int MARRIAGE_SCALE = 10;
 
         public MarriageService(InteractiveService interactiveService, DiscordRestClient restClient)
         {
@@ -42,7 +36,7 @@ namespace SoraBot_v2.Services
                             $"💍 {Utility.GiveUsernameDiscrimComb(user)} has a limit of 1. Married to 0 users").Build());
                     return;
                 }
-                int marryLimit = ((int)(Math.Floor((double)(ExpService.CalculateLevel(userDb.Exp) / 10)))) + 1;
+                int marryLimit = (ExpService.CalculateLevel(userDb.Exp) / 10) + 1;
 
                 await context.Channel.SendMessageAsync("", embed:
                     Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
@@ -144,10 +138,8 @@ namespace SoraBot_v2.Services
             {
                 var requestorDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 var askedDb = Utility.GetOrCreateUser(user.Id, soraContext);
-                int allowedMarriagesRequestor =
-                    ((int)(Math.Floor((double)(ExpService.CalculateLevel(requestorDb.Exp) / 10)))) + 1;
-                int allowedMarriagesAsked =
-                    ((int)(Math.Floor((double)(ExpService.CalculateLevel(askedDb.Exp) / 10)))) + 1;
+                int allowedMarriagesRequestor = (ExpService.CalculateLevel(requestorDb.Exp) / 10) + 1;
+                int allowedMarriagesAsked = (ExpService.CalculateLevel(askedDb.Exp) / 10) + 1;
                 //check both limits
                 if (requestorDb.Marriages.Count >= allowedMarriagesRequestor)
                 {
@@ -173,7 +165,7 @@ namespace SoraBot_v2.Services
                     return;
                 }
                 //Proceed to ask for marriage
-                var msg = await context.Channel.SendMessageAsync("",
+                await context.Channel.SendMessageAsync("",
                     embed: Utility.ResultFeedback(Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4],
                         $"{Utility.GiveUsernameDiscrimComb(user)}, do you want to marry {Utility.GiveUsernameDiscrimComb(context.User)}? 💍").Build());
 
