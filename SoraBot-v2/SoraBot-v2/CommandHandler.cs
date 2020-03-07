@@ -221,7 +221,7 @@ namespace SoraBot_v2
                     return;
                 }
                 
-                // Check if invoker is banend
+                // Check if invoker is banned
                 if (_banService.IsBanned(message.Author.Id))
                     return;
 
@@ -235,48 +235,43 @@ namespace SoraBot_v2
 
                 // Permissions are present and author is eligible for commands.
                 // Get a database instance. 
-                using (var soraContext = new SoraContext())
+                using var soraContext = new SoraContext();
+                //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
+                var _ = _afkService.Client_MessageReceived(m, _services).ConfigureAwait(false);
+                // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
+                var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");
+
+                // Check if the message starts with the prefix or mention before doing anything else.
+                // Also rely on stdlib stuff for that because #performance.
+
+                int argPos = prefix.Length - 1;
+                if (!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+                    return;
+
+                // Detection finished.
+                // We know it's *very likely* a command for us.
+                // It's safe to create a context now.
+                var context = new SocketCommandContext(_client, message);
+
+                // Also allocate a default guild if needed since we skipped that part earlier.
+                Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
+                // Handoff control to D.NET
+                var result = await _commands.ExecuteAsync(
+                    context,
+                    argPos,
+                    _services
+                );
+
+                // Handle errors if needed          
+                if (result.IsSuccess)
                 {
-                    //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
-#pragma warning disable 4014
-                    _afkService.Client_MessageReceived(m, _services);
-#pragma warning restore 4014
-                    // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
-                    // TODO: Move this into the config file
-                    var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");
-
-                    // Check if the message starts with the prefix or mention before doing anything else.
-                    // Also rely on stdlib stuff for that because #performance.
-
-                    int argPos = prefix.Length - 1;
-                    if (!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                        return;
-
-                    // Detection finished.
-                    // We know it's *very likely* a command for us.
-                    // It's safe to create a context now.
-                    var context = new SocketCommandContext(_client, message);
-
-                    // Also allocate a default guild if needed since we skipped that part earlier.
-                    Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
-                    // Handoff control to D.NET
-                    var result = await _commands.ExecuteAsync(
-                        context,
-                        argPos,
-                        _services
-                    );
-
-                    // Handle errors if needed          
-                    if (result.IsSuccess)
-                    {
-                        CommandsExecuted++;
-                        _ratelimitingService.RateLimitMain(context.User.Id);
-                    }
-                    else
-                    {
-                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                        await HandleErrorAsync(result, context);
-                    }
+                    CommandsExecuted++;
+                    _ratelimitingService.RateLimitMain(context.User.Id);
+                }
+                else
+                {
+                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                    await HandleErrorAsync(result, context);
                 }
             }
             catch (Exception e)
