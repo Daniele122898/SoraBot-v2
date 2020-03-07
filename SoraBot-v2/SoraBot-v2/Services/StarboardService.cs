@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 
@@ -29,7 +24,10 @@ namespace SoraBot_v2.Services
 
         public void Initialize()
         {
-            Task.Factory.StartNew(() => { _timer = new Timer(UpdateStarCounts, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20)); });
+            Task.Factory.StartNew(() =>
+            {
+                _timer = new Timer(UpdateStarCounts, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
+            });
         }
 
         private async void UpdateStarCounts(Object objectInfo)
@@ -37,92 +35,100 @@ namespace SoraBot_v2.Services
             try
             {
                 //return if there is nothing to update
-                if(_toUpdate.Count == 0)
+                if (_toUpdate.Count == 0)
                     return;
                 //otherwise lets update all of the entires
                 List<StarMsgUpdateStruct> temp = new List<StarMsgUpdateStruct>(_toUpdate);
-                using (SoraContext soraContext = new SoraContext())
+                using SoraContext soraContext = new SoraContext();
+                foreach (var updateStruct in temp)
                 {
-                    foreach (var updateStruct in temp)
+                    var guild = _client.GetGuild(updateStruct.GuildId);
+                    if (guild == null)
                     {
-                        var guild = _client.GetGuild(updateStruct.GuildId);
-                        if(guild == null){
-                            //he was kicked after star or guild moved shards. 
-                            //remove and update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        var guildDb = Utility.GetOrCreateGuild(updateStruct.GuildId, soraContext);
-                        //check if starchannel still exists!
-                        var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
-                        if (starChannel == null)
-                        {
-                            //channel doesnt exists anymore
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        //check perms
-                        if (await Utility.CheckReadWritePerms(guild, starChannel, false) == false)
-                        {
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        //Get Message
-                        var starMsg = await CacheService.GetUserMessage(updateStruct.PostedMsgId);
-                        //if Msg wasn't cached then there wasn't an update to the count.
-                        if (starMsg == null)
-                        {
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        int amount;
-                        if (!int.TryParse(
-                            starMsg.Content.Substring(0, starMsg.Content.IndexOf(" ", StringComparison.Ordinal))
-                                .Replace("**", ""), out amount))
-                        {
-                            //parse failed for some reason
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        //get starmessage
-                        var starMessage = guildDb.StarMessages.FirstOrDefault(x => x.PostedMsgId == starMsg.Id);
-                        if (starMessage == null)
-                        {
-                            //failed to get starmessage
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        if (amount == starMessage.StarCount)
-                        {
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
-                        try
-                        {
-                            await starMsg.ModifyAsync(x =>
-                            {
-                                x.Content = $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
-                            });
-                        }
-                        catch (Discord.Net.HttpException)
-                        {
-                            //if this was cought the cached message isnt valid anymore so remove it. 
-                            CacheService.RemoveUserMessage(starMsg.Id);
-                            //remove update entry
-                            _toUpdate.Remove(updateStruct);
-                            continue;
-                        }
+                        //he was kicked after star or guild moved shards. 
+                        //remove and update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    var guildDb = Utility.GetOrCreateGuild(updateStruct.GuildId, soraContext);
+                    //check if starchannel still exists!
+                    var starChannel = guild.GetTextChannel(guildDb.StarChannelId);
+                    if (starChannel == null)
+                    {
+                        //channel doesnt exists anymore
                         //remove update entry
                         _toUpdate.Remove(updateStruct);
-                        await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
-                            TimeSpan.FromHours(1));
+                        continue;
                     }
+
+                    //check perms
+                    if (await Utility.CheckReadWritePerms(guild, starChannel, false) == false)
+                    {
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    //Get Message
+                    var starMsg = await CacheService.GetUserMessage(updateStruct.PostedMsgId);
+                    //if Msg wasn't cached then there wasn't an update to the count.
+                    if (starMsg == null)
+                    {
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    int amount;
+                    if (!int.TryParse(
+                        starMsg.Content.Substring(0, starMsg.Content.IndexOf(" ", StringComparison.Ordinal))
+                            .Replace("**", ""), out amount))
+                    {
+                        //parse failed for some reason
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    //get starmessage
+                    var starMessage = guildDb.StarMessages.FirstOrDefault(x => x.PostedMsgId == starMsg.Id);
+                    if (starMessage == null)
+                    {
+                        //failed to get starmessage
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    if (amount == starMessage.StarCount)
+                    {
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    try
+                    {
+                        await starMsg.ModifyAsync(x =>
+                        {
+                            x.Content =
+                                $"**{starMessage.StarCount}**{starMsg.Content.Substring(starMsg.Content.IndexOf(" ", StringComparison.Ordinal))}";
+                        });
+                    }
+                    catch (Discord.Net.HttpException)
+                    {
+                        //if this was cought the cached message isnt valid anymore so remove it. 
+                        CacheService.RemoveUserMessage(starMsg.Id);
+                        //remove update entry
+                        _toUpdate.Remove(updateStruct);
+                        continue;
+                    }
+
+                    //remove update entry
+                    _toUpdate.Remove(updateStruct);
+                    await CacheService.SetDiscordUserMessage(starChannel, starMessage.PostedMsgId,
+                        TimeSpan.FromHours(1));
                 }
             }
             catch (Exception e)
@@ -131,23 +137,26 @@ namespace SoraBot_v2.Services
             }
         }
 
-        public async Task ClientOnReactionAdded(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
+        public Task ClientOnReactionAdded(Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
         {
-            try
+            // This is very CPU blocking. We don't want to do this on our main thread that sees EVERYTHING coming in
+            var _ = Task.Run(async () =>
             {
-                //Reaction doesn't match a star
-                if (!reaction.Emote.Name.Equals("⭐"))
-                    return;
-                //get Message
-                var msg = await cacheable.GetOrDownloadAsync();
-                if (msg?.Author == null) return;
-                //Dont do anything if the msg originates from a bot
-                if (msg.Author.IsBot)
-                    return;
-                //Reaction was a star
-                using (SoraContext soraContext = new SoraContext())
+                try
                 {
-                    var guild = ((SocketGuildChannel)socketMessageChannel).Guild;
+                    //Reaction doesn't match a star
+                    if (!reaction.Emote.Name.Equals("⭐"))
+                        return;
+                    //get Message
+                    var msg = await cacheable.GetOrDownloadAsync();
+                    if (msg?.Author == null) return;
+                    //Dont do anything if the msg originates from a bot
+                    if (msg.Author.IsBot)
+                        return;
+                    //Reaction was a star
+                    using SoraContext soraContext = new SoraContext();
+                    var guild = ((SocketGuildChannel) socketMessageChannel).Guild;
                     var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                     //Either the starboard wasn't set up or the channel doesnt exist anymore.
                     if (guildDb.StarChannelId == 0)
@@ -159,6 +168,7 @@ namespace SoraBot_v2.Services
                         //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED DUE TO SOME ERROR
                         return;
                     }
+
                     //Check if reaction is from author
                     if (msg.Author.Id == reaction.UserId)
                         return;
@@ -168,6 +178,7 @@ namespace SoraBot_v2.Services
                     {
                         return;
                     }
+
                     //if it was null create a new one otherwise keep the old one
                     bool wasNull = false;
                     if (starMsg == null)
@@ -195,16 +206,20 @@ namespace SoraBot_v2.Services
                             try
                             {
                                 await socketMessageChannel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "Something failed. Can't add msg to starboard. Serenity#0783 has been notified").Build());
+                                        Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                        "Something failed. Can't add msg to starboard. Serenity#0783 has been notified")
+                                    .Build());
                             }
                             catch (Exception e)
                             {
-                                await SentryService.SendMessage("EVEN FAILED WITH ERROR MESSAGEEEEEEEEEEEEE :C\n" + e);
+                                await SentryService.SendMessage(
+                                    "EVEN FAILED WITH ERROR MESSAGEEEEEEEEEEEEE :C\n" + e);
                                 return;
                             }
 
                             return;
                         }
+
                         starMsg.IsPosted = true;
                     }
 
@@ -222,30 +237,35 @@ namespace SoraBot_v2.Services
                             PostedMsgId = starMsg.PostedMsgId
                         });
                     }
+
                     //check if starpostedmsg == 0
                     if (starMsg.PostedMsgId != 0)
                     {
-                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
+                        await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId,
+                            TimeSpan.FromHours(1));
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                await SentryService.SendMessage(e.ToString());
-            }
+                catch (Exception e)
+                {
+                    await SentryService.SendMessage(e.ToString());
+                }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
 
-        public async Task ClientOnReactionRemoved(Cacheable<IUserMessage, ulong> cacheable, ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
+        public Task ClientOnReactionRemoved(Cacheable<IUserMessage, ulong> cacheable,
+            ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
         {
             //Reaction doesn't match a star
             if (!reaction.Emote.Name.Equals("⭐"))
-                return;
-            //get Message
-            var msg = await cacheable.GetOrDownloadAsync();
-            using (SoraContext soraContext = new SoraContext())
+                return Task.CompletedTask;
+            var _ = Task.Run(async () =>
             {
-                var guild = ((SocketGuildChannel)socketMessageChannel).Guild;
+                //get Message
+                var msg = await cacheable.GetOrDownloadAsync();
+                using SoraContext soraContext = new SoraContext();
+                var guild = ((SocketGuildChannel) socketMessageChannel).Guild;
                 var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
                 //Either the starboard wasn't set up or the channel doesnt exist anymore.
                 if (guildDb.StarChannelId == 0)
@@ -257,6 +277,7 @@ namespace SoraBot_v2.Services
                     //await soraContext.SaveChangesAsync(); //TODO TEMPORARILY DISABLED AS IT BREAKS THE FUCKING STARBOARD
                     return;
                 }
+
                 //Check if reaction is from author
                 if (msg.Author.Id == reaction.UserId)
                     return;
@@ -287,15 +308,16 @@ namespace SoraBot_v2.Services
                         PostedMsgId = starMsg.PostedMsgId
                     });
                 }
+
                 await soraContext.SaveChangesAsync();
                 //cache to update timeout.
                 await CacheService.SetDiscordUserMessage(starChannel, starMsg.PostedMsgId, TimeSpan.FromHours(1));
-            }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
         private async Task<ulong> PostStarMessage(SocketTextChannel starChannel, IUserMessage msg)
         {
-
             string attachmentUrls = "";
             bool attachMent = false;
             bool picAttachment = false;
@@ -307,7 +329,9 @@ namespace SoraBot_v2.Services
                 if (msg.Attachments.Count == 1)
                 {
                     var url = msg.Attachments.ToArray()[0].Url;
-                    if (url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    if (url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                        url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                        url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         attachMent = false;
                         picAttachment = true;
@@ -326,6 +350,7 @@ namespace SoraBot_v2.Services
                     }
                 }
             }
+
             string messageContent = msg.Content ?? "";
             //CHECK FOR 1 IMAGE WITHIN THE VALUE
             if (!attachMent && !picAttachment)
@@ -334,14 +359,18 @@ namespace SoraBot_v2.Services
                 if (mc.Count == 1)
                 {
                     var link = mc[0].Value;
-                    if (link.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || link.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || link.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    if (link.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                        link.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                        link.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         picAttachment = true;
                         picAttach = link;
-                        messageContent = messageContent.Remove(messageContent.IndexOf(link, StringComparison.Ordinal), link.Length);
+                        messageContent = messageContent.Remove(messageContent.IndexOf(link, StringComparison.Ordinal),
+                            link.Length);
                     }
                 }
             }
+
             //Finally ADD
             var eb = new EmbedBuilder()
             {
@@ -365,15 +394,18 @@ namespace SoraBot_v2.Services
             {
                 eb.ImageUrl = picAttach;
             }
+
             try
             {
-                var postedMsg = await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}>\n", embed: eb.Build());
+                var postedMsg =
+                    await starChannel.SendMessageAsync($"**1** ⭐ in <#{msg.Channel.Id}>\n", embed: eb.Build());
                 return postedMsg.Id;
             }
             catch (Exception e)
             {
                 await SentryService.SendMessage("STARBOARD ERROR\n" + e);
             }
+
             return 0;
         }
 
