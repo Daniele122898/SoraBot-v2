@@ -429,6 +429,17 @@ namespace SoraBot_v2.Services
             return guild.Prefix;
         }
 
+        public static async Task CreateGuildIfNeeded(ulong guildId, SoraContext soraContext)
+        {
+            var res = await soraContext.Guilds.FindAsync(guildId);
+            if (res != null)
+            {
+                return;
+            }
+            // Else create an instance
+            soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1, Users = new List<GuildUser>(), LevelRoles = new List<GuildLevelRole>()});
+            await soraContext.SaveChangesAsync();
+        }
 
         public static Guild GetOrCreateGuild(ulong guildId, SoraContext soraContext)
         {

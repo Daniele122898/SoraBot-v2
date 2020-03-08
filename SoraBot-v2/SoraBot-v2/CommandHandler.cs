@@ -259,7 +259,7 @@ namespace SoraBot_v2
                 var context = new SocketCommandContext(_client, message);
 
                 // Also allocate a default guild if needed since we skipped that part earlier.
-                Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
+                await Utility.CreateGuildIfNeeded(channel.Guild.Id, soraContext);
                 // Handoff control to D.NET
                 var result = await _commands.ExecuteAsync(
                     context,
