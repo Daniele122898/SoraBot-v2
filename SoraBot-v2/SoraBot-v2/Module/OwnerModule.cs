@@ -7,11 +7,20 @@ namespace SoraBot_v2.Module
 {
     public class OwnerModule : ModuleBase<SocketCommandContext>
     {
-        private BanService _banService;
+        private readonly BanService _banService;
+        private readonly OwnerService _ownerService;
 
-        public OwnerModule(BanService banService)
+        public OwnerModule(BanService banService, OwnerService ownerService)
         {
             _banService = banService;
+            _ownerService = ownerService;
+        }
+
+        [Command("leavebotservers", RunMode = RunMode.Async)]
+        [RequireOwner]
+        public async Task LeaveBotServers()
+        {
+            
         }
 
         [Command("obanUser")]
