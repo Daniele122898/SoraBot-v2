@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using Newtonsoft.Json;
+using SoraBot_v2.Extensions;
 
 namespace SoraBot_v2.Services
 {
@@ -17,7 +21,7 @@ namespace SoraBot_v2.Services
         {
             if (!_guildCache.IsEmpty)
             {
-                
+                await LeaveCollectedBotServers(context);
             }
 
             var client = context.Client;
@@ -44,13 +48,30 @@ namespace SoraBot_v2.Services
 
             if (_guildCache.IsEmpty)
             {
-                
+                await context.ReplySoraEmbedSuccessResponse($"No Guilds had a Bot percentage higher than {MAX_BOT_PERCENTAGE.ToString(CultureInfo.InvariantCulture)}");
+                return;
             }
+
+            // Prepare Json file with all the infos
+            var guildInfos = _guildCache.Select(g => new
+                {Id = g.Id, userCount = g.Users.Count, botCount = g.Users.Count(u => u.IsBot)});
+            var serialized = JsonConvert.SerializeObject(guildInfos, Formatting.Indented);
+            string path = "guildTemp.json";
+            await File.WriteAllTextAsync(path, serialized);
+            await context.Channel.SendFileAsync(path, "I found these suspicious guilds. Call the method again to leave ALL of them");
+            File.Delete(path);
         }
 
-        public async Task LeaveCollectedBotServers()
+        private async Task LeaveCollectedBotServers(SocketCommandContext context)
         {
-            
+            Console.WriteLine($"Leaving {_guildCache.Count} Guilds");
+            foreach (var guild in _guildCache)
+            {
+                await guild.LeaveAsync();
+            }
+
+            await context.ReplySoraEmbedSuccessResponse($"Left {_guildCache.Count} guilds");
+            _guildCache.Clear();
         }
     }
 }
