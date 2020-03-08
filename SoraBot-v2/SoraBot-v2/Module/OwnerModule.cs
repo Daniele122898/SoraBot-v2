@@ -20,7 +20,7 @@ namespace SoraBot_v2.Module
         [RequireOwner]
         public async Task LeaveBotServers()
         {
-            
+            await _ownerService.CollectBotServerInfoAndLeaveAfter(Context);
         }
 
         [Command("obanUser")]

@@ -13,15 +13,25 @@ namespace SoraBot_v2.Services
 {
     public class OwnerService
     {
-        private ConcurrentBag<SocketGuild> _guildCache = new ConcurrentBag<SocketGuild>();
+        private readonly ConcurrentBag<SocketGuild> _guildCache = new ConcurrentBag<SocketGuild>();
 
-        private const double MAX_BOT_PERCENTAGE = 0.4;
+        private readonly double _maxBotPercentage = 0.2;
+
+        public OwnerService()
+        {
+            var maxConfig = ConfigService.GetConfigData("maxBotPercentage");
+            if (string.IsNullOrWhiteSpace(maxConfig)) 
+                return;
+            // Invariant culture is important, otherwise it becomes 8 instead of 0.8...
+            _maxBotPercentage = double.Parse(maxConfig, CultureInfo.InvariantCulture);
+        }
         
         public async Task CollectBotServerInfoAndLeaveAfter(SocketCommandContext context)
         {
             if (!_guildCache.IsEmpty)
             {
                 await LeaveCollectedBotServers(context);
+                return;
             }
 
             var client = context.Client;
@@ -40,7 +50,7 @@ namespace SoraBot_v2.Services
                 var users = guild.Users;
                 int bots = users.Count(u => u.IsBot);
                 double botPercentage = (double)bots / users.Count;
-                if (botPercentage < MAX_BOT_PERCENTAGE)
+                if (botPercentage < _maxBotPercentage)
                     continue;
                 
                 _guildCache.Add(guild);
@@ -48,13 +58,13 @@ namespace SoraBot_v2.Services
 
             if (_guildCache.IsEmpty)
             {
-                await context.ReplySoraEmbedSuccessResponse($"No Guilds had a Bot percentage higher than {MAX_BOT_PERCENTAGE.ToString(CultureInfo.InvariantCulture)}");
+                await context.ReplySoraEmbedSuccessResponse($"No Guilds had a Bot percentage higher than {_maxBotPercentage}");
                 return;
             }
 
             // Prepare Json file with all the infos
             var guildInfos = _guildCache.Select(g => new
-                {Id = g.Id, userCount = g.Users.Count, botCount = g.Users.Count(u => u.IsBot)});
+                {Id = g.Id, UserCount = g.Users.Count, BotCount = g.Users.Count(u => u.IsBot), Name = g.Name});
             var serialized = JsonConvert.SerializeObject(guildInfos, Formatting.Indented);
             string path = "guildTemp.json";
             await File.WriteAllTextAsync(path, serialized);
