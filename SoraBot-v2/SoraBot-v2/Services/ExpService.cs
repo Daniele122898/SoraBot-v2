@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
-using SoraBot_v2.Data.Entities;
-using SoraBot_v2.Data.Entities.SubEntities;
 
 namespace SoraBot_v2.Services
 {
@@ -51,26 +47,6 @@ namespace SoraBot_v2.Services
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     "You will NOT be notified on level up!").Build());
         }
-        
-        private int GetIndexOfItem(List<User> list, ulong key)
-        {
-            for (int index = 0; index < list.Count; index++)
-            {
-                if (list[index].UserId == key)
-                    return index;
-            }
-            return -1;
-        }
-        
-        private int GetIndexOfItem(List<GuildUser> list, ulong key)
-        {
-            for (int index = 0; index < list.Count; index++)
-            {
-                if (list[index].UserId == key)
-                    return index;
-            }
-            return -1;
-        }
 
         public async Task GetLocalTop10List(SocketCommandContext context)
         {
@@ -83,21 +59,23 @@ namespace SoraBot_v2.Services
         }
 
 
-        public async Task IncreaseEpOnMessageReceive(SocketMessage msg)
+        public Task IncreaseEpOnMessageReceive(SocketMessage msg)
         {
-            using (var _soraContext = new SoraContext())
+            //Don't process the command if it was a system message
+            var message = msg as SocketUserMessage;
+            if (message == null) return Task.CompletedTask;
+            //dont process if it was a bot
+            if (message.Author.IsBot) return Task.CompletedTask;
+                
+            //Create a command Context
+            var context = new SocketCommandContext(_client, message);
+            if (context.IsPrivate) return Task.CompletedTask;
+            
+            // let's do all of this on a separate thread to relieve the main thread from some processing
+            var _ = Task.Run(async () =>
             {
-                //Don't prcoess the command if it was a system message
-                var message = msg as SocketUserMessage;
-                if (message == null) return;
-                //dont process if it was a bot
-                if (message.Author.IsBot) return;
-                
-                //Create a command Context
-                var context = new SocketCommandContext(_client, message);
-                if (context.IsPrivate) return;
-                
-                var userDb = Utility.GetOrCreateUser(context.User.Id, _soraContext);
+                using var soraContext = new SoraContext();
+                var userDb = Utility.GetOrCreateUser(context.User.Id, soraContext);
                 //Check for cooldown
                 if (userDb.CanGainAgain.CompareTo(DateTime.UtcNow) > 0)
                     return;
@@ -109,12 +87,9 @@ namespace SoraBot_v2.Services
                     epGain = 50;
                 userDb.Exp += epGain;
                 int currentLevel = CalculateLevel(userDb.Exp);
-                await _soraContext.SaveChangesAsync();
+                await soraContext.SaveChangesAsync();
                 //Guild user gain
-                Task.Run(async () =>
-                {
-                    await _roleService.OnUserExpGain(epGain, context);
-                });
+                await _roleService.OnUserExpGain(epGain, context);
                 
                 //Notifying
                 if (previousLevel != currentLevel && userDb.Notified)
@@ -124,9 +99,18 @@ namespace SoraBot_v2.Services
                         Color = new Color(255, 204, 77),
                         Title = $"🏆 You leveled up! You are now level {currentLevel} \\ (•◡•) /"
                     };
-                    await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
+                    try
+                    {
+                        // Catching bcs some ppl have DMs blocked etc. Don't want this to happen
+                        await (await context.User.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: eb.Build());
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
                 }
-            }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
     }
 }

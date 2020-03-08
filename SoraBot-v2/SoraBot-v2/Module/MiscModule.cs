@@ -101,43 +101,41 @@ namespace SoraBot_v2.Module
         [Command("about"), Summary("Some info on Sora himself")]
         public async Task About()
         {
-            using (var soraContext = new SoraContext())
+            using var soraContext = new SoraContext();
+            var eb = new EmbedBuilder()
             {
-                var eb = new EmbedBuilder()
-                {
-                    Color = Utility.BlueInfoEmbed,
-                    Title = $"{Utility.SuccessLevelEmoji[3]} About Sora",
-                    Footer = Utility.RequestedBy(Context.User),
-                    ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
-                    Description = $"Hei there (｡･ω･)ﾉﾞ\n" +
-                                  $"I was created by Serenity#0783. You can find him [here]({Utility.DISCORD_INVITE})"
-                };
+                Color = Utility.BlueInfoEmbed,
+                Title = $"{Utility.SuccessLevelEmoji[3]} About Sora",
+                Footer = Utility.RequestedBy(Context.User),
+                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
+                Description = $"Hei there (｡･ω･)ﾉﾞ\n" +
+                              $"I was created by Serenity#0783. You can find him [here]({Utility.DISCORD_INVITE})"
+            };
 
-                eb.AddField(x =>
-                {
-                    x.Name = "How was I created?";
-                    x.IsInline = false;
-                    x.Value = $"I was written in C# using the Discord.NET wrapper.\n" +
-                              $"For more Info use `{Utility.GetGuildPrefix(Context.Guild, soraContext)}info`\n" +
-                              $"Or visit my [Github page](https://github.com/Daniele122898/SoraBot-v2)";
-                });
+            eb.AddField(x =>
+            {
+                x.Name = "How was I created?";
+                x.IsInline = false;
+                x.Value = $"I was written in C# using the Discord.NET wrapper.\n" +
+                          $"For more Info use `{Utility.GetGuildPrefix(Context.Guild, soraContext)}info`\n" +
+                          $"Or visit my [Github page](https://github.com/Daniele122898/SoraBot-v2)";
+            });
 
-                eb.AddField(x =>
-                {
-                    x.IsInline = false;
-                    x.Name = "About me";
-                    x.Value = "My name is Sora and I'm a member of Imanity.\n" +
-                              "The last ranked exceed yet the strongest of em all.\n" +
-                              "I'm currently 18 years old and my birth day is on the 3rd of June.\n" +
-                              "I have a little but lovely Stepsister called Shiro. She and I together\n" +
-                              "form the infamous duo 『　』also known as blank.\n" +
-                              "Our next step is to conquer the world and challenge Tet.\n" +
-                              "If you stand in our way we will have no other choice but\n" +
-                              "to crush you. Because..\n" +
-                              "Blank never loses.";
-                });
-                await ReplyAsync("", embed: eb.Build());
-            }
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "About me";
+                x.Value = "My name is Sora and I'm a member of Imanity.\n" +
+                          "The last ranked exceed yet the strongest of em all.\n" +
+                          "I'm currently 18 years old and my birth day is on the 3rd of June.\n" +
+                          "I have a little but lovely Stepsister called Shiro. She and I together\n" +
+                          "form the infamous duo 『　』also known as blank.\n" +
+                          "Our next step is to conquer the world and challenge Tet.\n" +
+                          "If you stand in our way we will have no other choice but\n" +
+                          "to crush you. Because..\n" +
+                          "Blank never loses.";
+            });
+            await ReplyAsync("", embed: eb.Build());
         }
     }
 }

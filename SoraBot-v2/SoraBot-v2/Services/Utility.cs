@@ -14,12 +14,12 @@ namespace SoraBot_v2.Services
     public static class Utility
     {
         public const ulong OWNER_ID = 192750776005689344;
-        
+
         public static Color PurpleEmbed = new Color(109, 41, 103);
-        public static Color YellowWarningEmbed = new Color(255,204,77);
-        public static Color GreenSuccessEmbed = new Color(119,178,85);
-        public static Color RedFailiureEmbed = new Color(221,46,68);
-        public static Color BlueInfoEmbed = new Color(59,136,195);
+        public static Color YellowWarningEmbed = new Color(255, 204, 77);
+        public static Color GreenSuccessEmbed = new Color(119, 178, 85);
+        public static Color RedFailiureEmbed = new Color(221, 46, 68);
+        public static Color BlueInfoEmbed = new Color(59, 136, 195);
         public static string StandardDiscordAvatar = "http://i.imgur.com/tcpgezi.jpg";
         public static int TOTAL_SHARDS;
         public static int SHARD_ID;
@@ -29,13 +29,13 @@ namespace SoraBot_v2.Services
 
         public const string SORA_INVITE =
             "https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831";
-        
+
         public const string SORA_ADMIN_ROLE_NAME = "Sora-Admin";
         public const string SORA_DJ_ROLE_NAME = "Sora-DJ";
 
-        public static readonly string[] SuccessLevelEmoji = new string[]
+        public static readonly string[] SuccessLevelEmoji =
         {
-            "✅","⚠","❌","ℹ",""
+            "✅", "⚠", "❌", "ℹ", ""
         };
 
         public static string SuccessEmoji => SuccessLevelEmoji[0];
@@ -48,9 +48,10 @@ namespace SoraBot_v2.Services
         public static string MusicalNote = "🎵";
 
         private static readonly List<ulong> _ownersNotified = new List<ulong>();
-        
+
         #region Gifs
-        public static string[] Pats = new string[]
+
+        public static string[] Pats =
         {
             "https://media.giphy.com/media/3ohzdLjvu2Q8rQLspq/source.gif",
             "http://i.imgur.com/bDMMk0L.gif",
@@ -68,15 +69,16 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/cPS1JlS.gif",
             "https://media.giphy.com/media/KZQlfylo73AMU/giphy.gif",
             "https://media.giphy.com/media/xgTs8CcCMbqb6/giphy.gif",
-            "http://i.imgur.com/d2jbnvs.gif",
+            "http://i.imgur.com/d2jbnvs.gif"
         };
 
-        public static string[] Self5 = new string[]
+        public static string[] Self5 =
         {
             "https://media.tenor.com/images/7c0aca89e85e83db5d83b1003772544a/tenor.gif",
             "https://media.giphy.com/media/jQTJVqu3Q1hmg/200.gif"
         };
-        public static string[] High5 = new string[]
+
+        public static string[] High5 =
         {
             "https://68.media.tumblr.com/9ef425ac3528b8a56082535c6e9e8138/tumblr_mgitxqyFAP1r2wbr8o1_500.gif",
             "http://pa1.narvii.com/5727/f54721f405a05727c5903e3afb49f5cdc16ef07a_hq.gif",
@@ -86,9 +88,10 @@ namespace SoraBot_v2.Services
             "https://static1.gamespot.com/uploads/original/745/7451470/2791604-2345202295-0H6Q9.gif",
             "https://68.media.tumblr.com/398ca8b1c1a0de03078f7dacd4d522b9/tumblr_o7leikmO391tkf3aao1_500.gif",
             "https://s-media-cache-ak0.pinimg.com/originals/17/09/22/170922b20ee616f11629b43d92c45fa7.gif",
-            "http://68.media.tumblr.com/0e5d981ef8d70fcc6093b98b3af09091/tumblr_inline_nx3q1hc86b1tyovn6_500.gif",
+            "http://68.media.tumblr.com/0e5d981ef8d70fcc6093b98b3af09091/tumblr_inline_nx3q1hc86b1tyovn6_500.gif"
         };
-        public static string[] Hugs = new string[]
+
+        public static string[] Hugs =
         {
             "https://media.giphy.com/media/od5H3PmEG5EVq/giphy.gif",
             "http://i.imgur.com/t4hw0by.gif",
@@ -120,10 +123,9 @@ namespace SoraBot_v2.Services
             "https://cdn.weeb.sh/images/BkZngAYtb.gif",
             "https://cdn.weeb.sh/images/Hk3ox0tYW.gif",
             "https://cdn.weeb.sh/images/ryPix0Ft-.gif"
-
         };
 
-        public static string[] Pokes = new string[]
+        public static string[] Pokes =
         {
             "https://media.giphy.com/media/ovbDDmY4Kphtu/giphy.gif",
             "http://i.imgur.com/TtV7VRg.gif",
@@ -138,7 +140,7 @@ namespace SoraBot_v2.Services
             "https://cdn.weeb.sh/images/rkeaUeJKD-.gif"
         };
 
-        public static string[] Slaps= new string[]
+        public static string[] Slaps =
         {
             "https://i.imgur.com/oY3UC4g.gif",
             "http://i.imgur.com/8Q45tO7.gif",
@@ -156,7 +158,7 @@ namespace SoraBot_v2.Services
             "https://i.imgur.com/d9thUdx.gif"
         };
 
-        public static string[] Kisses= new string[]
+        public static string[] Kisses =
         {
             "http://i.imgur.com/I9CROFT.gif",
             "http://i.imgur.com/iK5fmug.gif",
@@ -184,7 +186,7 @@ namespace SoraBot_v2.Services
             "https://i.imgur.com/OgGHRYA.gif"
         };
 
-        public static string[] Punches = new string[]
+        public static string[] Punches =
         {
             "http://i.imgur.com/wH4S2CX.gif",
             "http://i.imgur.com/G09HFZs.gif",
@@ -197,11 +199,13 @@ namespace SoraBot_v2.Services
             "http://i.imgur.com/FThVNEf.gif",
             "http://i.imgur.com/KP230Rp.gif"
         };
+
         #endregion
-        
+
         public static bool CheckIfSoraAdminExists(SocketGuild guild)
         {
-            var admin = guild.Roles.FirstOrDefault(x=> x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.OrdinalIgnoreCase));
+            var admin = guild.Roles.FirstOrDefault(x =>
+                x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.OrdinalIgnoreCase));
             if (admin == null)
                 return false;
             return true;
@@ -217,45 +221,51 @@ namespace SoraBot_v2.Services
             var user = (SocketGuildUser) context.User;
             if (!user.GuildPermissions.Has(GuildPermission.Administrator) && !IsSoraAdmin(user))
             {
-                await context.Channel.SendMessageAsync("", embed:ResultFeedback(
-                    RedFailiureEmbed, SuccessLevelEmoji[2], $"You need Administrator permissions or the {SORA_ADMIN_ROLE_NAME} role to do this!").Build());
+                await context.Channel.SendMessageAsync("", embed: ResultFeedback(
+                    RedFailiureEmbed, SuccessLevelEmoji[2],
+                    $"You need Administrator permissions or the {SORA_ADMIN_ROLE_NAME} role to do this!").Build());
                 return false;
             }
+
             return true;
         }
 
-        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel, bool sendMessage = true)
+        public static async Task<bool> CheckReadWritePerms(SocketGuild guild, IGuildChannel channel,
+            bool sendMessage = true)
         {
             var guildPerms = guild.CurrentUser.GuildPermissions;
             var chanPerms = guild.CurrentUser.GetPermissions(channel);
-            
+
             if (guildPerms.Has(GuildPermission.Administrator))
                 return true;
-                        
-            if(!guildPerms.Has(GuildPermission.SendMessages) ||
-               !guildPerms.Has(GuildPermission.ViewChannel) ||
-               !guildPerms.Has(GuildPermission.ReadMessageHistory)||
-               !chanPerms.ViewChannel ||
-               !chanPerms.ReadMessageHistory ||
-               !chanPerms.SendMessages)
+
+            if (!guildPerms.Has(GuildPermission.SendMessages) ||
+                !guildPerms.Has(GuildPermission.ViewChannel) ||
+                !guildPerms.Has(GuildPermission.ReadMessageHistory) ||
+                !chanPerms.ViewChannel ||
+                !chanPerms.ReadMessageHistory ||
+                !chanPerms.SendMessages)
             {
                 //Send message to owner if not done already. 
                 if (sendMessage && !_ownersNotified.Contains(guild.OwnerId))
                 {
                     await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                        embed: Utility.ResultFeedback(
-                                Utility.YellowWarningEmbed, Utility.SuccessLevelEmoji[1], "Sora lacks permissions!")
+                        embed: ResultFeedback(
+                                YellowWarningEmbed, SuccessLevelEmoji[1], "Sora lacks permissions!")
                             .WithDescription(
                                 "Sora needs global SendMessage, ReadMessage and ReadMessageHistory Permissons! He also requires " +
                                 "those permissions in every channel he shall operate. This might be the starboard, user Announcements or Punishlogs!\n" +
                                 "This message was sent because he tried to post or edit something and lacked permissions. Thus either the " +
                                 "starboard, punish logs, User announcements (join/leave) or every functionality is malfunctioning!\n\n" +
                                 $"Guild Affected: {guild.Name} / {guild.Id}\n" +
-                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>").Build());
+                                $"Channel Affected: {channel.Name} / {channel.Id}\nLink to channel: <#{channel.Id}>")
+                            .Build());
                     _ownersNotified.Add(guild.OwnerId);
                 }
+
                 return false;
             }
+
             return true;
         }
 
@@ -263,6 +273,7 @@ namespace SoraBot_v2.Services
         public static User OnlyGetUser(ulong Id, SoraContext soraContext)
         {
             var result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
+            var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
             if (result != null)
             {
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
@@ -270,15 +281,13 @@ namespace SoraBot_v2.Services
 
                 var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
 
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
+                var marriages = soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
 
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
-                
-                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id)?.ToList() ?? new List<UserWaifu>();
+                var waifus = soraContext.UserWaifus.Where(x => x.UserForeignId == Id).ToList();
 
                 result.UserWaifus = waifus;
                 result.Votings = votings;
@@ -288,6 +297,7 @@ namespace SoraBot_v2.Services
                 result.Afk = afk;
                 result.Marriages = marriages;
             }
+
             return result;
         }
 
@@ -300,7 +310,7 @@ namespace SoraBot_v2.Services
                 gUser = guildDb.Users.FirstOrDefault(x => x.UserId == userId);
                 if (gUser == null)
                 {
-                    gUser = new GuildUser(){Exp = 0, Guild = guildDb, GuildId = guildId, UserId = userId};
+                    gUser = new GuildUser {Exp = 0, Guild = guildDb, GuildId = guildId, UserId = userId};
                     guildDb.Users.Add(gUser);
                     soraContext.GuildUsers.Add(gUser);
                     soraContext.SaveChanges();
@@ -310,6 +320,7 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
+
             return gUser;
         }
 
@@ -318,14 +329,17 @@ namespace SoraBot_v2.Services
             try
             {
                 var members =
-                    soraContext.Users.Where(x => !string.IsNullOrWhiteSpace(x.ClanName) && x.ClanName.Equals(clan.Name, StringComparison.OrdinalIgnoreCase))
-                        .ToList() ?? new List<User>();
+                    soraContext.Users.Where(x =>
+                            !string.IsNullOrWhiteSpace(x.ClanName) &&
+                            x.ClanName.Equals(clan.Name, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
                 clan.Members = members;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
+
             return clan;
         }
 
@@ -341,36 +355,40 @@ namespace SoraBot_v2.Services
                     return null;
 
                 var members =
-                    soraContext.Users.Where(x => !string.IsNullOrWhiteSpace(x.ClanName) && x.ClanName.Equals(clanName, StringComparison.OrdinalIgnoreCase))
-                        .ToList() ?? new List<User>();
+                    soraContext.Users.Where(x =>
+                            !string.IsNullOrWhiteSpace(x.ClanName) &&
+                            x.ClanName.Equals(clanName, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
                 clan.Members = members;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
+
             return clan;
         }
-        
-        
+
+
         public static User GetOrCreateUser(ulong Id, SoraContext soraContext)
         {
-            User result = new User();
+            var result = new User();
+            var waifus = soraContext.UserWaifus.Where(x => x.UserForeignId == Id).ToList();
             try
             {
                 result = soraContext.Users.FirstOrDefault(x => x.UserId == Id);
                 if (result == null)
                 {
                     //User Not found => CREATE
-                    var addedUser = soraContext.Users.Add(new User()
+                    var addedUser = soraContext.Users.Add(new User
                     {
-                        UserId = Id, ShareCentrals = new List<ShareCentral>(), 
-                        Interactions = new Interactions(),Votings = new List<Voting>(),
-                        Reminders = new List<Reminders>(),Marriages = new List<Marriage>(),
+                        UserId = Id, ShareCentrals = new List<ShareCentral>(),
+                        Interactions = new Interactions(), Votings = new List<Voting>(),
+                        Reminders = new List<Reminders>(), Marriages = new List<Marriage>(),
                         UserWaifus = new List<UserWaifu>(),
-                        HasBg = false, 
-                        Notified = false, 
-                        ClanStaff = false, 
+                        HasBg = false,
+                        Notified = false,
+                        ClanStaff = false,
                         ClanName = "",
                         Money = 0,
                         NextDaily = DateTime.UtcNow
@@ -380,16 +398,16 @@ namespace SoraBot_v2.Services
                     soraContext.SaveChanges();
                     return addedUser.Entity;
                 }
+
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
                 var inter = soraContext.Interactions.FirstOrDefault(x => x.UserForeignId == Id) ?? new Interactions();
                 var afk = soraContext.Afk.FirstOrDefault(x => x.UserForeignId == Id);
-                var marriages =  soraContext.Marriages.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Marriage>();
-                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id)?.ToList() ?? new List<Reminders>();
-                var waifus = soraContext.UserWaifus.Where(x=> x.UserForeignId == Id)?.ToList() ?? new List<UserWaifu>();
+                var marriages = soraContext.Marriages.Where(x => x.UserForeignId == Id).ToList();
+                var reminders = soraContext.Reminders.Where(x => x.UserForeignId == Id).ToList();
 
-                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id)?.ToList() ?? new List<ShareCentral>();
+                var shareCentral = soraContext.ShareCentrals.Where(x => x.CreatorId == Id).ToList();
 
-                var votings = soraContext.Votings.Where(x => x.VoterId == Id)?.ToList() ?? new List<Voting>();
+                var votings = soraContext.Votings.Where(x => x.VoterId == Id).ToList();
                 if (result.ClanName == null)
                     result.ClanName = "";
 
@@ -405,6 +423,7 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
+
             soraContext.SaveChanges();
             return result;
         }
@@ -414,54 +433,62 @@ namespace SoraBot_v2.Services
             var guildDb = GetOrCreateGuild(guild.Id, soraContext);
             return guildDb.Prefix;
         }
-        
+
         // Faster version of GetGuildPrefix.
         // Tries to allocate as few stuff as possible.
         // We only want the prefix and nothing else.
         public static string GetGuildPrefixFast(SoraContext context, ulong gid, string fallback)
         {
             var guild = context.Guilds.FirstOrDefault(x => x.GuildId == gid);
-            if (guild == null)
-            {
-                return fallback;
-            }
+            if (guild == null) return fallback;
 
             return guild.Prefix;
         }
 
+        public static async Task CreateGuildIfNeeded(ulong guildId, SoraContext soraContext)
+        {
+            var res = await soraContext.Guilds.FindAsync(guildId);
+            if (res != null) return;
+            // Else create an instance
+            soraContext.Guilds.Add(new Guild
+            {
+                GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),
+                SelfAssignableRoles = new List<Role>(), IsDjRestricted = false, StarMessages = new List<StarMessage>(),
+                StarMinimum = 1, Users = new List<GuildUser>(), LevelRoles = new List<GuildLevelRole>()
+            });
+            await soraContext.SaveChangesAsync();
+        }
 
         public static Guild GetOrCreateGuild(ulong guildId, SoraContext soraContext)
         {
-            Guild result = new Guild();
+            var result = new Guild();
             try
             {
                 result = soraContext.Guilds.FirstOrDefault(x => x.GuildId == guildId);
                 if (result == null)
                 {
                     //Guild not found => Create
-                    var addGuild = soraContext.Guilds.Add(new Guild() {GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),SelfAssignableRoles = new List<Role>(),IsDjRestricted = false, StarMessages = new List<StarMessage>() ,StarMinimum = 1, Users = new List<GuildUser>(), LevelRoles = new List<GuildLevelRole>()});
+                    var addGuild = soraContext.Guilds.Add(new Guild
+                    {
+                        GuildId = guildId, Prefix = "$", Tags = new List<Tags>(), Cases = new List<ModCase>(),
+                        SelfAssignableRoles = new List<Role>(), IsDjRestricted = false,
+                        StarMessages = new List<StarMessage>(), StarMinimum = 1, Users = new List<GuildUser>(),
+                        LevelRoles = new List<GuildLevelRole>()
+                    });
                     soraContext.SaveChanges();
                     return addGuild.Entity;
                 }
-            
+
                 //NECESSARY SHIT SINCE DB EXTENS PERIODICALLY ;(
-                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guildId)?.ToList() ?? new List<Tags>();
-                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guildId)?.ToList();
-                if (foundStars == null)
-                {
-                    foundStars = new List<StarMessage>();
-                    result.StarMinimum = 1;
-                }
+                var foundTags = soraContext.Tags.Where(x => x.GuildForeignId == guildId).ToList();
+                var foundStars = soraContext.StarMessages.Where(x => x.GuildForeignId == guildId).ToList();
+                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guildId).ToList();
 
-                var foundRoles = soraContext.SelfAssignableRoles.Where(x => x.GuildForeignId == guildId)?.ToList() ?? new List<Role>();
+                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guildId).ToList();
 
-                var modCases = soraContext.Cases.Where(x => x.GuildForeignId == guildId)?.ToList() ??
-                               new List<ModCase>();
+                var users = soraContext.GuildUsers.Where(x => x.GuildId == guildId).ToList();
 
-                var users = soraContext.GuildUsers.Where(x => x.GuildId == guildId).ToList() ?? new List<GuildUser>();
-
-                var levelRoles = soraContext.GuildLevelRoles.Where(x => x.GuildId == guildId).ToList() ??
-                                 new List<GuildLevelRole>();
+                var levelRoles = soraContext.GuildLevelRoles.Where(x => x.GuildId == guildId).ToList();
 
                 result.LevelRoles = levelRoles;
                 result.Users = users;
@@ -474,27 +501,29 @@ namespace SoraBot_v2.Services
             {
                 Console.WriteLine(e);
             }
-            
+
             //guild found
             soraContext.SaveChanges();
             return result;
-
         }
 
         public static double CalculateAffinity(Interactions interactions)
         {
-            double total = interactions.Pats+ interactions.High5 + interactions.Hugs * 2 + interactions.Kisses* 3 + interactions.Slaps + interactions.Punches*2;
-            double good = interactions.Pats + interactions.High5+interactions.Hugs * 2 + interactions.Kisses * 3;
+            double total = interactions.Pats + interactions.High5 + interactions.Hugs * 2 + interactions.Kisses * 3 +
+                           interactions.Slaps + interactions.Punches * 2;
+            double good = interactions.Pats + interactions.High5 + interactions.Hugs * 2 + interactions.Kisses * 3;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (total == 0)
                 return 0;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (good == 0)
                 return 0;
-            return Math.Round((100.0 / total * good), 2);
+            return Math.Round(100.0 / total * good, 2);
         }
 
-        public static EmbedBuilder ResultFeedback(Discord.Color color, string symbol, string text)
+        public static EmbedBuilder ResultFeedback(Color color, string symbol, string text)
         {
-            var eb = new EmbedBuilder()
+            var eb = new EmbedBuilder
             {
                 Color = color,
                 Title = $"{symbol} {text}"
@@ -504,9 +533,9 @@ namespace SoraBot_v2.Services
 
         public static EmbedFooterBuilder RequestedBy(SocketUser user)
         {
-            return new EmbedFooterBuilder()
+            return new EmbedFooterBuilder
             {
-                Text = $"Requested by {Utility.GiveUsernameDiscrimComb(user)}",
+                Text = $"Requested by {GiveUsernameDiscrimComb(user)}",
                 IconUrl = user.GetAvatarUrl() ?? StandardDiscordAvatar
             };
         }

@@ -32,7 +32,7 @@ namespace SoraBot_v2
 
         public async Task MainAsync(string[] args)
         {
-            Console.WriteLine(args.Join(", "));
+            Console.WriteLine(args.Join());
             int shardId;
             if (!int.TryParse(args[0], out shardId))
             {
@@ -64,7 +64,7 @@ namespace SoraBot_v2
 
             _client.Log += Log;
             
-            string token = "";
+            string token;
             ConfigService.GetConfig().TryGetValue("token2", out token);
 
             await _restClient.LoginAsync(TokenType.Bot, token);
@@ -163,6 +163,8 @@ namespace SoraBot_v2
             services.AddSingleton(_interactive);
             services.AddSingleton(_banService);
             services.AddSingleton<InteractionsService>();
+            services.AddSingleton<OwnerService>();
+            services.AddSingleton<LogService>();
             services.AddSingleton<CoinService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();

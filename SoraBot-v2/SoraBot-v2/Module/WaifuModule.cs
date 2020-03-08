@@ -148,7 +148,7 @@ namespace SoraBot_v2.Module
                     .Build());
                 return;
             }
-            int waifuId = 0;
+            int waifuId;
             using (var soraContext = new SoraContext())
             {
                 var waifu = soraContext.Waifus.FirstOrDefault(x =>

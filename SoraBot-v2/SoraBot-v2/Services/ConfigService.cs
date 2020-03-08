@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -33,7 +32,7 @@ namespace SoraBot_v2.Services
 
         public static string GetConfigData(string key)
         {
-            string result = "";
+            string result;
             _configDict.TryGetValue(key, out result);
             return result;
         }

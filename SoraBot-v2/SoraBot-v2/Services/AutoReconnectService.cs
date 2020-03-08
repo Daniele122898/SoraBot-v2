@@ -38,10 +38,10 @@ namespace SoraBot_v2.Services
         public Task ConnectedAsync()
         {
             // Cancel all previous state checks and reset the CancelToken - client is back online
-            _ = DebugAsync("Client reconnected, resetting cancel tokens...");
+            DebugAsync("Client reconnected, resetting cancel tokens...");
             _cts.Cancel();
             _cts = new CancellationTokenSource();
-            _ = DebugAsync("Client reconnected, cancel tokens reset.");
+            DebugAsync("Client reconnected, cancel tokens reset.");
 
             return Task.CompletedTask;
         }
@@ -49,8 +49,8 @@ namespace SoraBot_v2.Services
         public Task DisconnectedAsync(Exception _e)
         {
             // Check the state after <timeout> to see if we reconnected
-            _ = InfoAsync("Client disconnected, starting timeout task...");
-            _ = Task.Delay(_timeout, _cts.Token).ContinueWith(async _ => 
+            InfoAsync("Client disconnected, starting timeout task...");
+            Task.Delay(_timeout, _cts.Token).ContinueWith(async _ => 
             {
                 await DebugAsync("Timeout expired, continuing to check client state...");
                 await CheckStateAsync();

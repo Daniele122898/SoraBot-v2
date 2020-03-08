@@ -16,7 +16,7 @@ namespace SoraBot_v2.Module
         }
 
         [Command("afk"), Alias("away"), Summary("Sets you AFK with a specified message to deliver to anyone that mentions you")]
-        public async Task ToggleAFK([Summary("Message to deliver when you get mentioned"), Remainder]string msg = "")
+        public async Task ToggleAfk([Summary("Message to deliver when you get mentioned"), Remainder]string msg = "")
         {
             using (var soraContext = new SoraContext())
             {

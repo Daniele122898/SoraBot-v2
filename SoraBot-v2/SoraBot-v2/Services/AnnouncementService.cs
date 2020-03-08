@@ -13,97 +13,95 @@ namespace SoraBot_v2.Services
         private readonly string _defaultLeave = "{user#} left the guild";
         private readonly string _defaultJoin = "{user} Welcome to **{server}**";
 
-        public async Task ClientOnUserLeft(SocketGuildUser socketGuildUser)
+        public Task ClientOnUserLeft(SocketGuildUser socketGuildUser)
         {
-            Task.Run(async () =>
+            var _ = Task.Run(async () =>
             {
-                using (SoraContext soraContext = new SoraContext())
+                using SoraContext soraContext = new SoraContext();
+                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
+                //check if channel is initialized
+                if (guildDb.LeaveChannelId == 0)
+                    return;
+                //check if channel exists
+                var channel = socketGuildUser.Guild.GetTextChannel(guildDb.LeaveChannelId);
+                if (channel == null)
                 {
-                    var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
-                    //check if channel is initialized
-                    if (guildDb.LeaveChannelId == 0)
-                        return;
-                    //check if channel exists
-                    var channel = socketGuildUser.Guild.GetTextChannel(guildDb.LeaveChannelId);
-                    if (channel == null)
-                    {
-                        guildDb.LeaveChannelId = 0;
-                        await soraContext.SaveChangesAsync();
-                        return;
-                    }
-
-                    //check sendmessageperms perms
-                    if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
-                        return;
-                    //he has perms and channel exists so post the message
-                    string message = guildDb.LeaveMessage;
-                    if (string.IsNullOrWhiteSpace(message))
-                        message = _defaultLeave;
-                    string editedMessage = ReplaceInfo(socketGuildUser, message);
-
-                    if (guildDb.EmbedLeave)
-                    {
-                        var eb = new EmbedBuilder()
-                        {
-                            Color = Utility.PurpleEmbed,
-                            Description = editedMessage
-                        };
-
-                        await channel.SendMessageAsync("", embed: eb.Build());
-                    }
-                    else
-                    {
-                        await channel.SendMessageAsync(editedMessage);
-                    }
+                    guildDb.LeaveChannelId = 0;
+                    await soraContext.SaveChangesAsync();
+                    return;
                 }
-            });
+
+                //check sendmessageperms perms
+                if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
+                    return;
+                //he has perms and channel exists so post the message
+                string message = guildDb.LeaveMessage;
+                if (string.IsNullOrWhiteSpace(message))
+                    message = _defaultLeave;
+                string editedMessage = ReplaceInfo(socketGuildUser, message);
+
+                if (guildDb.EmbedLeave)
+                {
+                    var eb = new EmbedBuilder()
+                    {
+                        Color = Utility.PurpleEmbed,
+                        Description = editedMessage
+                    };
+
+                    await channel.SendMessageAsync("", embed: eb.Build());
+                }
+                else
+                {
+                    await channel.SendMessageAsync(editedMessage);
+                }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
 
-        public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
+        public Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
         {
-            Task.Run(async () =>
+            var _ = Task.Run(async () =>
             {
-                using (SoraContext soraContext = new SoraContext())
+                using SoraContext soraContext = new SoraContext();
+                var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
+                //check if channel is initialized
+                if (guildDb.WelcomeChannelId == 0)
+                    return;
+                //check if channel exists
+                var channel = socketGuildUser.Guild.GetTextChannel(guildDb.WelcomeChannelId);
+                if (channel == null)
                 {
-                    var guildDb = Utility.GetOrCreateGuild(socketGuildUser.Guild.Id, soraContext);
-                    //check if channel is initialized
-                    if (guildDb.WelcomeChannelId == 0)
-                        return;
-                    //check if channel exists
-                    var channel = socketGuildUser.Guild.GetTextChannel(guildDb.WelcomeChannelId);
-                    if (channel == null)
-                    {
-                        guildDb.WelcomeChannelId = 0;
-                        await soraContext.SaveChangesAsync();
-                        return;
-                    }
-
-                    //check sendmessageperms perms
-                    if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
-                        return;
-                    //he has perms and channel exists so post the message
-                    string message = guildDb.WelcomeMessage;
-                    if (string.IsNullOrWhiteSpace(message))
-                        message = _defaultJoin;
-                    string editedMessage = ReplaceInfo(socketGuildUser, message);
-
-                    if (guildDb.EmbedWelcome)
-                    {
-                        var eb = new EmbedBuilder()
-                        {
-                            Color = Utility.PurpleEmbed,
-                            Description = editedMessage
-                        };
-
-                        await channel.SendMessageAsync("", embed: eb.Build());
-                    }
-                    else
-                    {
-                        await channel.SendMessageAsync(editedMessage);
-                    }
+                    guildDb.WelcomeChannelId = 0;
+                    await soraContext.SaveChangesAsync();
+                    return;
                 }
-            });
+
+                //check sendmessageperms perms
+                if (await Utility.CheckReadWritePerms(socketGuildUser.Guild, channel) == false)
+                    return;
+                //he has perms and channel exists so post the message
+                string message = guildDb.WelcomeMessage;
+                if (string.IsNullOrWhiteSpace(message))
+                    message = _defaultJoin;
+                string editedMessage = ReplaceInfo(socketGuildUser, message);
+
+                if (guildDb.EmbedWelcome)
+                {
+                    var eb = new EmbedBuilder()
+                    {
+                        Color = Utility.PurpleEmbed,
+                        Description = editedMessage
+                    };
+
+                    await channel.SendMessageAsync("", embed: eb.Build());
+                }
+                else
+                {
+                    await channel.SendMessageAsync(editedMessage);
+                }
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
         private string ReplaceInfo(SocketGuildUser user, string message)

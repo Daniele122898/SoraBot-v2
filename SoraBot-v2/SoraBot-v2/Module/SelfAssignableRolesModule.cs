@@ -159,7 +159,7 @@ namespace SoraBot_v2.Module
 
                 if (!int.TryParse(captures[1].ToString(), out amount))
                 {
-                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1].ToString()}");
+                    Console.WriteLine($"COULDNT PARSE DOUBLE : {captures[1]}");
                     return null;
                 }
 

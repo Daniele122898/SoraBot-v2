@@ -21,9 +21,9 @@ namespace SoraBot_v2.Services
         {
             _shardId = shardId;
             _shardCount = shardCount;
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                UpdateCount(guildCount);
+                await UpdateCount(guildCount);
             });
         }
         

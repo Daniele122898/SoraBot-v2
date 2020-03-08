@@ -488,24 +488,5 @@ namespace SoraBot_v2.Controllers
                     return WaifuRarity.Common;
             }
         }
-
-        private short GetWebRarity(WaifuRarity rarity)
-        {
-            switch (rarity)
-            {
-                case WaifuRarity.Common:
-                    return 0;
-                case WaifuRarity.Uncommon:
-                    return 1;
-                case WaifuRarity.Rare:
-                    return 2;
-                case WaifuRarity.Epic:
-                    return 3;
-                case WaifuRarity.UltimateWaifu:
-                    return 99;
-                default:
-                    return 98;
-            }
-        }
     }
 }

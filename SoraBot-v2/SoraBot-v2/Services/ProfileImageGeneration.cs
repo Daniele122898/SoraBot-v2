@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp.PixelFormats;
@@ -195,8 +194,8 @@ namespace SoraBot_v2.Services
             IPath cornerToptLeft = rect.Clip(new EllipsePolygon(cornerRadius - 0.5f, cornerRadius - 0.5f, cornerRadius));
 
             // corner is now a corner shape positions top left
-            //lets make 3 more positioned correctly, we can do that by translating the orgional artound the center of the image
-            var center = new Vector2(imageWidth / 2F, imageHeight / 2F);
+            // lets make 3 more positioned correctly, we can do that by translating the orgional artound the center of the image
+            // var center = new Vector2(imageWidth / 2F, imageHeight / 2F);
 
             float rightPos = imageWidth - cornerToptLeft.Bounds.Width + 1;
             float bottomPos = imageHeight - cornerToptLeft.Bounds.Height + 1;

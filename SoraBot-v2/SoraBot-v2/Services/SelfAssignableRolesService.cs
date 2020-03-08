@@ -9,7 +9,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
-using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Data;
 using SoraBot_v2.Data.Entities.SubEntities;
 using SoraBot_v2.Extensions;
@@ -147,54 +146,53 @@ namespace SoraBot_v2.Services
             }
         }
 
-        public async Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
+        public Task ClientOnUserJoined(SocketGuildUser socketGuildUser)
         {
-            Task.Run(async () =>
+            var _ = Task.Run(async () =>
             {
                 var guild = socketGuildUser.Guild;
-                using (SoraContext soraContext = new SoraContext())
+                using SoraContext soraContext = new SoraContext();
+                var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
+
+                //Check if default role is even on
+                if (!guildDb.HasDefaultRole)
+                    return;
+                var sora = guild.CurrentUser;
+                //Check if sora has manageRoles perms!
+                if (!sora.GuildPermissions.Has(GuildPermission.ManageRoles))
                 {
-                    var guildDb = Utility.GetOrCreateGuild(guild.Id, soraContext);
-
-                    //Check if default role is even on
-                    if (!guildDb.HasDefaultRole)
-                        return;
-                    var sora = guild.CurrentUser;
-                    //Check if sora has manageRoles perms!
-                    if (!sora.GuildPermissions.Has(GuildPermission.ManageRoles))
-                    {
-                        await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                            embed: Utility.ResultFeedback(
-                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                    "Sora failed to add a default role!")
-                                .WithDescription(
-                                    "He needs the ManageRole permissions to assign roles. The role must also be below his highest role!\n" +
-                                    "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
-                        guildDb.HasDefaultRole = false;
-                        await soraContext.SaveChangesAsync();
-                        return;
-                    }
-
-                    //check if role still exists :P
-                    IRole role = guild.GetRole(guildDb.DefaultRoleId);
-                    //Role doesnt exist anymore, set defaultrole to false
-                    if (role == null)
-                    {
-                        await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
-                            embed: Utility.ResultFeedback(
-                                    Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
-                                    "Sora failed to add a default role!")
-                                .WithDescription("The default role doesn't exist anymore.\n" +
-                                                 "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
-                        guildDb.HasDefaultRole = false;
-                        await soraContext.SaveChangesAsync();
-                        return;
-                    }
-
-                    //role exists, is set to true and he has perms. so assign it
-                    await socketGuildUser.AddRoleAsync(role);
+                    await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                        embed: Utility.ResultFeedback(
+                                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                "Sora failed to add a default role!")
+                            .WithDescription(
+                                "He needs the ManageRole permissions to assign roles. The role must also be below his highest role!\n" +
+                                "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
+                    guildDb.HasDefaultRole = false;
+                    await soraContext.SaveChangesAsync();
+                    return;
                 }
-            });
+
+                //check if role still exists :P
+                IRole role = guild.GetRole(guildDb.DefaultRoleId);
+                //Role doesnt exist anymore, set defaultrole to false
+                if (role == null)
+                {
+                    await (await guild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("",
+                        embed: Utility.ResultFeedback(
+                                Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2],
+                                "Sora failed to add a default role!")
+                            .WithDescription("The default role doesn't exist anymore.\n" +
+                                             "Assigning default roles has been turned off. Fix the issue and then turn it back on by using the toggle command!").Build());
+                    guildDb.HasDefaultRole = false;
+                    await soraContext.SaveChangesAsync();
+                    return;
+                }
+
+                //role exists, is set to true and he has perms. so assign it
+                await socketGuildUser.AddRoleAsync(role);
+            }).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
         public async Task RemoveSarFromList(SocketCommandContext context, string roleName)
@@ -202,7 +200,6 @@ namespace SoraBot_v2.Services
             //check perms
             if (await Utility.HasAdminOrSoraAdmin(context) == false)
                 return;
-            var sora = context.Guild.CurrentUser;
             //Try to find role
             var role = context.Guild.Roles.FirstOrDefault(x =>
                 x.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));

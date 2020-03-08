@@ -64,7 +64,7 @@ namespace SoraBot_v2.Services
 
             _options.TryGetValue(guildId, out var options);
 
-            LavaTrack nextTrack = null;
+            LavaTrack nextTrack;
 
             if (options != null && options.RepeatTrack)
                 nextTrack = await RepeatTrackPlay(track.Uri.ToString());

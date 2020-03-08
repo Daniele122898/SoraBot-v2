@@ -59,7 +59,7 @@ namespace SoraBot_v2.Module
 
 
         [Command("rps"), Alias("rockpaperscissor"), Summary("Play rock paper scissor with Sora")]
-        public async Task RPS([Remainder]string chose)
+        public async Task Rps([Remainder]string chose)
         {
             chose = chose.ToLower();
             Random r= new Random();
@@ -135,14 +135,6 @@ namespace SoraBot_v2.Module
                         Utility.RedFailiureEmbed, Utility.SuccessLevelEmoji[2], "You must enter a valid RPS option").Build());
                     return;
             }
-        }
-
-        [Command("roll"), Alias("dice"), Summary("Roll a dice")]
-        public async Task RollDice()
-        {
-            Random r = new Random();
-            await Context.Channel.SendMessageAsync("", embed: Utility.ResultFeedback(
-                Utility.PurpleEmbed, Utility.SuccessLevelEmoji[4], "🎲 Rolled: "+r.Next(1,7)).Build());
         }
 
         [Command("lenny"), Summary("Lenny's the Chat")]

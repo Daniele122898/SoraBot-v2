@@ -200,7 +200,7 @@ namespace SoraBot_v2.Module
                 {
                     x.IsInline = false;
                     x.Name = "Aliases";
-                    x.Value = c.Aliases.Count == 0 ? "No aliases." : c.Aliases.Join(", ");
+                    x.Value = c.Aliases.Count == 0 ? "No aliases." : c.Aliases.Join();
                 });
 
                 if (c.Parameters.Count != 0)

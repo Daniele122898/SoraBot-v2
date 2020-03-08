@@ -122,7 +122,7 @@ namespace SoraBot_v2.Services
             if (types == null) return;    
             
             types.Types.RemoveAll(RemoveInter);
-            var module = await service.CreateModuleAsync("", build =>
+            await service.CreateModuleAsync("", build =>
             {
                 foreach (var type in types.Types)
                 {
@@ -175,14 +175,14 @@ namespace SoraBot_v2.Services
                         
                         await context.Channel.SendMessageAsync("", embed: eb.Build());
                     }, builder =>
-                        {
-                            builder.AddParameter("remainder", typeof(string),
-                                parameterBuilder =>
-                                {
-                                    parameterBuilder.IsRemainder = true;
-                                    parameterBuilder.IsOptional = true;
-                                });
-                        });    
+                    {
+                        builder.AddParameter("remainder", typeof(string),
+                            parameterBuilder =>
+                            {
+                                parameterBuilder.IsRemainder = true;
+                                parameterBuilder.IsOptional = true;
+                            });
+                    });    
                 }
                 
             });

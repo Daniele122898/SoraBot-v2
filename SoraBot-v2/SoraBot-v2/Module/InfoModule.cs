@@ -25,6 +25,21 @@ namespace SoraBot_v2.Module
             _restClient = restClient;
         }
 
+        [Command("avatar"), Alias("ava"),
+         Summary("Get the avatar of the tagged person or if no one was tagger, your own")]
+        public async Task GetAvatar(SocketUser userT = null)
+        {
+            var user = userT ?? Context.User;
+            
+            var eb = new EmbedBuilder()
+            {
+                ImageUrl = user.GetAvatarUrl() ?? Utility.StandardDiscordAvatar,
+                Footer = Utility.RequestedBy(Context.User),
+                Color = Utility.PurpleEmbed
+            };
+            await ReplyAsync(embed: eb.Build());
+        }
+
         [Command("userinfo"), Alias("whois", "uinfo"),
          Summary("Gives infos about the selected user. If none is mentioned the invoker will be taken")]
         public async Task UserInfo([Summary("User to display info of")] SocketUser userT = null)
@@ -75,7 +90,7 @@ namespace SoraBot_v2.Module
                     x.Name = $"Joined Guild";
                     if (user?.JoinedAt != null)
                         x.Value =
-                            $"{user?.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int)DateTime.Now.Subtract(((DateTimeOffset)user?.JoinedAt).DateTime).TotalDays} days ago)*";
+                            $"{user.JoinedAt.ToString().Remove(user.JoinedAt.ToString().Length - 6)}\n*({(int)DateTime.Now.Subtract(((DateTimeOffset)user?.JoinedAt).DateTime).TotalDays} days ago)*";
                     else
                         x.Value = "*Unknown*";
                 });
@@ -202,7 +217,7 @@ namespace SoraBot_v2.Module
             {
                 x.IsInline = true;
                 x.Name = "AFK Channel";
-                x.Value = $"{(Context.Guild.AFKChannel == null ? $"No AFK Channel" : $"{Context.Guild.AFKChannel.Name}\n*in {(int)(Context.Guild.AFKTimeout / 60)} Min*")}";
+                x.Value = $"{(Context.Guild.AFKChannel == null ? $"No AFK Channel" : $"{Context.Guild.AFKChannel.Name}\n*in {(Context.Guild.AFKTimeout / 60)} Min*")}";
             });
             eb.AddField(x =>
             {
@@ -260,7 +275,7 @@ namespace SoraBot_v2.Module
 
                     string FormatRamUnit(long d)
                     {
-                        var units = new string[] { "B", "KB", "MB", "GB", "TB", "PB" };
+                        var units = new[] { "B", "KB", "MB", "GB", "TB", "PB" };
                         var unitCount = 0;
                         while (d > 1000)
                         {

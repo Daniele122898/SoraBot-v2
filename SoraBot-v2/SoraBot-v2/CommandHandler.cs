@@ -46,18 +46,13 @@ namespace SoraBot_v2
                         string prefix = Utility.GetGuildPrefix(socketGuild, soraContext);
                         await (await socketGuild.Owner.GetOrCreateDMChannelAsync()).SendMessageAsync("", embed: Utility.ResultFeedback(Utility.BlueInfoEmbed, Utility.SuccessLevelEmoji[3], $"Hello there (≧∇≦)/")
                             .WithDescription($"I'm glad you invited me over :)\n" +
-                                             $"You can find the [list of commands and help here](https://github.com/Daniele122898/SoraBot-v2/wiki)\n" +
+                                             $"You can find the list of commands and help by using `{prefix}help`.\n" +
                                              $"To restrict tag creation and Sora's mod functions you must create\n" +
                                              $"a {Utility.SORA_ADMIN_ROLE_NAME} Role so that only the ones carrying it can create\n" +
                                              $"tags or use Sora's mod functionality. You can make him create one with: " +
                                              $"`{prefix}createAdmin`\n" +
                                              $"You can leave tag creation unrestricted if you want but its not\n" +
                                              $"recommended on larger servers as it will be spammed.\n" +
-                                             $"**Sora now has a Dashboard**\n" +
-                                             $"You can [find the dashboard here](http://argonaut.pw/Sora/) by clicking the login\n"+
-                                             $"button in the top right. It's still in pre-alpha but allows you to\n"+
-                                             $"customize levels and level rewards as well as other settings. It is required\n" + 
-                                             $"for proper setup of leveling.\n"+
                                              $"PS: Standard Prefix is `$` but you can change it with:\n" +
                                              $"`@Sora prefix yourPrefix`\n").WithThumbnailUrl(socketGuild.IconUrl ?? Utility.StandardDiscordAvatar).AddField("Support", $"You can find the [support guild here]({Utility.DISCORD_INVITE})").Build());
     
@@ -166,24 +161,29 @@ namespace SoraBot_v2
                 _audioService.Initialize(_lavaSocketClient, lavaRestClient, _client.CurrentUser.Id);
                 // voice shit
                 _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
-                _client.Disconnected += _audioService.ClientOnDisconnected;
+                // _client.Disconnected += _audioService.ClientOnDisconnected;
             });
 
             return Task.CompletedTask;
         }
 
-        private async Task ClientOnLeftGuild(SocketGuild socketGuild)
+        private Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
-            //notify discordbots
-            try
+            // For mass leaving
+            Task.Run(async () =>
             {
-                await _guildCount.UpdateCount(_client.Guilds.Count);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
+                //notify discordbots
+                try
+                {
+                    await _guildCount.UpdateCount(_client.Guilds.Count);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
+            });
+            return Task.CompletedTask;
         }
 
         public async Task InitializeAsync(IServiceProvider provider)
@@ -226,7 +226,7 @@ namespace SoraBot_v2
                     return;
                 }
                 
-                // Check if invoker is banend
+                // Check if invoker is banned
                 if (_banService.IsBanned(message.Author.Id))
                     return;
 
@@ -240,48 +240,43 @@ namespace SoraBot_v2
 
                 // Permissions are present and author is eligible for commands.
                 // Get a database instance. 
-                using (var soraContext = new SoraContext())
+                using var soraContext = new SoraContext();
+                //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
+                var _ = _afkService.Client_MessageReceived(m, _services).ConfigureAwait(false);
+                // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
+                var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");
+
+                // Check if the message starts with the prefix or mention before doing anything else.
+                // Also rely on stdlib stuff for that because #performance.
+
+                int argPos = prefix.Length - 1;
+                if (!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
+                    return;
+
+                // Detection finished.
+                // We know it's *very likely* a command for us.
+                // It's safe to create a context now.
+                var context = new SocketCommandContext(_client, message);
+
+                // Also allocate a default guild if needed since we skipped that part earlier.
+                await Utility.CreateGuildIfNeeded(channel.Guild.Id, soraContext);
+                // Handoff control to D.NET
+                var result = await _commands.ExecuteAsync(
+                    context,
+                    argPos,
+                    _services
+                );
+
+                // Handle errors if needed          
+                if (result.IsSuccess)
                 {
-                    //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
-#pragma warning disable 4014
-                    _afkService.Client_MessageReceived(m, _services);
-#pragma warning restore 4014
-                    // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
-                    // TODO: Move this into the config file
-                    var prefix = Utility.GetGuildPrefixFast(soraContext, channel.Guild.Id, "$");
-
-                    // Check if the message starts with the prefix or mention before doing anything else.
-                    // Also rely on stdlib stuff for that because #performance.
-
-                    int argPos = prefix.Length - 1;
-                    if (!(message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
-                        return;
-
-                    // Detection finished.
-                    // We know it's *very likely* a command for us.
-                    // It's safe to create a context now.
-                    var context = new SocketCommandContext(_client, message);
-
-                    // Also allocate a default guild if needed since we skipped that part earlier.
-                    Utility.GetOrCreateGuild(channel.Guild.Id, soraContext);
-                    // Handoff control to D.NET
-                    var result = await _commands.ExecuteAsync(
-                        context,
-                        argPos,
-                        _services
-                    );
-
-                    // Handle errors if needed          
-                    if (result.IsSuccess)
-                    {
-                        CommandsExecuted++;
-                        _ratelimitingService.RateLimitMain(context.User.Id);
-                    }
-                    else
-                    {
-                        //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                        await HandleErrorAsync(result, context);
-                    }
+                    CommandsExecuted++;
+                    _ratelimitingService.RateLimitMain(context.User.Id);
+                }
+                else
+                {
+                    //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
+                    await HandleErrorAsync(result, context);
                 }
             }
             catch (Exception e)
@@ -295,7 +290,7 @@ namespace SoraBot_v2
             switch (result.Error)
             {
                 case CommandError.Exception:
-                    if (exception != null)
+                    if (exception != null && exception.InnerException != null)
                     {
                         await SentryService.SendMessage(
                             $"**Exception**\n{exception.InnerException.Message}\n```\n{exception.InnerException}```");
