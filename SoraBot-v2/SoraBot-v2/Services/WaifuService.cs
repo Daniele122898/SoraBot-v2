@@ -481,7 +481,7 @@ namespace SoraBot_v2.Services
                     }
                     // Here is where we do the selling
                     selected.Count -= amount;
-                    int cash = GetWaifuQuickSellCost(waifu?.Rarity ?? 0) * amount;
+                    int cash = GetWaifuQuickSellCost(waifu.Rarity) * amount;
                     userdb.Money += cash;
                     bool fav = false;
                     if (selected.Count == 0)

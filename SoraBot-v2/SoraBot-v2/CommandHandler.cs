@@ -167,7 +167,7 @@ namespace SoraBot_v2
             return Task.CompletedTask;
         }
 
-        private async Task ClientOnLeftGuild(SocketGuild socketGuild)
+        private Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
             // For mass leaving
             Task.Run(async () =>
@@ -183,6 +183,7 @@ namespace SoraBot_v2
                 }
                 await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
             });
+            return Task.CompletedTask;
         }
 
         public async Task InitializeAsync(IServiceProvider provider)
