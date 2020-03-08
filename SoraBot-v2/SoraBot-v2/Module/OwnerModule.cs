@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Newtonsoft.Json;
 using SoraBot_v2.Services;
 
 namespace SoraBot_v2.Module
@@ -115,6 +118,21 @@ namespace SoraBot_v2.Module
 
             await guild.LeaveAsync();
             await ReplyAsync("Left guild.");
+        }
+
+        [Command("getallguilds")]
+        [RequireOwner]
+        public async Task GetAllGuilds()
+        {
+            var gs = Context.Client.Guilds
+                .Select(g => new
+                    {Id = g.Id, UserCount = g.Users.Count, BotCount = g.Users.Count(u => u.IsBot), Name = g.Name});
+            
+            var serialized = JsonConvert.SerializeObject(gs, Formatting.Indented);
+            string path = "allGuildsTemp.json";
+            await File.WriteAllTextAsync(path, serialized);
+            await Context.Channel.SendFileAsync(path, "All the guilds on this shard");
+            File.Delete(path);
         }
     }
 }
