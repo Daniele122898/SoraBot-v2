@@ -169,16 +169,20 @@ namespace SoraBot_v2
 
         private async Task ClientOnLeftGuild(SocketGuild socketGuild)
         {
-            //notify discordbots
-            try
+            // For mass leaving
+            Task.Run(async () =>
             {
-                await _guildCount.UpdateCount(_client.Guilds.Count);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
+                //notify discordbots
+                try
+                {
+                    await _guildCount.UpdateCount(_client.Guilds.Count);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                await SentryService.SendMessage($"**LEFT GUILD**\nName: {socketGuild.Name}\nID: {socketGuild.Id}\nUsers: {socketGuild.MemberCount}\nOwner: {Utility.GiveUsernameDiscrimComb(socketGuild.Owner)}");
+            });
         }
 
         public async Task InitializeAsync(IServiceProvider provider)

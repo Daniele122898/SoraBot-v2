@@ -46,7 +46,8 @@ namespace SoraBot_v2.Services
                     Console.WriteLine($"Checked {count}/{guilds.Count} guilds..");
                 }
                 
-                await guild.DownloadUsersAsync().ConfigureAwait(false);
+                // This ratelimites us
+                // await guild.DownloadUsersAsync().ConfigureAwait(false);
                 var users = guild.Users;
                 int bots = users.Count(u => u.IsBot);
                 double botPercentage = (double)bots / users.Count;
@@ -78,6 +79,7 @@ namespace SoraBot_v2.Services
             foreach (var guild in _guildCache)
             {
                 await guild.LeaveAsync();
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
 
             await context.ReplySoraEmbedSuccessResponse($"Left {_guildCache.Count} guilds");

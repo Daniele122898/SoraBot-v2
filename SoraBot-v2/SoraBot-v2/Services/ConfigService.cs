@@ -32,7 +32,7 @@ namespace SoraBot_v2.Services
 
         public static string GetConfigData(string key)
         {
-            string result = "";
+            string result;
             _configDict.TryGetValue(key, out result);
             return result;
         }
