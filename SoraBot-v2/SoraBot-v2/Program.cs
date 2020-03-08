@@ -164,6 +164,7 @@ namespace SoraBot_v2
             services.AddSingleton(_banService);
             services.AddSingleton<InteractionsService>();
             services.AddSingleton<OwnerService>();
+            services.AddSingleton<LogService>();
             services.AddSingleton<CoinService>();
             services.AddSingleton<AfkService>();
             services.AddSingleton<DynamicPrefixService>();
