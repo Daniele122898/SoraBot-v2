@@ -211,7 +211,7 @@ namespace SoraBot_v2.Services
         {
             return user.Roles.Any(x => x.Name.Equals(SORA_ADMIN_ROLE_NAME, StringComparison.Ordinal));
         }
-
+        
         public static async Task<bool> HasAdminOrSoraAdmin(SocketCommandContext context)
         {
             var user = (SocketGuildUser) context.User;
