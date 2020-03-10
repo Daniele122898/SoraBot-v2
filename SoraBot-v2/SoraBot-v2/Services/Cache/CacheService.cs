@@ -78,7 +78,7 @@ namespace SoraBot_v2.Services
             return result;
         }
         
-        public static async Task<TReturn> GetOrSet<TReturn>(string id, Func<Task<TReturn>> setAndGet, TimeSpan? ttl = null)
+        public static async Task<TReturn> GetOrSetAsync<TReturn>(string id, Func<Task<TReturn>> setAndGet, TimeSpan? ttl = null)
         {
             if (_cacheDict.TryGetValue(id, out var item) && item.Timeout.CompareTo(DateTime.UtcNow) > 0)
             {
