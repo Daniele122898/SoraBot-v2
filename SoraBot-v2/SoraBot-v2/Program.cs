@@ -167,7 +167,6 @@ namespace SoraBot_v2
             services.AddSingleton<LogService>();
             services.AddSingleton<CoinService>();
             services.AddSingleton<AfkService>();
-            services.AddSingleton<DynamicPrefixService>();
             services.AddSingleton<RatelimitingService>();
             services.AddSingleton<MusicShareService>();
             services.AddSingleton<WaifuService>();
