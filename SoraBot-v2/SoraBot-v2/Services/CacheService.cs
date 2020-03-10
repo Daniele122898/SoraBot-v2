@@ -40,13 +40,12 @@ namespace SoraBot_v2.Services
         public static async Task<IUserMessage> GetUserMessage(ulong id, RequestOptions options = null)
         {
             string sId = DISCORD_USER_MESSAGE + id;
-            Object msgObj = Get(sId);
+            object msgObj = Get(sId);
             IUserMessage msg = null;
             if (msgObj == null && options != null)
             {
                 //Mesage isn't cached so check if request options are valid
-                var channel = options.GetFrom as ITextChannel;
-                if (channel != null)
+                if (options.GetFrom is ITextChannel channel)
                 {
                     //If the message isn't cachged get it (if Request options are given)
                     msg = await SetDiscordUserMessage(channel, id, options.Timeout);
@@ -90,19 +89,29 @@ namespace SoraBot_v2.Services
             _cacheDict.AddOrUpdate(id, item, (key, oldValue) => item);
         }
 
-        private static Object Get(string id)
+        private static object Get(string id)
         {
-            Item item;
-            return _cacheDict.TryGetValue(id, out item) ? item.Content : null;
+            if (!_cacheDict.TryGetValue(id, out var item))
+            {
+                return null;
+            }
+
+            if (item.Timeout.CompareTo(DateTime.UtcNow) <= 0)
+            {
+                // first remove entry and then return null
+                _cacheDict.TryRemove(id, out _);
+                return null;
+            }
+            return  item.Content;
         }
     }
 
     public class RequestOptions
     {
-        public Object GetFrom { get; }
+        public object GetFrom { get; }
         public TimeSpan Timeout { get; }
 
-        public RequestOptions(Object getFrom, TimeSpan timeout)
+        public RequestOptions(object getFrom, TimeSpan timeout)
         {
             GetFrom = getFrom;
             Timeout = timeout;
@@ -111,10 +120,10 @@ namespace SoraBot_v2.Services
 
     public class Item
     {
-        public Object Content { get; }
+        public object Content { get; }
         public DateTime Timeout { get; }
 
-        public Item(Object content, DateTime timeout)
+        public Item(object content, DateTime timeout)
         {
             Content = content;
             Timeout = timeout;
