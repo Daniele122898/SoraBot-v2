@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SoraBot_v2.Services
 {
@@ -57,6 +58,45 @@ namespace SoraBot_v2.Services
             return  item.Content;
         }
 
+        public static TReturn GetOrSet<TReturn>(string id, Func<TReturn> setAndGet, TimeSpan? ttl = null)
+        {
+            if (_cacheDict.TryGetValue(id, out var item) && item.Timeout.CompareTo(DateTime.UtcNow) > 0)
+            {
+                return (TReturn)item.Content;
+            }
+            // Otherwise use the get function to get it and set it
+            TReturn result = setAndGet();
+            if (!ttl.HasValue)
+            {
+                ttl = TimeSpan.FromHours(1);
+            }
+            // only set the cache if the result is not null
+            if (result != null)
+            {
+                Set(id, new Item(result, DateTime.UtcNow.Add(ttl.Value)));
+            } 
+            return result;
+        }
+        
+        public static async Task<TReturn> GetOrSet<TReturn>(string id, Func<Task<TReturn>> setAndGet, TimeSpan? ttl = null)
+        {
+            if (_cacheDict.TryGetValue(id, out var item) && item.Timeout.CompareTo(DateTime.UtcNow) > 0)
+            {
+                return (TReturn) item.Content;
+            }
+            // Otherwise use the get function to get it and set it
+            TReturn result = await setAndGet().ConfigureAwait(false);
+            if (!ttl.HasValue)
+            {
+                ttl = TimeSpan.FromHours(1);
+            }
+            // only set the cache if the result is not null
+            if (result != null)
+            {
+                Set(id, new Item(result, DateTime.UtcNow.Add(ttl.Value)));
+            } 
+            return result;
+        }
         
     }
 }
