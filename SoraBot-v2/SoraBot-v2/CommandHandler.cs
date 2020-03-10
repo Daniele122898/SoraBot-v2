@@ -263,7 +263,7 @@ namespace SoraBot_v2
                     if (guild == null) return "$";
 
                     return guild.Prefix;
-                });
+                }).ConfigureAwait(false);
 
                 // Check if the message starts with the prefix or mention before doing anything else.
                 // Also rely on stdlib stuff for that because #performance.
