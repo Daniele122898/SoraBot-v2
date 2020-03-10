@@ -41,7 +41,7 @@ namespace SoraBot_v2.Module
             // Set Cache
             CacheService.SetGuildPrefix(Context.Guild.Id, prefix);
             
-            await Context.Channel.SendMessageAsync("",
+            await ReplyAsync("",
                 embed: Utility.ResultFeedback(Utility.GreenSuccessEmbed, Utility.SuccessLevelEmoji[0],
                     $"Prefix in this Guild was changed to `{prefix}`").Build());
         }
