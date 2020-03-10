@@ -243,22 +243,22 @@ namespace SoraBot_v2
                     return;
 
                 // Check the permissions of this channel 
-                if (await Utility.CheckReadWritePerms(channel.Guild, channel, false) == false)
+                if (await Utility.CheckReadWritePerms(channel.Guild, channel, false).ConfigureAwait(false) == false)
                     return;
 
                 // Check the ratelimit of this author
-                if (await _ratelimitingService.IsRatelimited(message.Author.Id))
+                if (await _ratelimitingService.IsRatelimited(message.Author.Id).ConfigureAwait(false))
                     return;
 
                 // Permissions are present and author is eligible for commands.
-                // Get a database instance. 
-                using var soraContext = new SoraContext();
                 //Hand it over to the AFK Service to do its thing. Don't await to not block command processing. 
                 var _ = _afkService.Client_MessageReceived(m, _services).ConfigureAwait(false);
                 // Look for a prefix but use a hardcoded fallback instead of creating a default guild.
                 string prefixCacheId = CacheService.DISCORD_GUILD_PREFIX + channel.Guild.Id.ToString();
                 var prefix = await CacheService.GetOrSetAsync<string>(prefixCacheId, async () =>
                 {
+                    // Get a database instance. 
+                    using var soraContext = new SoraContext();
                     var guild = await soraContext.Guilds.FirstOrDefaultAsync(x => x.GuildId == channel.Guild.Id);
                     if (guild == null) return "$";
 
@@ -296,7 +296,7 @@ namespace SoraBot_v2
                 else
                 {
                     //await context.Channel.SendMessageAsync($"**FAILED**\n{result.ErrorReason}");
-                    await HandleErrorAsync(result, context);
+                    await HandleErrorAsync(result, context).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
