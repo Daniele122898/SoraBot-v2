@@ -2,7 +2,6 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 
@@ -53,7 +52,7 @@ namespace SoraBot_v2.Module
             var prefix = await CacheService.GetOrSetAsync<string>(prefixCacheId, async () =>
             {
                 using var soraContext = new SoraContext();
-                var guild = await soraContext.Guilds.FirstOrDefaultAsync(x => x.GuildId == Context.Guild.Id);
+                var guild = await soraContext.Guilds.FindAsync(Context.Guild.Id);
                 if (guild == null) return "$";
 
                 return guild.Prefix;

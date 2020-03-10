@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
 using Victoria;
@@ -259,7 +258,7 @@ namespace SoraBot_v2
                 {
                     // Get a database instance. 
                     using var soraContext = new SoraContext();
-                    var guild = await soraContext.Guilds.FirstOrDefaultAsync(x => x.GuildId == channel.Guild.Id);
+                    var guild = await soraContext.Guilds.FindAsync(channel.Guild.Id);
                     if (guild == null) return "$";
 
                     return guild.Prefix;
