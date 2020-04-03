@@ -6,7 +6,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using SoraBot_v2.Data;
 using SoraBot_v2.Services;
-using Victoria;
 
 namespace SoraBot_v2
 {
@@ -82,8 +81,7 @@ namespace SoraBot_v2
             AfkService afkService, RatelimitingService ratelimitingService, StarboardService starboardService,
             SelfAssignableRolesService selfService, AnnouncementService announcementService,
             ModService modService, GuildCountUpdaterService guildUpdate, ExpService expService,
-            BanService banService, InteractionsService interactionsService, LavaSocketClient lavaSocketClient,
-            AudioService audioService)
+            BanService banService, InteractionsService interactionsService)
         {
             _client = client;
             _commands = commandService;
@@ -119,30 +117,30 @@ namespace SoraBot_v2
             _client.Ready += ClientOnReady;
         }
 
-        private Task LavaSocketClientOnLog(LogMessage msg)
-        {
-            switch (msg.Severity)
-            {
-                case LogSeverity.Critical:
-                case LogSeverity.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-                case LogSeverity.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-                case LogSeverity.Info:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
-                case LogSeverity.Verbose:
-                case LogSeverity.Debug:
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    break;
-            }
-
-            Console.WriteLine($"{DateTime.Now,-19} [{msg.Severity,8}] {msg.Source}: {msg.Message} {msg.Exception}");
-            Console.ResetColor();
-            return Task.CompletedTask;
-        }
+        // private Task LavaSocketClientOnLog(LogMessage msg)
+        // {
+        //     switch (msg.Severity)
+        //     {
+        //         case LogSeverity.Critical:
+        //         case LogSeverity.Error:
+        //             Console.ForegroundColor = ConsoleColor.Red;
+        //             break;
+        //         case LogSeverity.Warning:
+        //             Console.ForegroundColor = ConsoleColor.Yellow;
+        //             break;
+        //         case LogSeverity.Info:
+        //             Console.ForegroundColor = ConsoleColor.White;
+        //             break;
+        //         case LogSeverity.Verbose:
+        //         case LogSeverity.Debug:
+        //             Console.ForegroundColor = ConsoleColor.DarkGray;
+        //             break;
+        //     }
+        //
+        //     Console.WriteLine($"{DateTime.Now,-19} [{msg.Severity,8}] {msg.Source}: {msg.Message} {msg.Exception}");
+        //     Console.ResetColor();
+        //     return Task.CompletedTask;
+        // }
 
         private Task ClientOnReady()
         {

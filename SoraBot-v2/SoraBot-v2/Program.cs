@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Services;
-using Victoria;
 
 namespace SoraBot_v2
 {
