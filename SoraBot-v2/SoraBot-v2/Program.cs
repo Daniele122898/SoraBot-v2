@@ -157,8 +157,8 @@ namespace SoraBot_v2
             //// Disabled by Catherine Renelle - Memory leak fix
             ////services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
 
-            services.AddSingleton<LavaSocketClient>();
-            services.AddSingleton<AudioService>();
+            // services.AddSingleton<LavaSocketClient>();
+            // services.AddSingleton<AudioService>();
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
             services.AddSingleton(_banService);

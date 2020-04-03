@@ -23,8 +23,8 @@ namespace SoraBot_v2
         private readonly GuildCountUpdaterService _guildCount;
         private readonly BanService _banService;
         private readonly InteractionsService _interactionsService;
-        private readonly LavaSocketClient _lavaSocketClient;
-        private readonly AudioService _audioService;
+        // private readonly LavaSocketClient _lavaSocketClient;
+        // private readonly AudioService _audioService;
 
         private Task ClientOnJoinedGuild(SocketGuild socketGuild)
         {
@@ -93,8 +93,8 @@ namespace SoraBot_v2
             _guildCount = guildUpdate;
             _banService = banService;
             _interactionsService = interactionsService;
-            _lavaSocketClient = lavaSocketClient;
-            _audioService = audioService;
+            // _lavaSocketClient = lavaSocketClient;
+            // _audioService = audioService;
 
             _guildCount.Initialize(client.ShardId, Utility.TOTAL_SHARDS, client.Guilds.Count);
 
@@ -147,6 +147,7 @@ namespace SoraBot_v2
         private Task ClientOnReady()
         {
             SentryService.Install(_client);
+            /*
             // lavalink shit
             _lavaSocketClient.Log += LavaSocketClientOnLog;
             // setup lavalink
@@ -172,6 +173,7 @@ namespace SoraBot_v2
                 _client.UserVoiceStateUpdated += _audioService.ClientOnUserVoiceStateUpdated;
                 // _client.Disconnected += _audioService.ClientOnDisconnected;
             });
+            */
 
             return Task.CompletedTask;
         }
