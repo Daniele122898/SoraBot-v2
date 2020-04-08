@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot_v2.Services;
-using Victoria;
 
 namespace SoraBot_v2
 {
@@ -157,8 +156,8 @@ namespace SoraBot_v2
             //// Disabled by Catherine Renelle - Memory leak fix
             ////services.AddDbContext<SoraContext>(options => options.UseMySql(_connectionString),ServiceLifetime.Transient);//, ServiceLifetime.Transient
 
-            services.AddSingleton<LavaSocketClient>();
-            services.AddSingleton<AudioService>();
+            // services.AddSingleton<LavaSocketClient>();
+            // services.AddSingleton<AudioService>();
             services.AddSingleton<CommandHandler>();
             services.AddSingleton(_interactive);
             services.AddSingleton(_banService);
@@ -167,7 +166,6 @@ namespace SoraBot_v2
             services.AddSingleton<LogService>();
             services.AddSingleton<CoinService>();
             services.AddSingleton<AfkService>();
-            services.AddSingleton<DynamicPrefixService>();
             services.AddSingleton<RatelimitingService>();
             services.AddSingleton<MusicShareService>();
             services.AddSingleton<WaifuService>();
