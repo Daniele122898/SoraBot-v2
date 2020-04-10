@@ -5,4 +5,8 @@
         <LangVersion>8</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Discord.Net" Version="2.1.1" />
+    </ItemGroup>
+
 </Project>
