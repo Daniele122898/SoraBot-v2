@@ -26,7 +26,7 @@ namespace SoraBot.Data
         }
 
         /// <inheritdoc />
-        public async Task<T> Do<T>(Func<TContext, Task<T>> task)
+        public async Task<T> DoAsync<T>(Func<TContext, Task<T>> task)
         {
             await using var context = this.CreateContext();
             return await task(context).ConfigureAwait(false);

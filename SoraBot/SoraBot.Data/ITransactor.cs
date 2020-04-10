@@ -26,7 +26,7 @@ namespace SoraBot.Data
         /// <param name="task">The operation to be carried out</param>
         /// <typeparam name="T">Type of entity</typeparam>
         /// <returns></returns>
-        Task<T> Do<T>(Func<TContext, Task<T>> task);
+        Task<T> DoAsync<T>(Func<TContext, Task<T>> task);
 
         /// <summary>
         /// Carries out an operation in a transaction.
