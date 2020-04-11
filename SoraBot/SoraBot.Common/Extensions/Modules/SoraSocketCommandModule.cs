@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using SoraBot.Common.Utils;
 
 namespace SoraBot.Common.Extensions.Modules
 {
@@ -49,6 +50,15 @@ namespace SoraBot.Common.Extensions.Modules
         public async Task<IUserMessage> ReplyDefaultEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Purple, message).Build());
+        }
+
+        public static EmbedFooterBuilder RequestedByFooter(IUser user)
+        {
+            return new EmbedFooterBuilder()
+            {
+                Text = $"Requested by {Formatter.UsernameDiscrim(user)}",
+                IconUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl()
+            };
         }
 
         public static EmbedBuilder SimpleEmbed(Color color, string text)
