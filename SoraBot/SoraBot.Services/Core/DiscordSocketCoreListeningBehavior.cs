@@ -65,7 +65,7 @@ namespace SoraBot.Services.Core
             var context = new SocketCommandContext(_client, message);
             var timer = new Stopwatch();
             timer.Start();
-            IResult commandResult = null;
+            IResult commandResult;
             try
             {
                 commandResult = await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
