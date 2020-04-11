@@ -17,6 +17,7 @@ namespace SoraBot.Data.Extensions.ContextFactories
             var connectionString = configuration.GetSection("SoraBotSettings").GetValue<string>("DbConnection");
             
             var optionsBuilder = new DbContextOptionsBuilder<SoraContext>();
+            optionsBuilder.UseLazyLoadingProxies();
             optionsBuilder.UseMySql(connectionString);
             var context = new SoraContext(optionsBuilder.Options);
             return context;
