@@ -38,7 +38,7 @@ namespace SoraBot.Bot.Extensions
                     SeparatorChar = ' '
                 });
                 // Here i could add type readers or programatically added commands etc
-                return services;
+                return service;
             });
 
             services.AddSingleton<DiscordSerilogAdapter>();
