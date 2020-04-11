@@ -15,6 +15,7 @@ using SoraBot.Data.Configurations;
 
 namespace SoraBot.Bot
 {
+    // HEAVILY copied/inspired by Modix. Never worked with BackgroundServices so I had to look that up :)
     public sealed class SoraBot : BackgroundService
     {
         private readonly ILogger<SoraBot> _logger;

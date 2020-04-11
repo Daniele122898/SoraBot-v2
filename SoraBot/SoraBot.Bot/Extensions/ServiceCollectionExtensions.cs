@@ -3,8 +3,11 @@ using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
+using SoraBot.Services.Core;
 
 namespace SoraBot.Bot.Extensions
 {
@@ -42,6 +45,9 @@ namespace SoraBot.Bot.Extensions
             });
 
             services.AddSingleton<DiscordSerilogAdapter>();
+
+            services.AddSingleton<IHostedService, BehaviorHost>()
+                .AddSoraBotCore();
 
             services.AddHostedService<SoraBot>();
             

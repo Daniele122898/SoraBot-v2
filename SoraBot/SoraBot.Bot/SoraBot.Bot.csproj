@@ -18,7 +18,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SoraBot.Common\SoraBot.Common.csproj" />
       <ProjectReference Include="..\SoraBot.Data\SoraBot.Data.csproj" />
+      <ProjectReference Include="..\SoraBot.Services\SoraBot.Services.csproj" />
     </ItemGroup>
 
 </Project>

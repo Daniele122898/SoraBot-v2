@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Bot", "SoraBot.Bot\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Data", "SoraBot.Data\SoraBot.Data.csproj", "{F0DB54B3-D940-4600-A990-B0FC373E1BCB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Services", "SoraBot.Services\SoraBot.Services.csproj", "{2533EF73-0831-42D7-B4E8-D171ADC2E710}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Common", "SoraBot.Common\SoraBot.Common.csproj", "{3B26DFC2-706C-4B15-A007-17F5C9F0278B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{F0DB54B3-D940-4600-A990-B0FC373E1BCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0DB54B3-D940-4600-A990-B0FC373E1BCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0DB54B3-D940-4600-A990-B0FC373E1BCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2533EF73-0831-42D7-B4E8-D171ADC2E710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2533EF73-0831-42D7-B4E8-D171ADC2E710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2533EF73-0831-42D7-B4E8-D171ADC2E710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2533EF73-0831-42D7-B4E8-D171ADC2E710}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
