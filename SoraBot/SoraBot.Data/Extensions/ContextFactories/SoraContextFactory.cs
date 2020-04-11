@@ -2,9 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using SoraBot.Data;
 
-namespace SoraBot.WebApi.Extensions.ContextFactories
+namespace SoraBot.Data.Extensions.ContextFactories
 {
     public class SoraContextFactory : IDesignTimeDbContextFactory<SoraContext>
     {
