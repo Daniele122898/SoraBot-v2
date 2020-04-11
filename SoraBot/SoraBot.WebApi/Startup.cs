@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SoraBot.Bot.Extensions;
+using SoraBot.Data.Extensions;
 using SoraBot.WebApi.Extensions;
 
 namespace SoraBot.WebApi
@@ -53,6 +54,7 @@ namespace SoraBot.WebApi
 
             services.AddConfigurations(_configuration);
 
+            services.AddSoraData();
             services.AddSoraBot();
         }
 
