@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace SoraBot.Data
 {
@@ -11,6 +12,13 @@ namespace SoraBot.Data
     /// <typeparam name="TContext">Type of context a concrete class will create and use</typeparam>
     public abstract class TransactorBase<TContext> : ITransactor<TContext> where TContext : DbContext
     {
+        protected readonly ILogger<TransactorBase<TContext>> Logger;
+
+        protected TransactorBase(ILogger<TransactorBase<TContext>> logger)
+        {
+            Logger = logger;
+        }
+        
         /// <summary>
         /// This must be implemented by whoever inherits this class to specify what kind of DB context
         /// shall be used
@@ -45,7 +53,7 @@ namespace SoraBot.Data
             }
             catch (Exception e)
             {
-                // TODO use sentry
+                this.Logger.LogError(e, "Error in Transaction");
                 throw;
             }
         }
@@ -63,7 +71,7 @@ namespace SoraBot.Data
             }
             catch (Exception e)
             {
-                // TODO use sentry
+                this.Logger.LogError(e, "Error in async Transaction");
                 throw;
             }
         }
