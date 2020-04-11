@@ -6,6 +6,8 @@ namespace SoraBot.Bot.Extensions
     {
         public static IServiceCollection AddSoraBot(this IServiceCollection services)
         {
+
+            services.AddHostedService<SoraBot>();
             
             return services;
         }
