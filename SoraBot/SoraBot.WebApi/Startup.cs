@@ -4,15 +4,24 @@ using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SoraBot.Bot.Extensions;
+using SoraBot.WebApi.Extensions;
 
 namespace SoraBot.WebApi
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+        
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
@@ -42,6 +51,8 @@ namespace SoraBot.WebApi
             services.AddRouting(op => op.LowercaseUrls = true);
             
             services.AddCors();
+
+            services.AddConfigurations(_configuration);
 
             services.AddSoraBot();
         }

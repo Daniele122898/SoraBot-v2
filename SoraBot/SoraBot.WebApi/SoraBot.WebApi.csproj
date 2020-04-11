@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SoraBot.Bot\SoraBot.Bot.csproj" />
+      <ProjectReference Include="..\SoraBot.Data\SoraBot.Data.csproj" />
     </ItemGroup>
 
 </Project>

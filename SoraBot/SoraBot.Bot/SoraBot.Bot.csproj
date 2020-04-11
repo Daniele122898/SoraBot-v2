@@ -17,4 +17,8 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SoraBot.Data\SoraBot.Data.csproj" />
+    </ItemGroup>
+
 </Project>
