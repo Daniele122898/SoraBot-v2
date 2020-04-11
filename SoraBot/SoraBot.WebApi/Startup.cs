@@ -54,7 +54,7 @@ namespace SoraBot.WebApi
 
             services.AddConfigurations(_configuration);
 
-            services.AddSoraData();
+            services.AddSoraData(_configuration);
             services.AddSoraBot();
         }
 
