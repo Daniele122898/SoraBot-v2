@@ -19,34 +19,34 @@ namespace SoraBot.Common.Extensions.Modules
         public const string PartyEmoji = "🎉";
         public const string MusicalNote = "🎵";
 
-        public async Task<IUserMessage> ReplyEmbedResponse(string message,
+        public async Task<IUserMessage> ReplyEmbed(string message,
             Color? embedColor = null, string emoji = null)
         {
             Color color = embedColor ?? Purple;
             return await ReplyAsync("", embed: SimpleEmbed(color, message, emoji).Build());
         }
 
-        public async Task<IUserMessage> ReplySuccessEmbedResponse(string message)
+        public async Task<IUserMessage> ReplySuccessEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
         }
 
-        public async Task<IUserMessage> ReplyFailureEmbedResponse(string message)
+        public async Task<IUserMessage> ReplyFailureEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Red, message, FailureEmoji).Build());
         }
         
-        public async Task<IUserMessage> ReplyWarningEmbedResponse(string message)
+        public async Task<IUserMessage> ReplyWarningEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Yellow, message, WarnEmoji).Build());
         }
         
-        public async Task<IUserMessage> ReplyInfoEmbedResponse(string message)
+        public async Task<IUserMessage> ReplyInfoEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Blue, message, InfoEmoji).Build());
         }
         
-        public async Task<IUserMessage> ReplyDefaultEmbedResponse(string message)
+        public async Task<IUserMessage> ReplyDefaultEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Purple, message).Build());
         }

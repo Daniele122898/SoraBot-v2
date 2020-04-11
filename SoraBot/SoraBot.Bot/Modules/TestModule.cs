@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
+using SoraBot.Common.Extensions.Modules;
 
 namespace SoraBot.Bot.Modules
 {
-    public class TestModule : ModuleBase<SocketCommandContext>
+    public class TestModule : SoraSocketCommandModule
     {
         [Command("test")]
-        public Task TestMessage() => ReplyAsync("I work :>");
+        public Task TestMessage() => ReplyDefaultEmbed("I work :>");
     }
 }
