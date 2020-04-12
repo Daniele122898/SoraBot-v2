@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SoraBot.Data.Repositories;
+using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Extensions
 {
@@ -10,6 +12,10 @@ namespace SoraBot.Data.Extensions
         public static IServiceCollection AddSoraData(this IServiceCollection services, IConfiguration configs)
         {
             services.AddScoped<ITransactor<SoraContext>, SoraDbTransactor>();
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICoinRepository, CoinRepository>();
+            
             // Use this pool in the transactor as well for improved performance
             services.AddDbContextPool<SoraContext>(op =>
             {

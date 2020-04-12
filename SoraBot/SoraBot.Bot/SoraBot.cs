@@ -81,7 +81,7 @@ namespace SoraBot.Bot
                 _logger.LogInformation("Discord client started successfully.");
 
                 // This way the background task stays alive 
-                await Task.Delay(-1);
+                // await Task.Delay(-1);
             }
             catch (Exception e)
             {

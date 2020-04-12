@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Hosting;
 
@@ -61,6 +62,8 @@ namespace SoraBot.Services.Core
             if (!(message.HasStringPrefix(prefix, ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                 return;
+
+            using var scope = _serviceProvider.CreateScope();
             
             var context = new SocketCommandContext(_client, message);
             var timer = new Stopwatch();
@@ -68,7 +71,7 @@ namespace SoraBot.Services.Core
             IResult commandResult;
             try
             {
-                commandResult = await _commandService.ExecuteAsync(context, argPos, _serviceProvider);
+                commandResult = await _commandService.ExecuteAsync(context, argPos, scope.ServiceProvider);
             }
             finally
             {

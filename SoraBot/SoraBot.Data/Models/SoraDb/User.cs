@@ -13,5 +13,6 @@ namespace SoraBot.Data.Models.SoraDb
         public uint Coins { get; set; } = 0;
         [Required]
         public DateTime LastDaily { get; set; } = DateTime.UnixEpoch;
+
     }
 }

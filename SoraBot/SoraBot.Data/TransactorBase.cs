@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -73,6 +74,24 @@ namespace SoraBot.Data
             {
                 this.Logger.LogError(e, "Error in async Transaction");
                 throw;
+            }
+        }
+
+        public async Task<Maybe<T>> DoInTransactionAndGetAsync<T>(Func<TContext, Task<T>> task)
+        {
+            await using var context = this.CreateContext();
+            await using var transaction = await context.Database.BeginTransactionAsync().ConfigureAwait(false);
+            try
+            {
+                var res = await task(context).ConfigureAwait(false);
+                // Transaction will auto-rollback when disposed if any commands fail
+                await transaction.CommitAsync().ConfigureAwait(false);
+                return Maybe.FromVal(res);
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, "Error in async Transaction");
+                return Maybe.FromErr<T>(e);
             }
         }
 

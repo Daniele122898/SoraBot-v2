@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 
 namespace SoraBot.Data
 {
@@ -42,6 +43,15 @@ namespace SoraBot.Data
         /// <param name="task">The operation to be carried out</param>
         /// <returns></returns>
         Task DoInTransactionAsync(Func<TContext, Task> task);
+
+        /// <summary>
+        /// Carries out an operation in a transaction asynchronously
+        /// But also returns the result if successful.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        Task<Maybe<T>> DoInTransactionAndGetAsync<T>(Func<TContext, Task<T>> task);
 
         /// <summary>
         /// This makes it possible to read uncommitted and dirty data from the DB.
