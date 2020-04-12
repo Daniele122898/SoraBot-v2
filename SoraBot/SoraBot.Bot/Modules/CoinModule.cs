@@ -157,7 +157,7 @@ namespace SoraBot.Bot.Modules
                                 .Build());
                     notified = true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     notified = false;
                 }
