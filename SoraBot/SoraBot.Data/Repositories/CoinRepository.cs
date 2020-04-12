@@ -36,6 +36,22 @@ namespace SoraBot.Data.Repositories
                 user.LastDaily = DateTime.UtcNow;
                 user.Coins += dailyAmount;
                 await context.SaveChangesAsync().ConfigureAwait(false);
+                return true;
+            }).ConfigureAwait(false);
+        }
+
+        public async Task<bool> TryMakeTransfer(ulong userId, ulong receiverId, uint amount)
+        {
+            return await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                var receiver = await context.Users.FindAsync(receiverId).ConfigureAwait(false);
+                if (user == null || receiver == null) return false;
+                if (user.Coins < amount) return false;
+                user.Coins -= amount;
+                receiver.Coins += amount;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return true;
             }).ConfigureAwait(false);
         }
 

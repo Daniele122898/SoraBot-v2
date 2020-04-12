@@ -64,7 +64,7 @@ namespace SoraBot.Common.Extensions.Modules
             if (userMaybe.HasValue)
                 return false;
             // otherwise send error
-            await ReplyFailureEmbed("Failed to fetch your user data. Please try again.");
+            await ReplyFailureEmbed("Failed to fetch or create your user data. Please try again.");
             return true;
         }
 

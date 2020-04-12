@@ -52,7 +52,7 @@ namespace SoraBot.Data
         /// </summary>
         /// <param name="task">The operation to be carried out</param>
         /// <returns></returns>
-        Task<bool> TryDoInTransactionAsync(Func<TContext, Task> task);
+        Task<bool> TryDoInTransactionAsync(Func<TContext, Task<bool>> task);
 
         /// <summary>
         /// Carries out an operation in a transaction asynchronously

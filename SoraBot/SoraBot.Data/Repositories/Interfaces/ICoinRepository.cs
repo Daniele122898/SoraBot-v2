@@ -20,6 +20,15 @@ namespace SoraBot.Data.Repositories.Interfaces
         /// <param name="dailyAmount"></param>
         /// <returns></returns>
         Task<bool> DoDaily(ulong userId, uint dailyAmount);
+
+        /// <summary>
+        /// This will make another check on the user amount. The error will not be descriptive tho
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="receiverId"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        Task<bool> TryMakeTransfer(ulong userId, ulong receiverId, uint amount);
         
         /// <summary>
         /// Returns the amount of coins a user has. 0 If the user is not found 
