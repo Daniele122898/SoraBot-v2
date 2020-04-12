@@ -18,5 +18,13 @@ namespace SoraBot.Bot.Modules
                 ImageUrl = "https://i.imgur.com/pIddxrw.png",
                 Color = Purple
             }.Build());
+        
+        [Command("swag", RunMode = RunMode.Async), Summary("Swags the chat")]
+        public async Task Swag()
+        {
+            var msg = await ReplyAsync("( ͡° ͜ʖ ͡°)>⌐■-■");
+            await Task.Delay(1500);
+            await msg.ModifyAsync(x => { x.Content = "( ͡⌐■ ͜ʖ ͡-■)"; });
+        }
     }
 }
