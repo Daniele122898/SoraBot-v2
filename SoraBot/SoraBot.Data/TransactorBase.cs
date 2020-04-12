@@ -77,6 +77,24 @@ namespace SoraBot.Data
             }
         }
 
+        public async Task<bool> TryDoInTransactionAsync(Func<TContext, Task> task)
+        {
+            await using var context = this.CreateContext();
+            await using var transaction = await context.Database.BeginTransactionAsync().ConfigureAwait(false);
+            try
+            {
+                await task(context).ConfigureAwait(false);
+                // Transaction will auto-rollback when disposed if any commands fail
+                await transaction.CommitAsync().ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, "Error in async TRY Transaction. No exception was bubbled up!");
+                return false;
+            }
+        }
+
         public async Task<Maybe<T>> DoInTransactionAndGetAsync<T>(Func<TContext, Task<T>> task)
         {
             await using var context = this.CreateContext();

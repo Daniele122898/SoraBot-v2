@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using SoraBot.Data.Extensions;
 using SoraBot.Data.Repositories.Interfaces;
@@ -24,6 +25,17 @@ namespace SoraBot.Data.Repositories
                 user.Coins += amount;
 
                 await context.SaveChangesAsync();
+            }).ConfigureAwait(false);
+        }
+
+        public async Task<bool> DoDaily(ulong userId, uint dailyAmount)
+        {
+            return await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                user.LastDaily = DateTime.UtcNow;
+                user.Coins += dailyAmount;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
 

@@ -43,6 +43,16 @@ namespace SoraBot.Data
         /// <param name="task">The operation to be carried out</param>
         /// <returns></returns>
         Task DoInTransactionAsync(Func<TContext, Task> task);
+        
+        /// <summary>
+        /// Carries out an operation in a transaction asynchronously.
+        /// This should be used for update operations that are supposed to be atomic and async.
+        /// This will NOT throw an exception on failure but simply return false.
+        /// Use this for NON important transactions that might fail
+        /// </summary>
+        /// <param name="task">The operation to be carried out</param>
+        /// <returns></returns>
+        Task<bool> TryDoInTransactionAsync(Func<TContext, Task> task);
 
         /// <summary>
         /// Carries out an operation in a transaction asynchronously

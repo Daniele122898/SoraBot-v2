@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Utils;
+using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Common.Extensions.Modules
 {
@@ -50,6 +52,23 @@ namespace SoraBot.Common.Extensions.Modules
         public async Task<IUserMessage> ReplyDefaultEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Purple, message).Build());
+        }
+
+        public async Task<bool> FailedToGetUser(Maybe<User> userMaybe)
+        {
+            if (userMaybe.HasValue)
+                return false;
+            // otherwise send error
+            await ReplyFailureEmbed("Failed to fetch your user data. Please try again.");
+            return true;
+        }
+
+        public async Task<bool> FailedTryTransaction(bool transactionSucc, string message = "Failed to fetch or update data. Please try again")
+        {
+            if (transactionSucc) return false;
+            // Send error messafe
+            await ReplyFailureEmbed(message);
+            return true;
         }
 
         public static EmbedFooterBuilder RequestedByFooter(IUser user)

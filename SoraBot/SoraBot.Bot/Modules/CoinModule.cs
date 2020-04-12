@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Humanizer;
+using Humanizer.Localisation;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
@@ -11,6 +14,9 @@ namespace SoraBot.Bot.Modules
 {
     public class CoinModule : SoraSocketCommandModule
     {
+        public const short DAILY_COOLDOWN_HOURS = 20;
+        public const uint DAILY_REWARD = 500;
+        
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepo;
         private readonly ILogger<CoinModule> _logger;
@@ -25,7 +31,29 @@ namespace SoraBot.Bot.Modules
         [Command("daily")]
         public async Task EarnDaily()
         {
-            
+            // First lets try and get OR create the user because we're gonna need him
+            var userDb = await _userRepo.GetOrCreateUser(Context.User.Id);
+            if (await FailedToGetUser(userDb)) return;
+
+            var user = userDb.Value;
+            var nextDailyPossible = user.LastDaily.AddHours(CoinModule.DAILY_COOLDOWN_HOURS);
+            if (nextDailyPossible.CompareTo(DateTime.UtcNow) >= 0)
+            {
+                var timeRemaining = nextDailyPossible.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
+                await ReplyFailureEmbed(
+                    $"You can't earn anymore right now. Please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second, precision: 2)}.");
+                
+                return;
+            }
+
+            // Otherwise we can earn
+            if (await FailedTryTransaction(await _coinRepo.DoDaily(user.Id, DAILY_REWARD).ConfigureAwait(false)))
+            {
+                return;
+            }
+
+            await ReplySuccessEmbed(
+                $"You gained {DAILY_REWARD} Sora Coins! You can earn again in {DAILY_COOLDOWN_HOURS}h.");
         }
 
         [Command("coins")]
