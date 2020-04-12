@@ -2,10 +2,8 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Humanizer;
 using Humanizer.Localisation;
-using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Repositories.Interfaces;
@@ -13,7 +11,6 @@ using SoraBot.Data.Repositories.Interfaces;
 namespace SoraBot.Bot.Modules
 {
     [Name("Coins")]
-    [Group("Coins")]
     [Summary("All the commands for handling your Sora Coins")]
     public class CoinModule : SoraSocketCommandModule
     {
@@ -22,13 +19,11 @@ namespace SoraBot.Bot.Modules
 
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepo;
-        private readonly ILogger<CoinModule> _logger;
 
-        public CoinModule(IUserRepository userRepo, ICoinRepository coinRepo, ILogger<CoinModule> logger)
+        public CoinModule(IUserRepository userRepo, ICoinRepository coinRepo)
         {
             _userRepo = userRepo;
             _coinRepo = coinRepo;
-            _logger = logger;
         }
 
         [Command("daily")]
@@ -69,7 +64,7 @@ namespace SoraBot.Bot.Modules
         {
             var user = userT ?? Context.User;
             // We dont care if the user exists. So we take the easy way out
-            var amount = await _coinRepo.GetCoins(user.Id);
+            var amount = _coinRepo.GetCoins(user.Id);
 
             await ReplyInfoEmbed(
                 $"{(user.Id == Context.User.Id ? "You have" : $"{Formatter.UsernameDiscrim(user)} has")} {amount.ToString()} Sora Coins.");

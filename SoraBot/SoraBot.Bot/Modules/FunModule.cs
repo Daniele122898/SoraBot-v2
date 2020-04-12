@@ -5,7 +5,6 @@ using SoraBot.Common.Extensions.Modules;
 
 namespace SoraBot.Bot.Modules
 {
-    [Group("Fun")]
     [Name("Fun")]
     [Summary("A bunch of fun and useless commands.")]
     public class FunModule : SoraSocketCommandModule

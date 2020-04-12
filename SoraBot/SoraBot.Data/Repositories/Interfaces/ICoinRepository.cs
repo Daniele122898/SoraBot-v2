@@ -26,6 +26,6 @@ namespace SoraBot.Data.Repositories.Interfaces
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<uint> GetCoins(ulong userId);
+        uint GetCoins(ulong userId);
     }
 }
