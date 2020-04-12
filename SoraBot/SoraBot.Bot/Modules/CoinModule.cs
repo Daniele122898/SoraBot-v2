@@ -12,11 +12,14 @@ using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Bot.Modules
 {
+    [Name("Coins")]
+    [Group("Coins")]
+    [Summary("All the commands for handling your Sora Coins")]
     public class CoinModule : SoraSocketCommandModule
     {
         public const short DAILY_COOLDOWN_HOURS = 20;
         public const uint DAILY_REWARD = 500;
-        
+
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepo;
         private readonly ILogger<CoinModule> _logger;
@@ -29,6 +32,8 @@ namespace SoraBot.Bot.Modules
         }
 
         [Command("daily")]
+        [Alias("earn")]
+        [Summary("Earn some Sora Coins every day.")]
         public async Task EarnDaily()
         {
             // First lets try and get OR create the user because we're gonna need him
@@ -42,7 +47,7 @@ namespace SoraBot.Bot.Modules
                 var timeRemaining = nextDailyPossible.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
                 await ReplyFailureEmbed(
                     $"You can't earn anymore right now. Please wait another {timeRemaining.Humanize(minUnit: TimeUnit.Second, precision: 2)}.");
-                
+
                 return;
             }
 
@@ -57,7 +62,10 @@ namespace SoraBot.Bot.Modules
         }
 
         [Command("coins")]
-        public async Task GetCoinAmount(IUser userT = null)
+        [Alias("bank")]
+        [Summary("Check your own or someone else's Sora Coin balance")]
+        public async Task GetCoinAmount([Summary("The @user you want to check. Leave blank to get your own balance")]
+            IUser userT = null)
         {
             var user = userT ?? Context.User;
             // We dont care if the user exists. So we take the easy way out
