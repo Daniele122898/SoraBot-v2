@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SoraBot.Data.Models.SoraDb;
 using WaifuDbo = SoraBot.Data.Models.SoraDb.Waifu;
 
 namespace SoraBot.Services.Waifu
@@ -9,5 +10,6 @@ namespace SoraBot.Services.Waifu
         Task<List<WaifuDbo>> GetAllWaifus();
         Task<WaifuDbo> GetRandomWaifu();
         Task<bool> TryGiveWaifusToUser(ulong userid, List<WaifuDbo> waifus, uint boxCost);
+        Task<WaifuDbo> GetRandomSpecialWaifu(ulong userId, WaifuRarity specialRarity);
     }
 }

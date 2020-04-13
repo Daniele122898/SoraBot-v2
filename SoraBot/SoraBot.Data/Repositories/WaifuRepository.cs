@@ -50,6 +50,31 @@ namespace SoraBot.Data.Repositories
                 return true;
             }).ConfigureAwait(false);
         }
-        
+
+        public async Task<List<UserWaifu>> GetAllUserWaifus(ulong userId)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                return await context.Users.Where(u => u.Id == userId).SelectMany(x => x.UserWaifus).ToListAsync();
+            }).ConfigureAwait(false);
+        }
+
+        public async Task<List<Waifu>> GetAllWaifusFromUser(ulong userId)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                return await context.Users.Where(u => u.Id == userId).SelectMany(x => x.UserWaifus)
+                    .Select(w => w.Waifu).ToListAsync();
+            }).ConfigureAwait(false);
+        }
+
+        public async Task<List<Waifu>> GetAllWaifusFromUserWithRarity(ulong userId, WaifuRarity rarity)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                return await context.Users.Where(u => u.Id == userId).SelectMany(x => x.UserWaifus)
+                    .Select(w => w.Waifu).Where(y => y.Rarity == rarity).ToListAsync();
+            }).ConfigureAwait(false);
+        }
     }
 }

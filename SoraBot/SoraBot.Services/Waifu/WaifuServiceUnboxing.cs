@@ -49,6 +49,20 @@ namespace SoraBot.Services.Waifu
                 TimeSpan.FromMinutes(_WAIFU_CACHE_TTL_MINS)).ConfigureAwait(false);
         }
 
+        public async Task<WaifuDbo> GetRandomSpecialWaifu(ulong userId, WaifuRarity specialRarity)
+        {
+            var specialList = (await this.GetAllWaifus().ConfigureAwait(false))
+                .Where(x => x.Rarity == specialRarity).ToList();
+            // Remove all waifus the user already has
+            //  Creating a dictionary to avoid looping for then to hundreds of thousand of times :)
+            var userWaifus =
+                (await _waifuRepo.GetAllWaifusFromUserWithRarity(userId, specialRarity)
+                    .ConfigureAwait(false)).ToDictionary(x=> x.Id, x=> true);
+            var remaining = specialList.Where(w => !userWaifus.ContainsKey(w.Id)).ToList();
+            
+            return remaining[_rand.GetRandomNext(0, remaining.Count)];
+        }
+
         public async Task<WaifuDbo> GetRandomWaifu()
         {
             var waifus = await this.GetAllWaifus().ConfigureAwait(false);

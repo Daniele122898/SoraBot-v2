@@ -8,5 +8,9 @@ namespace SoraBot.Data.Repositories.Interfaces
     {
         Task<List<Waifu>> GetAllWaifus();
         Task<bool> TryUnboxWaifus(ulong userid, List<Waifu> waifus, uint boxCost);
+        
+        Task<List<UserWaifu>> GetAllUserWaifus(ulong userId);
+        Task<List<Waifu>> GetAllWaifusFromUser(ulong userId);
+        Task<List<Waifu>> GetAllWaifusFromUserWithRarity(ulong userId, WaifuRarity rarity);
     }
 }
