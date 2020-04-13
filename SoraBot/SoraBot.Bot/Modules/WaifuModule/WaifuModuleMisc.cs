@@ -22,10 +22,10 @@ namespace SoraBot.Bot.Modules.WaifuModule
                 await ReplyFailureEmbed($"{(userT == null ? "You have" : $"{Formatter.UsernameDiscrim(user)} has")} no waifus.");
                 return;
             }
-            var allWaifus = await _waifuService.GetAllWaifus().ConfigureAwait(false);
 
-            var allRarityStats = allWaifus.GroupBy(w => w.Rarity, (rarity, ws) => new {rarity, count = ws.Count()})
-                .ToDictionary(x=> x.rarity, x => x.count);
+            // Unlike the total waifus we actually cache this value for 1 hour. This is because it's less important and can be inaccurate for a while
+            // This frees up resources for more important tasks
+            var allRarityStats = await _waifuService.GetTotalWaifuRarityStats().ConfigureAwait(false);
             
             var eb = new EmbedBuilder()
             {
@@ -41,16 +41,21 @@ namespace SoraBot.Bot.Modules.WaifuModule
             var userRarity = waifus.GroupBy(w => w.Rarity, (rarity, ws) => new {rarity, count = ws.Count()})
                 .ToDictionary(x=> x.rarity, x => x.count);
 
+            // This line kinda sucks. Don't know if there is a better way to solve this but that aint it chief
             var allRarities = ((WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity))).OrderBy(x => x).ToList();
+            int total = 0;
             foreach (var rarity in allRarities)
             {
                 userRarity.TryGetValue(rarity, out int count);
+                
+                int allRar = allRarityStats[rarity];
+                total += allRar;
                 
                 eb.AddField(x =>
                 {
                     x.Name = WaifuFormatter.GetRarityString(rarity);
                     x.IsInline = true;
-                    x.Value = $"{count.ToString()} / {allRarityStats[rarity].ToString()} ({((float) count / allRarityStats[rarity]):P2})";
+                    x.Value = $"{count.ToString()} / {allRar.ToString()} ({((float) count / allRar):P2})";
                 });
                 totalHas += count;
             }
@@ -59,7 +64,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
             {
                 x.Name = "Total";
                 x.IsInline = true;
-                x.Value = $"{totalHas.ToString()} / {allWaifus.Count.ToString()} ({((float) totalHas / allWaifus.Count):P2})";
+                x.Value = $"{totalHas.ToString()} / {total.ToString()} ({((float) totalHas / total):P2})";
             });
 
             await ReplyAsync("", embed: eb.Build());

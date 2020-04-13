@@ -9,4 +9,9 @@
     {
         WaifuList
     }
+
+    public static class CustomCacheStringIDs
+    {
+        public const string WAIFU_RARITY_STATISTICS = "wrs";
+    }
 }
