@@ -11,14 +11,14 @@ namespace SoraBot.Services.Cache
     {
         object Get(string id);
         object Get(ulong id);
-        T Get<T>(string id);
-        T Get<T>(ulong id);
+        T Get<T>(string id) where T : class;
+        T Get<T>(ulong id) where T : class;
 
-        T GetAndSet<T>(string id, Func<T> setAndGet, TimeSpan? ttl = null);
-        T GetAndSet<T>(ulong id, Func<T> setAndGet, TimeSpan? ttl = null);
+        T GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
+        T GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);
         
-        Task<T> GetAndSetAsync<T>(string id, Func<T> setAndGet, TimeSpan? ttl = null);
-        Task<T> GetAndSetAsync<T>(ulong id, Func<T> setAndGet, TimeSpan? ttl = null);
+        Task<T> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<T> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         void Set(string id, object obj, TimeSpan? ttl = null);
         void Set(ulong id, object obj, TimeSpan? ttl = null);

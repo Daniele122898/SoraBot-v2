@@ -4,13 +4,23 @@ namespace SoraBot.Services.Cache
 {
     public class CacheItem
     {
-        public object Item { get; }
+        public object Content { get; }
         public DateTime? ValidUntil { get; }
 
-        public CacheItem(object item, DateTime? validUntil)
+        public CacheItem(object content, DateTime? validUntil)
         {
-            this.Item = item;
+            this.Content = content;
             this.ValidUntil = validUntil;
+        }
+
+        public bool IsValid()
+        {
+            if (this.ValidUntil.HasValue && this.ValidUntil.Value.CompareTo(DateTime.UtcNow) <= 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
