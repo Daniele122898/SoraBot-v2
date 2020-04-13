@@ -14,8 +14,8 @@ namespace SoraBot.Bot.Modules
 {
     public class WaifuModule : SoraSocketCommandModule
     {
-        public const int WAIFU_BOX_COST = 500;
-        public const int WAIFU_AMOUNT_IN_BOX = 3;
+        private const int _WAIFU_BOX_COST = 500;
+        private const int _WAIFU_AMOUNT_IN_BOX = 3;
         
         private readonly IWaifuService _waifuService;
         private readonly ICoinRepository _coinRepo;
@@ -36,26 +36,26 @@ namespace SoraBot.Bot.Modules
         {
             // Check the user cash
             var sc = _coinRepo.GetCoins(Context.User.Id);
-            if (sc < WAIFU_BOX_COST)
+            if (sc < _WAIFU_BOX_COST)
             {
-                await ReplyFailureEmbed($"You don't have enough Sora Coins! You need {WAIFU_BOX_COST} SC.");
+                await ReplyFailureEmbed($"You don't have enough Sora Coins! You need {_WAIFU_BOX_COST} SC.");
                 return;
             }
             
             // Get the waifus
             List<Waifu> waifusUnboxed = new List<Waifu>();
-            for (int i = 0; i < WAIFU_AMOUNT_IN_BOX; i++)
+            for (int i = 0; i < _WAIFU_AMOUNT_IN_BOX; i++)
             {
                 waifusUnboxed.Add(await _waifuService.GetRandomWaifu().ConfigureAwait(false));
             }
-            if (waifusUnboxed.Count != WAIFU_AMOUNT_IN_BOX)
+            if (waifusUnboxed.Count != _WAIFU_AMOUNT_IN_BOX)
             {
                 await ReplyFailureEmbed("There don't seem to be Waifus to unbox at the moment. Sorry :/");
                 return;
             }
             
             // Now lets try to give everything to the user before we continue doing anything else
-            if (!await _waifuService.TryGiveWaifusToUser(Context.User.Id, waifusUnboxed, WAIFU_BOX_COST).ConfigureAwait(false))
+            if (!await _waifuService.TryGiveWaifusToUser(Context.User.Id, waifusUnboxed, _WAIFU_BOX_COST).ConfigureAwait(false))
             {
                 await ReplyFailureEmbed("Failed to give Waifus :( Please try again");
                 return;
