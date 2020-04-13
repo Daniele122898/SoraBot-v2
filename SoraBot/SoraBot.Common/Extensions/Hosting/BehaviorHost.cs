@@ -25,7 +25,7 @@ namespace SoraBot.Common.Extensions.Hosting
                 .Select(async behavior =>
                 {
                     await behavior.StartAsync(cancellationToken);
-                    _logger.LogInformation("Started behavior {Behavior}", nameof(behavior));
+                    _logger.LogInformation("Started behavior {Behavior}", behavior.GetType().UnderlyingSystemType.Name);
                 }));
             _logger.LogInformation("All {Count} behaviors have been started", _behaviors.Count().ToString());
         }
