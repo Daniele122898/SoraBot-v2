@@ -11,5 +11,7 @@ namespace SoraBot.Services.Waifu
         Task<WaifuDbo> GetRandomWaifu();
         Task<bool> TryGiveWaifusToUser(ulong userid, List<WaifuDbo> waifus, uint boxCost);
         Task<WaifuDbo> GetRandomSpecialWaifu(ulong userId, WaifuRarity specialRarity);
+        Task<List<WaifuDbo>> GetAllWaifusFromUser(ulong userId);
+        Task<List<UserWaifu>> GetAllUserWaifus(ulong userId);
     }
 }

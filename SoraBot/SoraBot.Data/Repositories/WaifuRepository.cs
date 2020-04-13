@@ -76,5 +76,13 @@ namespace SoraBot.Data.Repositories
                     .Select(w => w.Waifu).Where(y => y.Rarity == rarity).ToListAsync();
             }).ConfigureAwait(false);
         }
+
+        public async Task<int> GetTotalWaifuCount()
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                return await context.Waifus.CountAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+        }
     }
 }

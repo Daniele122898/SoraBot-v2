@@ -27,7 +27,6 @@ namespace SoraBot.Services.Waifu
             }
             return "";
         }
-
         
         public static WaifuRarity GetRarityByInt(int rarity)
         {
