@@ -10,7 +10,7 @@ using WaifuDbo = SoraBot.Data.Models.SoraDb.Waifu;
 
 namespace SoraBot.Services.Waifu
 {
-    public class WaifuService : IWaifuService
+    public partial class WaifuService : IWaifuService
     {
         private readonly ICacheService _cacheService;
         private readonly IWaifuRepository _waifuRepo;

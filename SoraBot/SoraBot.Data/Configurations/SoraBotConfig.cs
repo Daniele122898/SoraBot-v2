@@ -1,4 +1,6 @@
-﻿namespace SoraBot.Data.Configurations
+﻿using SoraBot.Data.Models.SoraDb;
+
+namespace SoraBot.Data.Configurations
 {
     public class SoraBotConfig
     {
@@ -7,5 +9,7 @@
         public int TotalShards { get; set; }
         public string DiscordSupportInvite { get; set; }
         public string SoraBotInvite { get; set; }
+        public bool SpecialWaifuActive { get; set; }
+        public WaifuRarity SpecialWaifuType { get; set; }
     }
 }
