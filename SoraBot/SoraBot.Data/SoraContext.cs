@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SoraBot.Data.Extensions.ModelBuilder;
 using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Data
@@ -20,6 +21,7 @@ namespace SoraBot.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.AddWaifuRelations();
         }
     }
 }

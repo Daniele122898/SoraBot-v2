@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,8 @@ namespace SoraBot.Data.Models.SoraDb
         public uint Coins { get; set; } = 0;
         [Required]
         public DateTime LastDaily { get; set; } = DateTime.UnixEpoch;
+        
+        public virtual ICollection<UserWaifu> UserWaifus { get; set; }
 
     }
 }

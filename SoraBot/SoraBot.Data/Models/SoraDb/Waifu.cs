@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoraBot.Data.Models.SoraDb
@@ -26,5 +27,7 @@ namespace SoraBot.Data.Models.SoraDb
         public string ImageUrl { get; set; }
         [Required]
         public WaifuRarity Rarity { get; set; }
+
+        public virtual ICollection<UserWaifu> UserWaifus { get; set; }
     }
 }
