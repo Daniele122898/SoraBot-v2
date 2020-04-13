@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
+using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
 
 namespace SoraBot.Bot.Extensions
@@ -47,7 +48,8 @@ namespace SoraBot.Bot.Extensions
             services.AddSingleton<DiscordSerilogAdapter>();
 
             services.AddSingleton<IHostedService, BehaviorHost>()
-                .AddSoraBotCore();
+                .AddSoraBotCore()
+                .AddCacheService();
 
             services.AddHostedService<SoraBot>();
             
