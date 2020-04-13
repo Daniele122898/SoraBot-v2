@@ -16,7 +16,7 @@ namespace SoraBot.Services.Waifu
         private readonly IWaifuRepository _waifuRepo;
         private readonly RandomNumberService _rand;
 
-        private const int _WAIFU_CACHE_TTL_MINS = 20;
+        private const int _WAIFU_CACHE_TTL_MINS = 15;
 
         private const int _COMMON_CHANCE = 525;
         private const int _UNCOMMON_CHANCE = 355;
