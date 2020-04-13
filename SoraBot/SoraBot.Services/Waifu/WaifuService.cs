@@ -21,7 +21,7 @@ namespace SoraBot.Services.Waifu
         private const int _COMMON_CHANCE = 525;
         private const int _UNCOMMON_CHANCE = 355;
         private const int _RARE_CHANCE = 85;
-        private const int _EPIC_CHANCE = 27;
+        // private const int _EPIC_CHANCE = 27;
         private const int _ULTI_CHANCE = 8;
 
         public WaifuService(
