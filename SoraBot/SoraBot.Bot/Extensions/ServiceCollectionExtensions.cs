@@ -9,6 +9,8 @@ using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
+using SoraBot.Services.Utils;
+using SoraBot.Services.Waifu;
 
 namespace SoraBot.Bot.Extensions
 {
@@ -49,7 +51,9 @@ namespace SoraBot.Bot.Extensions
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()
-                .AddCacheService();
+                .AddCacheService()
+                .AddWaifuServices()
+                .AddUtilServices();
 
             services.AddHostedService<SoraBot>();
             
