@@ -8,5 +8,6 @@ namespace SoraBot.Services.Waifu
     {
         Task<List<WaifuDbo>> GetAllWaifus();
         Task<WaifuDbo> GetRandomWaifu();
+        Task<bool> TryGiveWaifusToUser(ulong userid, List<WaifuDbo> waifus, uint boxCost);
     }
 }

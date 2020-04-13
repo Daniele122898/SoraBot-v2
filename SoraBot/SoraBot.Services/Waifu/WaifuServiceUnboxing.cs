@@ -34,6 +34,9 @@ namespace SoraBot.Services.Waifu
             _rand = rand;
         }
 
+        public async Task<bool> TryGiveWaifusToUser(ulong userid, List<WaifuDbo> waifus, uint boxCost)
+            => await _waifuRepo.TryUnboxWaifus(userid, waifus, boxCost).ConfigureAwait(false);
+
         /// <summary>
         /// This method gets the WaifuList from the cache. If it does not exist in the cache
         /// it will create a DB request and then cache it for the next request
