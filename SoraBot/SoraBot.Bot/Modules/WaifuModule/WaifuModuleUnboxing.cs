@@ -10,9 +10,9 @@ using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Waifu;
 
-namespace SoraBot.Bot.Modules
+namespace SoraBot.Bot.Modules.WaifuModule
 {
-    public class WaifuModule : SoraSocketCommandModule
+    public partial class WaifuModule : SoraSocketCommandModule
     {
         private const int _WAIFU_BOX_COST = 500;
         private const int _WAIFU_AMOUNT_IN_BOX = 3;
@@ -31,7 +31,8 @@ namespace SoraBot.Bot.Modules
             _coinRepo = coinRepo;
         }
 
-        [Command("waifu")]
+        [Command("waifu"), Alias("unbox")]
+        [Summary("Open a Waifu Box for 500 Sora Coins")]
         public async Task OpenWaifuBox()
         {
             // Check the user cash
@@ -84,6 +85,13 @@ namespace SoraBot.Bot.Modules
             }
             
             await ReplyAsync("", embed: eb.Build());
+        }
+        
+        [Command("request"), Alias("request waifu", "requestwaifu"),
+         Summary("Posts the link where you can request waifus")]
+        public async Task RequestWaifuLink()
+        {
+            await ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
         }
     }
 }
