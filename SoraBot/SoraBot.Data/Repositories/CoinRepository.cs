@@ -28,6 +28,18 @@ namespace SoraBot.Data.Repositories
             }).ConfigureAwait(false);
         }
 
+        public async Task<bool> TryTakeAmount(ulong userId, uint amount)
+        {
+            return await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                if (user.Coins < amount) return false;
+                user.Coins -= amount;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return true;
+            }).ConfigureAwait(false);
+        }
+
         public async Task<bool> DoDaily(ulong userId, uint dailyAmount)
         {
             return await _soraTransactor.TryDoInTransactionAsync(async context =>

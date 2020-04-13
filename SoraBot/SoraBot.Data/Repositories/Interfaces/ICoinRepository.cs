@@ -13,6 +13,14 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task GiveAmount(ulong userId, uint amount);
 
         /// <summary>
+        /// Takes the specified amount and does validation that he does have at least that much
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        Task<bool> TryTakeAmount(ulong userId, uint amount);
+
+        /// <summary>
         /// Updates the user data with the new information.
         /// REQUIRED A USER TO EXIST. This will not create one
         /// </summary>
