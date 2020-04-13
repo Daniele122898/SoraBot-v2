@@ -13,7 +13,6 @@ namespace SoraBot.Services.Waifu
         private readonly ICacheService _cacheService;
         private readonly IWaifuRepository _waifuRepo;
 
-        private const string _WAIFU_CACHE_STRING = "wc";
         private const int _WAIFU_CACHE_TTL_MINS = 5;
 
         public WaifuService(ICacheService cacheService, IWaifuRepository waifuRepo)
@@ -29,7 +28,7 @@ namespace SoraBot.Services.Waifu
         /// <returns></returns>
         public async Task<List<WaifuDbo>> GetAllWaifus()
         {
-            return await _cacheService.GetOrSetAndGetAsync<List<WaifuDbo>>(_WAIFU_CACHE_STRING,
+            return await _cacheService.GetOrSetAndGetAsync<List<WaifuDbo>>((ulong)CustomCacheIDs.WaifuList,
                 async () => await _waifuRepo.GetAllWaifus().ConfigureAwait(false),
                 TimeSpan.FromMinutes(_WAIFU_CACHE_TTL_MINS)).ConfigureAwait(false);
         }
