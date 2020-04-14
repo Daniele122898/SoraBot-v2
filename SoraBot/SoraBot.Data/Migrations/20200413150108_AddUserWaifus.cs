@@ -7,7 +7,7 @@ namespace SoraBot.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "UserWaifu",
+                name: "UserWaifus",
                 columns: table => new
                 {
                     UserId = table.Column<ulong>(nullable: false),
@@ -16,15 +16,15 @@ namespace SoraBot.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserWaifu", x => new { x.UserId, x.WaifuId });
+                    table.PrimaryKey("PK_UserWaifus", x => new { x.UserId, x.WaifuId });
                     table.ForeignKey(
-                        name: "FK_UserWaifu_Users_UserId",
+                        name: "FK_UserWaifus_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserWaifu_Waifus_WaifuId",
+                        name: "FK_UserWaifus_Waifus_WaifuId",
                         column: x => x.WaifuId,
                         principalTable: "Waifus",
                         principalColumn: "Id",
@@ -32,15 +32,15 @@ namespace SoraBot.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserWaifu_WaifuId",
-                table: "UserWaifu",
+                name: "IX_UserWaifus_WaifuId",
+                table: "UserWaifus",
                 column: "WaifuId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserWaifu");
+                name: "UserWaifus");
         }
     }
 }

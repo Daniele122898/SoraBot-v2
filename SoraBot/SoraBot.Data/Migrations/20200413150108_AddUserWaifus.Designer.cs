@@ -50,7 +50,7 @@ namespace SoraBot.Data.Migrations
 
                     b.HasIndex("WaifuId");
 
-                    b.ToTable("UserWaifu");
+                    b.ToTable("UserWaifus");
                 });
 
             modelBuilder.Entity("SoraBot.Data.Models.SoraDb.Waifu", b =>
