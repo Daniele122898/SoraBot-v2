@@ -81,5 +81,58 @@ namespace SoraBot.Bot.Modules.WaifuModule
         [Summary("Links a page that shows all the waifus that exist")]
         public async Task ShowAllWaifus()
             => await ReplyAsync($"Check out **all Waifus** here: https://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
+
+        [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav")]
+        [Summary("Sets your favorite Waifu that is displayed in your User Info (`uinfo`). " +
+                 "You must own the Waifu to set it as favorite")]
+        public async Task SetFavWaifu(
+            [Summary("EXACT name of the Waifu to set as Favorite"), Remainder] string name)
+        {
+            name = name.Trim();
+            var waifu = await _waifuService.GetWaifuByName(name).ConfigureAwait(false);
+            if (waifu == null)
+            {
+                await ReplyFailureEmbed("This Waifu doesn't exist. Make sure you spelled her name EXACTLY right!");
+                return;
+            }
+
+            await SetFavWaifuComp(waifu, Context.User.Id).ConfigureAwait(false);
+        }
+        
+        
+        [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav")]
+        [Summary("Sets your favorite Waifu that is displayed in your User Info (`uinfo`). " +
+                 "You must own the Waifu to set it as favorite")]
+        public async Task SetFavWaifu(
+            [Summary("ID of the Waifu to set as Favorite")] int waifuId)
+        {
+            var waifu = await _waifuService.GetWaifuById(waifuId).ConfigureAwait(false);
+            if (waifu == null)
+            {
+                await ReplyFailureEmbed("This Waifu doesn't exist. Make sure you have the correct ID.");
+                return;
+            }
+
+            await SetFavWaifuComp(waifu, Context.User.Id).ConfigureAwait(false);
+        }
+
+        private async Task SetFavWaifuComp(Waifu waifu, ulong userId)
+        {
+            // Check if user has waifu
+            var userWaifu = await _waifuService.GetUserWaifu(userId, waifu.Id).ConfigureAwait(false);
+            if (userWaifu == null)
+            {
+                await ReplyFailureEmbed("You do not own that Waifu. Try to get it by opening Waifu Boxes!");
+                return;
+            }
+            // He has it so lets set it
+            if (!await _waifuService.SetUserFavWaifu(userId, waifu.Id).ConfigureAwait(false))
+            {
+                await ReplyFailureEmbed("Failed to set Favorite Waifu. Please try again.");
+                return;
+            }
+
+            await ReplySuccessEmbed("Successfully set Favorite Waifu. You can view it by using the `uinfo` command");
+        }
     }
 }

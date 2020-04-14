@@ -29,7 +29,7 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .HasForeignKey(k => k.FavoriteWaifuId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
-
+            
             return mb;
         }
     }

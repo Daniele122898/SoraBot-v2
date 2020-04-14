@@ -21,5 +21,7 @@ namespace SoraBot.Services.Waifu
         Task<WaifuDbo> GetWaifuByName(string name);
         Task<WaifuDbo> GetWaifuById(int id);
         Task<Maybe<uint>> TrySellWaifu(ulong userId, int waifuId, uint amount, WaifuRarity? rarity = null);
+        Task<UserWaifu> GetUserWaifu(ulong userid, int waifuId);
+        Task<bool> SetUserFavWaifu(ulong userId, int waifuId);
     }
 }

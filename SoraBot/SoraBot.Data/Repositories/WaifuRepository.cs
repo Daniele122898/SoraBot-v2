@@ -160,6 +160,11 @@ namespace SoraBot.Data.Repositories
                 if (userWaifu.Count == amount)
                 {
                     user.UserWaifus.Remove(userWaifu);
+                    // Make sure to remove it from favorite waifu if it is.
+                    if (user.FavoriteWaifuId.HasValue && user.FavoriteWaifuId.Value == userWaifu.WaifuId)
+                    {
+                        user.FavoriteWaifuId = null;
+                    }
                 }
                 else
                 {
@@ -169,6 +174,29 @@ namespace SoraBot.Data.Repositories
                 user.Coins += coinAmount;
                 await context.SaveChangesAsync().ConfigureAwait(false);
                 return Maybe.FromVal(coinAmount);
+            }).ConfigureAwait(false);
+        }
+
+        public async Task<UserWaifu> GetUserWaifu(ulong userId, int waifuId)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+                await context.UserWaifus
+                    .FirstOrDefaultAsync(w => w.UserId == userId && w.WaifuId == waifuId)
+                    .ConfigureAwait(false)
+            ).ConfigureAwait(false);
+        }
+
+        public async Task<bool> SetUserFavWaifu(ulong userId, int waifuId)
+        {
+            return await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                var userWaifu = user?.UserWaifus.FirstOrDefault(x => x.WaifuId == waifuId);
+                if (userWaifu == null) return false;
+
+                user.FavoriteWaifuId = waifuId;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return true;
             }).ConfigureAwait(false);
         }
     }
