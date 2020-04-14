@@ -51,6 +51,7 @@ namespace SoraBot.Bot.Extensions
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()
+                .AddSoraMessaging()
                 .AddCacheService()
                 .AddWaifuServices()
                 .AddUtilServices();
