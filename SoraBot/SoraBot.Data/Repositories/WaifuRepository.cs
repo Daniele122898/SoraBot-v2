@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ArgonautCore.Maybe;
@@ -122,6 +123,24 @@ namespace SoraBot.Data.Repositories
                 return Maybe.FromVal((totalSold, totalCoins));
 
             }).ConfigureAwait(false);
+        }
+
+        public async Task<Waifu> GetWaifuByName(string name)
+        {
+            return await _soraTransactor.DoAsync(async context
+                => await context.Waifus
+                    .FirstOrDefaultAsync(w => w.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    .ConfigureAwait(false)
+            ).ConfigureAwait(false);
+        }
+
+        public async Task<Waifu> GetWaifuById(int id)
+        {
+            return await _soraTransactor.DoAsync(async context
+                => await context.Waifus
+                    .FindAsync(id)
+                    .ConfigureAwait(false)
+            ).ConfigureAwait(false);
         }
     }
 }

@@ -30,5 +30,10 @@ namespace SoraBot.Services.Waifu
 
         public async Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId)
             => await _waifuRepo.SellDupes(userId);
+
+        public Task<WaifuDbo> GetWaifuByName(string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

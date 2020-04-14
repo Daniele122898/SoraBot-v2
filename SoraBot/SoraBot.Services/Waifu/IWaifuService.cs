@@ -17,5 +17,7 @@ namespace SoraBot.Services.Waifu
 
         Task<Dictionary<WaifuRarity, int>> GetTotalWaifuRarityStats();
         Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId);
+
+        Task<WaifuDbo> GetWaifuByName(string name);
     }
 }

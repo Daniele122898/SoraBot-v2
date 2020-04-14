@@ -15,5 +15,8 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task<List<Waifu>> GetAllWaifusFromUserWithRarity(ulong userId, WaifuRarity rarity);
         Task<int> GetTotalWaifuCount();
         Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId);
+
+        Task<Waifu> GetWaifuByName(string name);
+        Task<Waifu> GetWaifuById(int id);
     }
 }
