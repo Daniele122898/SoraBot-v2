@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
-using SoraBot.Data.Utils;
 
 namespace SoraBot.Bot.Modules.WaifuModule
 {
