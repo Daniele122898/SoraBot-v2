@@ -55,6 +55,9 @@ namespace SoraBot.Services.Waifu
             return await _waifuRepo.GetWaifuById(id).ConfigureAwait(false);
         }
 
+        public async Task<Maybe<uint>> TrySellWaifu(ulong userId, int waifuId, uint amount, WaifuRarity? rarity = null)
+            => await _waifuRepo.QuickSellWaifu(userId, waifuId, amount, rarity);
+
         /// <summary>
         /// Tries to get a waifu from the cache.
         /// This will return a Maybe with error if the cache is empty

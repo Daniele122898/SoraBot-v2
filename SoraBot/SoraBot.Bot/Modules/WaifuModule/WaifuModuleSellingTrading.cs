@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
+using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Bot.Modules.WaifuModule
 {
@@ -36,6 +37,8 @@ namespace SoraBot.Bot.Modules.WaifuModule
                 await ReplyFailureEmbed("This Waifu doesn't exist. Make sure you spelled her name EXACTLY right!");
                 return;
             }
+
+            await QuickSellComp(waifu, amount);
         }
         
         [Command("sell")]
@@ -53,6 +56,20 @@ namespace SoraBot.Bot.Modules.WaifuModule
                 await ReplyFailureEmbed("This Waifu doesn't exist. Make sure you have the correct ID.");
                 return;
             }
+
+            await QuickSellComp(waifu, amount);
+        }
+
+        private async Task QuickSellComp(Waifu waifu, int amount)
+        {
+            var res = await _waifuService.TrySellWaifu(Context.User.Id, waifu.Id, (uint) amount, waifu.Rarity).ConfigureAwait(false);
+            if (res.HasError)
+            {
+                await ReplyFailureEmbed(res.Error.Message);
+                return;
+            }
+
+            await ReplySuccessEmbed($"You successfully sold {amount.ToString()} Waifus for {res.Value.ToString()} SC");
         }
     }
 }

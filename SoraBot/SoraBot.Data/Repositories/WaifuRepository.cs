@@ -142,5 +142,34 @@ namespace SoraBot.Data.Repositories
                     .ConfigureAwait(false)
             ).ConfigureAwait(false);
         }
+
+        public async Task<Maybe<uint>> QuickSellWaifu(ulong userId, int waifuId, uint amount, WaifuRarity? rarity = null)
+        {
+            return await _soraTransactor.DoInTransactionAndGetAsync<uint>(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                if (user == null) return Maybe.FromErr<uint>("You dont have any Waifus. Get some by opening Waifu Boxes!");
+                var userWaifu = user.UserWaifus.FirstOrDefault(x => x.WaifuId == waifuId);
+                if (userWaifu == null) return Maybe.FromErr<uint>("You don't have that Waifu.");
+                if (userWaifu.Count < amount) return Maybe.FromErr<uint>("You don't have enough of that Waifu. Try selling less!");
+
+                rarity ??= userWaifu.Waifu.Rarity;
+                
+                // We got the waifu and enough so sell it
+                uint coinAmount = WaifuUtils.GetWaifuQuickSellCost(rarity.Value) * amount;
+                if (userWaifu.Count == amount)
+                {
+                    user.UserWaifus.Remove(userWaifu);
+                }
+                else
+                {
+                    userWaifu.Count -= amount;
+                }
+
+                user.Coins += coinAmount;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return Maybe.FromVal(coinAmount);
+            }).ConfigureAwait(false);
+        }
     }
 }

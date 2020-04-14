@@ -18,5 +18,6 @@ namespace SoraBot.Data.Repositories.Interfaces
 
         Task<Waifu> GetWaifuByName(string name);
         Task<Waifu> GetWaifuById(int id);
+        Task<Maybe<uint>> QuickSellWaifu(ulong userId, int waifuId, uint amount, WaifuRarity? rarity = null);
     }
 }
