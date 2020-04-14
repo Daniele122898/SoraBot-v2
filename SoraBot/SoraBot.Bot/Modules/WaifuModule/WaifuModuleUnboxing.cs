@@ -164,7 +164,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
 
         [Command("request"), Alias("request waifu", "requestwaifu"),
          Summary("Posts the link where you can request waifus")]
-        public Task RequestWaifuLink()
-            => ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
+        public async Task RequestWaifuLink()
+            => await ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
     }
 }

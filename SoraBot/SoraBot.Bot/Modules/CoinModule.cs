@@ -84,10 +84,10 @@ namespace SoraBot.Bot.Modules
         [Command("send")]
         [Alias("transfer", "give")]
         [Summary("Send Sora Coins to another user.")]
-        public async Task SendSoraCoins([Summary("The positive amount of Sora Coins to send to the user")]
-            int amount,
-            [Summary("The User ID to send the SC to")]
-            ulong userId) => await SendMoney(userId, amount);
+        public async Task SendSoraCoins(
+            [Summary("The positive amount of Sora Coins to send to the user")] int amount,
+            [Summary("The User ID to send the SC to")] ulong userId) 
+            => await SendMoney(userId, amount);
 
         private async Task SendMoney(ulong receiverId, int amount)
         {
