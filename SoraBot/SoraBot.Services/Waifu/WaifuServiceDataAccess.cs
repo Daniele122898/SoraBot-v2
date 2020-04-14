@@ -63,6 +63,9 @@ namespace SoraBot.Services.Waifu
 
         public async Task<bool> SetUserFavWaifu(ulong userId, int waifuId)
             => await _waifuRepo.SetUserFavWaifu(userId, waifuId).ConfigureAwait(false);
+
+        public async Task RemoveUserFavWaifu(ulong userId)
+            => await _waifuRepo.RemoveUserFavWaifu(userId).ConfigureAwait(false);
             
 
 

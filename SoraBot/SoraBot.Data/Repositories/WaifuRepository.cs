@@ -199,5 +199,17 @@ namespace SoraBot.Data.Repositories
                 return true;
             }).ConfigureAwait(false);
         }
+
+        public async Task RemoveUserFavWaifu(ulong userId)
+        {
+            await _soraTransactor.DoAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                if (user == null) return Task.CompletedTask;
+                user.FavoriteWaifuId = null;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return Task.CompletedTask;
+            }).ConfigureAwait(false);
+        }
     }
 }

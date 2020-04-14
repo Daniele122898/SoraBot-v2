@@ -82,6 +82,14 @@ namespace SoraBot.Bot.Modules.WaifuModule
         public async Task ShowAllWaifus()
             => await ReplyAsync($"Check out **all Waifus** here: https://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
 
+        [Command("removefav"), Alias("unfavorite", "nowaifu", "rmfav")]
+        [Summary("Removes your Favorite Waifu if set")]
+        public async Task RemoveFavWaifu()
+        {
+            await _waifuService.RemoveUserFavWaifu(Context.User.Id).ConfigureAwait(false);
+            await ReplySuccessEmbed("Removed your Favorite Waifu");
+        }
+
         [Command("setfavorite"), Alias("favorite", "bestwaifu", "fav")]
         [Summary("Sets your favorite Waifu that is displayed in your User Info (`uinfo`). " +
                  "You must own the Waifu to set it as favorite")]
