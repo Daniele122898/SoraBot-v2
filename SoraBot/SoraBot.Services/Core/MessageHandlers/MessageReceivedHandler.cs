@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
