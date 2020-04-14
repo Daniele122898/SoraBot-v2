@@ -119,7 +119,9 @@ namespace SoraBot.Bot.Modules.WaifuModule
             List<Waifu> waifusUnboxed = new List<Waifu>();
             for (int i = 0; i < _WAIFU_AMOUNT_IN_BOX; i++)
             {
-                waifusUnboxed.Add(await _waifuService.GetRandomWaifu().ConfigureAwait(false));
+                var wToAdd = await _waifuService.GetRandomWaifu().ConfigureAwait(false);
+                if (wToAdd ==  null) continue;
+                waifusUnboxed.Add(wToAdd);
             }
             if (waifusUnboxed.Count != _WAIFU_AMOUNT_IN_BOX)
             {

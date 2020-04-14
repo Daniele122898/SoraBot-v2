@@ -66,7 +66,7 @@ namespace SoraBot.Services.Waifu
         public async Task<WaifuDbo> GetRandomWaifu()
         {
             var waifus = await this.GetAllWaifus().ConfigureAwait(false);
-            if (waifus.Count == 0) return null;
+            if (waifus == null || waifus.Count == 0) return null;
             
             // First we get a random rarity
             var rarity = this.GetRandomRarity();
