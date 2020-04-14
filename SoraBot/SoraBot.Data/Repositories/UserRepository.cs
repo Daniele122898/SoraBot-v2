@@ -20,13 +20,13 @@ namespace SoraBot.Data.Repositories
             {
                 var user = await context.Users.FindAsync(id).ConfigureAwait(false);
                 if (user != null)
-                    return user;
+                    return Maybe.FromVal(user);
 
                 // Otherwise we'll have to create the user ourselves
                 user = new User(){Id = id};
                 await context.Users.AddAsync(user).ConfigureAwait(false);
                 await context.SaveChangesAsync().ConfigureAwait(false);
-                return user;
+                return Maybe.FromVal(user);
             }).ConfigureAwait(false);
         }
 

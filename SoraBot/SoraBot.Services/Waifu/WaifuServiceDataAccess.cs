@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Cache;
 using WaifuDbo = SoraBot.Data.Models.SoraDb.Waifu;
@@ -26,5 +27,8 @@ namespace SoraBot.Services.Waifu
                     .ToDictionary(x=> x.rarity, x => x.count);
             }, TimeSpan.FromHours(1)).ConfigureAwait(false);
         }
+
+        public async Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId)
+            => await _waifuRepo.SellDupes(userId);
     }
 }

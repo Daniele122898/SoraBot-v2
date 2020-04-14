@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Data.Repositories.Interfaces
@@ -13,5 +14,6 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task<List<Waifu>> GetAllWaifusFromUser(ulong userId);
         Task<List<Waifu>> GetAllWaifusFromUserWithRarity(ulong userId, WaifuRarity rarity);
         Task<int> GetTotalWaifuCount();
+        Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId);
     }
 }

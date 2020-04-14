@@ -1,6 +1,6 @@
 ﻿using SoraBot.Data.Models.SoraDb;
 
-namespace SoraBot.Services.Waifu
+namespace SoraBot.Common.Utils
 {
     public static class WaifuFormatter
     {

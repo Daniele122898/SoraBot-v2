@@ -61,7 +61,7 @@ namespace SoraBot.Data
         /// <param name="task"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        Task<Maybe<T>> DoInTransactionAndGetAsync<T>(Func<TContext, Task<T>> task);
+        Task<Maybe<T>> DoInTransactionAndGetAsync<T>(Func<TContext, Task<Maybe<T>>> task);
 
         /// <summary>
         /// This makes it possible to read uncommitted and dirty data from the DB.

@@ -5,7 +5,6 @@ using Discord;
 using Discord.Commands;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
-using SoraBot.Services.Waifu;
 
 namespace SoraBot.Bot.Modules.WaifuModule
 {
