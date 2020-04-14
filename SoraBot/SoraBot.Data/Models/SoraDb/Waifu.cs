@@ -29,5 +29,6 @@ namespace SoraBot.Data.Models.SoraDb
         public WaifuRarity Rarity { get; set; }
 
         public virtual ICollection<UserWaifu> UserWaifus { get; set; }
+        public virtual ICollection<User> UsersFavorite { get; set; }
     }
 }

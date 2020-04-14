@@ -23,6 +23,13 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .HasForeignKey(k => k.WaifuId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            mb.Entity<User>()
+                .HasOne(u => u.FavoriteWaifu)
+                .WithMany(w => w.UsersFavorite)
+                .HasForeignKey(k => k.FavoriteWaifuId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
             return mb;
         }
     }

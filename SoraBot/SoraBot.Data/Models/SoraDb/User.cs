@@ -14,8 +14,11 @@ namespace SoraBot.Data.Models.SoraDb
         public uint Coins { get; set; } = 0;
         [Required]
         public DateTime LastDaily { get; set; } = DateTime.UnixEpoch;
+
+        public int? FavoriteWaifuId { get; set; }
         
         public virtual ICollection<UserWaifu> UserWaifus { get; set; }
+        public virtual Waifu FavoriteWaifu { get; set; }
 
     }
 }
