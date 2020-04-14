@@ -69,5 +69,18 @@ namespace SoraBot.Bot.Modules.WaifuModule
 
             await ReplyAsync("", embed: eb.Build());
         }
+
+        [Command("mywaifus"), Alias("waifus")]
+        [Summary("Links you to a page where you can see all of your owned waifus or the person you @mentioned")]
+        public async Task ShowMyWaifus(IUser userT = null)
+        {
+            var user = userT ?? Context.User;
+            await ReplyAsync($"Check out **{user.Username}'s Waifus** here: https://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
+        }
+        
+        [Command("allwaifus"), Alias("waifulist", "wlist")]
+        [Summary("Links a page that shows all the waifus that exist")]
+        public async Task ShowAllWaifus()
+            => await ReplyAsync($"Check out **all Waifus** here: https://sorabot.pw/allwaifus °˖✧◝(⁰▿⁰)◜✧˖°");
     }
 }
