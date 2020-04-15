@@ -66,10 +66,13 @@ namespace SoraBot.Services.Waifu
 
         public async Task RemoveUserFavWaifu(ulong userId)
             => await _waifuRepo.RemoveUserFavWaifu(userId).ConfigureAwait(false);
-            
+
+        public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
+            => await _waifuRepo.TryTradeWaifus(offerUser, wantUser, offerWaifuId, requestWaifuId).ConfigureAwait(false);
+        
 
 
-        /// <summary>
+            /// <summary>
         /// Tries to get a waifu from the cache.
         /// This will return a Maybe with error if the cache is empty
         /// Otherwise it will return a maybe with either NULL if it couldn't be found or the waifu

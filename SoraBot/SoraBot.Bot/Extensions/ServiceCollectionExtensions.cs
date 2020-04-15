@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -48,6 +49,7 @@ namespace SoraBot.Bot.Extensions
             });
 
             services.AddSingleton<DiscordSerilogAdapter>();
+            services.AddSingleton<InteractiveService>();
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()

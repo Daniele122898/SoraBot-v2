@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
 using SoraBot.Common.Extensions.Modules;
@@ -21,16 +22,19 @@ namespace SoraBot.Bot.Modules.WaifuModule
         
         private readonly IWaifuService _waifuService;
         private readonly ICoinRepository _coinRepo;
+        private readonly InteractiveService _interactiveService;
         private readonly SoraBotConfig _config;
 
         public WaifuModule(
             IWaifuService waifuService, 
             IOptions<SoraBotConfig> config, 
-            ICoinRepository coinRepo)
+            ICoinRepository coinRepo,
+            InteractiveService interactiveService)
         {
             _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
             _waifuService = waifuService;
             _coinRepo = coinRepo;
+            _interactiveService = interactiveService;
         }
 
         [Command("special")]

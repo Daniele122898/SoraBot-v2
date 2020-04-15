@@ -211,5 +211,43 @@ namespace SoraBot.Data.Repositories
                 return Task.CompletedTask;
             }).ConfigureAwait(false);
         }
+
+        public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
+        {
+            return await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                var userW = await context.Users.FindAsync(offerUser).ConfigureAwait(false);
+                var userR = await context.Users.FindAsync(wantUser).ConfigureAwait(false);
+                if (userR == null || userW == null) return false;
+                
+                var userWaifuOffer = userW.UserWaifus.FirstOrDefault(x => x.WaifuId == offerWaifuId);
+                var userWaifuRequest = userR.UserWaifus.FirstOrDefault(x => x.WaifuId == requestWaifuId);
+                if (userWaifuOffer == null || userWaifuRequest == null) return false;
+                // They both have what we need to make the trade. Let's start doing it
+                // Remove the Waifus from the users first
+                if (userWaifuOffer.Count > 1)
+                    userWaifuOffer.Count--;
+                else
+                    userW.UserWaifus.Remove(userWaifuOffer);
+                
+                if (userWaifuRequest.Count > 1)
+                    userWaifuRequest.Count--;
+                else
+                    userR.UserWaifus.Remove(userWaifuRequest);
+                // Now lets add the right ones back
+                var offererWaifuWanted = userW.UserWaifus.FirstOrDefault(x => x.WaifuId == requestWaifuId);
+                if (offererWaifuWanted == null)
+                    userW.UserWaifus.Add(new UserWaifu(offerUser, requestWaifuId, 1));
+                else
+                    offererWaifuWanted.Count++;
+                
+                var requesterWaifuOffered = userR.UserWaifus.FirstOrDefault(x => x.WaifuId == offerWaifuId);
+                if (requesterWaifuOffered == null)
+                    userR.UserWaifus.Add(new UserWaifu(wantUser, offerWaifuId, 1));
+                
+                await context.SaveChangesAsync().ConfigureAwait(false);
+                return true;
+            }).ConfigureAwait(false);
+        }
     }
 }

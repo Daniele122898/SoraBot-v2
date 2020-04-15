@@ -33,6 +33,11 @@ namespace SoraBot.Common.Extensions.Modules
         {
             return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
         }
+        
+        public async Task<IUserMessage> ReplySuccessEmbedExtended(string title, string desc)
+        {
+            return await ReplyAsync("", embed: SimpleEmbed(Green, title, SuccessEmoji).WithDescription(desc).Build());
+        }
 
         public async Task<IUserMessage> ReplyFailureEmbed(string message)
         {
