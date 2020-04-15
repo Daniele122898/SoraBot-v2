@@ -16,7 +16,7 @@ namespace SoraBot.Bot.Modules
     public class CoinModule : SoraSocketCommandModule
     {
         public const short DAILY_COOLDOWN_HOURS = 20;
-        public const uint DAILY_REWARD = 500;
+        public const uint DAILY_REWARD = 1000000; // TODO CHANGE THIS BEFORE LAUNCH!!!
 
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepo;
