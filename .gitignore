@@ -24,6 +24,8 @@ RAMLogging.txt
 
 **/temp
 
+**/logs
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
