@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoraBot.Data.Models.SoraDb
@@ -14,6 +15,8 @@ namespace SoraBot.Data.Models.SoraDb
         public Guild(ulong id, string prefix = "$")
         {
             this.Id = id;
+            if (string.IsNullOrWhiteSpace(prefix)) 
+                throw new ArgumentNullException(nameof(prefix));
             this.Prefix = prefix;
         }
     }

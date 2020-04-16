@@ -1,7 +1,10 @@
-﻿namespace SoraBot.Services.Guilds
+﻿using System.Threading.Tasks;
+
+namespace SoraBot.Services.Guilds
 {
-    public class IPrefixService
+    public interface IPrefixService
     {
-        
+        Task<string> GetPrefix(ulong id);
+        Task<bool> SetPrefix(ulong id, string prefix);
     }
 }

@@ -10,6 +10,7 @@ using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
+using SoraBot.Services.Guilds;
 using SoraBot.Services.Utils;
 using SoraBot.Services.Waifu;
 
@@ -56,6 +57,7 @@ namespace SoraBot.Bot.Extensions
                 .AddSoraMessaging()
                 .AddCacheService()
                 .AddWaifuServices()
+                .AddGuildServices()
                 .AddUtilServices();
 
             services.AddHostedService<SoraBot>();

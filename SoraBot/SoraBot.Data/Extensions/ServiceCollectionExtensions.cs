@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot.Data.Repositories;
+using SoraBot.Data.Repositories.GuildRepos;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Extensions
@@ -16,6 +17,7 @@ namespace SoraBot.Data.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICoinRepository, CoinRepository>();
             services.AddScoped<IWaifuRepository, WaifuRepository>();
+            services.AddScoped<IGuildRepository, GuildRepository>();
             
             // Use this pool in the transactor as well for improved performance
             services.AddDbContextPool<SoraContext>(op =>
