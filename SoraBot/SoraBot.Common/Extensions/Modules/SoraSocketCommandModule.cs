@@ -109,5 +109,18 @@ namespace SoraBot.Common.Extensions.Modules
             };
             return eb;
         }
+
+        protected async Task<bool> UserHasGuildPermission(GuildPermission guildPerm, string errorMessage = null)
+        {
+            var user = Context.User as IGuildUser;
+            if (user == null) return false;
+            if (!user.GuildPermissions.Has(guildPerm))
+            {
+                await ReplyFailureEmbed(errorMessage ??
+                                        $"You require the Guild Permission `{guildPerm.ToString()}` for this command!");
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -17,20 +17,13 @@ namespace SoraBot.Bot.Modules
             _prefixService = prefixService;
         }
 
-        [Command("prefix")]
-        [Summary("Gets the current prefix in the guild")]
-        public async Task GetPrefix()
-        {
-            var prefix = await _prefixService.GetPrefix(Context.Guild.Id).ConfigureAwait(false);
-            await ReplySuccessEmbed($"The Prefix for this Guild is `{prefix}`");
-        }
-
-        [Command("prefix")]
+        [Command("prefix"), Alias("setprefix")]
         [Summary("This lets you change the prefix in the Guild. " +
                  "You need to be an Administrator to do this!")]
-        [RequireUserPermission(GuildPermission.Administrator, ErrorMessage = "You must be an Administrator to use this command!")]
         public async Task SetPrefix(string prefix)
         {
+            if (!await UserHasGuildPermission(GuildPermission.Administrator)) return;
+            
             prefix = prefix.Trim();
             if (prefix.Length > 20)
             {
@@ -45,6 +38,14 @@ namespace SoraBot.Bot.Modules
             }
 
             await ReplySuccessEmbed($"Successfully updated Guild Prefix to `{prefix}`!");
+        }
+        
+        [Command("prefix")]
+        [Summary("Gets the current prefix in the guild")]
+        public async Task GetPrefix()
+        {
+            var prefix = await _prefixService.GetPrefix(Context.Guild.Id).ConfigureAwait(false);
+            await ReplySuccessEmbed($"The Prefix for this Guild is `{prefix}`");
         }
     }
 }
