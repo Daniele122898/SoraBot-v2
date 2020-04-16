@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
+using SoraBot.Services.Guilds;
 
 namespace SoraBot.Services.Core.MessageHandlers
 {
@@ -16,17 +17,20 @@ namespace SoraBot.Services.Core.MessageHandlers
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DiscordSocketCoreListeningBehavior> _logger;
+        private readonly IPrefixService _prefixService;
 
         public MessageReceivedHandler(
             DiscordSocketClient client,
             CommandService commandService,
             IServiceProvider serviceProvider,
-            ILogger<DiscordSocketCoreListeningBehavior> logger)
+            ILogger<DiscordSocketCoreListeningBehavior> logger,
+            IPrefixService prefixService)
         {
             _client = client;
             _commandService = commandService;
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _prefixService = prefixService;
         }
         
         public async Task HandleMessageAsync(MessageReceived msg, CancellationToken cancellationToken = default)
@@ -44,7 +48,7 @@ namespace SoraBot.Services.Core.MessageHandlers
             if (!(m.Channel is SocketGuildChannel channel))
                 return;
 
-            string prefix = "beta!"; // TODO CHANGE THIS
+            string prefix = await _prefixService.GetPrefix(channel.Guild.Id).ConfigureAwait(false);
             
             // Can't possibly be a command. Safe some cpu cycles
             if (message.Content.Length <= prefix.Length)
