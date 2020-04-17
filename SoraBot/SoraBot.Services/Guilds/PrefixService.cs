@@ -8,8 +8,8 @@ namespace SoraBot.Services.Guilds
     public class PrefixService : IPrefixService
     {
         public const string CACHE_PREFIX = "prfx:";
-        public const short CACHE_TTL_MINS = 60;
-        
+        // public const short CACHE_TTL_MINS = 60;
+
         private readonly ICacheService _cacheService;
         private readonly IGuildRepository _guildRepo;
 
@@ -18,13 +18,13 @@ namespace SoraBot.Services.Guilds
             _cacheService = cacheService;
             _guildRepo = guildRepo;
         }
-        
+
         public async Task<string> GetPrefix(ulong id)
         {
             string idStr = CACHE_PREFIX + id.ToString();
             return await _cacheService.GetOrSetAndGetAsync(idStr,
-                async () => await _guildRepo.GetGuildPrefix(id).ConfigureAwait(false) ?? "$",
-                TimeSpan.FromMinutes(CACHE_TTL_MINS)).ConfigureAwait(false);
+                async () => await _guildRepo.GetGuildPrefix(id).ConfigureAwait(false) ?? "$"
+            ).ConfigureAwait(false);
         }
 
         public async Task<bool> SetPrefix(ulong id, string prefix)
@@ -34,7 +34,7 @@ namespace SoraBot.Services.Guilds
                 return false;
             // Update the Cache
             string idStr = CACHE_PREFIX + id.ToString();
-            _cacheService.Set(idStr, prefix, TimeSpan.FromMinutes(CACHE_TTL_MINS));
+            _cacheService.Set(idStr, prefix);
             return true;
         }
     }
