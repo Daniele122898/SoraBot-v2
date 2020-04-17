@@ -14,6 +14,8 @@ using SoraBot.Services.Waifu;
 
 namespace SoraBot.Bot.Modules.WaifuModule
 {
+    [Name("Waifus")]
+    [Summary("Open Waifu Boxes, sell or trade them and collect them all!")]
     public partial class WaifuModule : SoraSocketCommandModule
     {
         private const int _WAIFU_BOX_COST = 500;
