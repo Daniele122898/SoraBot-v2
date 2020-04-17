@@ -87,5 +87,41 @@ namespace SoraBot.Bot.Modules
 
             await ReplyAsync("", embed: eb.Build());
         }
+
+        [Command("help command"), Alias("help cmd", "h cmd")]
+        [Summary("Provides help for a specific command.")]
+        [Priority(10)]
+        public async Task HelpCommand([Remainder] string cmdName)
+        {
+            var commands = _cmdService.Commands
+                .Where(x => x.Name.Equals(cmdName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (commands.Count == 0)
+            {
+                await ReplyFailureEmbed("Could not find command. Make sure you spell it right!");
+                return;
+            }
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Title = $"{InfoEmoji} Help for {cmdName.Trim()}"
+            };
+
+            foreach (var cmd in commands)
+            {
+                string pars = cmd.Parameters.Select(x => $"<{x.Name}{(x.IsOptional ? "?" : "")}>").Join(" ");
+                string desc = $"{cmd.Summary}\n";
+                desc += cmd.Parameters.Select(x => $"**{x.Name}{(x.IsOptional ? " (optional)" : "")}:** {x.Summary}").Join("\n");
+                eb.AddField(x =>
+                {
+                    x.Name = $"**{cmd.Name} {pars}**";
+                    x.IsInline = false;
+                    x.Value = desc;
+                });
+            }
+
+            await ReplyAsync("", embed: eb.Build());
+        }
     }
 }
