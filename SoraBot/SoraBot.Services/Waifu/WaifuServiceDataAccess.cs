@@ -69,6 +69,9 @@ namespace SoraBot.Services.Waifu
 
         public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
             => await _waifuRepo.TryTradeWaifus(offerUser, wantUser, offerWaifuId, requestWaifuId).ConfigureAwait(false);
+
+        public async Task RemoveWaifu(int waifuId)
+            => await _waifuRepo.RemoveWaifu(waifuId).ConfigureAwait(false);
         
 
 

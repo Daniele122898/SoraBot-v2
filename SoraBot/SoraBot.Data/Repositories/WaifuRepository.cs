@@ -249,5 +249,16 @@ namespace SoraBot.Data.Repositories
                 return true;
             }).ConfigureAwait(false);
         }
+
+        public async Task RemoveWaifu(int waifuId)
+        {
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var waifu = await context.Waifus.FindAsync(waifuId).ConfigureAwait(false);
+                if (waifu == null) return;
+                context.Waifus.Remove(waifu);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+        }
     }
 }
