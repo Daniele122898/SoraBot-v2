@@ -29,6 +29,9 @@ namespace SoraBot.Common.Extensions.Modules
             return await ReplyAsync("", embed: SimpleEmbed(color, message, emoji).Build());
         }
 
+        public async Task<IUserMessage> ReplyEmbed(EmbedBuilder eb)
+            => await ReplyAsync("", embed: eb.Build()); 
+
         public async Task<IUserMessage> ReplySuccessEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
