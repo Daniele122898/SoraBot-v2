@@ -76,7 +76,7 @@ namespace SoraBot.Common.Extensions.Modules
         public async Task<bool> FailedTryTransaction(bool transactionSucc, string message = "Failed to fetch or update data. Please try again")
         {
             if (transactionSucc) return false;
-            // Send error messafe
+            // Send error message
             await ReplyFailureEmbed(message);
             return true;
         }

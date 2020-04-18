@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Microsoft.EntityFrameworkCore.Internal;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Services.Guilds;
 
@@ -75,9 +74,10 @@ namespace SoraBot.Bot.Modules
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
             };
 
-            string commands = module.Commands
+            string commands = String.Join(", ", module.Commands
                 .Where(c => !c.Preconditions.Any(x => x is RequireOwnerAttribute))
-                .Select(x => x.Name).Join(", ");
+                .Select(x => x.Name));
+            
 
             string desc =
                 $"Use `{prefix}help command <Command Name>` to get specific help  on a command. (without the <>)\n\n" +
@@ -110,9 +110,9 @@ namespace SoraBot.Bot.Modules
 
             foreach (var cmd in commands)
             {
-                string pars = cmd.Parameters.Select(x => $"<{x.Name}{(x.IsOptional ? "?" : "")}>").Join(" ");
+                string pars = String.Join(" ", cmd.Parameters.Select(x => $"<{x.Name}{(x.IsOptional ? "?" : "")}>"));
                 string desc = $"{cmd.Summary}\n";
-                desc += cmd.Parameters.Select(x => $"**{x.Name}{(x.IsOptional ? " (optional)" : "")}:** {x.Summary}").Join("\n");
+                desc += String.Join("\n", cmd.Parameters.Select(x => $"**{x.Name}{(x.IsOptional ? " (optional)" : "")}:** {x.Summary}"));
                 eb.AddField(x =>
                 {
                     x.Name = $"**{cmd.Name} {pars}**";
