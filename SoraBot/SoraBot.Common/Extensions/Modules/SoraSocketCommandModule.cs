@@ -83,6 +83,13 @@ namespace SoraBot.Common.Extensions.Modules
             await ReplyFailureEmbed(message);
             return true;
         }
+        
+        public EmbedFooterBuilder RequestedByMe()
+            => new EmbedFooterBuilder()
+            {
+                Text = $"Requested by {Formatter.UsernameDiscrim(Context.User)}",
+                IconUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl()
+            };
 
         public static EmbedFooterBuilder RequestedByFooter(IUser user)
         {
