@@ -56,11 +56,6 @@ namespace SoraBot.Services.Cache
             return null;
         }
 
-        // I use as here instead of direct casts. I heavily dislike exceptions.
-        // Throwing exceptions for every small thing is just such a bad and inefficient habit.
-        // I'd like to use my Maybe type as a nice null wrapper but for this small thing it seems
-        // slightly overkill
-
         public T Get<T>(ulong id) where T : class
         {
             _discordCache.TryGetValue(id, out var item);
