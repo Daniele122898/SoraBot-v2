@@ -19,7 +19,7 @@ namespace SoraBot.Services.Cache
         {
             _customCache.TryGetValue(id, out var item);
             if (item == null) return null;
-            if (item.IsValid()) return item as T;
+            if (item.IsValid()) return item.Content as T;
             
             _customCache.TryRemove(id, out _);
             return null;

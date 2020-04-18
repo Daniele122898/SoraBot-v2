@@ -65,7 +65,7 @@ namespace SoraBot.Services.Cache
         {
             _discordCache.TryGetValue(id, out var item);
             if (item == null) return null;
-            if (item.IsValid()) return item as T;
+            if (item.IsValid()) return item.Content as T;
             
             _discordCache.TryRemove(id, out _);
             return null;
