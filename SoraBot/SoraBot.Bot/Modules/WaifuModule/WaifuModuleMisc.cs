@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using SoraBot.Bot.Models;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
 
@@ -12,9 +13,11 @@ namespace SoraBot.Bot.Modules.WaifuModule
     {
         [Command("waifustats"), Alias("wstats")]
         [Summary("Shows your how many waifus you got and your completion %")]
-        public async Task GetWaifuStats(IUser userT = null)
+        public async Task GetWaifuStats(
+            [Summary("@User to get the stats to. Leave blank to get your own")]
+            DiscordGuildUser userT = null)
         {
-            var user = userT ?? Context.User;
+            var user = userT?.GuildUser ?? (IGuildUser)Context.User;
             var waifus = await _waifuService.GetAllWaifusFromUser(user.Id).ConfigureAwait(false);
             if (waifus == null || waifus.Count == 0)
             {
@@ -69,11 +72,11 @@ namespace SoraBot.Bot.Modules.WaifuModule
             await ReplyAsync("", embed: eb.Build());
         }
 
-        [Command("mywaifus"), Alias("waifus")]
+        [Command("waifus"), Alias("mywaifus")]
         [Summary("Links you to a page where you can see all of your owned waifus or the person you @mentioned")]
-        public async Task ShowMyWaifus(IUser userT = null)
+        public async Task ShowMyWaifus(DiscordUser userT = null)
         {
-            var user = userT ?? Context.User;
+            var user = userT?.User ?? Context.User;
             await ReplyAsync($"Check out **{user.Username}'s Waifus** here: https://sorabot.pw/user/{user.Id}/waifus °˖✧◝(⁰▿⁰)◜✧˖°");
         }
         

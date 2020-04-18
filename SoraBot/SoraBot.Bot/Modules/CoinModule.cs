@@ -4,6 +4,7 @@ using Discord;
 using Discord.Commands;
 using Humanizer;
 using Humanizer.Localisation;
+using SoraBot.Bot.Models;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
@@ -61,9 +62,9 @@ namespace SoraBot.Bot.Modules
         [Alias("bank")]
         [Summary("Check your own or someone else's Sora Coin balance")]
         public async Task GetCoinAmount([Summary("The @user you want to check. Leave blank to get your own balance")]
-            IUser userT = null)
+            DiscordGuildUser userT = null)
         {
-            var user = userT ?? Context.User;
+            var user = userT?.GuildUser ?? (IGuildUser)Context.User;
             // We dont care if the user exists. So we take the easy way out
             var amount = _coinRepo.GetCoins(user.Id);
 
@@ -79,7 +80,7 @@ namespace SoraBot.Bot.Modules
         public async Task SendSoraCoins([Summary("The positive amount of Sora Coins to send to the user")]
             int amount,
             [Summary("The @user to send the SC to")]
-            IUser user) => await SendMoney(user.Id, amount);
+            DiscordUser user) => await SendMoney(user.User.Id, amount);
 
         [Command("send")]
         [Alias("transfer", "give")]
