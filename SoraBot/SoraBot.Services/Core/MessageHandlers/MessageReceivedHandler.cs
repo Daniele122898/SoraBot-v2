@@ -121,8 +121,8 @@ namespace SoraBot.Services.Core.MessageHandlers
                         Title = $"{SoraSocketCommandModule.FailureEmoji} Command failed unexpectedly. Creator was notified.",
                         Description = $"Reason: {result.ErrorReason}"
                     }.Build());
-                    _logger.LogError($"Command {exception.Command.Name} failed with an exception! (Reason: {result.ErrorReason})", 
-                        exception.InnerException ?? new Exception($"Exception was null, extra data: {result.ErrorReason}, {exception.Message}"));
+                    _logger.LogError($"Command {exception?.Command?.Name ?? "Unknown"} failed with an exception! (Reason: {result?.ErrorReason})", 
+                        exception?.InnerException ?? new Exception($"Exception was null, extra data: {result.ErrorReason}, {exception?.Message}"));
                     break;
             }
         }

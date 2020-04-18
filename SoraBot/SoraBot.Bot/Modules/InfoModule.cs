@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
+using SoraBot.Bot.Models;
+using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Modules;
 
 namespace SoraBot.Bot.Modules
@@ -14,9 +15,10 @@ namespace SoraBot.Bot.Modules
         [Summary("Get the avatar of the @user or yourself if no one is tagged")]
         public async Task GetAvatar(
             [Summary("@User to get the avatar from, or no one to get your own")]
-            SocketUser userT = null)
+            [OverrideTypeReader(typeof(GuildUserTypeReader))]
+            DiscordGuildUser userT = null)
         {
-            var user = userT ?? Context.User;
+            var user = userT.GuildUser ?? (IGuildUser)Context.User;
             var eb = new EmbedBuilder()
             {
                 Footer  = RequestedByFooter(Context.User),
