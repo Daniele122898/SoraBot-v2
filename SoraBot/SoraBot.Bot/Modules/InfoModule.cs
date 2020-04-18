@@ -18,7 +18,7 @@ namespace SoraBot.Bot.Modules
             [OverrideTypeReader(typeof(GuildUserTypeReader))]
             DiscordGuildUser userT = null)
         {
-            var user = userT.GuildUser ?? (IGuildUser)Context.User;
+            var user = userT?.GuildUser ?? (IGuildUser)Context.User;
             var eb = new EmbedBuilder()
             {
                 Footer  = RequestedByFooter(Context.User),
