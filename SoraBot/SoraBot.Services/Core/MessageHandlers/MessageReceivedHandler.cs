@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
 using SoraBot.Services.Guilds;
@@ -95,15 +97,32 @@ namespace SoraBot.Services.Core.MessageHandlers
                     }
                     break;
                 case CommandError.BadArgCount:
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                    await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
+                    {
+                        Color = SoraSocketCommandModule.Red,
+                        Title = $"{SoraSocketCommandModule.FailureEmoji} {result.ErrorReason}"
+                    }.Build());
                     break;
                 case CommandError.UnknownCommand:
                     break;
                 case CommandError.ParseFailed:
-                    await context.Channel.SendMessageAsync("Parse Failed");
+                    await context.Channel.SendMessageAsync("" ,embed: new EmbedBuilder()
+                    {
+                        Color = SoraSocketCommandModule.Red,
+                        Title = $"{SoraSocketCommandModule.FailureEmoji} Failed to parse the entered value(s)!",
+                        Description = $"Make sure you enter the correct Data type! If the command asks for a " +
+                                      $"@mention then mention a user, if a command needs a number don't enter a word!"
+                    }.Build());
                     break;
                 default:
-                    await context.Channel.SendMessageAsync("Some other failiure");
+                    await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
+                    {
+                        Color = SoraSocketCommandModule.Red,
+                        Title = $"{SoraSocketCommandModule.FailureEmoji} Command failed unexpectedly. Creator was notified.",
+                        Description = $"Reason: {result.ErrorReason}"
+                    }.Build());
+                    _logger.LogError($"Command {exception.Command.Name} failed with an exception! (Reason: {result.ErrorReason})", 
+                        exception.InnerException ?? new Exception($"Exception was null, extra data: {result.ErrorReason}, {exception.Message}"));
                     break;
             }
         }
