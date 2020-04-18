@@ -105,7 +105,7 @@ namespace SoraBot.Data.Repositories
                 var waifus = dupes.Select(d => d.Waifu).Where(w => !WaifuUtils.IsSpecialOrUltiWaifu(w.Rarity)).ToList();
                 dupes = dupes.Where(d => waifus.Any(x => x.Id == d.WaifuId)).ToList();
                 if (dupes.Count == 0)
-                    return Maybe.FromErr<(uint, uint)>("You don't have any dupes to sell! Open some Waifu Boxes");
+                    return Maybe.FromErr<(uint, uint)>("You don't have any dupes to sell! Open some Waifu Boxes. Ultimate or Special Waifus are not sold with this method!");
                 // Remove the dupes and accumulate the coins
                 uint totalCoins = 0;
                 uint totalSold = 0;
