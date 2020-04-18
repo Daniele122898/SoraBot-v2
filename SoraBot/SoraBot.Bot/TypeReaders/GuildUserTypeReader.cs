@@ -25,10 +25,10 @@ namespace SoraBot.Bot.TypeReaders
             // Use our user services
             var userService = services.GetRequiredService<IUserService>();
             var user = await userService.GetOrSetAndGet(uid, context.Guild.Id);
-            if (user == null)
+            if (!user.HasValue)
                 return TypeReaderResult.FromError(CommandError.ParseFailed, "Could not find User");
             
-            return TypeReaderResult.FromSuccess(new DiscordGuildUser(user));
+            return TypeReaderResult.FromSuccess(new DiscordGuildUser(user.Value));
         }
     }
 }

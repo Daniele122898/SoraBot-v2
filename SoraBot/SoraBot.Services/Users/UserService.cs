@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -22,44 +23,44 @@ namespace SoraBot.Services.Users
             _client = client;
         }
         
-        public IUser Get(ulong id)
+        public Maybe<IUser> Get(ulong id)
         {
             var user = (IUser)_client.GetUser(id);
-            if (user != null) return user;
-            user = _cacheService.Get<IUser>(id);
-            return user;
+            if (user != null) return Maybe.FromVal(user);
+            var userM = _cacheService.Get<IUser>(id);
+            return userM;
         }
 
-        public IGuildUser Get(ulong userId, ulong guildId)
+        public Maybe<IGuildUser> Get(ulong userId, ulong guildId)
         {
             var user = (IGuildUser)_client.GetGuild(guildId).GetUser(userId);
-            if (user != null) return user;
-            user = _cacheService.Get<IGuildUser>(userId.ToString() + guildId.ToString());
-            return user;
+            if (user != null) return Maybe.FromVal(user);
+            var userM = _cacheService.Get<IGuildUser>(userId.ToString() + guildId.ToString());
+            return userM;
         }
 
-        public async Task<IUser> GetOrSetAndGet(ulong id)
+        public async Task<Maybe<IUser>> GetOrSetAndGet(ulong id)
         {
             var user = this.Get(id);
-            if (user != null) return user;
+            if (user.HasValue) return user;
             // Otherwise we gotta fetch and store it in cache
-            user = await _restClient.GetUserAsync(id).ConfigureAwait(false);
-            if (user == null) return null;
+            var userResp = await _restClient.GetUserAsync(id).ConfigureAwait(false);
+            if (userResp == null) return Maybe.Zero<IUser>();
             // Otherwise we save it
             _cacheService.Set(id, user, TimeSpan.FromMinutes(_USER_TTL_MINS));
-            return user;
+            return Maybe.FromVal<IUser>(userResp);
         }
 
-        public async Task<IGuildUser> GetOrSetAndGet(ulong userId, ulong guildId)
+        public async Task<Maybe<IGuildUser>> GetOrSetAndGet(ulong userId, ulong guildId)
         {
             var user = this.Get(userId, guildId);
-            if (user != null) return user;
+            if (user.HasValue) return user;
             // Do rest request
-            user = await _restClient.GetGuildUserAsync(guildId, userId).ConfigureAwait(false);
-            if (user == null) return null;
+            var userResp = await _restClient.GetGuildUserAsync(guildId, userId).ConfigureAwait(false);
+            if (userResp == null) return Maybe.Zero<IGuildUser>();
             // Otherwise set cache
             _cacheService.Set(userId.ToString() + guildId.ToString(), user, TimeSpan.FromMinutes(_USER_TTL_MINS));
-            return user;
+            return Maybe.FromVal<IGuildUser>(userResp);
         }
     }
 }
