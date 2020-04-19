@@ -8,5 +8,6 @@ namespace SoraBot.Data.Repositories.Interfaces
     {
         Task<Maybe<User>> GetOrCreateUser(ulong id);
         Task<User> GetUser(ulong id);
+        Task TryAddUserExp(ulong userId, uint expToAdd);
     }
 }
