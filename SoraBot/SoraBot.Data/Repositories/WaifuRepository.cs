@@ -212,6 +212,17 @@ namespace SoraBot.Data.Repositories
             }).ConfigureAwait(false);
         }
 
+        public async Task<Maybe<Waifu>> GetFavWaifuOfUser(ulong userId)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                if (user == null) return Maybe.Zero<Waifu>();
+                var favWaifu = user.FavoriteWaifu;
+                return favWaifu == null ? Maybe.Zero<Waifu>() : Maybe.FromVal(favWaifu);
+            }).ConfigureAwait(false);
+        }
+
         public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
         {
             return await _soraTransactor.TryDoInTransactionAsync(async context =>

@@ -22,6 +22,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task<UserWaifu> GetUserWaifu(ulong userId, int waifuId);
         Task<bool> SetUserFavWaifu(ulong userId, int waifuId);
         Task RemoveUserFavWaifu(ulong userId);
+        Task<Maybe<Waifu>> GetFavWaifuOfUser(ulong userId);
         Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId);
         Task RemoveWaifu(int waifuId);
     }
