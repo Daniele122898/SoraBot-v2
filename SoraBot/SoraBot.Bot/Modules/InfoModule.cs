@@ -12,6 +12,7 @@ using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Configurations;
 using SoraBot.Data.Repositories.Interfaces;
+using SoraBot.Services.Guilds;
 
 namespace SoraBot.Bot.Modules
 {
@@ -21,12 +22,18 @@ namespace SoraBot.Bot.Modules
     {
         private readonly ICoinRepository _coinRepo;
         private readonly IWaifuRepository _waifuRepo;
+        private readonly IPrefixService _prefixService;
         private readonly SoraBotConfig _config;
 
-        public InfoModule(ICoinRepository coinRepo, IWaifuRepository waifuRepo, IOptions<SoraBotConfig> config)
+        public InfoModule(
+            ICoinRepository coinRepo, 
+            IWaifuRepository waifuRepo, 
+            IOptions<SoraBotConfig> config,
+            IPrefixService prefixService)
         {
             _coinRepo = coinRepo;
             _waifuRepo = waifuRepo;
+            _prefixService = prefixService;
             _config = config.Value;
         }
 
@@ -45,7 +52,7 @@ namespace SoraBot.Bot.Modules
                 Color = Blue,
                 ThumbnailUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl(),
                 Title = $"{InfoEmoji} {Formatter.UsernameDiscrim(user)}",
-                Footer = footer.WithText(footer.Text + $" | ID: {user.Id.ToString()}"),
+                Footer = footer.WithText($"{footer.Text} | ID: {user.Id.ToString()}"),
             };
             eb.AddField(x =>
             {
@@ -107,6 +114,96 @@ namespace SoraBot.Bot.Modules
             }
 
             await ReplyEmbed(eb);
+        }
+
+        [Command("serverinfo"), Alias("sinfo", "ginfo", "guildinfo")]
+        [Summary("Infos about the Guild")]
+        public async Task GuildInfo()
+        {
+            var footer = RequestedByMe();
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Footer = footer.WithText($"{footer.Text} | Guild ID: {Context.Guild.Id.ToString()}"),
+                Title = $"{InfoEmoji} {Context.Guild.Name}",
+                ThumbnailUrl = Context.Guild.IconUrl ?? Context.User.GetDefaultAvatarUrl(),
+                Description = $"Created on {Context.Guild.CreatedAt.DateTime.ToString("dd/MM/yyyy")}. " +
+                              $"That's {((int)DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime).TotalDays).ToString()} days ago!"
+            };
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Owner";
+                x.Value = $"{Formatter.UsernameDiscrim(Context.Guild.Owner)}";
+            });
+            int online = Context.Guild.Users.Count(socketGuildUser => socketGuildUser.Status != UserStatus.Invisible && socketGuildUser.Status != UserStatus.Offline);
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Members";
+                x.Value = $"{online.ToString()} / {Context.Guild.MemberCount.ToString()}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Region";
+                x.Value = $"{(Context.Guild.VoiceRegionId).Humanize().Transform(To.LowerCase, To.TitleCase)}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Roles";
+                x.Value = $"{Context.Guild.Roles.Count.ToString()}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = $"Channels [{Context.Guild.Channels.Count.ToString()}]";
+                x.Value = $"{Context.Guild.TextChannels.Count.ToString()} Text | {Context.Guild.VoiceChannels.Count.ToString()} Voice";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "AFK Channel";
+                x.Value = $"{(Context.Guild.AFKChannel == null ? $"No AFK Channel" : $"{Context.Guild.AFKChannel.Name}\n*in {(Context.Guild.AFKTimeout / 60).ToString()} Min*")}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Total Emotes";
+                x.Value = $"{Context.Guild.Emotes.Count.ToString()}";
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Avatar URL";
+                x.Value = $"[Click to view]({Context.Guild.IconUrl + "?size=1024" ?? Context.User.GetDefaultAvatarUrl()})";
+            });
+            string prefix = await _prefixService.GetPrefix(Context.Guild.Id).ConfigureAwait(false);
+            eb.AddField(x =>
+            {
+                x.IsInline = true;
+                x.Name = "Prefix";
+                x.Value = prefix;
+            });
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Emotes";
+
+                string val = "";
+                foreach (var emote in Context.Guild.Emotes)
+                {
+                    if (val.Length < 950)
+                        val += $"<:{emote.Name}:{emote.Id.ToString()}> ";
+                    else
+                        break;
+                }
+                if (string.IsNullOrWhiteSpace(val))
+                    val = "No Custom Emotes";
+                x.Value = val;
+            });
+            await ReplyAsync("", embed: eb.Build());
         }
 
         [Command("sys")]
