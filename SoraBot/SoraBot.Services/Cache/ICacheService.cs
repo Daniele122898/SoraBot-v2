@@ -24,6 +24,9 @@ namespace SoraBot.Services.Cache
         void Set(string id, object obj, TimeSpan? ttl = null);
         void Set(ulong id, object obj, TimeSpan? ttl = null);
 
+        void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc);
+        void AddOrUpdate(string id, CacheItem addItem, Func<string, CacheItem, CacheItem> updateFunc);
+        
          Maybe<T> TryRemove<T>(ulong id);
         Maybe<T> TryRemove<T>(string id);
     }

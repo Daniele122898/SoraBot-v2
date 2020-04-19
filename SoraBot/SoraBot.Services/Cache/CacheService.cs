@@ -96,6 +96,11 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal((T) cacheItem.Content);
         }
 
+        public void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc)
+        {
+            this._discordCache.AddOrUpdate(id, addItem, updateFunc);
+        }
+        
         private async Task<TReturn> GetOrSetAndGetAsync<TCacheKey, TReturn>(
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<Task<TReturn>> set, TimeSpan? ttl = null)

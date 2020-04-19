@@ -42,6 +42,11 @@ namespace SoraBot.Services.Cache
             _customCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
 
+        public void AddOrUpdate(string id, CacheItem addItem, Func<string, CacheItem, CacheItem> updateFunc)
+        {
+            this._customCache.AddOrUpdate(id, addItem, updateFunc);
+        }
+
         public Maybe<T> TryRemove<T>(string id)
         {
             _customCache.TryRemove(id, out var cacheItem);
