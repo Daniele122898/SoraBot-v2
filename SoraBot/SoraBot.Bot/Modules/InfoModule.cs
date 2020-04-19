@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using SoraBot.Bot.Models;
 using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
 using SoraBot.Data.Configurations;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -27,6 +28,85 @@ namespace SoraBot.Bot.Modules
             _coinRepo = coinRepo;
             _waifuRepo = waifuRepo;
             _config = config.Value;
+        }
+
+        [Command("userinfo"), Alias("whois", "uinfo")]
+        [Summary("Gives infos about the @mentioned user. If none is mentioned it will show infos about you")]
+        public async Task UserInfo(
+            [Summary("@User to get info about. Mention no one to get info about yourself")]
+            DiscordGuildUser userT = null)
+        {
+            var user = userT?.GuildUser ?? (IGuildUser) Context.User;
+            var coins = _coinRepo.GetCoins(user.Id);
+            var waifu = await _waifuRepo.GetFavWaifuOfUser(user.Id).ConfigureAwait(false);
+            var footer = RequestedByMe();
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                ThumbnailUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl(),
+                Title = $"{InfoEmoji} {Formatter.UsernameDiscrim(user)}",
+                Footer = footer.WithText(footer.Text + $" | ID: {user.Id.ToString()}"),
+            };
+            eb.AddField(x =>
+            {
+                x.Name = "Joined Discord";
+                x.IsInline = false;
+                x.Value = $"On {user.CreatedAt.ToString("dd/MM/yyyy")}. " +
+                          $"That is {((int) DateTime.Now.Subtract(user.CreatedAt.DateTime).TotalDays).ToString()} days ago!";
+            });
+            eb.AddField(x =>
+            {
+                string joined = "_Unknown_";
+                if (user.JoinedAt != null)
+                {
+                    joined = $"On {user.JoinedAt.Value.DateTime.ToString("dd/MM/yyyy")}. " +
+                             $"That is {((int) DateTime.Now.Subtract(user.JoinedAt.Value.DateTime).TotalDays).ToString()} days ago!";
+                }
+
+                x.Name = "Joined Server";
+                x.IsInline = false;
+                x.Value = joined;
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Nickname";
+                x.IsInline = true;
+                x.Value = string.IsNullOrWhiteSpace(user.Nickname) ? "_none_" : user.Nickname;
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Avatar";
+                x.IsInline = true;
+                x.Value = $"[Click Here]({(user.GetAvatarUrl(ImageFormat.Auto, 1024) ?? user.GetDefaultAvatarUrl())})";
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Sora Coins";
+                x.IsInline = true;
+                x.Value = $"{coins.ToString()} SC";
+            });
+            eb.AddField(x =>
+            {
+                string roles = String.Join(", ",
+                    Context.Guild.Roles
+                        .Where(x => user.RoleIds.Any(y => y == x.Id) && !x.IsEveryone)
+                        .Select(r => r.Name));
+                x.Name = "Roles";
+                x.IsInline = true;
+                x.Value = string.IsNullOrWhiteSpace(roles) ? "_none_" : roles;
+            });
+            if (waifu.HasValue)
+            {
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = "Favorite Waifu";
+                    x.Value = waifu.Value.Name;
+                });
+                eb.ImageUrl = waifu.Value.ImageUrl;
+            }
+
+            await ReplyEmbed(eb);
         }
 
         [Command("sys")]
