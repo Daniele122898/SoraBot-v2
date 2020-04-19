@@ -42,9 +42,11 @@ namespace SoraBot.Services.Cache
             _customCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
 
-        public void Remove(string id)
+        public Maybe<T> TryRemove<T>(string id)
         {
-            _customCache.TryRemove(id, out _);
-        }
+            _customCache.TryRemove(id, out var cacheItem);
+            if (cacheItem == null) return Maybe.Zero<T>();
+            if (!cacheItem.IsValid()) return Maybe.Zero<T>();
+            return Maybe.FromVal((T) cacheItem.Content);}
     }
 }

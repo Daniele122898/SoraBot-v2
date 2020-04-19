@@ -88,9 +88,12 @@ namespace SoraBot.Services.Cache
             _discordCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
 
-        public void Remove(ulong id)
+        public Maybe<T> TryRemove<T>(ulong id)
         {
-            _discordCache.TryRemove(id, out _);
+            _discordCache.TryRemove(id, out var cacheItem);
+            if (cacheItem == null) return Maybe.Zero<T>();
+            if (!cacheItem.IsValid()) return Maybe.Zero<T>();
+            return Maybe.FromVal((T) cacheItem.Content);
         }
 
         private async Task<TReturn> GetOrSetAndGetAsync<TCacheKey, TReturn>(
