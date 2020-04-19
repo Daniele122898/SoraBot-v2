@@ -96,7 +96,7 @@ namespace SoraBot.Bot.Modules
             {
                 string roles = String.Join(", ",
                     Context.Guild.Roles
-                        .Where(x => user.RoleIds.Any(y => y == x.Id) && !x.IsEveryone)
+                        .Where(r => user.RoleIds.Any(id => id == r.Id) && !r.IsEveryone)
                         .Select(r => r.Name));
                 x.Name = "Roles";
                 x.IsInline = true;
