@@ -3,7 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.Options;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Data.Configurations;
 using SoraBot.Services.Guilds;
 
 namespace SoraBot.Bot.Modules
@@ -14,11 +16,20 @@ namespace SoraBot.Bot.Modules
     {
         private readonly CommandService _cmdService;
         private readonly IPrefixService _prefixService;
+        private readonly SoraBotConfig _config;
 
-        public HelpModule(CommandService cmdService, IPrefixService prefixService)
+        public HelpModule(CommandService cmdService, IPrefixService prefixService, IOptions<SoraBotConfig> config)
         {
             _cmdService = cmdService;
             _prefixService = prefixService;
+            _config = config.Value;
+        }
+        
+        [Command("support")]
+        [Summary("Link to the support server")]
+        public async Task Support()
+        {
+            await ReplyAsync($"Get support here: {_config.DiscordSupportInvite}");
         }
         
         [Command("help"), Alias("h")]
