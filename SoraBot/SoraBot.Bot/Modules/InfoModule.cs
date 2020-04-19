@@ -13,6 +13,7 @@ using SoraBot.Common.Utils;
 using SoraBot.Data.Configurations;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Guilds;
+using SoraBot.Services.Profile;
 
 namespace SoraBot.Bot.Modules
 {
@@ -42,8 +43,6 @@ namespace SoraBot.Bot.Modules
         {
             var user = userT?.GuildUser ?? (IGuildUser) Context.User;
             var userDb = await _userRepo.GetUser(user.Id);
-            var coins = userDb?.Coins ?? 0;
-            var waifu = userDb?.FavoriteWaifu;
             var footer = RequestedByMe();
             var eb = new EmbedBuilder()
             {
@@ -86,12 +85,6 @@ namespace SoraBot.Bot.Modules
             });
             eb.AddField(x =>
             {
-                x.Name = "Sora Coins";
-                x.IsInline = true;
-                x.Value = $"{coins.ToString()} SC";
-            });
-            eb.AddField(x =>
-            {
                 string roles = String.Join(", ",
                     Context.Guild.Roles
                         .Where(r => user.RoleIds.Any(id => id == r.Id) && !r.IsEveryone)
@@ -100,6 +93,31 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = string.IsNullOrWhiteSpace(roles) ? "_none_" : roles;
             });
+
+            var coins = userDb?.Coins ?? 0;
+            eb.AddField(x =>
+            {
+                x.Name = "Sora Coins";
+                x.IsInline = true;
+                x.Value = $"{coins.ToString()} SC";
+            });
+            
+            uint exp = userDb?.Exp ?? 0;
+            int lvl = ExpService.CalculateLevel(exp);
+            eb.AddField(x =>
+            {
+                x.Name = "EXP";
+                x.IsInline = true;
+                x.Value = exp.ToString();
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Level";
+                x.IsInline = true;
+                x.Value = lvl.ToString();
+            });
+            
+            var waifu = userDb?.FavoriteWaifu;
             if (waifu != null)
             {
                 eb.AddField(x =>
