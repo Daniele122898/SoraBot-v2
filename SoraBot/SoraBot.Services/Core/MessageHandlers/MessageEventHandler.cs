@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
+using SoraBot.Services.Profile;
 
 namespace SoraBot.Services.Core.MessageHandlers
 {    
@@ -12,6 +13,13 @@ namespace SoraBot.Services.Core.MessageHandlers
     /// </summary>
     public class MessageEventHandler : IMessageHandler<MessageReceived>
     {
+        private readonly IExpService _expService;
+
+        public MessageEventHandler(IExpService expService)
+        {
+            _expService = expService;
+        }
+        
         public async Task HandleMessageAsync(MessageReceived message, CancellationToken cancellationToken = default)
         {
             var msg = message.Message;
@@ -21,6 +29,7 @@ namespace SoraBot.Services.Core.MessageHandlers
                 return;
             
             // Now let's give them EXP
+            await _expService.TryGiveUserExp(msg, channel);
         }
     }
 }
