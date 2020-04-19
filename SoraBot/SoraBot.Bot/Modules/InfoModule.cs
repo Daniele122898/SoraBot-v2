@@ -20,21 +20,15 @@ namespace SoraBot.Bot.Modules
     [Summary("Commands for general information about users or Sora")]
     public class InfoModule : SoraSocketCommandModule
     {
-        private readonly ICoinRepository _coinRepo;
-        private readonly IWaifuRepository _waifuRepo;
         private readonly IPrefixService _prefixService;
         private readonly IUserRepository _userRepo;
         private readonly SoraBotConfig _config;
 
         public InfoModule(
-            ICoinRepository coinRepo, 
-            IWaifuRepository waifuRepo, 
             IOptions<SoraBotConfig> config,
             IPrefixService prefixService,
             IUserRepository userRepo)
         {
-            _coinRepo = coinRepo;
-            _waifuRepo = waifuRepo;
             _prefixService = prefixService;
             _userRepo = userRepo;
             _config = config.Value;
