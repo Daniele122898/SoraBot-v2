@@ -25,7 +25,7 @@ namespace SoraBot.Services.Profile
             _cacheService = cacheService;
         }
 
-        public async Task TryGiveUserExp(SocketMessage msg, SocketGuildChannel channel)
+        public Task TryGiveUserExp(SocketMessage msg, SocketGuildChannel channel)
         {
             var user = msg.Author;
             // Before we update anything we check if the user can gain again. 
@@ -36,13 +36,15 @@ namespace SoraBot.Services.Profile
                 userExpGain.Value.LastExpGain.AddSeconds(_USER_EXP_COOLDOWN_SECS) > DateTime.UtcNow)
             {
                 // User cannot earn again so no need to update anything.
-                return;
+                return Task.CompletedTask;
             }
             
             _cacheService.AddOrUpdate(
                 _USER_EXP_CACHE_ID + user.Id.ToString(), 
                 this.CreateNewExpItem(user.Id),
                 UpdateExistingExpItm);
+            
+            return Task.CompletedTask;
         }
 
         private static CacheItem UpdateExistingExpItm(string key, CacheItem item)
