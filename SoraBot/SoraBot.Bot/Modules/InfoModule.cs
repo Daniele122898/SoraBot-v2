@@ -23,17 +23,20 @@ namespace SoraBot.Bot.Modules
         private readonly ICoinRepository _coinRepo;
         private readonly IWaifuRepository _waifuRepo;
         private readonly IPrefixService _prefixService;
+        private readonly IUserRepository _userRepo;
         private readonly SoraBotConfig _config;
 
         public InfoModule(
             ICoinRepository coinRepo, 
             IWaifuRepository waifuRepo, 
             IOptions<SoraBotConfig> config,
-            IPrefixService prefixService)
+            IPrefixService prefixService,
+            IUserRepository userRepo)
         {
             _coinRepo = coinRepo;
             _waifuRepo = waifuRepo;
             _prefixService = prefixService;
+            _userRepo = userRepo;
             _config = config.Value;
         }
 
@@ -44,8 +47,9 @@ namespace SoraBot.Bot.Modules
             DiscordGuildUser userT = null)
         {
             var user = userT?.GuildUser ?? (IGuildUser) Context.User;
-            var coins = _coinRepo.GetCoins(user.Id);
-            var waifu = await _waifuRepo.GetFavWaifuOfUser(user.Id).ConfigureAwait(false);
+            var userDb = await _userRepo.GetUser(user.Id);
+            var coins = userDb?.Coins ?? 0;
+            var waifu = userDb?.FavoriteWaifu;
             var footer = RequestedByMe();
             var eb = new EmbedBuilder()
             {
@@ -102,15 +106,15 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = string.IsNullOrWhiteSpace(roles) ? "_none_" : roles;
             });
-            if (waifu.HasValue)
+            if (waifu != null)
             {
                 eb.AddField(x =>
                 {
                     x.IsInline = false;
                     x.Name = "Favorite Waifu";
-                    x.Value = waifu.Value.Name;
+                    x.Value = waifu.Name;
                 });
-                eb.ImageUrl = waifu.Value.ImageUrl;
+                eb.ImageUrl = waifu.ImageUrl;
             }
 
             await ReplyEmbed(eb);

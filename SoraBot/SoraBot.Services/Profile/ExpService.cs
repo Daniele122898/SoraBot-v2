@@ -84,7 +84,7 @@ namespace SoraBot.Services.Profile
                 var elapsed = sw.ElapsedMilliseconds;
                 var secs = (int)(elapsed / 1000.0);
                 int r = _rand.GetRandomNext(_USER_EXP_WRITEBACK_MIN, _USER_EXP_WRITEBACK_MAX) + secs;
-                _log.LogTrace($"Finished DB Writeback in {elapsed.ToString()} ms, next in {r.ToString()} seconds");
+                _log.LogTrace($"Finished DB EXP Writeback in {elapsed.ToString()} ms, next in {r.ToString()} seconds");
                 _timer.Change(TimeSpan.FromSeconds(r), TimeSpan.FromSeconds(r));
             }
         }
