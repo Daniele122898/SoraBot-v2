@@ -41,5 +41,10 @@ namespace SoraBot.Services.Cache
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
             _customCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
+
+        public void Remove(string id)
+        {
+            _customCache.TryRemove(id, out _);
+        }
     }
 }

@@ -23,5 +23,8 @@ namespace SoraBot.Services.Cache
 
         void Set(string id, object obj, TimeSpan? ttl = null);
         void Set(ulong id, object obj, TimeSpan? ttl = null);
+
+        void Remove(ulong id);
+        void Remove(string id);
     }
 }

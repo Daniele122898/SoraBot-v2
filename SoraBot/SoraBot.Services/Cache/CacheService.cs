@@ -87,7 +87,12 @@ namespace SoraBot.Services.Cache
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
             _discordCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
-        
+
+        public void Remove(ulong id)
+        {
+            _discordCache.TryRemove(id, out _);
+        }
+
         private async Task<TReturn> GetOrSetAndGetAsync<TCacheKey, TReturn>(
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<Task<TReturn>> set, TimeSpan? ttl = null)
