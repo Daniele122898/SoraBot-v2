@@ -1,7 +1,10 @@
-﻿namespace SoraBot.Services.Profile
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace SoraBot.Services.Profile
 {
-    public class ProfileDependencyInjection
+    public static class ProfileDependencyInjection
     {
-        
+        public static IServiceCollection AddProfileServices(this IServiceCollection services)
+            => services.AddSingleton<IExpService, ExpService>();
     }
 }
