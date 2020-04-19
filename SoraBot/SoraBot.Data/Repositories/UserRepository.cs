@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArgonautCore.Maybe;
+using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -34,6 +35,16 @@ namespace SoraBot.Data.Repositories
         {
             return await _soraTransactor.ReadUncommittedAsync(async context =>
                 await context.Users.FindAsync(id).ConfigureAwait(false));
+        }
+
+        public async Task TryAddUserExp(ulong userId, uint expToAdd)
+        {
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.GetOrCreateUserNoSaveAsync(userId);
+                user.Exp += expToAdd;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
     }
 }
