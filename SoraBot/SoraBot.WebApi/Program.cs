@@ -31,7 +31,7 @@ namespace SoraBot.WebApi
             try
             {
                 Log.Information("Starting web host");
-                var host = CreateHostBuilder(args).Build();
+                using var host = CreateHostBuilder(args).Build();
 
                 using (var scope = host.Services.CreateScope())
                 {
