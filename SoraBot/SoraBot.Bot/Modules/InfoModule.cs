@@ -35,12 +35,6 @@ namespace SoraBot.Bot.Modules
             _config = config.Value;
         }
 
-        [Command("test")]
-        public async Task Test()
-        {
-            await ReplyAsync("I WORKEEEEEEEEED");
-        }
-
         [Command("userinfo"), Alias("whois", "uinfo")]
         [Summary("Gives infos about the @mentioned user. If none is mentioned it will show infos about you")]
         public async Task UserInfo(

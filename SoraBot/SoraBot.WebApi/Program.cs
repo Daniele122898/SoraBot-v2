@@ -11,7 +11,7 @@ namespace SoraBot.WebApi
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
@@ -79,12 +79,10 @@ namespace SoraBot.WebApi
                 }
                 
                 host.Run();
-                return 0;
             }
             catch (Exception e)
             {
                 Log.Fatal(e, "Host terminated unexpectedly");
-                return e.HResult;
             }
             finally
             {
