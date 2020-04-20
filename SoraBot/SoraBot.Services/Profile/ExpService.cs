@@ -36,7 +36,7 @@ namespace SoraBot.Services.Profile
 
         private readonly ConcurrentDictionary<ulong, UserExpGain> _expCache =
             new ConcurrentDictionary<ulong, UserExpGain>();
-// Test 2
+// Test 3
         private const uint _USER_EXP_GAIN = 10;
         private const int _USER_EXP_COOLDOWN_SECS = 10;
         private const int _USER_EXP_WRITEBACK_MIN = 60;
