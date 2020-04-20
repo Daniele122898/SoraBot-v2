@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using SoraBot.Bot.Extensions.Interactive;
+using SoraBot.Bot.Models;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
 
@@ -15,7 +16,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
                  "that they can accept or decline.")]
         public async Task TradeWaifu(
             [Summary("@Mention the user you want to trade with")]
-            IUser tradeUser,
+            DiscordUser tradeUser,
             [Summary("The Name of the Waifu you want from them. Wrap the name in \"\" otherwise it wont work.")]
             string wantName,
             [Summary("The Name of the Waifu you offer to give them. Wrap the name in \"\" otherwise it wont work.")]
@@ -35,7 +36,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
                 return;
             }
 
-            await this.WaifuTradeComp(tradeUser, wantWaifu.Id, offerwWaifu.Id).ConfigureAwait(false);
+            await this.WaifuTradeComp(tradeUser.User, wantWaifu.Id, offerwWaifu.Id).ConfigureAwait(false);
         }
 
         [Command("trade"), Alias("tradewaifu", "waifutrade")]
@@ -43,13 +44,13 @@ namespace SoraBot.Bot.Modules.WaifuModule
                  "that they can accept or decline.")]
         public async Task TradeWaifu(
             [Summary("@Mention the user you want to trade with")]
-            IUser tradeUser,
+            DiscordUser tradeUser,
             [Summary("The ID of the Waifu you want from them")]
             int wantId,
             [Summary("The ID of the Waifu you offer to give them")]
             int offerId)
         {
-            await this.WaifuTradeComp(tradeUser, wantId, offerId).ConfigureAwait(false);
+            await this.WaifuTradeComp(tradeUser.User, wantId, offerId).ConfigureAwait(false);
         }
 
         private async Task WaifuTradeComp(IUser tradeUser, int wantId, int offerId)

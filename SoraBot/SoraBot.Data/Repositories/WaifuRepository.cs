@@ -105,7 +105,7 @@ namespace SoraBot.Data.Repositories
                 var waifus = dupes.Select(d => d.Waifu).Where(w => !WaifuUtils.IsSpecialOrUltiWaifu(w.Rarity)).ToList();
                 dupes = dupes.Where(d => waifus.Any(x => x.Id == d.WaifuId)).ToList();
                 if (dupes.Count == 0)
-                    return Maybe.FromErr<(uint, uint)>("You don't have any dupes to sell! Open some Waifu Boxes");
+                    return Maybe.FromErr<(uint, uint)>("You don't have any dupes to sell! Open some Waifu Boxes. Ultimate or Special Waifus are not sold with this method!");
                 // Remove the dupes and accumulate the coins
                 uint totalCoins = 0;
                 uint totalSold = 0;
@@ -212,6 +212,17 @@ namespace SoraBot.Data.Repositories
             }).ConfigureAwait(false);
         }
 
+        public async Task<Maybe<Waifu>> GetFavWaifuOfUser(ulong userId)
+        {
+            return await _soraTransactor.DoAsync(async context =>
+            {
+                var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
+                if (user == null) return Maybe.Zero<Waifu>();
+                var favWaifu = user.FavoriteWaifu;
+                return favWaifu == null ? Maybe.Zero<Waifu>() : Maybe.FromVal(favWaifu);
+            }).ConfigureAwait(false);
+        }
+
         public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
         {
             return await _soraTransactor.TryDoInTransactionAsync(async context =>
@@ -247,6 +258,17 @@ namespace SoraBot.Data.Repositories
                 
                 await context.SaveChangesAsync().ConfigureAwait(false);
                 return true;
+            }).ConfigureAwait(false);
+        }
+
+        public async Task RemoveWaifu(int waifuId)
+        {
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var waifu = await context.Waifus.FindAsync(waifuId).ConfigureAwait(false);
+                if (waifu == null) return;
+                context.Waifus.Remove(waifu);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
     }

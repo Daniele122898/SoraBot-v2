@@ -29,6 +29,9 @@ namespace SoraBot.Common.Extensions.Modules
             return await ReplyAsync("", embed: SimpleEmbed(color, message, emoji).Build());
         }
 
+        public async Task<IUserMessage> ReplyEmbed(EmbedBuilder eb)
+            => await ReplyAsync("", embed: eb.Build()); 
+
         public async Task<IUserMessage> ReplySuccessEmbed(string message)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
@@ -76,10 +79,17 @@ namespace SoraBot.Common.Extensions.Modules
         public async Task<bool> FailedTryTransaction(bool transactionSucc, string message = "Failed to fetch or update data. Please try again")
         {
             if (transactionSucc) return false;
-            // Send error messafe
+            // Send error message
             await ReplyFailureEmbed(message);
             return true;
         }
+        
+        public EmbedFooterBuilder RequestedByMe()
+            => new EmbedFooterBuilder()
+            {
+                Text = $"Requested by {Formatter.UsernameDiscrim(Context.User)}",
+                IconUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl()
+            };
 
         public static EmbedFooterBuilder RequestedByFooter(IUser user)
         {
@@ -108,6 +118,19 @@ namespace SoraBot.Common.Extensions.Modules
                 Title = $"{symbol} {text}"
             };
             return eb;
+        }
+
+        protected async Task<bool> UserHasGuildPermission(GuildPermission guildPerm, string errorMessage = null)
+        {
+            var user = Context.User as IGuildUser;
+            if (user == null) return false;
+            if (!user.GuildPermissions.Has(guildPerm))
+            {
+                await ReplyFailureEmbed(errorMessage ??
+                                        $"You require the Guild Permission `{guildPerm.ToString()}` for this command!");
+                return false;
+            }
+            return true;
         }
     }
 }

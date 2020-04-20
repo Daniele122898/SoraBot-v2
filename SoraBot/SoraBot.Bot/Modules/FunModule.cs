@@ -19,7 +19,7 @@ namespace SoraBot.Bot.Modules
                 Color = Purple
             }.Build());
         
-        [Command("swag", RunMode = RunMode.Async), Summary("Swags the chat")]
+        [Command("swag"), Summary("Swags the chat")]
         public async Task Swag()
         {
             var msg = await ReplyAsync("( ͡° ͜ʖ ͡°)>⌐■-■");

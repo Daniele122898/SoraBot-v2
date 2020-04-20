@@ -20,6 +20,8 @@ namespace SoraBot.Data
         public DbSet<Waifu> Waifus { get; set; }
         public DbSet<UserWaifu> UserWaifus { get; set; }
 
+        public DbSet<Guild> Guilds { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.AddWaifuRelations();

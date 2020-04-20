@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoraBot.Data;
 
 namespace SoraBot.Data.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    partial class SoraContextModelSnapshot : ModelSnapshot
+    [Migration("20200416164953_AddGuilds")]
+    partial class AddGuilds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +39,6 @@ namespace SoraBot.Data.Migrations
                         .HasColumnType("bigint unsigned");
 
                     b.Property<uint>("Coins")
-                        .HasColumnType("int unsigned");
-
-                    b.Property<uint>("Exp")
                         .HasColumnType("int unsigned");
 
                     b.Property<int?>("FavoriteWaifuId")

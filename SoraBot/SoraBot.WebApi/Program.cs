@@ -31,7 +31,7 @@ namespace SoraBot.WebApi
             try
             {
                 Log.Information("Starting web host");
-                var host = CreateHostBuilder(args).Build();
+                using var host = CreateHostBuilder(args).Build();
 
                 using (var scope = host.Services.CreateScope())
                 {
@@ -52,6 +52,7 @@ namespace SoraBot.WebApi
                                 .MinimumLevel.Information()
                                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                                 .MinimumLevel.Override("SoraBot.Bot.Extensions.DiscordSerilogAdapter", LogEventLevel.Information)
+                                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
                                 .Enrich.FromLogContext()
                                 .WriteTo.Console()
                                 .WriteTo.RollingFile(@"logs\{Date}", restrictedToMinimumLevel: LogEventLevel.Debug)

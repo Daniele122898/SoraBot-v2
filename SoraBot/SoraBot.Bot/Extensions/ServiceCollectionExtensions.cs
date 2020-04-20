@@ -6,10 +6,15 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using SoraBot.Bot.Models;
+using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
+using SoraBot.Services.Guilds;
+using SoraBot.Services.Profile;
+using SoraBot.Services.Users;
 using SoraBot.Services.Utils;
 using SoraBot.Services.Waifu;
 
@@ -45,6 +50,10 @@ namespace SoraBot.Bot.Extensions
                     SeparatorChar = ' '
                 });
                 // Here i could add type readers or programatically added commands etc
+                // Adding custom IUser and IGuildUser type readers bcs the default ones suck 
+                service.AddTypeReader<DiscordUser>(new UserTypeReader(), true);
+                service.AddTypeReader<DiscordGuildUser>(new GuildUserTypeReader(), true);
+                
                 return service;
             });
 
@@ -56,7 +65,10 @@ namespace SoraBot.Bot.Extensions
                 .AddSoraMessaging()
                 .AddCacheService()
                 .AddWaifuServices()
-                .AddUtilServices();
+                .AddGuildServices()
+                .AddUtilServices()
+                .AddUserServices()
+                .AddProfileServices();
 
             services.AddHostedService<SoraBot>();
             

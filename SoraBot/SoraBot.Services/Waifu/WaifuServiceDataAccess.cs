@@ -19,13 +19,13 @@ namespace SoraBot.Services.Waifu
 
         public async Task<Dictionary<WaifuRarity, int>> GetTotalWaifuRarityStats()
         {
-            return await _cacheService.GetOrSetAndGetAsync(CustomCacheStringIDs.WAIFU_RARITY_STATISTICS, async () =>
+            return (await _cacheService.GetOrSetAndGetAsync(CustomCacheStringIDs.WAIFU_RARITY_STATISTICS, async () =>
             {
                 var allWaifus = await this.GetAllWaifus().ConfigureAwait(false);
 
                 return allWaifus.GroupBy(w => w.Rarity, (rarity, ws) => new {rarity, count = ws.Count()})
-                    .ToDictionary(x=> x.rarity, x => x.count);
-            }, TimeSpan.FromHours(1)).ConfigureAwait(false);
+                    .ToDictionary(x => x.rarity, x => x.count);
+            }, TimeSpan.FromHours(1)).ConfigureAwait(false)).Value;
         }
 
         public async Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId)
@@ -69,6 +69,9 @@ namespace SoraBot.Services.Waifu
 
         public async Task<bool> TryTradeWaifus(ulong offerUser, ulong wantUser, int offerWaifuId, int requestWaifuId)
             => await _waifuRepo.TryTradeWaifus(offerUser, wantUser, offerWaifuId, requestWaifuId).ConfigureAwait(false);
+
+        public async Task RemoveWaifu(int waifuId)
+            => await _waifuRepo.RemoveWaifu(waifuId).ConfigureAwait(false);
         
 
 
@@ -82,9 +85,9 @@ namespace SoraBot.Services.Waifu
         private Maybe<WaifuDbo> TryGetWaifuFromCache(Func<WaifuDbo, bool> predicate)
         {
             var waifuList = this._cacheService.Get<List<WaifuDbo>>((ulong) CustomCacheIDs.WaifuList);
-            if (waifuList == null)
+            if (!waifuList.HasValue)
                 return Maybe.FromErr<WaifuDbo>(string.Empty); // Error just means cache is empty
-            return Maybe.FromVal(waifuList.FirstOrDefault(predicate)); // Here we pass a result even if there is none
+            return Maybe.FromVal(waifuList.Value.FirstOrDefault(predicate)); // Here we pass a result even if there is none
         }
     }
 }

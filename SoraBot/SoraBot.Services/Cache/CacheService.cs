@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 
 namespace SoraBot.Services.Cache
 {
@@ -46,26 +47,21 @@ namespace SoraBot.Services.Cache
         #endregion
 
         #region Getters
-        public object Get(ulong id)
+        public Maybe<object> Get(ulong id)
         {
             _discordCache.TryGetValue(id, out var item);
-            if (item == null) return null;
-            if (item.IsValid()) return item;
+            if (item == null) return Maybe.Zero<object>();
+            if (item.IsValid()) return Maybe.FromVal<object>(item);
             
             _discordCache.TryRemove(id, out _);
             return null;
         }
 
-        // I use as here instead of direct casts. I heavily dislike exceptions.
-        // Throwing exceptions for every small thing is just such a bad and inefficient habit.
-        // I'd like to use my Maybe type as a nice null wrapper but for this small thing it seems
-        // slightly overkill
-
-        public T Get<T>(ulong id) where T : class
+        public Maybe<T> Get<T>(ulong id) where T : class
         {
             _discordCache.TryGetValue(id, out var item);
-            if (item == null) return null;
-            if (item.IsValid()) return item as T;
+            if (item == null) return Maybe.Zero<T>();
+            if (item.IsValid()) return Maybe.FromVal((T)item.Content);
             
             _discordCache.TryRemove(id, out _);
             return null;
@@ -76,20 +72,33 @@ namespace SoraBot.Services.Cache
         // is not the actual type. Because that means we would set the same ID to a different
         // type which should generally just not happen. This is bad design and should be punished
         
-        public T GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null)
+        public Maybe<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null)
         {
-            return this.GetOrSetAndGet(id, _discordCache, set, ttl);
+            return Maybe.FromVal(this.GetOrSetAndGet(id, _discordCache, set, ttl));
         }
 
-        public async Task<T> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
+        public async Task<Maybe<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
         {
-            return await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false);
+            return Maybe.FromVal(await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false));
         }
 
         public void Set(ulong id, object obj, TimeSpan? ttl = null)
         {
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
             _discordCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
+        }
+
+        public Maybe<T> TryRemove<T>(ulong id)
+        {
+            _discordCache.TryRemove(id, out var cacheItem);
+            if (cacheItem == null) return Maybe.Zero<T>();
+            if (!cacheItem.IsValid()) return Maybe.Zero<T>();
+            return Maybe.FromVal((T) cacheItem.Content);
+        }
+
+        public void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc)
+        {
+            this._discordCache.AddOrUpdate(id, addItem, updateFunc);
         }
         
         private async Task<TReturn> GetOrSetAndGetAsync<TCacheKey, TReturn>(

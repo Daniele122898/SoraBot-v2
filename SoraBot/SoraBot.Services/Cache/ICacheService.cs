@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 
 namespace SoraBot.Services.Cache
 {
@@ -9,18 +10,24 @@ namespace SoraBot.Services.Cache
     /// </summary>
     public interface ICacheService
     {
-        object Get(string id);
-        object Get(ulong id);
-        T Get<T>(string id) where T : class;
-        T Get<T>(ulong id) where T : class;
+        Maybe<object> Get(string id);
+        Maybe<object> Get(ulong id);
+        Maybe<T> Get<T>(string id) where T : class;
+        Maybe<T> Get<T>(ulong id) where T : class;
 
-        T GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
-        T GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);
+        Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
+        Maybe<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);
         
-        Task<T> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
-        Task<T> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Maybe<T>> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Maybe<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         void Set(string id, object obj, TimeSpan? ttl = null);
         void Set(ulong id, object obj, TimeSpan? ttl = null);
+
+        void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc);
+        void AddOrUpdate(string id, CacheItem addItem, Func<string, CacheItem, CacheItem> updateFunc);
+        
+         Maybe<T> TryRemove<T>(ulong id);
+        Maybe<T> TryRemove<T>(string id);
     }
 }

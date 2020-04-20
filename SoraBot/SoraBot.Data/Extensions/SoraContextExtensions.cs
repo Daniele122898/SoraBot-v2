@@ -14,7 +14,7 @@ namespace SoraBot.Data.Extensions
             
             // Otherwise we'll have to create the user ourselves
             user = new User(){Id = userId};
-            await users.AddAsync(user);
+            users.Add(user);
             return user;
         }
     }

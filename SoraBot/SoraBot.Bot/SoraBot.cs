@@ -26,7 +26,7 @@ namespace SoraBot.Bot
         private readonly DiscordSerilogAdapter _serilogAdapter;
         
         private IServiceScope _scope;
-        private SoraBotConfig _config;
+        private readonly SoraBotConfig _config;
 
         public SoraBot(
             ILogger<SoraBot> logger,

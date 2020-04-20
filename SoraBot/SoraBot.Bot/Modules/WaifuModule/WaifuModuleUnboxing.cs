@@ -14,6 +14,8 @@ using SoraBot.Services.Waifu;
 
 namespace SoraBot.Bot.Modules.WaifuModule
 {
+    [Name("Waifus")]
+    [Summary("Open Waifu Boxes, sell or trade them and collect them all!")]
     public partial class WaifuModule : SoraSocketCommandModule
     {
         private const int _WAIFU_BOX_COST = 500;
@@ -121,10 +123,18 @@ namespace SoraBot.Bot.Modules.WaifuModule
             
             // Get the waifus
             List<Waifu> waifusUnboxed = new List<Waifu>();
-            for (int i = 0; i < _WAIFU_AMOUNT_IN_BOX; i++)
+            for (int i = 0; i < _WAIFU_AMOUNT_IN_BOX; ++i)
             {
                 var wToAdd = await _waifuService.GetRandomWaifu().ConfigureAwait(false);
-                if (wToAdd ==  null) continue;
+                if (wToAdd ==  null) break;
+                // Check if URL is valid bcs it seems some are kinda broken ;_;
+                // This is an extreme edge case but it happened once and that is enough as it should never happen
+                if (!Helper.UrlValidUri(wToAdd.ImageUrl))
+                {
+                    await _waifuService.RemoveWaifu(wToAdd.Id).ConfigureAwait(false);
+                    --i;
+                    continue;
+                }
                 waifusUnboxed.Add(wToAdd);
             }
             if (waifusUnboxed.Count != _WAIFU_AMOUNT_IN_BOX)

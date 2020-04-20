@@ -44,9 +44,9 @@ namespace SoraBot.Services.Waifu
         /// <returns></returns>
         public async Task<List<WaifuDbo>> GetAllWaifus()
         {
-            return await _cacheService.GetOrSetAndGetAsync<List<WaifuDbo>>((ulong)CustomCacheIDs.WaifuList,
+            return (await _cacheService.GetOrSetAndGetAsync<List<WaifuDbo>>((ulong) CustomCacheIDs.WaifuList,
                 async () => await _waifuRepo.GetAllWaifus().ConfigureAwait(false),
-                TimeSpan.FromMinutes(_WAIFU_CACHE_TTL_MINS)).ConfigureAwait(false);
+                TimeSpan.FromMinutes(_WAIFU_CACHE_TTL_MINS)).ConfigureAwait(false)).Value;
         }
 
         public async Task<WaifuDbo> GetRandomSpecialWaifu(ulong userId, WaifuRarity specialRarity)
