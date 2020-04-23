@@ -21,6 +21,8 @@ RAMLogging.txt
 
 /SoraBot-v2/SoraBot-v2/ProfileData
 /SoraMusic/target
+/SoraBot/SoraBot.WebApi/ImageGenerationFiles/AvatarCache/**
+/SoraBot/SoraBot.WebApi/ImageGenerationFiles/ProfileCards/**
 
 **/temp
 
