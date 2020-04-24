@@ -33,32 +33,44 @@ namespace SoraBot.Services.Profile
 
         public void DrawProfileAvatar(string avatarPath, Image<Rgba32> image, Rectangle pos, int cornerRadius)
         {
-            var avatar = Image.Load(avatarPath);
-            this.ApplyRoundedCorners(avatar, cornerRadius);
+            using Image<Rgba32> avatar = Image.Load<Rgba32>(avatarPath);
+
             avatar.Mutate(x => x.Resize(new ResizeOptions()
             {
                 Mode = ResizeMode.Crop,
                 Size = pos.Size
-            }));
-            avatar.Mutate(x => x.Resize(pos.Size));
-            image.Mutate(x =>
-            {
-                x.DrawImage(avatar, pos.Location, 1);
-                avatar.Dispose();
-            });
+            }).ApplyRoundedCorners(cornerRadius));
+
+            
+            // avatar.Mutate(x => x.Resize(pos.Size));
+            image.Mutate(x => x.DrawImage(avatar, pos.Location, 1));
         }
 
-        private void ApplyRoundedCorners(Image image, float cornerRadius)
+
+
+        private void DrawProfileBackground(string backgroundPath, Image<Rgba32> image, Size size)
         {
-            IPathCollection corner = this.BuildCorners(image.Width, image.Height, cornerRadius);
+            using Image bg = Image.Load(backgroundPath); // 960x540
+            bg.Mutate(x => x.Resize(size));
+            image.Mutate(x => x.DrawImage(bg, 1.0f));
+        }
+    }
 
-            image.Mutate(x => x.Fill(new GraphicsOptions(true)
+    internal static class ImageGenerationExtension
+    {
+        public static IImageProcessingContext ApplyRoundedCorners(this IImageProcessingContext ctx, float cornerRadius)
+        {
+            Size size = ctx.GetCurrentSize();
+            IPathCollection corners = BuildCorners(size.Width, size.Height, cornerRadius);
+
+            return ctx.Fill(new GraphicsOptions(true)
             {
-                AlphaCompositionMode = PixelAlphaCompositionMode.Src,
-            }, Rgba32.Transparent, corner));
+                // enforces that any part of this shape that has color is punched out of the BG
+                AlphaCompositionMode = PixelAlphaCompositionMode.DestOut,
+            }, Rgba32.LimeGreen, corners); // User any color so that the corners will be clipped
         }
 
-        private IPathCollection BuildCorners(int imageWidth, int imageHeight, float cornerRadius)
+        private static IPathCollection BuildCorners(int imageWidth, int imageHeight, float cornerRadius)
         {
             // Create a square
             var rect = new RectangularPolygon(-0.5f, -0.5f, cornerRadius, cornerRadius);
@@ -67,7 +79,7 @@ namespace SoraBot.Services.Profile
             IPath cornerTopLeft = rect.Clip(new EllipsePolygon(cornerRadius - 0.5f, cornerRadius - 0.5f, cornerRadius));
 
             // corner is now positioned in the top left
-            // let0s make 3 more positioned correctly, we do that by translating the top left one
+            // let's make 3 more positioned correctly, we do that by translating the top left one
             // around the center of the image
             // center = width / 2, height /2
 
@@ -80,17 +92,6 @@ namespace SoraBot.Services.Profile
             IPath cornerBottomRight = cornerTopLeft.RotateDegree(180).Translate(rightPos, bottomPos);
 
             return new PathCollection(cornerTopLeft, cornerBottomLeft, cornerTopRight, cornerBottomRight);
-        }
-
-        private void DrawProfileBackground(string backgroundPath, Image<Rgba32> image, Size size)
-        {
-            Image bg = Image.Load(backgroundPath); // 960x540
-            bg.Mutate(x => x.Resize(size));
-            image.Mutate(x =>
-            {
-                x.DrawImage(bg, 1.0f);
-                bg.Dispose();
-            });
         }
     }
 }
