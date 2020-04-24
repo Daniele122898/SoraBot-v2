@@ -43,6 +43,7 @@ namespace SoraBot.Services.Profile
 
             
             // avatar.Mutate(x => x.Resize(pos.Size));
+            // ReSharper disable once AccessToDisposedClosure
             image.Mutate(x => x.DrawImage(avatar, pos.Location, 1));
         }
 
@@ -52,6 +53,7 @@ namespace SoraBot.Services.Profile
         {
             using Image bg = Image.Load(backgroundPath); // 960x540
             bg.Mutate(x => x.Resize(size));
+            // ReSharper disable once AccessToDisposedClosure
             image.Mutate(x => x.DrawImage(bg, 1.0f));
         }
     }
