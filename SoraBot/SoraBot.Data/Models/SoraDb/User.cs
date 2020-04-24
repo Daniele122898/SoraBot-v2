@@ -16,6 +16,7 @@ namespace SoraBot.Data.Models.SoraDb
         public DateTime LastDaily { get; set; } = DateTime.UnixEpoch;
         public int? FavoriteWaifuId { get; set; }
         public uint Exp { get; set; } = 0;
+        public bool HasCustomProfileBg { get; set; } = false;
         
         public virtual ICollection<UserWaifu> UserWaifus { get; set; }
         public virtual Waifu FavoriteWaifu { get; set; }
