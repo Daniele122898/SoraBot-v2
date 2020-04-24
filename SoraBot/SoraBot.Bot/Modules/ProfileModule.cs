@@ -34,7 +34,9 @@ namespace SoraBot.Bot.Modules
                 AvatarPath = avatarPath,
                 Name = user.Username,
                 GlobalExp = 1000,
-                GlobalLevel = 2
+                GlobalLevel = 2,
+                GlobalRank = 1,
+                GlobalNextLevelExp = 2000
             }, filePath);
             await Context.Channel.SendFileAsync(filePath);
         }

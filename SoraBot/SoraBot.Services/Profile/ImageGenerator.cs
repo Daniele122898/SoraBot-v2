@@ -42,35 +42,64 @@ namespace SoraBot.Services.Profile
             // Load template into memory so it's faster in the future :D
             _templateOverlay = Image.Load<Rgba32>(Path.Combine(pCreationPath, "profileTemplate.png"));
             _templateOverlay.Mutate(x => x.Resize(new Size(470, 265)));
-            
+
             // Add and load fonts
             var fc = new FontCollection();
             var fontHeavy = fc.Install(Path.Combine(pCreationPath, "AvenirLTStd-Heavy.ttf"));
             _heavyTitleFont = new Font(fontHeavy, 20.31f, FontStyle.Bold);
             _statsLightFont = new Font(fontHeavy, 13.4f, FontStyle.Bold);
             _statsTinyFont = new Font(fontHeavy, 10.52f, FontStyle.Bold);
-
         }
-        
+
         public void GenerateProfileImage(ProfileImageGenConfig conf, string outputPath)
         {
             using var image = new Image<Rgba32>(470, 265);
             this.DrawProfileBackground(conf.BackgroundPath, image, new Size(470, 265));
             this.DrawProfileAvatar(conf.AvatarPath, image, new Rectangle(7, 6, 42, 42), 21);
             // Draw template
-            image.Mutate(x=> x.DrawImage(_templateOverlay, 1.0f));
-            this.DrawStats(image, conf.Name, conf.GlobalExp, conf.GlobalLevel);
+            image.Mutate(x => x.DrawImage(_templateOverlay, 1.0f));
+            this.DrawStats(image, conf);
             image.Save(outputPath);
         }
 
-        private void DrawStats(Image<Rgba32> image, string name, uint globalExp, int globalLvl)
+        private void DrawStats(Image<Rgba32> image, ProfileImageGenConfig c)
         {
-            // Draw name and clan
-            image.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
+            // Draw Username
+            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }, name, _heavyTitleFont, Rgba32.White, new Vector2(60, 27)));
+            }, c.Name, _heavyTitleFont, Rgba32.White, new Vector2(60, 27)));
+
+            var blueHighlight = new Rgba32(47, 166, 222);
+
+            // Draw global Rank
+            var globalStatsText = $"GLOBAL RANK: {c.GlobalRank.ToString()}";
+            var textSize = TextMeasurer.Measure(globalStatsText, new RendererOptions(_statsLightFont, 72));
+            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            }, "GLOBAL RANK: ", _statsLightFont, Rgba32.White, new Vector2(235 - (textSize.Width / 2), 221)));
+            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right
+            }, c.GlobalRank.ToString(), _statsLightFont, blueHighlight, new Vector2(235 + (textSize.Width / 2), 221)));
+
+            var centerOptions = new TextGraphicsOptions(true)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            // Draw global level
+            image.Mutate(x =>
+                x.DrawText(centerOptions, $"LEVEL: {c.GlobalLevel.ToString()}", _statsLightFont, Rgba32.White,
+                    new Vector2(235, 236)));
+            // Draw global EXP
+            image.Mutate(x =>
+                x.DrawText(centerOptions, $"{c.GlobalExp.ToString()} / {c.GlobalNextLevelExp.ToString()}",
+                    _statsTinyFont, Rgba32.White, new Vector2(235, 250)));
         }
 
         public void DrawProfileAvatar(string avatarPath, Image<Rgba32> image, Rectangle pos, int cornerRadius)
@@ -83,12 +112,11 @@ namespace SoraBot.Services.Profile
                 Size = pos.Size
             }).ApplyRoundedCorners(cornerRadius));
 
-            
+
             // avatar.Mutate(x => x.Resize(pos.Size));
             // ReSharper disable once AccessToDisposedClosure
             image.Mutate(x => x.DrawImage(avatar, pos.Location, 1));
         }
-
 
 
         private void DrawProfileBackground(string backgroundPath, Image<Rgba32> image, Size size)
