@@ -1,8 +1,11 @@
-﻿using SixLabors.ImageSharp;
+﻿using System;
+using System.IO;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 using SixLabors.Shapes;
+using Path = System.IO.Path;
 
 namespace SoraBot.Services.Profile
 {
@@ -21,13 +24,28 @@ namespace SoraBot.Services.Profile
         public uint LocalNextLevelExp { get; set; }
     }
 
-    public class ImageGenerator
+    public class ImageGenerator : IDisposable
     {
+        private readonly string _imageGenPath;
+
+        private readonly Image<Rgba32> _templateOverlay;
+        
+        public ImageGenerator()
+        {
+            _imageGenPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageGenerationFiles");
+            string pCreationPath = Path.Combine(_imageGenPath, "ProfileCreation");
+            // Load template into memory so it's faster in the future :D
+            _templateOverlay = Image.Load<Rgba32>(Path.Combine(pCreationPath, "profileTemplate.png"));
+            _templateOverlay.Mutate(x => x.Resize(new Size(470, 265)));
+        }
+        
         public void GenerateProfileImage(ProfileImageGenConfig conf, string outputPath)
         {
             using var image = new Image<Rgba32>(470, 265);
             this.DrawProfileBackground(conf.BackgroundPath, image, new Size(470, 265));
             this.DrawProfileAvatar(conf.AvatarPath, image, new Rectangle(7, 6, 42, 42), 21);
+            // Draw template
+            image.Mutate(x=> x.DrawImage(_templateOverlay, 1.0f));
             image.Save(outputPath);
         }
 
@@ -55,6 +73,11 @@ namespace SoraBot.Services.Profile
             bg.Mutate(x => x.Resize(size));
             // ReSharper disable once AccessToDisposedClosure
             image.Mutate(x => x.DrawImage(bg, 1.0f));
+        }
+
+        public void Dispose()
+        {
+            _templateOverlay?.Dispose();
         }
     }
 
