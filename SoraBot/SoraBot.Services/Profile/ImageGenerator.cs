@@ -7,24 +7,12 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 using SixLabors.Shapes;
+using SoraBot.Data.Dtos.Profile;
 using Path = System.IO.Path;
 
 namespace SoraBot.Services.Profile
 {
-    public class ProfileImageGenConfig
-    {
-        public string AvatarPath { get; set; }
-        public string BackgroundPath { get; set; }
-        public string Name { get; set; }
-        public int GlobalRank { get; set; }
-        public uint GlobalExp { get; set; }
-        public int GlobalLevel { get; set; }
-        public uint GlobalNextLevelExp { get; set; }
-        public int LocalRank { get; set; }
-        public uint LocalExp { get; set; }
-        public int LocalLevel { get; set; }
-        public uint LocalNextLevelExp { get; set; }
-    }
+    
 
     public class ImageGenerator : IDisposable
     {
@@ -51,7 +39,7 @@ namespace SoraBot.Services.Profile
             _statsTinyFont = new Font(fontHeavy, 10.52f, FontStyle.Bold);
         }
 
-        public void GenerateProfileImage(ProfileImageGenConfig conf, string outputPath)
+        public void GenerateProfileImage(ProfileImageGenDto conf, string outputPath)
         {
             using var image = new Image<Rgba32>(470, 265);
             this.DrawProfileBackground(conf.BackgroundPath, image, new Size(470, 265));
@@ -62,7 +50,7 @@ namespace SoraBot.Services.Profile
             image.Save(outputPath);
         }
 
-        private void DrawStats(Image<Rgba32> image, ProfileImageGenConfig c)
+        private void DrawStats(Image<Rgba32> image, ProfileImageGenDto c)
         {
             // Draw Username
             image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)

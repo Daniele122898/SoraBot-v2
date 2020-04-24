@@ -4,6 +4,9 @@ using Discord;
 using Discord.Commands;
 using SoraBot.Bot.Models;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
+using SoraBot.Data.Dtos.Profile;
+using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Profile;
 
 namespace SoraBot.Bot.Modules
@@ -13,10 +16,12 @@ namespace SoraBot.Bot.Modules
     public class ProfileModule : SoraSocketCommandModule
     {
         private readonly ImageGenerator _imgGen;
+        private readonly IProfileRepository _profileRepo;
 
-        public ProfileModule(ImageGenerator imgGen)
+        public ProfileModule(ImageGenerator imgGen, IProfileRepository profileRepo)
         {
             _imgGen = imgGen;
+            _profileRepo = profileRepo;
         }
 
         [Command("p")]
@@ -28,15 +33,26 @@ namespace SoraBot.Bot.Modules
                 $"{user.Id.ToString()}_profileCard.png");
             string bgPath = Path.Combine(imageGen, "ProfileCreation", "defaultBG.png");
             string avatarPath = Path.Combine(imageGen, "AvatarCache", "avatar.png");
-            _imgGen.GenerateProfileImage(new ProfileImageGenConfig()
+
+            var userStatsM = await _profileRepo.GetProfileStatistics(user.Id, Context.Guild.Id).ConfigureAwait(false);
+            if (!userStatsM.HasValue)
+            {
+                await ReplyFailureEmbed(
+                    $"{Formatter.UsernameDiscrim(user)} is not in my Database :/ Make sure he used or chatted with Sora at least once.");
+                return;
+            }
+
+            var us = userStatsM.Value;
+            var lvl = ExpService.CalculateLevel(us.GlobalExp);
+            _imgGen.GenerateProfileImage(new ProfileImageGenDto()
             {
                 BackgroundPath = bgPath,
                 AvatarPath = avatarPath,
                 Name = user.Username,
-                GlobalExp = 1000,
-                GlobalLevel = 2,
-                GlobalRank = 1,
-                GlobalNextLevelExp = 2000
+                GlobalExp = us.GlobalExp,
+                GlobalLevel = lvl,
+                GlobalRank = us.GlobalRank,
+                GlobalNextLevelExp = ExpService.CalculateNeededExp(lvl+1)
             }, filePath);
             await Context.Channel.SendFileAsync(filePath);
         }
