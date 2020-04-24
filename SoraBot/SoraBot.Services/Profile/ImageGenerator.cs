@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -29,7 +31,10 @@ namespace SoraBot.Services.Profile
         private readonly string _imageGenPath;
 
         private readonly Image<Rgba32> _templateOverlay;
-        
+        private readonly Font _heavyTitleFont;
+        private readonly Font _statsLightFont;
+        private readonly Font _statsTinyFont;
+
         public ImageGenerator()
         {
             _imageGenPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageGenerationFiles");
@@ -37,6 +42,14 @@ namespace SoraBot.Services.Profile
             // Load template into memory so it's faster in the future :D
             _templateOverlay = Image.Load<Rgba32>(Path.Combine(pCreationPath, "profileTemplate.png"));
             _templateOverlay.Mutate(x => x.Resize(new Size(470, 265)));
+            
+            // Add and load fonts
+            var fc = new FontCollection();
+            var fontHeavy = fc.Install(Path.Combine(pCreationPath, "AvenirLTStd-Heavy.ttf"));
+            _heavyTitleFont = new Font(fontHeavy, 20.31f, FontStyle.Bold);
+            _statsLightFont = new Font(fontHeavy, 13.4f, FontStyle.Bold);
+            _statsTinyFont = new Font(fontHeavy, 10.52f, FontStyle.Bold);
+
         }
         
         public void GenerateProfileImage(ProfileImageGenConfig conf, string outputPath)
@@ -46,7 +59,18 @@ namespace SoraBot.Services.Profile
             this.DrawProfileAvatar(conf.AvatarPath, image, new Rectangle(7, 6, 42, 42), 21);
             // Draw template
             image.Mutate(x=> x.DrawImage(_templateOverlay, 1.0f));
+            this.DrawStats(image, conf.Name, conf.GlobalExp, conf.GlobalLevel);
             image.Save(outputPath);
+        }
+
+        private void DrawStats(Image<Rgba32> image, string name, uint globalExp, int globalLvl)
+        {
+            // Draw name and clan
+            image.Mutate(x=> x.DrawText(new TextGraphicsOptions(true)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            }, name, _heavyTitleFont, Rgba32.White, new Vector2(60, 27)));
         }
 
         public void DrawProfileAvatar(string avatarPath, Image<Rgba32> image, Rectangle pos, int cornerRadius)

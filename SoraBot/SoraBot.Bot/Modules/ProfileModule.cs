@@ -31,7 +31,10 @@ namespace SoraBot.Bot.Modules
             _imgGen.GenerateProfileImage(new ProfileImageGenConfig()
             {
                 BackgroundPath = bgPath,
-                AvatarPath = avatarPath
+                AvatarPath = avatarPath,
+                Name = user.Username,
+                GlobalExp = 1000,
+                GlobalLevel = 2
             }, filePath);
             await Context.Channel.SendFileAsync(filePath);
         }
