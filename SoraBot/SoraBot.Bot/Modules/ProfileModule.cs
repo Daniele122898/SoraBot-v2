@@ -24,8 +24,11 @@ namespace SoraBot.Bot.Modules
             _profileRepo = profileRepo;
         }
 
-        [Command("p")]
-        public async Task GenerateImage(DiscordGuildUser userT = null)
+        [Command("profile"), Alias("p")]
+        [Summary("Shows your or the @mentioned user's profile card with level and rank stats")]
+        public async Task GenerateImage(
+            [Summary("@User or leave blank to get your own")]
+            DiscordGuildUser userT = null)
         {
             var user = userT?.GuildUser ?? (IGuildUser)Context.User;
             string imageGen = Path.Combine(Directory.GetCurrentDirectory(), "ImageGenerationFiles");
