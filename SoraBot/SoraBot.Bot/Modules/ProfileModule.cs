@@ -174,7 +174,6 @@ namespace SoraBot.Bot.Modules
             {
                 await ReplyFailureEmbed("Failed to generate image. Something went wrong sorry :/");
                 _log.LogError(e, $"Failed to generate image for {user.Id.ToString()}");
-                return;
             }
             finally
             {
