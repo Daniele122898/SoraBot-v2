@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -22,6 +24,38 @@ namespace SoraBot.Bot.Modules
         {
             _imgGen = imgGen;
             _profileRepo = profileRepo;
+        }
+
+        private bool LinkIsNoImage(string url)
+            => !url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) &&
+               !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) &&
+               !url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) &&
+               !url.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase);
+
+        [Command("setbg"), Alias("setbackground", "sbg")]
+        [Summary("Give Sora a link to an image or attach an image to set it as your " +
+                 "profile card background")]
+        public async Task SetBg(
+            [Summary("Direct link to image. If you leave this blank you must provide an attachment!")]
+            string url = null)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                if (Context.Message.Attachments.Count != 1)
+                {
+                    await ReplyFailureEmbed("If you do not provide an image link you MUST provide 1 Attached image");
+                    return;
+                }
+                url = Context.Message.Attachments.First().Url;
+            }
+            // Check if URL is valid
+            if (LinkIsNoImage(url))
+            {
+                await ReplyFailureEmbedExtended("The provided link or attachment is not an image!",
+                    "Make sure the link ends with any of these extensions: `.jpg, .png, .gif, .jpeg`");
+                return;
+            }
+            // Otherwise set the custom BG
         }
 
         [Command("profile"), Alias("p")]
