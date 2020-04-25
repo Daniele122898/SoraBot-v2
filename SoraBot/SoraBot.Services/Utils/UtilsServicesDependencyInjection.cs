@@ -8,6 +8,7 @@ namespace SoraBot.Services.Utils
         {
             // Don't want to create a Interface for smth this simple. Seems stupidly overkill
             services.AddSingleton<RandomNumberService>();
+            services.AddSingleton<HttpClientHelper>();
             
             return services;
         }
