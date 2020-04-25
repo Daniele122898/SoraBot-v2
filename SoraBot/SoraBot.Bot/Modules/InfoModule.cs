@@ -101,7 +101,7 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = $"{coins.ToString()} SC";
             });
-            
+
             uint exp = userDb?.Exp ?? 0;
             int lvl = ExpService.CalculateLevel(exp);
             eb.AddField(x =>
@@ -116,7 +116,7 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = lvl.ToString();
             });
-            
+
             var waifu = userDb?.FavoriteWaifu;
             if (waifu != null)
             {
@@ -144,7 +144,7 @@ namespace SoraBot.Bot.Modules
                 Title = $"{InfoEmoji} {Context.Guild.Name}",
                 ThumbnailUrl = Context.Guild.IconUrl ?? Context.User.GetDefaultAvatarUrl(),
                 Description = $"Created on {Context.Guild.CreatedAt.DateTime.ToString("dd/MM/yyyy")}. " +
-                              $"That's {((int)DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime).TotalDays).ToString()} days ago!"
+                              $"That's {((int) DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime).TotalDays).ToString()} days ago!"
             };
             eb.AddField(x =>
             {
@@ -152,7 +152,8 @@ namespace SoraBot.Bot.Modules
                 x.Name = "Owner";
                 x.Value = $"{Formatter.UsernameDiscrim(Context.Guild.Owner)}";
             });
-            int online = Context.Guild.Users.Count(socketGuildUser => socketGuildUser.Status != UserStatus.Invisible && socketGuildUser.Status != UserStatus.Offline);
+            int online = Context.Guild.Users.Count(socketGuildUser =>
+                socketGuildUser.Status != UserStatus.Invisible && socketGuildUser.Status != UserStatus.Offline);
             eb.AddField(x =>
             {
                 x.IsInline = true;
@@ -175,13 +176,15 @@ namespace SoraBot.Bot.Modules
             {
                 x.IsInline = true;
                 x.Name = $"Channels [{Context.Guild.Channels.Count.ToString()}]";
-                x.Value = $"{Context.Guild.TextChannels.Count.ToString()} Text | {Context.Guild.VoiceChannels.Count.ToString()} Voice";
+                x.Value =
+                    $"{Context.Guild.TextChannels.Count.ToString()} Text | {Context.Guild.VoiceChannels.Count.ToString()} Voice";
             });
             eb.AddField(x =>
             {
                 x.IsInline = true;
                 x.Name = "AFK Channel";
-                x.Value = $"{(Context.Guild.AFKChannel == null ? $"No AFK Channel" : $"{Context.Guild.AFKChannel.Name}\n*in {(Context.Guild.AFKTimeout / 60).ToString()} Min*")}";
+                x.Value =
+                    $"{(Context.Guild.AFKChannel == null ? $"No AFK Channel" : $"{Context.Guild.AFKChannel.Name}\n*in {(Context.Guild.AFKTimeout / 60).ToString()} Min*")}";
             });
             eb.AddField(x =>
             {
@@ -193,7 +196,8 @@ namespace SoraBot.Bot.Modules
             {
                 x.IsInline = true;
                 x.Name = "Avatar URL";
-                x.Value = $"[Click to view]({Context.Guild.IconUrl + "?size=1024" ?? Context.User.GetDefaultAvatarUrl()})";
+                x.Value =
+                    $"[Click to view]({(string.IsNullOrWhiteSpace(Context.Guild.IconUrl) ? Context.User.GetDefaultAvatarUrl() : Context.Guild.IconUrl + "?size=1024")})";
             });
             string prefix = await _prefixService.GetPrefix(Context.Guild.Id).ConfigureAwait(false);
             eb.AddField(x =>
@@ -215,6 +219,7 @@ namespace SoraBot.Bot.Modules
                     else
                         break;
                 }
+
                 if (string.IsNullOrWhiteSpace(val))
                     val = "No Custom Emotes";
                 x.Value = val;
@@ -288,7 +293,7 @@ namespace SoraBot.Bot.Modules
             });
             await ReplyEmbed(eb);
         }
-        
+
         [Command("avatar")]
         [Summary("Get the avatar of the @user or yourself if no one is tagged")]
         public async Task GetAvatar(
@@ -296,10 +301,10 @@ namespace SoraBot.Bot.Modules
             [OverrideTypeReader(typeof(GuildUserTypeReader))]
             DiscordGuildUser userT = null)
         {
-            var user = userT?.GuildUser ?? (IGuildUser)Context.User;
+            var user = userT?.GuildUser ?? (IGuildUser) Context.User;
             var eb = new EmbedBuilder()
             {
-                Footer  = RequestedByFooter(Context.User),
+                Footer = RequestedByFooter(Context.User),
                 ImageUrl = user.GetAvatarUrl(ImageFormat.Auto, 512) ?? user.GetDefaultAvatarUrl(),
                 Color = Purple
             };

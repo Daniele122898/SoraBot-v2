@@ -12,8 +12,8 @@ namespace SoraBot.Services.Cache
     {
         Maybe<object> Get(string id);
         Maybe<object> Get(ulong id);
-        Maybe<T> Get<T>(string id) where T : class;
-        Maybe<T> Get<T>(ulong id) where T : class;
+        Maybe<T> Get<T>(string id);
+        Maybe<T> Get<T>(ulong id);
 
         Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
         Maybe<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);

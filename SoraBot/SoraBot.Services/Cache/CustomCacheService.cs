@@ -13,17 +13,17 @@ namespace SoraBot.Services.Cache
             if (item.IsValid()) return Maybe.FromVal<object>(item);
             
             _customCache.TryRemove(id, out _);
-            return null;
+            return Maybe.Zero<object>();
         }
 
-        public Maybe<T> Get<T>(string id) where T : class
+        public Maybe<T> Get<T>(string id)
         {
             _customCache.TryGetValue(id, out var item);
             if (item == null) return Maybe.Zero<T>();
             if (item.IsValid()) return Maybe.FromVal<T>((T)item.Content);
             
             _customCache.TryRemove(id, out _);
-            return null;
+            return Maybe.Zero<T>();
         }
 
         public Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null)

@@ -24,9 +24,9 @@ namespace SoraBot.Services.Profile
             return (int)(0.15F * Math.Sqrt(exp));
         }
 
-        public static int CalculateNeededExp(int lvl)
+        public static uint CalculateNeededExp(int lvl)
         {
-            return (int)Math.Pow((lvl/0.15F), 2.0);
+            return (uint)Math.Pow((lvl/0.15F), 2.0);
         }
         
         private readonly RandomNumberService _rand;
