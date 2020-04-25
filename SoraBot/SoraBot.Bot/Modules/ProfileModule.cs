@@ -9,6 +9,7 @@ using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Dtos.Profile;
 using SoraBot.Data.Repositories.Interfaces;
+using SoraBot.Services.Cache;
 using SoraBot.Services.Profile;
 
 namespace SoraBot.Bot.Modules
@@ -19,11 +20,16 @@ namespace SoraBot.Bot.Modules
     {
         private readonly ImageGenerator _imgGen;
         private readonly IProfileRepository _profileRepo;
+        private readonly ICacheService _cacheService;
 
-        public ProfileModule(ImageGenerator imgGen, IProfileRepository profileRepo)
+        private const int _SET_BG_COOLDOWN_S = 45;
+        private const string _SET_BG_CD_ID = "setbg:";
+
+        public ProfileModule(ImageGenerator imgGen, IProfileRepository profileRepo, ICacheService cacheService)
         {
             _imgGen = imgGen;
             _profileRepo = profileRepo;
+            _cacheService = cacheService;
         }
 
         private bool LinkIsNoImage(string url)
@@ -55,7 +61,15 @@ namespace SoraBot.Bot.Modules
                     "Make sure the link ends with any of these extensions: `.jpg, .png, .gif, .jpeg`");
                 return;
             }
-            // Otherwise set the custom BG
+            // Check cooldown
+            var cd = _cacheService.Get<DateTime>(_SET_BG_CD_ID + Context.User.Id.ToString());
+            if (cd.HasValue)
+            {
+                var secondsRemaining = cd.Value.Subtract(DateTime.UtcNow.TimeOfDay).Second;
+                await ReplyFailureEmbed(
+                    $"Dont break me >.< Please wait another {secondsRemaining.ToString()} seconds!");
+                return;
+            }
         }
 
         [Command("profile"), Alias("p")]
