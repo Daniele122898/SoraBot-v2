@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Dtos.Profile;
+using SoraBot.Data.Extensions;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Repositories
@@ -33,6 +34,16 @@ namespace SoraBot.Data.Repositories
                     GlobalRank = rank + 1,
                     HasCustomBg = user.HasCustomProfileBg
                 });
+            }).ConfigureAwait(false);
+        }
+
+        public async Task SetUserHasBgBoolean(ulong userId, bool hasCustomBg)
+        {
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.GetOrCreateUserNoSaveAsync(userId).ConfigureAwait(false);
+                user.HasCustomProfileBg = hasCustomBg;
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
     }
