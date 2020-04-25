@@ -54,17 +54,17 @@ namespace SoraBot.Services.Cache
             if (item.IsValid()) return Maybe.FromVal<object>(item);
             
             _discordCache.TryRemove(id, out _);
-            return null;
+            return Maybe.Zero<object>();
         }
 
-        public Maybe<T> Get<T>(ulong id) where T : class
+        public Maybe<T> Get<T>(ulong id)
         {
             _discordCache.TryGetValue(id, out var item);
             if (item == null) return Maybe.Zero<T>();
             if (item.IsValid()) return Maybe.FromVal((T)item.Content);
             
             _discordCache.TryRemove(id, out _);
-            return null;
+            return Maybe.Zero<T>();
         }
         #endregion
 
