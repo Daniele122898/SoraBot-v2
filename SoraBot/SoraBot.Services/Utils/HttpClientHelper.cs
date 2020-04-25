@@ -20,16 +20,16 @@ namespace SoraBot.Services.Utils
         /// </summary>
         public async Task DownloadAndSaveFile(Uri url, string path)
         {
-            var contentStream = await this.DownloadFileAsStream(url).ConfigureAwait(false);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var resp = await HttpClient.SendAsync(request).ConfigureAwait(false);
             
+            await using Stream contentStream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
             await using var stream = new FileStream(path, FileMode.Create, 
                 FileAccess.Write, FileShare.None, 3145728, true);
             
             await contentStream.CopyToAsync(stream).ConfigureAwait(false);
             await contentStream.FlushAsync().ConfigureAwait(false);
-
             await stream.FlushAsync().ConfigureAwait(false);
-            await contentStream.DisposeAsync();
         }
 
         public async Task<Stream> DownloadFileAsStream(Uri url)
