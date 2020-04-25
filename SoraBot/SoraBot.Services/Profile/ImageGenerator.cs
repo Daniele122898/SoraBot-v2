@@ -16,7 +16,12 @@ namespace SoraBot.Services.Profile
 
     public class ImageGenerator : IDisposable
     {
-        private readonly string _imageGenPath;
+        public const string AVATAR_CACHE = "AvatarCache";
+        public const string PROFILE_BG = "ProfileBackgrounds";
+        public const string PROFILE_CARDS = "ProfileCards";
+        public const string PROFILE_CREATION = "ProfileCreation";
+        
+        public readonly string ImageGenPath;
 
         private readonly Image<Rgba32> _templateOverlay;
         private readonly Font _heavyTitleFont;
@@ -25,8 +30,8 @@ namespace SoraBot.Services.Profile
 
         public ImageGenerator()
         {
-            _imageGenPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageGenerationFiles");
-            string pCreationPath = Path.Combine(_imageGenPath, "ProfileCreation");
+            ImageGenPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageGenerationFiles");
+            string pCreationPath = Path.Combine(ImageGenPath, PROFILE_CREATION);
             // Load template into memory so it's faster in the future :D
             _templateOverlay = Image.Load<Rgba32>(Path.Combine(pCreationPath, "profileTemplate.png"));
             _templateOverlay.Mutate(x => x.Resize(new Size(470, 265)));
@@ -37,13 +42,57 @@ namespace SoraBot.Services.Profile
             _heavyTitleFont = new Font(fontHeavy, 20.31f, FontStyle.Bold);
             _statsLightFont = new Font(fontHeavy, 13.4f, FontStyle.Bold);
             _statsTinyFont = new Font(fontHeavy, 10.52f, FontStyle.Bold);
+            
+            // Create accessory directories
+            this.CreateImageGenDirectoryIfItDoesntExist(AVATAR_CACHE);
+            this.CreateImageGenDirectoryIfItDoesntExist(PROFILE_BG);
+            this.CreateImageGenDirectoryIfItDoesntExist(PROFILE_CARDS);
+        }
+
+        private void CreateImageGenDirectoryIfItDoesntExist(string dir)
+        {
+            string path = Path.Combine(ImageGenPath, dir);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
+        /// <summary>
+        /// Uses stream to save file to path. This will NOT DISPOSE of the stream
+        /// </summary>
+        public void ResizeAndSaveImage(Stream stream, string path, Size size, ResizeMode resizeMode = ResizeMode.Crop)
+        {
+            using var img = Image.Load<Rgba32>(stream);
+            img.Mutate(x=> x.Resize(new ResizeOptions()
+            {
+                Size = size,
+                Mode = resizeMode
+            }));
+            img.Save(path);
+        }
+        
+        public void ResizeAndSaveImage(string pathToImage, string path, Size size, ResizeMode resizeMode = ResizeMode.Crop)
+        {
+            using var img = Image.Load<Rgba32>(pathToImage);
+            img.Mutate(x=> x.Resize(new ResizeOptions()
+            {
+                Size = size,
+                Mode = resizeMode
+            }));
+            img.Save(path);
         }
 
         public void GenerateProfileImage(ProfileImageGenDto conf, string outputPath)
         {
+            string backgroundPath = conf.HasCustomBg ? 
+                Path.Combine(ImageGenPath, PROFILE_BG, $"{conf.UserId.ToString()}.png") : 
+                Path.Combine(ImageGenPath, PROFILE_CREATION, "defaultBG.png");
+            string avatarPath = Path.Combine(ImageGenPath, AVATAR_CACHE, $"{conf.UserId.ToString()}.png");
+            
             using var image = new Image<Rgba32>(470, 265);
-            this.DrawProfileBackground(conf.BackgroundPath, image, new Size(470, 265));
-            this.DrawProfileAvatar(conf.AvatarPath, image, new Rectangle(7, 6, 42, 42), 21);
+            this.DrawProfileBackground(backgroundPath, image, new Size(470, 265));
+            this.DrawProfileAvatar(avatarPath, image, new Rectangle(7, 6, 42, 42), 21);
             // Draw template
             image.Mutate(x => x.DrawImage(_templateOverlay, 1.0f));
             this.DrawStats(image, conf);

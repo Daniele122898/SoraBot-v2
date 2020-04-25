@@ -2,8 +2,7 @@
 {
     public class ProfileImageGenDto
     {
-        public string AvatarPath { get; set; }
-        public string BackgroundPath { get; set; }
+        public ulong UserId { get; set; }
         public bool HasCustomBg { get; set; }
         public string Name { get; set; }
         public int GlobalRank { get; set; }
