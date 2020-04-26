@@ -65,7 +65,7 @@ namespace SoraBot.WebApi
             Log.Logger.Information($"Using Shard ID: {shardId.ToString()}");
 
             // Parse and set up port
-            if (args.Length != 2 || !int.TryParse(args[1], out int port))
+            if (args.Length < 2 || !int.TryParse(args[1], out int port))
             {
                 port = 9100;
             }
