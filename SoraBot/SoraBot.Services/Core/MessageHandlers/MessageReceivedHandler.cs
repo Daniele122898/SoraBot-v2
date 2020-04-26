@@ -51,8 +51,7 @@ namespace SoraBot.Services.Core.MessageHandlers
             if (!(m.Channel is SocketGuildChannel channel))
                 return;
 
-            // string prefix = await _prefixService.GetPrefix(channel.Guild.Id).ConfigureAwait(false);
-            string prefix = "beta!";
+            string prefix = await _prefixService.GetPrefix(channel.Guild.Id).ConfigureAwait(false);
             
             // Can't possibly be a command. Safe some cpu cycles
             if (message.Content.Length <= prefix.Length)
