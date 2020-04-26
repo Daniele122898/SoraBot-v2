@@ -14,6 +14,7 @@ using SoraBot.Data.Configurations;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Guilds;
 using SoraBot.Services.Profile;
+using SoraBot.Services.Utils;
 
 namespace SoraBot.Bot.Modules
 {
@@ -256,11 +257,19 @@ namespace SoraBot.Bot.Modules
             });
             eb.AddField(x =>
             {
+                x.Name = "Commands Executed";
+                x.IsInline = true;
+                x.Value = GlobalConstants.CommandsExecuted.ToString();
+            });
+            
+            eb.AddField(x =>
+            {
                 x.Name = "Connected Guilds";
                 x.IsInline = true;
                 x.Value = Context.Client.Guilds.Count.ToString();
             });
             var userCount = Context.Client.Guilds.Sum(x => x.MemberCount);
+            
             eb.AddField(x =>
             {
                 x.Name = "Total Users";
@@ -273,6 +282,19 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = $"{Context.Client.Latency.ToString()} ms";
             });
+            eb.AddField(x =>
+            {
+                x.Name = "Shard ID";
+                x.IsInline = true;
+                x.Value = GlobalConstants.ShardId.ToString();
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Total Shards";
+                x.IsInline = true;
+                x.Value = _config.TotalShards.ToString();
+            });
+            
             eb.AddField((x) =>
             {
                 x.Name = "Sora's Official Guild";
