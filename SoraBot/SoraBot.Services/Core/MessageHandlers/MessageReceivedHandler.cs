@@ -10,6 +10,7 @@ using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
 using SoraBot.Services.Guilds;
+using SoraBot.Services.Utils;
 
 namespace SoraBot.Services.Core.MessageHandlers
 {
@@ -50,7 +51,8 @@ namespace SoraBot.Services.Core.MessageHandlers
             if (!(m.Channel is SocketGuildChannel channel))
                 return;
 
-            string prefix = await _prefixService.GetPrefix(channel.Guild.Id).ConfigureAwait(false);
+            // string prefix = await _prefixService.GetPrefix(channel.Guild.Id).ConfigureAwait(false);
+            string prefix = "beta!";
             
             // Can't possibly be a command. Safe some cpu cycles
             if (message.Content.Length <= prefix.Length)
@@ -81,6 +83,10 @@ namespace SoraBot.Services.Core.MessageHandlers
             if (!commandResult.IsSuccess)
             {
                 await HandleErrorAsync(commandResult, context).ConfigureAwait(false);
+            }
+            else
+            {
+                ++GlobalConstants.CommandsExecuted;
             }
         }
         
