@@ -41,6 +41,11 @@
 
     <ItemGroup>
       <Content Remove="logs\**" />
+      <Content Update="appsettings.Example.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

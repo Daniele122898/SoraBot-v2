@@ -18,6 +18,7 @@
 *.properties
 
 RAMLogging.txt
+!**/appsettings.Example.json
 
 /SoraBot-v2/SoraBot-v2/ProfileData
 /SoraMusic/target
