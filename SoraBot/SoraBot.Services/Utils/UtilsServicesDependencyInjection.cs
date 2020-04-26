@@ -10,7 +10,6 @@ namespace SoraBot.Services.Utils
             services.AddSingleton<RandomNumberService>();
             services.AddSingleton<HttpClientHelper>();
             services.AddSingleton<HealthChecker>();
-            services.AddSingleton<GlobalConstants>();
             
             return services;
         }

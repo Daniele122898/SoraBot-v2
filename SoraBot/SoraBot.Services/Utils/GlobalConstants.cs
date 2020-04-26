@@ -1,12 +1,12 @@
 ﻿namespace SoraBot.Services.Utils
 {
-    public class GlobalConstants
+    public static class GlobalConstants
     {
-        public int ShardId { get; private set; }
+        public static int ShardId { get; private set; }
 
-        public void SetShardId(int shardId)
+        public static void SetShardId(int shardId)
         {
-            this.ShardId = shardId;
+            ShardId = shardId;
         }
     }
 }
