@@ -37,6 +37,16 @@ namespace SoraBot.WebApi
             }
             GlobalConstants.SetShardId(shardId);
             Log.Logger.Information($"Using Shard ID: {shardId.ToString()}");  
+
+            // Parse and set up port
+            if (args.Length != 2 || !int.TryParse(args[1], out int port))
+            {
+                port = 9100;
+            }
+            port += shardId;
+            GlobalConstants.SetPort(port);
+            Log.Logger.Information($"Binding Port: {port.ToString()}");
+            
             try
             {
                 Log.Information("Starting web host");
@@ -103,8 +113,10 @@ namespace SoraBot.WebApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    int p = GlobalConstants.Port;
                     webBuilder.UseSentry();
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls($"http://*:{p.ToString()}");
                 })
                 .UseSerilog();
     }
