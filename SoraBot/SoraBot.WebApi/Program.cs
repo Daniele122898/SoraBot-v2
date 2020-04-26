@@ -13,40 +13,67 @@ namespace SoraBot.WebApi
     public class Program
     {
         public static void Main(string[] args)
-        {            
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .MinimumLevel.Override("SoraBot.Bot.Extensions.DiscordSerilogAdapter", LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.RollingFile(@"logs\{Date}", restrictedToMinimumLevel: LogEventLevel.Debug)
-                .WriteTo.Sentry(o =>
-                {
-                    o.MinimumBreadcrumbLevel = LogEventLevel.Warning;
-                    o.MinimumEventLevel = LogEventLevel.Error;
-                    o.AttachStacktrace = true;
-                    o.SendDefaultPii = true;
-                })
-                .CreateLogger();
-            
+        {
+            if (args.Length == 3)
+            {
+                // Change the logger configuration To not be as verbose.     
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                    .MinimumLevel.Override("SoraBot.Bot.Extensions.DiscordSerilogAdapter", LogEventLevel.Information)
+                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .WriteTo.RollingFile(@"logs\{Date}", restrictedToMinimumLevel: LogEventLevel.Debug)
+                    .WriteTo.Sentry(o =>
+                    {
+                        o.MinimumBreadcrumbLevel = LogEventLevel.Warning;
+                        o.MinimumEventLevel = LogEventLevel.Error;
+                        o.AttachStacktrace = true;
+                        o.SendDefaultPii = true;
+                    })
+                    .CreateLogger();
+
+                Log.Information("In Production. Change Logger Config");
+            }
+            else
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                    .MinimumLevel.Override("SoraBot.Bot.Extensions.DiscordSerilogAdapter", LogEventLevel.Information)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .WriteTo.RollingFile(@"logs\{Date}", restrictedToMinimumLevel: LogEventLevel.Debug)
+                    .WriteTo.Sentry(o =>
+                    {
+                        o.MinimumBreadcrumbLevel = LogEventLevel.Warning;
+                        o.MinimumEventLevel = LogEventLevel.Error;
+                        o.AttachStacktrace = true;
+                        o.SendDefaultPii = true;
+                    })
+                    .CreateLogger();
+            }
+
             // Set the shardId to be used across the app
             if (args.Length == 0 || !int.TryParse(args[0], out int shardId))
             {
                 shardId = 0;
             }
+
             GlobalConstants.SetShardId(shardId);
-            Log.Logger.Information($"Using Shard ID: {shardId.ToString()}");  
+            Log.Logger.Information($"Using Shard ID: {shardId.ToString()}");
 
             // Parse and set up port
             if (args.Length != 2 || !int.TryParse(args[1], out int port))
             {
                 port = 9100;
             }
+
             port += shardId;
             GlobalConstants.SetPort(port);
             Log.Logger.Information($"Binding Port: {port.ToString()}");
-            
+
             try
             {
                 Log.Information("Starting web host");
@@ -63,28 +90,7 @@ namespace SoraBot.WebApi
                         context.Database.Migrate();
 
                         IWebHostEnvironment env = services.GetRequiredService<IWebHostEnvironment>();
-                        if (env.IsProduction())
-                        {
-                            Log.Information("In Production. Change Logger Config");
-                            // Change the logger configuration To not be as verbose.     
-                            Log.Logger = new LoggerConfiguration()
-                                .MinimumLevel.Information()
-                                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                                .MinimumLevel.Override("SoraBot.Bot.Extensions.DiscordSerilogAdapter", LogEventLevel.Information)
-                                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
-                                .Enrich.FromLogContext()
-                                .WriteTo.Console()
-                                .WriteTo.RollingFile(@"logs\{Date}", restrictedToMinimumLevel: LogEventLevel.Debug)
-                                .WriteTo.Sentry(o =>
-                                {
-                                    o.MinimumBreadcrumbLevel = LogEventLevel.Warning;
-                                    o.MinimumEventLevel = LogEventLevel.Error;
-                                    o.AttachStacktrace = true;
-                                    o.SendDefaultPii = true;
-                                })
-                                .CreateLogger();
-                        } 
-                        
+
                         if (env.IsDevelopment())
                         {
                             // This is where seeding happens if needed
@@ -96,7 +102,7 @@ namespace SoraBot.WebApi
                         throw;
                     }
                 }
-                
+
                 host.Run();
             }
             catch (Exception e)
