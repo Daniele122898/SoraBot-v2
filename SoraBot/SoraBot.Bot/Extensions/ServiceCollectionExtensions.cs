@@ -32,7 +32,7 @@ namespace SoraBot.Bot.Extensions
                     LogLevel = LogSeverity.Debug,
                     MessageCacheSize = 0, // Let's have this disabled for now. 
                     TotalShards = provider.GetService<IOptions<SoraBotConfig>>().Value.TotalShards,
-                    ShardId = 0 // TODO make this configurable
+                    ShardId = GlobalConstants.ShardId,
                 }));
 
             services.AddSingleton(new DiscordRestClient(new DiscordRestConfig()
