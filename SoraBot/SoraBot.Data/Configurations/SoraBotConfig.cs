@@ -11,5 +11,6 @@ namespace SoraBot.Data.Configurations
         public string SoraBotInvite { get; set; }
         public bool SpecialWaifuActive { get; set; }
         public WaifuRarity SpecialWaifuType { get; set; }
+        public string WeebToken { get; set; }
     }
 }

@@ -34,6 +34,7 @@ namespace SoraBot.WebApi
                     })
                     .CreateLogger();
 
+                GlobalConstants.Production = true;
                 Log.Information("In Production. Change Logger Config");
             }
             else

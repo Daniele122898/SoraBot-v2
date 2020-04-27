@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Extensions;
 using SoraBot.Data.Configurations;
+using SoraBot.Services.Misc;
 
 namespace SoraBot.Bot
 {
@@ -24,7 +25,8 @@ namespace SoraBot.Bot
         private readonly CommandService _commandService;
         private readonly IServiceProvider _serviceProvider;
         private readonly DiscordSerilogAdapter _serilogAdapter;
-        
+        private readonly WeebService _weebService;
+
         private IServiceScope _scope;
         private readonly SoraBotConfig _config;
 
@@ -35,7 +37,8 @@ namespace SoraBot.Bot
             CommandService commandService,
             IServiceProvider serviceProvider,
             DiscordSerilogAdapter serilogAdapter,
-            IOptions<SoraBotConfig> soraConfig)
+            IOptions<SoraBotConfig> soraConfig,
+            WeebService weebService)
         {
             _logger = logger;
             _socketClient = socketClient;
@@ -43,6 +46,7 @@ namespace SoraBot.Bot
             _commandService = commandService;
             _serviceProvider = serviceProvider;
             _serilogAdapter = serilogAdapter;
+            _weebService = weebService;
             _config = soraConfig?.Value ?? throw new ArgumentNullException(nameof(soraConfig));
         }
         
@@ -74,6 +78,22 @@ namespace SoraBot.Bot
                 
                 _logger.LogInformation("Loading command modules...");
                 await _commandService.AddModulesAsync(typeof(SoraBot).Assembly, _scope.ServiceProvider);
+                // Adding WeebServices and Commands
+                try
+                {
+                    var token = _config.WeebToken;
+                    if (_weebService.TryAuthenticate(token).Result)
+                    {
+                        // Add interactions
+                        _logger.LogInformation("Could authenticate WeebService. Adding module and commands.");
+                        await _weebService.AddInteractions(_commandService);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to add Interactions.");
+                }
+                
                 _logger.LogInformation("{Modules} modules loaded, containing {Commands} commands",
                     _commandService.Modules.Count().ToString(), _commandService.Modules.SelectMany(d => d.Commands).Count().ToString());
 
