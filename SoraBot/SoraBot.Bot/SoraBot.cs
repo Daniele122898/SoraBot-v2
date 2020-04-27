@@ -79,16 +79,19 @@ namespace SoraBot.Bot
                 _logger.LogInformation("Loading command modules...");
                 await _commandService.AddModulesAsync(typeof(SoraBot).Assembly, _scope.ServiceProvider);
                 // Adding WeebServices and Commands
-                var token = _config.WeebToken;
-                if (_weebService.TryAuthenticate(token).Result)
+                try
                 {
-                    // Add interactions
-                    _logger.LogInformation("Could authenticate WeebService. Adding module and Commands.");
-                    await _weebService.AddInteractions(_commandService);
+                    var token = _config.WeebToken;
+                    if (_weebService.TryAuthenticate(token).Result)
+                    {
+                        // Add interactions
+                        _logger.LogInformation("Could authenticate WeebService. Adding module and commands.");
+                        await _weebService.AddInteractions(_commandService);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    _logger.LogWarning("Couldn't authenticate WeebService. Missing all interaction commands!");
+                    _logger.LogError(e, "Failed to add Interactions.");
                 }
                 
                 _logger.LogInformation("{Modules} modules loaded, containing {Commands} commands",
