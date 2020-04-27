@@ -13,6 +13,7 @@ using SoraBot.Data.Configurations;
 using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
 using SoraBot.Services.Guilds;
+using SoraBot.Services.Misc;
 using SoraBot.Services.Profile;
 using SoraBot.Services.Users;
 using SoraBot.Services.Utils;
@@ -39,7 +40,7 @@ namespace SoraBot.Bot.Extensions
             {
                 LogLevel = LogSeverity.Debug
             }));
-
+            
             services.AddSingleton(_ =>
             {
                 var service = new CommandService(new CommandServiceConfig()
@@ -56,7 +57,7 @@ namespace SoraBot.Bot.Extensions
                 
                 return service;
             });
-
+            
             services.AddSingleton<DiscordSerilogAdapter>();
             services.AddSingleton<InteractiveService>();
 
@@ -68,7 +69,8 @@ namespace SoraBot.Bot.Extensions
                 .AddGuildServices()
                 .AddUtilServices()
                 .AddUserServices()
-                .AddProfileServices();
+                .AddProfileServices()
+                .AddMiscServices();
 
             services.AddHostedService<SoraBot>();
             

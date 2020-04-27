@@ -5,6 +5,6 @@ namespace SoraBot.Services.Misc
     public static class MiscDependencyInjection
     {
         public static IServiceCollection AddMiscServices(this IServiceCollection services)
-            => services;
+            => services.AddSingleton<WeebService>();
     }
 }
