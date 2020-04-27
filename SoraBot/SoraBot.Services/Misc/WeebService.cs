@@ -54,8 +54,7 @@ namespace SoraBot.Services.Misc
                 {
                     build.AddCommand(type, async (context, objects, serviceProvider, commandInfo) =>
                     {
-                        var image = await this.WeebClient.GetRandomAsync(type, Array.Empty<string>(), FileType.Any,
-                                false, NsfwSearch.False).ConfigureAwait(false);
+                        var image = await this.WeebClient.GetRandomAsync(type, Array.Empty<string>()).ConfigureAwait(false);
                         if (image == null)
                         {
                             await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
