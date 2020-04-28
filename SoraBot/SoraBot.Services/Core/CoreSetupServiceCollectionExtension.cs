@@ -16,6 +16,7 @@ namespace SoraBot.Services.Core
             => services
                 .AddSingleton<IMessageBroker, MessageBroker>()
                 .AddScoped<IMessageHandler<MessageReceived>, MessageReceivedHandler>()
-                .AddScoped<IMessageHandler<MessageReceived>, MessageEventHandler>();
+                .AddScoped<IMessageHandler<MessageReceived>, MessageEventHandler>()
+                .AddScoped<IMessageHandler<ReactionReceived>, ReactionReceivedHandler>();
     }
 }
