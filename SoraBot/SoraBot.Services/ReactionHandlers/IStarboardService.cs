@@ -7,13 +7,11 @@ namespace SoraBot.Services.ReactionHandlers
 {
     public interface IStarboardService
     {
-        Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, ISocketMessageChannel channel,
-            SocketReaction reaction);
+        Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction);
         
-        Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, ISocketMessageChannel channel,
-            SocketReaction reaction);
+        Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction);
         
-        Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg, ISocketMessageChannel channel);
+        Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg);
         
         
     }

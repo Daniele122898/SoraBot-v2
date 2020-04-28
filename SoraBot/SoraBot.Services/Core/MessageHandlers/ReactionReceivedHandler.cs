@@ -22,15 +22,15 @@ namespace SoraBot.Services.Core.MessageHandlers
             switch (reaction.Type)
             {
                 case ReactionEventType.Added:
-                    await _starboardService.HandleReactionAdded(reaction.Message, reaction.Channel, reaction.Reaction)
+                    await _starboardService.HandleReactionAdded(reaction.Message, reaction.Reaction)
                         .ConfigureAwait(false);
                     break;
                 case ReactionEventType.Removed:
-                    await _starboardService.HandleReactionRemoved(reaction.Message, reaction.Channel, reaction.Reaction)
+                    await _starboardService.HandleReactionRemoved(reaction.Message, reaction.Reaction)
                         .ConfigureAwait(false);
                     break;
                 case ReactionEventType.Cleared:
-                    await _starboardService.HandleReactionCleared(reaction.Message, reaction.Channel)
+                    await _starboardService.HandleReactionCleared(reaction.Message)
                         .ConfigureAwait(false);
                     break;
                 default:
