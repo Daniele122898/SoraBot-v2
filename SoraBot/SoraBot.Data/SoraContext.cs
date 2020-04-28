@@ -25,6 +25,7 @@ namespace SoraBot.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.AddWaifuRelations();
+            builder.AddStarboardRelations();
         }
     }
 }
