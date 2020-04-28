@@ -51,14 +51,15 @@ namespace SoraBot.Services.Waifu
 
         public async Task<WaifuDbo> GetRandomSpecialWaifu(ulong userId, WaifuRarity specialRarity)
         {
-            var specialList = (await this.GetAllWaifus().ConfigureAwait(false))
-                .Where(x => x.Rarity == specialRarity).ToList();
             // Remove all waifus the user already has
-            //  Creating a dictionary to avoid looping for then to hundreds of thousand of times :)
+            // Creating a dictionary to avoid looping for then to hundreds of thousand of times :)
             var userWaifus =
                 (await _waifuRepo.GetAllWaifusFromUserWithRarity(userId, specialRarity)
                     .ConfigureAwait(false)).ToDictionary(x=> x.Id, x=> true);
-            var remaining = specialList.Where(w => !userWaifus.ContainsKey(w.Id)).ToList();
+
+            var remaining = (await this.GetAllWaifus().ConfigureAwait(false))
+                .Where(x => x.Rarity == specialRarity && !userWaifus.ContainsKey(x.Id))
+                .ToList();
             
             return remaining[_rand.GetRandomNext(0, remaining.Count)];
         }
