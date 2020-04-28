@@ -82,6 +82,30 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal(await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false));
         }
 
+        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
+        {
+            return await this.TryGetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false);
+        }
+        
+        private async Task<Maybe<TReturn>> TryGetOrSetAndGetAsync<TCacheKey, TReturn>(
+            TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
+            Func<Task<TReturn>> set, TimeSpan? ttl = null)
+        {
+            if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
+            {
+                return Maybe.FromVal((TReturn)item.Content);
+            }
+            // Otherwise we have to set it
+            TReturn result = await set().ConfigureAwait(false);
+            if (result == null)
+            {
+                return Maybe.Zero<TReturn>();
+            }
+            var itemToStore = new CacheItem(result, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
+            cache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
+            return Maybe.FromVal((TReturn) itemToStore.Content);
+        }
+
         public void Set(ulong id, object obj, TimeSpan? ttl = null)
         {
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);

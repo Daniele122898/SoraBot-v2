@@ -36,6 +36,11 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal<T>(await GetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false));
         }
 
+        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
+        {
+            return await this.TryGetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false);
+        }
+
         public void Set(string id, object obj, TimeSpan? ttl = null)
         {
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
