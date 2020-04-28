@@ -44,7 +44,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
                 .ToDictionary(x=> x.rarity, x => x.count);
 
             // This line kinda sucks. Don't know if there is a better way to solve this but that aint it chief
-            var allRarities = ((WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity))).OrderBy(x => x).ToList();
+            var allRarities = ((WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity))).OrderBy(x => x);
             int total = 0;
             foreach (var rarity in allRarities)
             {
