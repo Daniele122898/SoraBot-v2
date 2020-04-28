@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System;
+using Discord;
 using Discord.WebSocket;
 
 namespace SoraBot.Common.Messages.MessageAdapters
@@ -26,6 +27,8 @@ namespace SoraBot.Common.Messages.MessageAdapters
             this.Type = type;
             this.Message = message;
             this.Channel = channel;
+            if (type != ReactionEventType.Cleared && reaction == null)
+                throw new ArgumentNullException(nameof(reaction));
             this.Reaction = reaction;
         }
     }
