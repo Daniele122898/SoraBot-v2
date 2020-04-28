@@ -125,6 +125,7 @@ namespace SoraBot.WebApi
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseUrls($"http://*:{p.ToString()}");
                 })
-                .UseSerilog();
+                .UseSerilog()
+                .UseConsoleLifetime();
     }
 }
