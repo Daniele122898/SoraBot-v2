@@ -38,7 +38,6 @@ namespace SoraBot.Services.ReactionHandlers
             
             // Check if this is in a guild and not DMs
             if (!(message.Channel is IGuildChannel channel)) return;
-
             var guildInfo = await _starRepo.GetStarboardInfo(channel.GuildId).ConfigureAwait(false);
             // This means that either there is no guild in the DB or it has no starboard Channel ID
             if (!guildInfo.HasValue) return;
