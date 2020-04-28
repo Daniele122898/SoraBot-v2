@@ -11,6 +11,9 @@ namespace SoraBot.Data.Models.SoraDb
         public ulong Id { get; set; }
 
         [Required] public string Prefix { get; set; }
+        
+        public ulong? StarboardChannelId { get; set; }
+        public uint StarboardThreshold { get; set; } = 1;
 
         public Guild(ulong id, string prefix = "$")
         {
