@@ -14,5 +14,7 @@ namespace SoraBot.Services.ReactionHandlers
             SocketReaction reaction);
         
         Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg, ISocketMessageChannel channel);
+        
+        
     }
 }
