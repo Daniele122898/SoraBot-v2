@@ -1,7 +1,10 @@
-﻿namespace SoraBot.Services.ReactionHandlers
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace SoraBot.Services.ReactionHandlers
 {
-    public class ReactionHandlerDependencyInjection
+    public static class ReactionHandlerDependencyInjection
     {
-        
+        public static IServiceCollection AddReactionHandlerServices(this IServiceCollection services)
+            => services;
     }
 }

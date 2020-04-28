@@ -1,6 +1,6 @@
 ﻿namespace SoraBot.Services.ReactionHandlers
 {
-    public class StarboardService
+    public class StarboardService : IStarboardService
     {
         
     }
