@@ -13,32 +13,14 @@ namespace SoraBot.Services.Core.MessageHandlers
             switch (reaction.Type)
             {
                 case ReactionEventType.Added:
-                    await this.HandleReactionAdded(reaction).ConfigureAwait(false);
                     break;
                 case ReactionEventType.Removed:
-                    await this.HandleReactionRemoved(reaction).ConfigureAwait(false);
                     break;
                 case ReactionEventType.Cleared:
-                    await this.HandleReactionCleared(reaction).ConfigureAwait(false);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        private async Task HandleReactionAdded(ReactionReceived reaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        private async Task HandleReactionRemoved(ReactionReceived reaction)
-        {
-            throw new NotImplementedException();
-        }
-
-        private async Task HandleReactionCleared(ReactionReceived reaction)
-        {
-            throw new NotImplementedException();
         }
     }
 }
