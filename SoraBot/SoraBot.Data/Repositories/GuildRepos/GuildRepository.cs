@@ -27,7 +27,7 @@ namespace SoraBot.Data.Repositories.GuildRepos
             if (string.IsNullOrWhiteSpace(prefix)) return false;
             return await _soraTransactor.TryDoInTransactionAsync(async context =>
             {
-                var guild = await this.GetOrSetAndGetGuild(id, context).ConfigureAwait(false);
+                var guild = await GetOrSetAndGetGuild(id, context).ConfigureAwait(false);
                 guild.Prefix = prefix;
                 await context.SaveChangesAsync().ConfigureAwait(false);
                 return true;
@@ -36,7 +36,7 @@ namespace SoraBot.Data.Repositories.GuildRepos
 
         public async Task<Maybe<Guild>> GetOrSetAndGetGuild(ulong id)
             => await _soraTransactor.DoInTransactionAndGetAsync(async context
-                => Maybe.FromVal(await this.GetOrSetAndGetGuild(id, context).ConfigureAwait(false))
+                => Maybe.FromVal(await GetOrSetAndGetGuild(id, context).ConfigureAwait(false))
             ).ConfigureAwait(false);
 
         public async Task<Guild> GetGuild(ulong id)
@@ -44,7 +44,10 @@ namespace SoraBot.Data.Repositories.GuildRepos
                 => await context.Guilds.FindAsync(id).ConfigureAwait(false)
             ).ConfigureAwait(false);
 
-        private async Task<Guild> GetOrSetAndGetGuild(ulong id, SoraContext context)
+        /// <summary>
+        /// Tries to find a Guild and if it can't it'll create one and already save! 
+        /// </summary>
+        public static async Task<Guild> GetOrSetAndGetGuild(ulong id, SoraContext context)
         {
             var guild = await context.Guilds.FindAsync(id).ConfigureAwait(false);
             if (guild != null) return guild;
