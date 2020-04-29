@@ -92,5 +92,12 @@ namespace SoraBot.Data.Repositories
                 context.StarboardMessages.Remove(msg);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
+
+        public async Task<Maybe<StarboardMessage>> GetStarboardMessage(ulong messageId)
+            => await _soraTransactor.DoAsync(async context =>
+            {
+                var msg = await context.StarboardMessages.FindAsync(messageId).ConfigureAwait(false);
+                return msg == null ? Maybe.Zero<StarboardMessage>() : Maybe.FromVal(msg);
+            }).ConfigureAwait(false);
     }
 }
