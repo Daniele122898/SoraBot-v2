@@ -51,6 +51,7 @@ namespace SoraBot.Services.ReactionHandlers
             if (reactionCount < guildInfo.Value.threshold) return;
             
             // Channel is setup and exists and msg exceed threshold.
+            // Check if message is already posted
         }
 
         private async Task<int> GetReactionCount(IUserMessage msg, IEmote emote)

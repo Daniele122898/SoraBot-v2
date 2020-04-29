@@ -8,7 +8,10 @@ namespace SoraBot.Data.Models.SoraDb
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public ulong GuildId { get; set; }
+
+        [Required]
         public ulong StarboardChannelId { get; set; }
+        [Required]
         public uint StarboardThreshold { get; set; }
 
         public virtual Guild Guild { get; set; }

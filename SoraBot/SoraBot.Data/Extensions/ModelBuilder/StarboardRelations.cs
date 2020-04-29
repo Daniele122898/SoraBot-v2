@@ -22,6 +22,12 @@ namespace SoraBot.Data.Extensions.ModelBuilder
             mb.Entity<Starboard>()
                 .HasKey(k => k.GuildId);
 
+            mb.Entity<StarboardMessage>()
+                .HasOne(m => m.Guild)
+                .WithMany(g => g.StarboardMessages)
+                .HasForeignKey(k => k.GuildId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             return mb;
         }
     }

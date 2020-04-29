@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,5 +22,6 @@ namespace SoraBot.Data.Models.SoraDb
         }
 
         public virtual Starboard Starboard { get; set; }
+        public virtual ICollection<StarboardMessage> StarboardMessages { get; set; }
     }
 }
