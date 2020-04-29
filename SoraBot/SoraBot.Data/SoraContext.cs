@@ -21,6 +21,7 @@ namespace SoraBot.Data
         public DbSet<UserWaifu> UserWaifus { get; set; }
 
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<Starboard> Starboards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
