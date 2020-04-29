@@ -64,7 +64,7 @@ namespace SoraBot.Services.ReactionHandlers
             var channel = await guild.GetChannelAsync(channelId, CacheMode.AllowDownload).ConfigureAwait(false);
             if (channel != null) return true;
             // Otherwise get rid of outdated info in DB
-            await _starRepo.SetStarboardChannleId(guild.Id, null).ConfigureAwait(false);
+            await _starRepo.SetStarboardChannelId(guild.Id, null).ConfigureAwait(false);
             return false;
         }
 

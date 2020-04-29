@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ArgonautCore.Maybe;
+using SoraBot.Data.Models.SoraDb;
+using SoraBot.Data.Repositories.GuildRepos;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Repositories
@@ -17,27 +19,54 @@ namespace SoraBot.Data.Repositories
         {
             return await _soraTransactor.DoAsync<Maybe<(ulong, uint)>>(async context =>
             {
-                var guild = await context.Guilds.FindAsync(guildId).ConfigureAwait(false);
-                if (guild?.StarboardChannelId == null) return Maybe.Zero<(ulong, uint)>();
-                return Maybe.FromVal<(ulong, uint)>((guild.StarboardChannelId.Value, guild.StarboardThreshold));
+                var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
+                if (starboard == null) return Maybe.Zero<(ulong, uint)>();
+                return Maybe.FromVal<(ulong, uint)>((starboard.StarboardChannelId, starboard.StarboardThreshold));
             }).ConfigureAwait(false);
         }
 
-        public async Task SetStarboardChannleId(ulong guildId, ulong? starboardChannelId)
+        public async Task SetStarboardChannelId(ulong guildId, ulong starboardChannelId)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
-                var guild = await context.Guilds.FindAsync(guildId).ConfigureAwait(false);
-                if (guild == null) return;
-                guild.StarboardChannelId = starboardChannelId;
+                // We have to create a guild if it doesnt exist, bcs the starboard is a weak entity.
+                await GuildRepository.GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
+                
+                // Then we try and get or create the starboard
+                var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
+                if (starboard == null)
+                {
+                    // Create it
+                    starboard = new Starboard(guildId, starboardChannelId);
+                    // ReSharper disable once MethodHasAsyncOverload
+                    context.Starboards.Add(starboard);
+                }
+                else
+                {
+                    starboard.StarboardChannelId = starboardChannelId;
+                }
+
                 await context.SaveChangesAsync();
             }).ConfigureAwait(false);
 
+        public async Task RemoveStarboard(ulong guildId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
+                if (starboard == null) return;
+                context.Starboards.Remove(starboard);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+        /// <summary>
+        /// Set's the starboard threshold. This function assumes that the starboard exists. If not
+        /// it will just noop. No error will be thrown
+        /// </summary>
         public async Task SetStarboardThreshold(ulong guildId, uint threshold)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
-                var guild = await context.Guilds.FindAsync(guildId).ConfigureAwait(false);
-                if (guild == null) return;
-                guild.StarboardThreshold = threshold;
+                var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
+                if (starboard == null) return;
+                starboard.StarboardThreshold = threshold;
                 await context.SaveChangesAsync();
             }).ConfigureAwait(false);
     }
