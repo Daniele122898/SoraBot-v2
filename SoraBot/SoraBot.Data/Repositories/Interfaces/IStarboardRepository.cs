@@ -9,5 +9,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task SetStarboardChannelId(ulong guildId, ulong starboardChannelId);
         Task RemoveStarboard(ulong guildId);
         Task SetStarboardThreshold(ulong guildId, uint threshold);
+        Task AddStarboardMessage(ulong guildId, ulong messageId, ulong postedMessageId);
+        Task RemoveStarboardMessage(ulong messageId);
     }
 }

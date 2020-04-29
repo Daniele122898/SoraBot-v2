@@ -14,7 +14,7 @@ namespace SoraBot.Data.Repositories
         {
             _soraTransactor = soraTransactor;
         }
-        
+
         public async Task<Maybe<(ulong starboardChannelId, uint threshold)>> GetStarboardInfo(ulong guildId)
         {
             return await _soraTransactor.DoAsync<Maybe<(ulong, uint)>>(async context =>
@@ -30,7 +30,7 @@ namespace SoraBot.Data.Repositories
             {
                 // We have to create a guild if it doesnt exist, bcs the starboard is a weak entity.
                 await GuildRepository.GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
-                
+
                 // Then we try and get or create the starboard
                 var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
                 if (starboard == null)
@@ -68,6 +68,29 @@ namespace SoraBot.Data.Repositories
                 if (starboard == null) return;
                 starboard.StarboardThreshold = threshold;
                 await context.SaveChangesAsync();
+            }).ConfigureAwait(false);
+
+        public async Task AddStarboardMessage(ulong guildId, ulong messageId, ulong postedMessageId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                // Since this is a weak entity the guild has to exist
+                await GuildRepository.GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
+                // Actually create and add it
+                context.StarboardMessages.Add(new StarboardMessage(messageId, postedMessageId, guildId));
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+        /// <summary>
+        /// This method actually assumes that the entry exists. If it is not found
+        /// this method will just noop. No errors are thrown.  
+        /// </summary>
+        public async Task RemoveStarboardMessage(ulong messageId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var msg = await context.StarboardMessages.FindAsync(messageId).ConfigureAwait(false);
+                if (msg == null) return;
+                context.StarboardMessages.Remove(msg);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
     }
 }
