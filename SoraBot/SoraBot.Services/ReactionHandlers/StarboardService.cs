@@ -106,8 +106,7 @@ namespace SoraBot.Services.ReactionHandlers
             // Otherwise make a normal embed
             if (!string.IsNullOrWhiteSpace(msg.Content))
                 eb.WithDescription(msg.Content);
-            if (msg.Embeds.Count > 0)
-                eb.AddField("Embed Type", msg.Embeds.FirstOrDefault()?.Type.ToString() ?? "Unknown");
+
             eb.AddField("Posted in", $"[#{msg.Channel.Name} (take me!)]({msg.GetJumpUrl()})");
             eb.WithTimestamp(msg.Timestamp);
             
