@@ -14,7 +14,8 @@ namespace SoraBot.Services.ReactionHandlers
 {
     public class StarboardService : IStarboardService
     {
-        public static string StarEmote = "⭐";
+        public const string STAR_EMOTE = "⭐";
+        public const string DO_NOT_POST_AGAIN = "star:";
         
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
@@ -31,7 +32,7 @@ namespace SoraBot.Services.ReactionHandlers
         }
 
         private static bool IsStarEmote(IEmote emote)
-            => emote.Name == StarEmote;
+            => emote.Name == STAR_EMOTE;
 
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
@@ -70,7 +71,7 @@ namespace SoraBot.Services.ReactionHandlers
                     // Update message
                     await starMessage.Value.ModifyAsync(x =>
                     {
-                        x.Content = $"**{reactionCount.ToString()}** {StarEmote}";
+                        x.Content = $"**{reactionCount.ToString()}** {STAR_EMOTE}";
                     }).ConfigureAwait(false);
                 }
                 else
@@ -82,13 +83,17 @@ namespace SoraBot.Services.ReactionHandlers
             else
             {
                 // Post the message
-                var postedMsg = await this.PostAndCachceMessage(message, starboardChannel, reactionCount)
+                var postedMsg = await this.PostAndCacheMessage(message, starboardChannel, reactionCount)
                     .ConfigureAwait(false);
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
         }
+        
+        private async Task UpdatePostedMessage(StarboardMessage msg)
+        {
+        }
 
-        private async Task<IUserMessage> PostAndCachceMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
+        private async Task<IUserMessage> PostAndCacheMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
         {
             var eb = new EmbedBuilder()
             {
@@ -111,19 +116,18 @@ namespace SoraBot.Services.ReactionHandlers
             eb.WithTimestamp(msg.Timestamp);
             
             var postedMsg = await starboardChannel
-                .SendMessageAsync($"**{reactionCount.ToString()}** {StarEmote}", embed: eb.Build())
+                .SendMessageAsync($"**{reactionCount.ToString()}** {STAR_EMOTE}", embed: eb.Build())
                 .ConfigureAwait(false);
             
             _cache.Set(postedMsg.Id, postedMsg, _postedMsgTtl);
             return postedMsg;
         }
 
-        private static bool TryAddArticleThumbnail(IUserMessage msg, EmbedBuilder eb)
+        private static void TryAddArticleThumbnail(IUserMessage msg, EmbedBuilder eb)
         {
             var thumbnail = msg.Embeds.Select(x => x.Thumbnail).FirstOrDefault(x => x.HasValue);
-            if (!thumbnail.HasValue) return false;
+            if (!thumbnail.HasValue) return;
             eb.WithImageUrl(thumbnail.Value.Url);
-            return true;
         }
 
         private static bool TryAddImageLink(IUserMessage msg, EmbedBuilder eb)
@@ -155,10 +159,6 @@ namespace SoraBot.Services.ReactionHandlers
             var msg = (IUserMessage) await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload);
             if (msg == null) return Maybe.Zero<IUserMessage>();
             return Maybe.FromVal(msg);
-        }
-
-        private async Task UpdatePostedMessage(StarboardMessage msg)
-        {
         }
 
         private async Task<int> GetReactionCount(IUserMessage msg, IEmote emote)
