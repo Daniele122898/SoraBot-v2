@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Discord;
 using Discord.WebSocket;
+using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Cache;
@@ -12,7 +14,10 @@ namespace SoraBot.Services.ReactionHandlers
 {
     public class StarboardService : IStarboardService
     {
+        public static string StarEmote = "⭐";
+        
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
 
         private readonly ICacheService _cache;
         private readonly IStarboardRepository _starRepo;
@@ -26,7 +31,7 @@ namespace SoraBot.Services.ReactionHandlers
         }
 
         private static bool IsStarEmote(IEmote emote)
-            => emote.Name == "⭐";
+            => emote.Name == StarEmote;
 
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
@@ -36,6 +41,7 @@ namespace SoraBot.Services.ReactionHandlers
             if (!messageM.HasValue) return;
             var message = messageM.Value;
             if (message.Author.IsBot || message.Author.IsWebhook) return;
+            if (reaction.UserId == message.Author.Id) return;
 
             // Check if this is in a guild and not DMs
             if (!(message.Channel is IGuildChannel channel)) return;
@@ -62,6 +68,10 @@ namespace SoraBot.Services.ReactionHandlers
                 if (starMessage.HasValue)
                 {                    
                     // Update message
+                    await starMessage.Value.ModifyAsync(x =>
+                    {
+                        x.Content = $"**{reactionCount.ToString()}** {StarEmote}";
+                    }).ConfigureAwait(false);
                 }
                 else
                 {
@@ -72,27 +82,78 @@ namespace SoraBot.Services.ReactionHandlers
             else
             {
                 // Post the message
+                var postedMsg = await this.PostMessage(message, starboardChannel, reactionCount)
+                    .ConfigureAwait(false);
+                await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
         }
 
-        private async Task PostAndCachceMessage(IUserMessage msg, ITextChannel starboardChannel)
+        private async Task<IUserMessage> PostMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
         {
+            var eb = new EmbedBuilder()
+            {
+                Color = SoraSocketCommandModule.Purple,
+                Author = new EmbedAuthorBuilder()
+                {
+                    IconUrl = msg.Author.GetAvatarUrl() ?? msg.Author.GetDefaultAvatarUrl(),
+                    Name = Formatter.UsernameDiscrim(msg.Author)
+                }
+            };
+            if (!TryAddImageAttachment(msg, eb)) // First check if there's an attached image
+                if (!TryAddImageLink(msg, eb)) // Check if there's an image link
+                    TryAddArticleThumbnail(msg, eb); // Is it a link?
             
+            // Otherwise make a normal embed
+            if (!string.IsNullOrWhiteSpace(msg.Content))
+                eb.WithDescription(msg.Content);
+            if (msg.Embeds.Count > 0)
+                eb.AddField("Embed Type", msg.Embeds.FirstOrDefault()?.Type.ToString() ?? "Unknown");
+            eb.AddField("Posted in", $"[#{msg.Channel.Name} (take me!)]({msg.GetJumpUrl()})");
+            eb.WithTimestamp(msg.Timestamp);
+            
+            var postedMsg = await starboardChannel
+                .SendMessageAsync($"**{reactionCount.ToString()}** {StarEmote}", embed: eb.Build())
+                .ConfigureAwait(false);
+            
+            return postedMsg;
+        }
+
+        private static bool TryAddArticleThumbnail(IUserMessage msg, EmbedBuilder eb)
+        {
+            var thumbnail = msg.Embeds.Select(x => x.Thumbnail).FirstOrDefault(x => x.HasValue);
+            if (!thumbnail.HasValue) return false;
+            eb.WithImageUrl(thumbnail.Value.Url);
+            return true;
+        }
+
+        private static bool TryAddImageLink(IUserMessage msg, EmbedBuilder eb)
+        {
+            var imageEmbed = msg.Embeds.Select(x => x.Image).FirstOrDefault(x => x.HasValue);
+            if (!imageEmbed.HasValue) return false;
+            eb.WithImageUrl(imageEmbed.Value.Url);
+            return true;
+        }
+
+        private static bool TryAddImageAttachment(IUserMessage msg, EmbedBuilder eb)
+        {
+            if (msg.Attachments.Count == 0) return false;
+            var image = msg.Attachments.FirstOrDefault(x => !Helper.LinkIsNoImage(x.Url));
+            if (image == null) return false;
+            eb.WithImageUrl(image.Url);
+            return true;
         }
 
         private async Task RemoveStarboardMessageFromCacheAndDb(ulong messageId, ulong postedMessageId)
         {
-            _cache.TryRemove<IMessage>(messageId);
-            _cache.TryRemove<IMessage>(postedMessageId);
+            _cache.TryRemove<object>(messageId);
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
-        private async Task<Maybe<IMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
-            => await _cache.TryGetOrSetAndGetAsync(
-                messageId,
-                async () => await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload)
-                    .ConfigureAwait(false),
-                _messageCacheTtl).ConfigureAwait(false);
+        private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
+        {
+            var msg = (IUserMessage) await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload);
+            return msg == null ? Maybe.Zero<IUserMessage>() : Maybe.FromVal(msg);
+        }
 
         private async Task UpdatePostedMessage(StarboardMessage msg)
         {
