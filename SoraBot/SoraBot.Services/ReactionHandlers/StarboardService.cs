@@ -82,13 +82,13 @@ namespace SoraBot.Services.ReactionHandlers
             else
             {
                 // Post the message
-                var postedMsg = await this.PostMessage(message, starboardChannel, reactionCount)
+                var postedMsg = await this.PostAndCachceMessage(message, starboardChannel, reactionCount)
                     .ConfigureAwait(false);
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
         }
 
-        private async Task<IUserMessage> PostMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
+        private async Task<IUserMessage> PostAndCachceMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
         {
             var eb = new EmbedBuilder()
             {
@@ -115,6 +115,7 @@ namespace SoraBot.Services.ReactionHandlers
                 .SendMessageAsync($"**{reactionCount.ToString()}** {StarEmote}", embed: eb.Build())
                 .ConfigureAwait(false);
             
+            _cache.Set(postedMsg.Id, postedMsg, _postedMsgTtl);
             return postedMsg;
         }
 
@@ -146,13 +147,15 @@ namespace SoraBot.Services.ReactionHandlers
         private async Task RemoveStarboardMessageFromCacheAndDb(ulong messageId, ulong postedMessageId)
         {
             _cache.TryRemove<object>(messageId);
+            _cache.TryRemove<object>(postedMessageId);
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
         private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
             var msg = (IUserMessage) await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload);
-            return msg == null ? Maybe.Zero<IUserMessage>() : Maybe.FromVal(msg);
+            if (msg == null) return Maybe.Zero<IUserMessage>();
+            return Maybe.FromVal(msg);
         }
 
         private async Task UpdatePostedMessage(StarboardMessage msg)
