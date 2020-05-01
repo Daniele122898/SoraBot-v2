@@ -111,16 +111,18 @@ namespace SoraBot.Services.ReactionHandlers
             if (reactionCount >= guildInfo.Value.threshold)
             {
                 await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false);
-                return;                
             }
             // Below threshold so we remove it from the Starboard and add it to the list of
             // never to be added again messages. (at least during runtime)
-            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
-            // This means its not in the DB so we don't care about it essentially
-            if (!starmsg.HasValue) 
-                return;
-            await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
-                .ConfigureAwait(false);
+            else
+            {
+                var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
+                // This means its not in the DB so we don't care about it essentially
+                if (!starmsg.HasValue) 
+                    return;
+                await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                    .ConfigureAwait(false);
+            }
             
             this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
         }
