@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Repositories.Interfaces;
@@ -21,13 +22,16 @@ namespace SoraBot.Services.ReactionHandlers
 
         private readonly ICacheService _cache;
         private readonly IStarboardRepository _starRepo;
+        private readonly ILogger<StarboardService> _log;
 
         public StarboardService(
             ICacheService cache,
-            IStarboardRepository starRepo)
+            IStarboardRepository starRepo,
+            ILogger<StarboardService> log)
         {
             _cache = cache;
             _starRepo = starRepo;
+            _log = log;
         }
 
         private static bool IsStarEmote(IEmote emote)
@@ -42,6 +46,52 @@ namespace SoraBot.Services.ReactionHandlers
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
             if (message == null) return;
+            
+            // Check if this is in a guild and not DMs
+            if (!(message.Channel is IGuildChannel channel)) return;
+            var guildInfo = await _starRepo.GetStarboardInfo(channel.GuildId).ConfigureAwait(false);
+            // This means that either there is no guild in the DB or it has no starboard Channel ID
+            if (!guildInfo.HasValue) return;
+            
+            // Check if still valid channel and if not remove the values from the DB
+            var starboardChannel = await this
+                .IsValidChannelAndRemoveIfNot(guildInfo.Value.starboardChannelId, channel.Guild).ConfigureAwait(false);
+            if (starboardChannel == null) return;
+            
+            // Check if still above threshold so we just update the count
+            var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
+            if (reactionCount >= guildInfo.Value.threshold)
+            {
+                await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false);
+                return;                
+            }
+            // Below threshold so we remove it from the Starboard and add it to the list of
+            // never to be added again messages. (at least during runtime)
+            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
+            // This means its not in the DB so we don't care about it essentially
+            if (!starmsg.HasValue) 
+                return;
+            await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                .ConfigureAwait(false);
+        }
+
+        private async Task RemoveStarboadMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
+        {
+            // Remove it from DB and Cache :)
+            await this.RemoveStarboardMessageFromCacheAndDb(messageId, postedMessageId).ConfigureAwait(false);
+            // Physically remove the message now
+            var postedMsg = await this.GetStarboardMessage(postedMessageId, starboardChannel).ConfigureAwait(false);
+            if (!postedMsg.HasValue) return; // Msg doesn't exist anymore
+            try
+            {
+                await postedMsg.Value.DeleteAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                _log.LogError(e, "Failed to remove starboard message");
+            }
+            // Add it to the cache to never be added again
+            _cache.Set(DO_NOT_POST_AGAIN + messageId.ToString(), null);
         }
         
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
