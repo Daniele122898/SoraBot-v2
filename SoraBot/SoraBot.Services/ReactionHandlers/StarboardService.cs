@@ -36,6 +36,9 @@ namespace SoraBot.Services.ReactionHandlers
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
+            // Abort if its in the "do not post again" cache
+            if (_cache.Contains(DO_NOT_POST_AGAIN + msg.Id.ToString())) return;
+            
             // Try get message
             var messageM = await this.GetOrDownloadMessage(msg).ConfigureAwait(false);
             if (!messageM.HasValue) return;
