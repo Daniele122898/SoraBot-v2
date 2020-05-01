@@ -33,6 +33,17 @@ namespace SoraBot.Services.ReactionHandlers
         private static bool IsStarEmote(IEmote emote)
             => emote.Name == STAR_EMOTE;
 
+        public async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
+        {
+            if (!IsStarEmote(reaction.Emote)) return;
+            // Abort if its in the "do not post again" cache
+            if (_cache.Contains(DO_NOT_POST_AGAIN + msg.Id.ToString())) return;
+            
+            // Try get message
+            var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
+            if (message == null) return;
+        }
+        
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
@@ -40,11 +51,8 @@ namespace SoraBot.Services.ReactionHandlers
             if (_cache.Contains(DO_NOT_POST_AGAIN + msg.Id.ToString())) return;
             
             // Try get message
-            var messageM = await this.GetOrDownloadMessage(msg).ConfigureAwait(false);
-            if (!messageM.HasValue) return;
-            var message = messageM.Value;
-            if (message.Author.IsBot || message.Author.IsWebhook) return;
-            if (reaction.UserId == message.Author.Id) return;
+            var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
+            if (message == null) return;
 
             // Check if this is in a guild and not DMs
             if (!(message.Channel is IGuildChannel channel)) return;
@@ -69,6 +77,16 @@ namespace SoraBot.Services.ReactionHandlers
                     .ConfigureAwait(false);
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
+        }
+        
+        private async Task<IUserMessage> TryGetMessageAndValidate(Cacheable<IUserMessage, ulong> msg, ulong reactionUserId)
+        {
+            var messageM = await this.GetOrDownloadMessage(msg).ConfigureAwait(false);
+            if (!messageM.HasValue) return null;
+            if (messageM.Value.Author.IsBot || messageM.Value.Author.IsWebhook) return null;
+            if (reactionUserId == messageM.Value.Author.Id) return null;
+            
+            return messageM.Value;
         }
 
         private async Task<bool> TryUpdatePostedMessage(IUserMessage message, ITextChannel starboardChannel,
@@ -190,11 +208,6 @@ namespace SoraBot.Services.ReactionHandlers
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),
                     this._messageCacheTtl)
                 .ConfigureAwait(false);
-
-        public Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
-        {
-            throw new System.NotImplementedException();
-        }
 
         public Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg)
         {
