@@ -6,7 +6,6 @@ using Discord;
 using Discord.WebSocket;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
-using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Cache;
 
