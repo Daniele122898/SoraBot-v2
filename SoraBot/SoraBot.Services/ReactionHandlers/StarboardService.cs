@@ -25,19 +25,43 @@ namespace SoraBot.Services.ReactionHandlers
         private readonly ICacheService _cache;
         private readonly IStarboardRepository _starRepo;
         private readonly ILogger<StarboardService> _log;
+        private readonly DiscordSocketClient _client;
 
         public StarboardService(
             ICacheService cache,
             IStarboardRepository starRepo,
-            ILogger<StarboardService> log)
+            ILogger<StarboardService> log,
+            DiscordSocketClient client)
         {
             _cache = cache;
             _starRepo = starRepo;
             _log = log;
+            _client = client;
         }
 
         private static bool IsStarEmote(IEmote emote)
             => emote.Name == STAR_EMOTE;
+        
+        public async Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg)
+        {
+            // Just check if the message is a starboard message. If so we remove it and add it to the 
+            // don't post again list. Simple and easy
+            
+            var starmsg = await _starRepo.GetStarboardMessage(msg.Id).ConfigureAwait(false);
+            // This means its not in the DB so we don't care about it essentially
+            if (!starmsg.HasValue) 
+                return;
+
+            var guild = _client.GetGuild(starmsg.Value.GuildId);
+            var starboardInfo = await _starRepo.GetStarboardInfo(guild.Id).ConfigureAwait(false);
+            if (!starboardInfo.HasValue) return;
+
+            var starboardChannel = guild.GetTextChannel(starboardInfo.Value.starboardChannelId) as ITextChannel;
+            if (starboardChannel == null) return;
+
+            await this.RemoveStarboardMessage(msg.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                .ConfigureAwait(false);
+        }
         
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
@@ -120,14 +144,14 @@ namespace SoraBot.Services.ReactionHandlers
                 // This means its not in the DB so we don't care about it essentially
                 if (!starmsg.HasValue) 
                     return;
-                await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                await this.RemoveStarboardMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
                     .ConfigureAwait(false);
             }
             
             this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
         }
         
-        private async Task RemoveStarboadMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
+        private async Task RemoveStarboardMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
         {
             // Remove it from DB and Cache :)
             await this.RemoveStarboardMessageFromCacheAndDb(messageId, postedMessageId).ConfigureAwait(false);
@@ -291,10 +315,5 @@ namespace SoraBot.Services.ReactionHandlers
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),
                     this._messageCacheTtl)
                 .ConfigureAwait(false);
-
-        public Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
