@@ -66,6 +66,9 @@ namespace SoraBot.Services.Cache
             _discordCache.TryRemove(id, out _);
             return Maybe.Zero<T>();
         }
+
+        public bool Contains(ulong id) => _discordCache.ContainsKey(id);
+
         #endregion
 
         // Here on the other hand we WILL throw. Because this is a MAJOR fuckup if the item

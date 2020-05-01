@@ -15,6 +15,9 @@ namespace SoraBot.Services.Cache
         Maybe<T> Get<T>(string id);
         Maybe<T> Get<T>(ulong id);
 
+        bool Contains(ulong id);
+        bool Contains(string id);
+
         /// <summary>
         /// Tries to get the value out of the cache first. If it cant it will use the set function to get and cache it.
         /// </summary>
