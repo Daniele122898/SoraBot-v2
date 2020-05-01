@@ -20,6 +20,7 @@ namespace SoraBot.Services.ReactionHandlers
 
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
+        private readonly TimeSpan _userRatelimitTtl = TimeSpan.FromMinutes(30);
 
         private readonly ICacheService _cache;
         private readonly IStarboardRepository _starRepo;
@@ -37,69 +38,15 @@ namespace SoraBot.Services.ReactionHandlers
 
         private static bool IsStarEmote(IEmote emote)
             => emote.Name == STAR_EMOTE;
-
-        public async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
-        {
-            if (!IsStarEmote(reaction.Emote)) return;
-            // Abort if its in the "do not post again" cache
-            if (_cache.Contains(DoNotPostId(msg.Id))) return;
-            
-            // Try get message
-            var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
-            if (message == null) return;
-            
-            // Check if this is in a guild and not DMs
-            if (!(message.Channel is IGuildChannel channel)) return;
-            var guildInfo = await _starRepo.GetStarboardInfo(channel.GuildId).ConfigureAwait(false);
-            // This means that either there is no guild in the DB or it has no starboard Channel ID
-            if (!guildInfo.HasValue) return;
-            
-            // Check if still valid channel and if not remove the values from the DB
-            var starboardChannel = await this
-                .IsValidChannelAndRemoveIfNot(guildInfo.Value.starboardChannelId, channel.Guild).ConfigureAwait(false);
-            if (starboardChannel == null) return;
-            
-            // Check if still above threshold so we just update the count
-            var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
-            if (reactionCount >= guildInfo.Value.threshold)
-            {
-                await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false);
-                return;                
-            }
-            // Below threshold so we remove it from the Starboard and add it to the list of
-            // never to be added again messages. (at least during runtime)
-            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
-            // This means its not in the DB so we don't care about it essentially
-            if (!starmsg.HasValue) 
-                return;
-            await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
-                .ConfigureAwait(false);
-        }
-
-        private async Task RemoveStarboadMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
-        {
-            // Remove it from DB and Cache :)
-            await this.RemoveStarboardMessageFromCacheAndDb(messageId, postedMessageId).ConfigureAwait(false);
-            // Physically remove the message now
-            var postedMsg = await this.GetStarboardMessage(postedMessageId, starboardChannel).ConfigureAwait(false);
-            if (!postedMsg.HasValue) return; // Msg doesn't exist anymore
-            try
-            {
-                await postedMsg.Value.DeleteAsync().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _log.LogError(e, "Failed to remove starboard message");
-            }
-            // Add it to the cache to never be added again
-            _cache.Set(DoNotPostId(messageId), null);
-        }
         
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
             if (_cache.Contains(DoNotPostId(msg.Id))) return;
+            
+            // Check if user reached his post ratelimit
+            if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
             
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
@@ -131,7 +78,86 @@ namespace SoraBot.Services.ReactionHandlers
             
             // We've handled the users Reaction. Let's keep track of it. A user is only allowed to react to a message TWICE
             // This means he can add and remove the star. After that his actions will be ignored
+            this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
             
+        }
+        
+        public async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
+        {
+            if (!IsStarEmote(reaction.Emote)) return;
+            // Abort if its in the "do not post again" cache
+            if (_cache.Contains(DoNotPostId(msg.Id))) return;
+            
+            // Check if user reached his post ratelimit
+            if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
+            
+            // Try get message
+            var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
+            if (message == null) return;
+            
+            // Check if this is in a guild and not DMs
+            if (!(message.Channel is IGuildChannel channel)) return;
+            var guildInfo = await _starRepo.GetStarboardInfo(channel.GuildId).ConfigureAwait(false);
+            // This means that either there is no guild in the DB or it has no starboard Channel ID
+            if (!guildInfo.HasValue) return;
+            
+            // Check if still valid channel and if not remove the values from the DB
+            var starboardChannel = await this
+                .IsValidChannelAndRemoveIfNot(guildInfo.Value.starboardChannelId, channel.Guild).ConfigureAwait(false);
+            if (starboardChannel == null) return;
+            
+            // Check if still above threshold so we just update the count
+            var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
+            if (reactionCount >= guildInfo.Value.threshold)
+            {
+                await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false);
+                return;                
+            }
+            // Below threshold so we remove it from the Starboard and add it to the list of
+            // never to be added again messages. (at least during runtime)
+            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
+            // This means its not in the DB so we don't care about it essentially
+            if (!starmsg.HasValue) 
+                return;
+            await this.RemoveStarboadMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                .ConfigureAwait(false);
+            
+            this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
+        }
+        
+        private async Task RemoveStarboadMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
+        {
+            // Remove it from DB and Cache :)
+            await this.RemoveStarboardMessageFromCacheAndDb(messageId, postedMessageId).ConfigureAwait(false);
+            // Physically remove the message now
+            var postedMsg = await this.GetStarboardMessage(postedMessageId, starboardChannel).ConfigureAwait(false);
+            if (!postedMsg.HasValue) return; // Msg doesn't exist anymore
+            try
+            {
+                await postedMsg.Value.DeleteAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                _log.LogError(e, "Failed to remove starboard message");
+            }
+            // Add it to the cache to never be added again
+            _cache.Set(DoNotPostId(messageId), null);
+        }
+
+        private bool UserRateLimitReached(ulong messageId, ulong userId)
+        {
+            var reactCount = _cache.Get<int>(UserMessageReactCountId(messageId, userId));
+            if (reactCount.HasValue && reactCount.Value >= 2) return true;
+            return false;
+        }
+
+        private void AddOrUpdateRateLimit(ulong messageId, ulong userId)
+        {
+            _cache.AddOrUpdate(UserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
+            {
+                int amount = (int) item.Content;
+                return new CacheItem(amount + 1, _userRatelimitTtl); // Let's refresh the TTL on update
+            });
         }
         
         private async Task<IUserMessage> TryGetMessageAndValidate(Cacheable<IUserMessage, ulong> msg, ulong reactionUserId)
