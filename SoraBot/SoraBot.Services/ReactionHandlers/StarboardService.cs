@@ -15,7 +15,8 @@ namespace SoraBot.Services.ReactionHandlers
     public class StarboardService : IStarboardService
     {
         public const string STAR_EMOTE = "⭐";
-        public const string DO_NOT_POST_AGAIN = "star:";
+        public string DoNotPostId(ulong messageId) => "star:" + messageId.ToString();
+        public string UserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
 
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
@@ -41,7 +42,7 @@ namespace SoraBot.Services.ReactionHandlers
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(DO_NOT_POST_AGAIN + msg.Id.ToString())) return;
+            if (_cache.Contains(DoNotPostId(msg.Id))) return;
             
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
@@ -91,14 +92,14 @@ namespace SoraBot.Services.ReactionHandlers
                 _log.LogError(e, "Failed to remove starboard message");
             }
             // Add it to the cache to never be added again
-            _cache.Set(DO_NOT_POST_AGAIN + messageId.ToString(), null);
+            _cache.Set(DoNotPostId(messageId), null);
         }
         
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(DO_NOT_POST_AGAIN + msg.Id.ToString())) return;
+            if (_cache.Contains(DoNotPostId(msg.Id))) return;
             
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
@@ -127,6 +128,10 @@ namespace SoraBot.Services.ReactionHandlers
                     .ConfigureAwait(false);
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
+            
+            // We've handled the users Reaction. Let's keep track of it. A user is only allowed to react to a message TWICE
+            // This means he can add and remove the star. After that his actions will be ignored
+            
         }
         
         private async Task<IUserMessage> TryGetMessageAndValidate(Cacheable<IUserMessage, ulong> msg, ulong reactionUserId)
