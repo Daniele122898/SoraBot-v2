@@ -16,7 +16,7 @@ namespace SoraBot.Services.ReactionHandlers
     {
         public const string STAR_EMOTE = "⭐";
         public const string DO_NOT_POST_AGAIN = "star:";
-        
+
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
 
@@ -60,27 +60,7 @@ namespace SoraBot.Services.ReactionHandlers
 
             // Channel is setup and exists and msg exceed threshold.
             // Check if message is already posted
-            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
-            if (starmsg.HasValue)
-            {
-                // Check if message still exists
-                var starMessage = await this.GetStarboardMessage(starmsg.Value.PostedMsgId, starboardChannel)
-                    .ConfigureAwait(false);
-                if (starMessage.HasValue)
-                {                    
-                    // Update message
-                    await starMessage.Value.ModifyAsync(x =>
-                    {
-                        x.Content = $"**{reactionCount.ToString()}** {STAR_EMOTE}";
-                    }).ConfigureAwait(false);
-                }
-                else
-                {
-                    // Remove the message from the cache and from the repo
-                    await this.RemoveStarboardMessageFromCacheAndDb(starmsg.Value.MessageId, starmsg.Value.PostedMsgId).ConfigureAwait(false);
-                }
-            }
-            else
+            if (!await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false))
             {
                 // Post the message
                 var postedMsg = await this.PostAndCacheMessage(message, starboardChannel, reactionCount)
@@ -88,12 +68,36 @@ namespace SoraBot.Services.ReactionHandlers
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
         }
-        
-        private async Task UpdatePostedMessage(StarboardMessage msg)
+
+        private async Task<bool> TryUpdatePostedMessage(IUserMessage message, ITextChannel starboardChannel,
+            int reactionCount)
         {
+            var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
+            if (!starmsg.HasValue)
+                return false;
+
+            // Check if message still exists
+            var starMessage = await this.GetStarboardMessage(starmsg.Value.PostedMsgId, starboardChannel)
+                .ConfigureAwait(false);
+            if (starMessage.HasValue)
+            {
+                // Update message
+                await starMessage.Value
+                    .ModifyAsync(x => { x.Content = $"**{reactionCount.ToString()}** {STAR_EMOTE}"; })
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                // Remove the message from the cache and from the repo
+                await this.RemoveStarboardMessageFromCacheAndDb(starmsg.Value.MessageId, starmsg.Value.PostedMsgId)
+                    .ConfigureAwait(false);
+            }
+
+            return true;
         }
 
-        private async Task<IUserMessage> PostAndCacheMessage(IUserMessage msg, ITextChannel starboardChannel, int reactionCount)
+        private async Task<IUserMessage> PostAndCacheMessage(IUserMessage msg, ITextChannel starboardChannel,
+            int reactionCount)
         {
             var eb = new EmbedBuilder()
             {
@@ -107,18 +111,18 @@ namespace SoraBot.Services.ReactionHandlers
             if (!TryAddImageAttachment(msg, eb)) // First check if there's an attached image
                 if (!TryAddImageLink(msg, eb)) // Check if there's an image link
                     TryAddArticleThumbnail(msg, eb); // Is it a link?
-            
+
             // Otherwise make a normal embed
             if (!string.IsNullOrWhiteSpace(msg.Content))
                 eb.WithDescription(msg.Content);
 
             eb.AddField("Posted in", $"[#{msg.Channel.Name} (take me!)]({msg.GetJumpUrl()})");
             eb.WithTimestamp(msg.Timestamp);
-            
+
             var postedMsg = await starboardChannel
                 .SendMessageAsync($"**{reactionCount.ToString()}** {STAR_EMOTE}", embed: eb.Build())
                 .ConfigureAwait(false);
-            
+
             _cache.Set(postedMsg.Id, postedMsg, _postedMsgTtl);
             return postedMsg;
         }
@@ -156,9 +160,11 @@ namespace SoraBot.Services.ReactionHandlers
 
         private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
-            var msg = (IUserMessage) await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload);
-            if (msg == null) return Maybe.Zero<IUserMessage>();
-            return Maybe.FromVal(msg);
+            return await _cache.TryGetOrSetAndGetAsync(
+                messageId,
+                async () => await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload)
+                    .ConfigureAwait(false) as IUserMessage,
+                _postedMsgTtl).ConfigureAwait(false);
         }
 
         private async Task<int> GetReactionCount(IUserMessage msg, IEmote emote)
