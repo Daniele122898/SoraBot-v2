@@ -15,8 +15,6 @@ namespace SoraBot.Services.ReactionHandlers
     public class StarboardService : IStarboardService
     {
         public const string STAR_EMOTE = "⭐";
-        public static string DoNotPostId(ulong messageId) => "star:" + messageId.ToString();
-        public static string UserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
 
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
@@ -67,7 +65,7 @@ namespace SoraBot.Services.ReactionHandlers
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(DoNotPostId(msg.Id))) return;
+            if (_cache.Contains(CacheID.StarboardDoNotPostId(msg.Id))) return;
             
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
@@ -110,7 +108,7 @@ namespace SoraBot.Services.ReactionHandlers
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(DoNotPostId(msg.Id))) return;
+            if (_cache.Contains(CacheID.StarboardDoNotPostId(msg.Id))) return;
             
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
@@ -167,19 +165,19 @@ namespace SoraBot.Services.ReactionHandlers
                 _log.LogError(e, "Failed to remove starboard message");
             }
             // Add it to the cache to never be added again
-            _cache.Set(DoNotPostId(messageId), null);
+            _cache.Set(CacheID.StarboardDoNotPostId(messageId), null);
         }
 
         private bool UserRateLimitReached(ulong messageId, ulong userId)
         {
-            var reactCount = _cache.Get<int>(UserMessageReactCountId(messageId, userId));
+            var reactCount = _cache.Get<int>(CacheID.StarboardUserMessageReactCountId(messageId, userId));
             if (reactCount.HasValue && reactCount.Value >= 2) return true;
             return false;
         }
 
         private void AddOrUpdateRateLimit(ulong messageId, ulong userId)
         {
-            _cache.AddOrUpdate(UserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
+            _cache.AddOrUpdate(CacheID.StarboardUserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
             {
                 int amount = (int) item.Content;
                 return new CacheItem(amount + 1, _userRatelimitTtl); // Let's refresh the TTL on update

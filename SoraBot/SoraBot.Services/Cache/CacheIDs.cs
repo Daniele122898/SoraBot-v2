@@ -13,6 +13,13 @@
     public static class CacheID
     {
         public const string WAIFU_RARITY_STATISTICS = "wrs";
-        public static ulong GetPrefixCacheId(ulong guildId) => guildId;
+        public static ulong PrefixCacheId(ulong guildId) => guildId;
+        public static string BgCooldownId(ulong userId) => "setbg:" + userId.ToString();
+        public static string StarboardDoNotPostId(ulong messageId) => "star:" + messageId.ToString();
+        public static string StarboardUserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
+        public static string GetGuildUser(ulong userId, ulong guildId) => userId.ToString() + guildId.ToString();
+        public static ulong GetUser(ulong userId) => userId;
+
+
     }
 }

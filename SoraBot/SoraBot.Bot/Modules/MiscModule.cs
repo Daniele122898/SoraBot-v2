@@ -19,7 +19,7 @@ namespace SoraBot.Bot.Modules
             _config = conf?.Value ?? throw new ArgumentNullException(nameof(conf));
         }
 
-        [Command("inivite"), Alias("inv")]
+        [Command("invite"), Alias("inv")]
         [Summary("Gives you the invite link to invite Sora")]
         public async Task InviteSora()
             => await ReplyEmbed(new EmbedBuilder()
