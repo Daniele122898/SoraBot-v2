@@ -59,6 +59,9 @@ namespace SoraBot.Services.Core
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _client.MessageReceived -= OnMessageReceivedAsnyc;
+            _client.ReactionAdded -= OnReactionAdded;
+            _client.ReactionRemoved -= OnReactionRemoved;
+            _client.ReactionsCleared -= OnReactionsCleared;
 
             return Task.CompletedTask;
         }
