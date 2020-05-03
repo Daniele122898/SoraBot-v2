@@ -15,8 +15,8 @@ namespace SoraBot.Services.ReactionHandlers
     public class StarboardService : IStarboardService
     {
         public const string STAR_EMOTE = "⭐";
-        public string DoNotPostId(ulong messageId) => "star:" + messageId.ToString();
-        public string UserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
+        public static string DoNotPostId(ulong messageId) => "star:" + messageId.ToString();
+        public static string UserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
 
         private readonly TimeSpan _messageCacheTtl = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _postedMsgTtl = TimeSpan.FromHours(1);
