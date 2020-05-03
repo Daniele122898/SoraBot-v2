@@ -5,6 +5,9 @@ using Discord.WebSocket;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
+using SoraBot.Services.Cache;
+using SoraBot.Services.ReactionHandlers;
+using IMessage = Discord.IMessage;
 
 namespace SoraBot.Services.Core
 {
@@ -12,13 +15,16 @@ namespace SoraBot.Services.Core
     {
         private readonly DiscordSocketClient _client;
         private readonly IMessageBroker _broker;
+        private readonly ICacheService _cacheService;
 
         public DiscordSocketCoreListeningBehavior(
             DiscordSocketClient client,
-            IMessageBroker broker)
+            IMessageBroker broker,
+            ICacheService cacheService)
         {
             _client = client;
             _broker = broker;
+            _cacheService = cacheService;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -27,7 +33,17 @@ namespace SoraBot.Services.Core
             _client.ReactionAdded += OnReactionAdded;
             _client.ReactionRemoved += OnReactionRemoved;
             _client.ReactionsCleared += OnReactionsCleared;
+            _client.MessageDeleted += OnMessageDeleted;
 
+            return Task.CompletedTask;
+        }
+
+        private Task OnMessageDeleted(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
+        {
+            // There's no need to dispatch an event yet internally so no need for async state machines
+            // and threading. That's just overhead we dont need atm for just cleaning some caches.
+            _cacheService.TryRemove(message.Id);
+            _cacheService.TryRemove(StarboardService.DoNotPostId(message.Id));
             return Task.CompletedTask;
         }
 
@@ -62,6 +78,7 @@ namespace SoraBot.Services.Core
             _client.ReactionAdded -= OnReactionAdded;
             _client.ReactionRemoved -= OnReactionRemoved;
             _client.ReactionsCleared -= OnReactionsCleared;
+            _client.MessageDeleted -= OnMessageDeleted;
 
             return Task.CompletedTask;
         }
