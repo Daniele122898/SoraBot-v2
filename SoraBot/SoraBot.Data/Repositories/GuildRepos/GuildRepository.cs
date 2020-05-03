@@ -44,6 +44,15 @@ namespace SoraBot.Data.Repositories.GuildRepos
                 => await context.Guilds.FindAsync(id).ConfigureAwait(false)
             ).ConfigureAwait(false);
 
+        public async Task RemoveGuild(ulong id)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var guild = await context.Guilds.FindAsync(id).ConfigureAwait(false);
+                if (guild == null) return;
+                context.Guilds.Remove(guild);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
         /// <summary>
         /// Tries to find a Guild and if it can't it'll create one and already save! 
         /// </summary>
