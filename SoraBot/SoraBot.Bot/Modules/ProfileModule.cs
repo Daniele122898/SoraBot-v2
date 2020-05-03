@@ -44,12 +44,6 @@ namespace SoraBot.Bot.Modules
             _log = log;
         }
 
-        private bool LinkIsNoImage(string url)
-            => !url.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) &&
-               !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase) &&
-               !url.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) &&
-               !url.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase);
-
         [Command("removebg"), Alias("rmbg")]
         [Summary("Remove your custom profile card background to reset it to the default")]
         public async Task RemoveBg()
@@ -82,7 +76,7 @@ namespace SoraBot.Bot.Modules
                 url = Context.Message.Attachments.First().Url;
             }
             // Check if URL is valid
-            if (LinkIsNoImage(url))
+            if (Helper.LinkIsNoImage(url))
             {
                 await ReplyFailureEmbedExtended("The provided link or attachment is not an image!",
                     "Make sure the link ends with any of these extensions: `.jpg, .png, .gif, .jpeg`");

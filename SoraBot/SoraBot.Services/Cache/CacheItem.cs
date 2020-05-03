@@ -12,6 +12,12 @@ namespace SoraBot.Services.Cache
             this.Content = content;
             this.ValidUntil = validUntil;
         }
+        
+        public CacheItem(object content, in TimeSpan timeSpan)
+        {
+            this.Content = content;
+            this.ValidUntil = DateTime.UtcNow.Add(timeSpan);
+        }
 
         public bool IsValid()
         {

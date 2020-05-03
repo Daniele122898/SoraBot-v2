@@ -11,7 +11,7 @@ namespace SoraBot.Services.Cache
             _customCache.TryGetValue(id, out var item);
             if (item == null) return Maybe.Zero<object>();
             if (item.IsValid()) return Maybe.FromVal<object>(item);
-            
+
             _customCache.TryRemove(id, out _);
             return Maybe.Zero<object>();
         }
@@ -20,11 +20,13 @@ namespace SoraBot.Services.Cache
         {
             _customCache.TryGetValue(id, out var item);
             if (item == null) return Maybe.Zero<T>();
-            if (item.IsValid()) return Maybe.FromVal<T>((T)item.Content);
-            
+            if (item.IsValid()) return Maybe.FromVal<T>((T) item.Content);
+
             _customCache.TryRemove(id, out _);
             return Maybe.Zero<T>();
         }
+
+        public bool Contains(string id) => _customCache.ContainsKey(id);
 
         public Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null)
         {
@@ -36,9 +38,14 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal<T>(await GetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false));
         }
 
+        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
+        {
+            return await this.TryGetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false);
+        }
+
         public void Set(string id, object obj, TimeSpan? ttl = null)
         {
-            var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
+            var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?) DateTime.UtcNow.Add(ttl.Value) : null);
             _customCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
 
@@ -52,6 +59,12 @@ namespace SoraBot.Services.Cache
             _customCache.TryRemove(id, out var cacheItem);
             if (cacheItem == null) return Maybe.Zero<T>();
             if (!cacheItem.IsValid()) return Maybe.Zero<T>();
-            return Maybe.FromVal((T) cacheItem.Content);}
+            return Maybe.FromVal((T) cacheItem.Content);
+        }
+
+        public void TryRemove(string id)
+        {
+            _customCache.TryRemove(id, out _);
+        }
     }
 }

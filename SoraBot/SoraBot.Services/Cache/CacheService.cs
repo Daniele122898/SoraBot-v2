@@ -66,6 +66,9 @@ namespace SoraBot.Services.Cache
             _discordCache.TryRemove(id, out _);
             return Maybe.Zero<T>();
         }
+
+        public bool Contains(ulong id) => _discordCache.ContainsKey(id);
+
         #endregion
 
         // Here on the other hand we WILL throw. Because this is a MAJOR fuckup if the item
@@ -82,6 +85,30 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal(await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false));
         }
 
+        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
+        {
+            return await this.TryGetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false);
+        }
+        
+        private async Task<Maybe<TReturn>> TryGetOrSetAndGetAsync<TCacheKey, TReturn>(
+            TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
+            Func<Task<TReturn>> set, TimeSpan? ttl = null)
+        {
+            if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
+            {
+                return Maybe.FromVal((TReturn)item.Content);
+            }
+            // Otherwise we have to set it
+            TReturn result = await set().ConfigureAwait(false);
+            if (result == null)
+            {
+                return Maybe.Zero<TReturn>();
+            }
+            var itemToStore = new CacheItem(result, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
+            cache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
+            return Maybe.FromVal((TReturn) itemToStore.Content);
+        }
+
         public void Set(ulong id, object obj, TimeSpan? ttl = null)
         {
             var itemToStore = new CacheItem(obj, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
@@ -94,6 +121,11 @@ namespace SoraBot.Services.Cache
             if (cacheItem == null) return Maybe.Zero<T>();
             if (!cacheItem.IsValid()) return Maybe.Zero<T>();
             return Maybe.FromVal((T) cacheItem.Content);
+        }
+
+        public void TryRemove(ulong id)
+        {
+            _discordCache.TryRemove(id, out _);
         }
 
         public void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc)
