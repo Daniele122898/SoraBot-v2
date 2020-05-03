@@ -10,7 +10,6 @@ using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Cache;
-using SoraBot.Services.ReactionHandlers;
 using IMessage = Discord.IMessage;
 
 namespace SoraBot.Services.Core
