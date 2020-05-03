@@ -19,6 +19,7 @@
         public static string StarboardUserMessageReactCountId(ulong messageId, ulong userId) => messageId.ToString() + userId.ToString();
         public static string GetGuildUser(ulong userId, ulong guildId) => userId.ToString() + guildId.ToString();
         public static ulong GetUser(ulong userId) => userId;
+        public static ulong GetMessageId(ulong messageId) => messageId;
 
 
     }

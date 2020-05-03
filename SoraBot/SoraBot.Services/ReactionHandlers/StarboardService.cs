@@ -248,7 +248,7 @@ namespace SoraBot.Services.ReactionHandlers
                 .SendMessageAsync($"**{reactionCount.ToString()}** {STAR_EMOTE}", embed: eb.Build())
                 .ConfigureAwait(false);
 
-            _cache.Set(postedMsg.Id, postedMsg, _postedMsgTtl);
+            _cache.Set(CacheID.GetMessageId(postedMsg.Id), postedMsg, _postedMsgTtl);
             return postedMsg;
         }
 
@@ -278,15 +278,15 @@ namespace SoraBot.Services.ReactionHandlers
 
         private async Task RemoveStarboardMessageFromCacheAndDb(ulong messageId, ulong postedMessageId)
         {
-            _cache.TryRemove<object>(messageId);
-            _cache.TryRemove<object>(postedMessageId);
+            _cache.TryRemove<object>(CacheID.GetMessageId(messageId));
+            _cache.TryRemove<object>(CacheID.GetMessageId(postedMessageId));
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
         private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
             return await _cache.TryGetOrSetAndGetAsync(
-                messageId,
+                CacheID.GetMessageId(messageId),
                 async () => await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload)
                     .ConfigureAwait(false) as IUserMessage,
                 _postedMsgTtl).ConfigureAwait(false);
@@ -309,7 +309,7 @@ namespace SoraBot.Services.ReactionHandlers
 
         private async Task<Maybe<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
             => await _cache.TryGetOrSetAndGetAsync(
-                    msg.Id,
+                    CacheID.GetMessageId(msg.Id),
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),
                     this._messageCacheTtl)
                 .ConfigureAwait(false);
