@@ -23,5 +23,6 @@ namespace SoraBot.Data.Models.SoraDb
 
         public virtual Starboard Starboard { get; set; }
         public virtual ICollection<StarboardMessage> StarboardMessages { get; set; }
+        public virtual ICollection<GuildUser> GuildUsers { get; set; }
     }
 }
