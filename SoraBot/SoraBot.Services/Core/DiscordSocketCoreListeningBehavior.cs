@@ -34,7 +34,16 @@ namespace SoraBot.Services.Core
             _client.ReactionRemoved += OnReactionRemoved;
             _client.ReactionsCleared += OnReactionsCleared;
             _client.MessageDeleted += OnMessageDeleted;
+            _client.UserLeft += OnUserLeft;
 
+            return Task.CompletedTask;
+        }
+
+        private Task OnUserLeft(SocketGuildUser user)
+        {
+            // When a user leaves a guild there's a possibility that Sora lost reach of him.
+            // Thus we just clear him out of the cache
+            _cacheService.TryRemove(user.Id);
             return Task.CompletedTask;
         }
 
