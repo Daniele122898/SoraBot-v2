@@ -61,5 +61,10 @@ namespace SoraBot.Services.Cache
             if (!cacheItem.IsValid()) return Maybe.Zero<T>();
             return Maybe.FromVal((T) cacheItem.Content);
         }
+
+        public void TryRemove(string id)
+        {
+            _customCache.TryRemove(id, out _);
+        }
     }
 }

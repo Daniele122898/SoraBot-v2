@@ -123,6 +123,11 @@ namespace SoraBot.Services.Cache
             return Maybe.FromVal((T) cacheItem.Content);
         }
 
+        public void TryRemove(ulong id)
+        {
+            _discordCache.TryRemove(id, out _);
+        }
+
         public void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc)
         {
             this._discordCache.AddOrUpdate(id, addItem, updateFunc);
