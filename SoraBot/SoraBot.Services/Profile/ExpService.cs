@@ -30,7 +30,7 @@ namespace SoraBot.Services.Profile
         }
         
         public static string GetGuildExpCacheId(ulong guildId, ulong userId)
-            => guildId.ToString() + userId.ToString();
+            => $"{guildId.ToString()}:{userId.ToString()}";
         
         private readonly RandomNumberService _rand;
         private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -79,6 +79,14 @@ namespace SoraBot.Services.Profile
                     // Otherwise write new EXP into user DB
                     await userRepo.TryAddUserExp(key, wb.AdditionalExp).ConfigureAwait(false);
                 }
+                var guildRepo = scope.ServiceProvider.GetRequiredService<IGuildRepository>();
+                var guildUserKeys = _guildExpCache.Keys;
+                foreach (var key in guildUserKeys)
+                {
+                    _guildExpCache.TryRemove(key, out var wb);
+                    var ids = key.Split(":");
+                    await guildRepo.TryAddGuildUserExp(ulong.Parse(ids[0]), ulong.Parse(ids[1]), wb).ConfigureAwait(false);
+                }                
             }
             catch (Exception e)
             {
