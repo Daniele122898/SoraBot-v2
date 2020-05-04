@@ -10,5 +10,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task<bool> SetGuildPrefix(ulong id, string prefix);
         Task<Maybe<Guild>> GetOrSetAndGetGuild(ulong id);
         Task<Guild> GetGuild(ulong id);
+        Task RemoveGuild(ulong id);
+        Task TryAddGuildUserExp(ulong guildId, ulong userId, uint expToAdd);
     }
 }

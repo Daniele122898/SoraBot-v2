@@ -19,7 +19,7 @@ namespace SoraBot.Services.Waifu
 
         public async Task<Dictionary<WaifuRarity, int>> GetTotalWaifuRarityStats()
         {
-            return (await _cacheService.GetOrSetAndGetAsync(CustomCacheStringIDs.WAIFU_RARITY_STATISTICS, async () =>
+            return (await _cacheService.GetOrSetAndGetAsync(CacheID.WAIFU_RARITY_STATISTICS, async () =>
             {
                 var allWaifus = await this.GetAllWaifus().ConfigureAwait(false);
 

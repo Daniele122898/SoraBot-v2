@@ -21,6 +21,8 @@ namespace SoraBot.Data
         public DbSet<UserWaifu> UserWaifus { get; set; }
 
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<GuildUser> GuildUsers { get; set; }
+        
         public DbSet<Starboard> Starboards { get; set; }
         public DbSet<StarboardMessage> StarboardMessages { get; set; }
 
@@ -28,6 +30,7 @@ namespace SoraBot.Data
         {
             builder.AddWaifuRelations();
             builder.AddStarboardRelations();
+            builder.AddGuildRelations();
         }
     }
 }

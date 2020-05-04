@@ -29,6 +29,9 @@ namespace SoraBot.Services.Profile
             return (uint)Math.Pow((lvl/0.15F), 2.0);
         }
         
+        public static string GetGuildExpCacheId(ulong guildId, ulong userId)
+            => $"{guildId.ToString()}:{userId.ToString()}";
+        
         private readonly RandomNumberService _rand;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<ExpService> _log;
@@ -36,6 +39,8 @@ namespace SoraBot.Services.Profile
 
         private readonly ConcurrentDictionary<ulong, UserExpGain> _expCache =
             new ConcurrentDictionary<ulong, UserExpGain>();
+        
+        private readonly ConcurrentDictionary<string, uint> _guildExpCache = new ConcurrentDictionary<string, uint>();
 
         
         private const uint _USER_EXP_GAIN = 10;
@@ -74,6 +79,14 @@ namespace SoraBot.Services.Profile
                     // Otherwise write new EXP into user DB
                     await userRepo.TryAddUserExp(key, wb.AdditionalExp).ConfigureAwait(false);
                 }
+                var guildRepo = scope.ServiceProvider.GetRequiredService<IGuildRepository>();
+                var guildUserKeys = _guildExpCache.Keys;
+                foreach (var key in guildUserKeys)
+                {
+                    _guildExpCache.TryRemove(key, out var wb);
+                    var ids = key.Split(":");
+                    await guildRepo.TryAddGuildUserExp(ulong.Parse(ids[0]), ulong.Parse(ids[1]), wb).ConfigureAwait(false);
+                }                
             }
             catch (Exception e)
             {
@@ -90,13 +103,13 @@ namespace SoraBot.Services.Profile
             }
         }
 
-
         public Task TryGiveUserExp(SocketMessage msg, SocketGuildChannel channel)
         {
             var user = msg.Author;
             // Before we update anything we check if the user can gain again. 
             // We do this here instead of the addOrUpdate such that we do not incur
             // The high locking costs as well as needless memory write or access
+            // We also use the same cooldown for Guild EXP as Global EXP. just makes life easier :)
             _expCache.TryGetValue(user.Id, out var userExpGain);
             if (userExpGain != null &&
                 userExpGain.LastExpGain.AddSeconds(_USER_EXP_COOLDOWN_SECS) > DateTime.UtcNow)
@@ -109,7 +122,13 @@ namespace SoraBot.Services.Profile
                 user.Id,
                 this.CreateNewExpItem(),
                 UpdateExistingExpItm);
-
+            
+            // Also add GuildExp cache :D - No need to keep track of cooldown etc so much simpler cache ;)
+            _guildExpCache.AddOrUpdate(
+                GetGuildExpCacheId(channel.Guild.Id, user.Id),
+                _USER_EXP_GAIN,
+                (key, exp) => exp + _USER_EXP_GAIN);
+            
             return Task.CompletedTask;
         }
 

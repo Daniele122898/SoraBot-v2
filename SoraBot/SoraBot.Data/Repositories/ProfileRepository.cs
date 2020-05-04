@@ -24,15 +24,27 @@ namespace SoraBot.Data.Repositories
                 var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
                 if (user == null) return Maybe.Zero<ProfileImageGenDto>();
 
-                var rank = await context.Users
+                var globalRank = await context.Users
                     .Where(u => u.Exp > user.Exp)
-                    .CountAsync();
+                    .CountAsync()
+                    .ConfigureAwait(false);
 
+                var guildUser = await context.GuildUsers
+                    .FirstOrDefaultAsync(x => x.UserId == userId && x.GuildId == guildId)
+                    .ConfigureAwait(false);
+
+                var localRank = await context.GuildUsers
+                    .Where(g => g.Exp > guildUser.Exp)
+                    .CountAsync()
+                    .ConfigureAwait(false);
+                    
                 return Maybe.FromVal(new ProfileImageGenDto()
                 {
                     GlobalExp = user.Exp,
-                    GlobalRank = rank + 1,
-                    HasCustomBg = user.HasCustomProfileBg
+                    GlobalRank = globalRank + 1,
+                    HasCustomBg = user.HasCustomProfileBg,
+                    LocalExp = guildUser.Exp,
+                    LocalRank = localRank + 1
                 });
             }).ConfigureAwait(false);
         }

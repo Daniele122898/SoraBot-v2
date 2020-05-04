@@ -28,7 +28,6 @@ namespace SoraBot.Bot.Modules
         private readonly ILogger<ProfileModule> _log;
 
         private const int _SET_BG_COOLDOWN_S = 45;
-        private const string _SET_BG_CD_ID = "setbg:";
 
         public ProfileModule(
             ImageGenerator imgGen, 
@@ -83,7 +82,7 @@ namespace SoraBot.Bot.Modules
                 return;
             }
             // Check cooldown
-            var cd = _cacheService.Get<DateTime>(_SET_BG_CD_ID + Context.User.Id.ToString());
+            var cd = _cacheService.Get<DateTime>(CacheID.BgCooldownId(Context.User.Id));
             if (cd.HasValue)
             {
                 var secondsRemaining = cd.Value.Subtract(DateTime.UtcNow.TimeOfDay).Second;
@@ -117,7 +116,7 @@ namespace SoraBot.Bot.Modules
             // Set BG on user
             await _profileRepo.SetUserHasBgBoolean(Context.User.Id, true);
             // Add cooldown
-            _cacheService.Set(_SET_BG_CD_ID + Context.User.Id.ToString(), DateTime.UtcNow.AddSeconds(_SET_BG_COOLDOWN_S), TimeSpan.FromSeconds(_SET_BG_COOLDOWN_S));
+            _cacheService.Set(CacheID.BgCooldownId(Context.User.Id), DateTime.UtcNow.AddSeconds(_SET_BG_COOLDOWN_S), TimeSpan.FromSeconds(_SET_BG_COOLDOWN_S));
 
             await ReplySuccessEmbed("Successfully updated your profile card background :>");
         }
@@ -151,16 +150,21 @@ namespace SoraBot.Bot.Modules
                     $"{user.Id.ToString()}.png");
 
                 var us = userStatsM.Value;
-                var lvl = ExpService.CalculateLevel(us.GlobalExp);
+                var globalLevel = ExpService.CalculateLevel(us.GlobalExp);
+                var localLevel = ExpService.CalculateLevel(us.LocalExp);
                 _imgGen.GenerateProfileImage(new ProfileImageGenDto()
                 {
                     UserId = user.Id,
                     Name = user.Username,
                     GlobalExp = us.GlobalExp,
-                    GlobalLevel = lvl,
+                    GlobalLevel = globalLevel,
                     GlobalRank = us.GlobalRank,
-                    GlobalNextLevelExp = ExpService.CalculateNeededExp(lvl + 1),
-                    HasCustomBg = us.HasCustomBg
+                    GlobalNextLevelExp = ExpService.CalculateNeededExp(globalLevel + 1),
+                    HasCustomBg = us.HasCustomBg,
+                    LocalExp = us.LocalExp,
+                    LocalRank = us.LocalRank,
+                    LocalLevel = localLevel,
+                    LocalNextLevelExp = ExpService.CalculateNeededExp(localLevel + 1)
                 }, filePath);
                 await Context.Channel.SendFileAsync(filePath);
             }

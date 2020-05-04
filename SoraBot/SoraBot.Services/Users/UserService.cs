@@ -27,7 +27,7 @@ namespace SoraBot.Services.Users
         {
             var user = (IUser)_client.GetUser(id);
             if (user != null) return Maybe.FromVal(user);
-            var userM = _cacheService.Get<IUser>(id);
+            var userM = _cacheService.Get<IUser>(CacheID.GetUser(id));
             return userM;
         }
 
@@ -35,7 +35,7 @@ namespace SoraBot.Services.Users
         {
             var user = (IGuildUser)_client.GetGuild(guildId).GetUser(userId);
             if (user != null) return Maybe.FromVal(user);
-            var userM = _cacheService.Get<IGuildUser>(userId.ToString() + guildId.ToString());
+            var userM = _cacheService.Get<IGuildUser>(CacheID.GetGuildUser(userId, guildId));
             return userM;
         }
 
@@ -47,7 +47,7 @@ namespace SoraBot.Services.Users
             var userResp = await _restClient.GetUserAsync(id).ConfigureAwait(false);
             if (userResp == null) return Maybe.Zero<IUser>();
             // Otherwise we save it
-            _cacheService.Set(id, user, TimeSpan.FromMinutes(_USER_TTL_MINS));
+            _cacheService.Set(CacheID.GetUser(id), user, TimeSpan.FromMinutes(_USER_TTL_MINS));
             return Maybe.FromVal<IUser>(userResp);
         }
 
@@ -59,7 +59,7 @@ namespace SoraBot.Services.Users
             var userResp = await _restClient.GetGuildUserAsync(guildId, userId).ConfigureAwait(false);
             if (userResp == null) return Maybe.Zero<IGuildUser>();
             // Otherwise set cache
-            _cacheService.Set(userId.ToString() + guildId.ToString(), user, TimeSpan.FromMinutes(_USER_TTL_MINS));
+            _cacheService.Set(CacheID.GetGuildUser(userId, guildId), user, TimeSpan.FromMinutes(_USER_TTL_MINS));
             return Maybe.FromVal<IGuildUser>(userResp);
         }
     }

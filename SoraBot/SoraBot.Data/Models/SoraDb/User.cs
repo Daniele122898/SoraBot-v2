@@ -19,6 +19,7 @@ namespace SoraBot.Data.Models.SoraDb
         public bool HasCustomProfileBg { get; set; } = false;
         
         public virtual ICollection<UserWaifu> UserWaifus { get; set; }
+        public virtual ICollection<GuildUser> GuildUsers { get; set; }
         public virtual Waifu FavoriteWaifu { get; set; }
 
     }
