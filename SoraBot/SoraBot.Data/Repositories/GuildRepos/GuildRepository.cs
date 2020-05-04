@@ -53,6 +53,29 @@ namespace SoraBot.Data.Repositories.GuildRepos
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
+        public async Task TryAddGuildUserExp(ulong guildId, ulong userId, uint expToAdd)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var user = await GetOrCreateGuildUser(guildId, userId, context).ConfigureAwait(false);
+                user.Exp += expToAdd;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+        /// <summary>
+        /// Tries to get a GuildUser. If it cannot find one it creates one and adds it to the guildUser Dbset to be tracked.
+        /// This does NOT save tho!
+        /// </summary>
+        public static async Task<GuildUser> GetOrCreateGuildUser(ulong guildId, ulong userId, SoraContext context)
+        {
+            var guildUser = await context.GuildUsers
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.GuildId == guildId).ConfigureAwait(false);
+            if (guildUser != null) return guildUser;
+            // Otherwise we create a user and return him
+            guildUser = new GuildUser(userId, guildId, 0);
+            context.GuildUsers.Add(guildUser);
+            return guildUser;
+        }
+        
         /// <summary>
         /// Tries to find a Guild and if it can't it'll create one and already save! 
         /// </summary>
