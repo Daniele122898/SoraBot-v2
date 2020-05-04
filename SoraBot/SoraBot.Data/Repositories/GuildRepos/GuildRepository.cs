@@ -18,7 +18,7 @@ namespace SoraBot.Data.Repositories.GuildRepos
 
         public async Task<string> GetGuildPrefix(ulong id)
             => await _soraTransactor.DoAsync(async context =>
-                await context.Guilds.Where(g => g.Id == id).Select(x => x.Prefix).SingleOrDefaultAsync()
+                await context.Guilds.Where(g => g.Id == id).Select(x => x.Prefix).FirstOrDefaultAsync()
             ).ConfigureAwait(false);
 
         public async Task<bool> SetGuildPrefix(ulong id, string prefix)
