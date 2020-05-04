@@ -23,6 +23,10 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            mb.Entity<GuildUser>()
+                .Property(p => p.Exp)
+                .HasDefaultValue(0);
+
             return mb;
         }
     }
