@@ -56,21 +56,24 @@ namespace SoraBot.Data.Repositories.GuildRepos
         public async Task TryAddGuildUserExp(ulong guildId, ulong userId, uint expToAdd)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
-                var user = await GetOrCreateGuildUser(guildId, userId, context).ConfigureAwait(false);
-                user.Exp += expToAdd;
+                var guildUser = await GetOrCreateGuildUser(guildId, userId, context).ConfigureAwait(false);
+                guildUser.Exp += expToAdd;
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
         /// <summary>
         /// Tries to get a GuildUser. If it cannot find one it creates one and adds it to the guildUser Dbset to be tracked.
         /// This does NOT save tho!
+        /// If it cannot find a user it will CREATE AND SAVE a guild object bcs of the foreign key constraint!
         /// </summary>
         public static async Task<GuildUser> GetOrCreateGuildUser(ulong guildId, ulong userId, SoraContext context)
         {
             var guildUser = await context.GuildUsers
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.GuildId == guildId).ConfigureAwait(false);
             if (guildUser != null) return guildUser;
-            // Otherwise we create a user and return him
+            // First create a guild object if there is none!
+            await GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
+            // Create a user and return him
             guildUser = new GuildUser(userId, guildId, 0);
             context.GuildUsers.Add(guildUser);
             return guildUser;
