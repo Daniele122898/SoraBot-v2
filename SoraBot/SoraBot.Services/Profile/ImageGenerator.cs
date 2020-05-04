@@ -12,15 +12,13 @@ using Path = System.IO.Path;
 
 namespace SoraBot.Services.Profile
 {
-    
-
     public class ImageGenerator : IDisposable
     {
         public const string AVATAR_CACHE = "AvatarCache";
         public const string PROFILE_BG = "ProfileBackgrounds";
         public const string PROFILE_CARDS = "ProfileCards";
         public const string PROFILE_CREATION = "ProfileCreation";
-        
+
         public readonly string ImageGenPath;
 
         private readonly Image<Rgba32> _templateOverlay;
@@ -42,7 +40,7 @@ namespace SoraBot.Services.Profile
             _heavyTitleFont = new Font(fontHeavy, 20.31f, FontStyle.Bold);
             _statsLightFont = new Font(fontHeavy, 13.4f, FontStyle.Bold);
             _statsTinyFont = new Font(fontHeavy, 10.52f, FontStyle.Bold);
-            
+
             // Create accessory directories
             this.CreateImageGenDirectoryIfItDoesntExist(AVATAR_CACHE);
             this.CreateImageGenDirectoryIfItDoesntExist(PROFILE_BG);
@@ -64,18 +62,19 @@ namespace SoraBot.Services.Profile
         public void ResizeAndSaveImage(Stream stream, string path, Size size, ResizeMode resizeMode = ResizeMode.Crop)
         {
             using var img = Image.Load<Rgba32>(stream);
-            img.Mutate(x=> x.Resize(new ResizeOptions()
+            img.Mutate(x => x.Resize(new ResizeOptions()
             {
                 Size = size,
                 Mode = resizeMode
             }));
             img.Save(path);
         }
-        
-        public void ResizeAndSaveImage(string pathToImage, string path, Size size, ResizeMode resizeMode = ResizeMode.Crop)
+
+        public void ResizeAndSaveImage(string pathToImage, string path, Size size,
+            ResizeMode resizeMode = ResizeMode.Crop)
         {
             using var img = Image.Load<Rgba32>(pathToImage);
-            img.Mutate(x=> x.Resize(new ResizeOptions()
+            img.Mutate(x => x.Resize(new ResizeOptions()
             {
                 Size = size,
                 Mode = resizeMode
@@ -85,11 +84,11 @@ namespace SoraBot.Services.Profile
 
         public void GenerateProfileImage(ProfileImageGenDto conf, string outputPath)
         {
-            string backgroundPath = conf.HasCustomBg ? 
-                Path.Combine(ImageGenPath, PROFILE_BG, $"{conf.UserId.ToString()}.png") : 
-                Path.Combine(ImageGenPath, PROFILE_CREATION, "defaultBG.png");
+            string backgroundPath = conf.HasCustomBg
+                ? Path.Combine(ImageGenPath, PROFILE_BG, $"{conf.UserId.ToString()}.png")
+                : Path.Combine(ImageGenPath, PROFILE_CREATION, "defaultBG.png");
             string avatarPath = Path.Combine(ImageGenPath, AVATAR_CACHE, $"{conf.UserId.ToString()}.png");
-            
+
             using var image = new Image<Rgba32>(470, 265);
             this.DrawProfileBackground(backgroundPath, image, new Size(470, 265));
             this.DrawProfileAvatar(avatarPath, image, new Rectangle(7, 6, 42, 42), 21);
@@ -101,28 +100,45 @@ namespace SoraBot.Services.Profile
 
         private void DrawStats(Image<Rgba32> image, ProfileImageGenDto c)
         {
-            // Draw Username
-            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
+            var textGraphicOptionsCenterLeft = new TextGraphicsOptions(true)
             {
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
-            }, c.Name, _heavyTitleFont, Rgba32.White, new Vector2(60, 27)));
+            };
+
+            var textGraphicOptionsCenterRight = new TextGraphicsOptions(true)
+            {
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+
+            // Draw Username
+            image.Mutate(x => x.DrawText(
+                textGraphicOptionsCenterLeft,
+                c.Name,
+                _heavyTitleFont,
+                Rgba32.White,
+                new Vector2(60, 27)));
 
             var blueHighlight = new Rgba32(47, 166, 222);
 
             // Draw global Rank
             var globalStatsText = $"GLOBAL RANK: {c.GlobalRank.ToString()}";
-            var textSize = TextMeasurer.Measure(globalStatsText, new RendererOptions(_statsLightFont, 72));
-            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            }, "GLOBAL RANK: ", _statsLightFont, Rgba32.White, new Vector2(235 - (textSize.Width / 2), 221)));
-            image.Mutate(x => x.DrawText(new TextGraphicsOptions(true)
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Right
-            }, c.GlobalRank.ToString(), _statsLightFont, blueHighlight, new Vector2(235 + (textSize.Width / 2), 221)));
+            var renderOps = new RendererOptions(_statsLightFont, 72);
+            var textSize = TextMeasurer.Measure(globalStatsText, renderOps);
+            image.Mutate(x => x.DrawText(
+                textGraphicOptionsCenterLeft, 
+                "GLOBAL RANK: ", 
+                _statsLightFont, 
+                Rgba32.White,
+                new Vector2(235 - (textSize.Width / 2), 221)));
+            
+            image.Mutate(x => x.DrawText(
+                textGraphicOptionsCenterRight, 
+                c.GlobalRank.ToString(), 
+                _statsLightFont,
+                blueHighlight, 
+                new Vector2(235 + (textSize.Width / 2), 221)));
 
             var centerOptions = new TextGraphicsOptions(true)
             {
@@ -137,6 +153,23 @@ namespace SoraBot.Services.Profile
             image.Mutate(x =>
                 x.DrawText(centerOptions, $"{c.GlobalExp.ToString()} / {c.GlobalNextLevelExp.ToString()}",
                     _statsTinyFont, Rgba32.White, new Vector2(235, 250)));
+
+            // Draw local STats
+            var localStatsText = $"LOCAL RANK: {c.LocalRank.ToString()}";
+            var localTextSize = TextMeasurer.Measure(localStatsText, renderOps);
+            
+            image.Mutate(x=>
+                x.DrawText(textGraphicOptionsCenterLeft, "LOCAL RANK: ", _statsLightFont, Rgba32.White,
+                    new Vector2(386-(localTextSize.Width / 2), 221)));
+            image.Mutate(x=>
+                x.DrawText(textGraphicOptionsCenterRight, c.LocalRank.ToString(), _statsLightFont,
+                    blueHighlight, new Vector2(386+(localTextSize.Width/2), 221)));
+            image.Mutate(x=> 
+                x.DrawText(centerOptions, $"LEVEL: {c.LocalLevel.ToString()}", _statsLightFont, Rgba32.White,
+                    new Vector2(386, 236)));
+            image.Mutate(x=>
+                x.DrawText(centerOptions, $"{c.LocalExp.ToString()} / {c.LocalNextLevelExp.ToString()}",
+                    _statsTinyFont, Rgba32.White, new Vector2(386, 250)));
         }
 
         public void DrawProfileAvatar(string avatarPath, Image<Rgba32> image, Rectangle pos, int cornerRadius)

@@ -150,16 +150,21 @@ namespace SoraBot.Bot.Modules
                     $"{user.Id.ToString()}.png");
 
                 var us = userStatsM.Value;
-                var lvl = ExpService.CalculateLevel(us.GlobalExp);
+                var globalLevel = ExpService.CalculateLevel(us.GlobalExp);
+                var localLevel = ExpService.CalculateLevel(us.LocalExp);
                 _imgGen.GenerateProfileImage(new ProfileImageGenDto()
                 {
                     UserId = user.Id,
                     Name = user.Username,
                     GlobalExp = us.GlobalExp,
-                    GlobalLevel = lvl,
+                    GlobalLevel = globalLevel,
                     GlobalRank = us.GlobalRank,
-                    GlobalNextLevelExp = ExpService.CalculateNeededExp(lvl + 1),
-                    HasCustomBg = us.HasCustomBg
+                    GlobalNextLevelExp = ExpService.CalculateNeededExp(globalLevel + 1),
+                    HasCustomBg = us.HasCustomBg,
+                    LocalExp = us.LocalExp,
+                    LocalRank = us.LocalRank,
+                    LocalLevel = localLevel,
+                    LocalNextLevelExp = ExpService.CalculateNeededExp(localLevel + 1)
                 }, filePath);
                 await Context.Channel.SendFileAsync(filePath);
             }
