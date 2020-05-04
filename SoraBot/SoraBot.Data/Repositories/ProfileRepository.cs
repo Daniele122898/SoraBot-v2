@@ -4,6 +4,7 @@ using ArgonautCore.Maybe;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Dtos.Profile;
 using SoraBot.Data.Extensions;
+using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Repositories
@@ -31,7 +32,7 @@ namespace SoraBot.Data.Repositories
 
                 var guildUser = await context.GuildUsers
                     .FirstOrDefaultAsync(x => x.UserId == userId && x.GuildId == guildId)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(false) ?? new GuildUser(0,0,0); // Just so we have default values to work with
 
                 var localRank = await context.GuildUsers
                     .Where(g => g.Exp > guildUser.Exp)
