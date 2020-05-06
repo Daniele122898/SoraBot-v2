@@ -20,6 +20,7 @@ namespace SoraBot.Data.Models.SoraDb
         
         public virtual ICollection<UserWaifu> UserWaifus { get; set; }
         public virtual ICollection<GuildUser> GuildUsers { get; set; }
+        public virtual ICollection<Reminder> Reminders { get; set; }
         public virtual Waifu FavoriteWaifu { get; set; }
 
     }

@@ -31,7 +31,7 @@ namespace SoraBot.Services.Reminder
             _timer.Change(TimeSpan.FromHours(1), TimeSpan.FromHours(1));
             try
             {
-
+                
             }
             catch (Exception e)
             {
