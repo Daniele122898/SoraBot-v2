@@ -35,7 +35,7 @@ namespace SoraBot.Bot.Modules
             {
                 await ReplyFailureEmbedExtended(
                     "Reminder was not correctly formatted!",
-                    "Make sure the reminder message is of the format: `<what to remind you> in <when>`\n" +
+                    "Make sure the reminder is of the format: `<what to remind you> in <when>`\n" +
                     "Where in the first space you just add the text that Sora should remind you of and then the **in** is very important. " +
                     "After it you should add when he should remind you.\n" +
                     "For example: `3 hours` or `10 hours and 5 minutes.`");
@@ -51,7 +51,7 @@ namespace SoraBot.Bot.Modules
             {
                 await ReplyFailureEmbedExtended(
                     "Reminder was not correctly formatted!",
-                    "Make sure the reminder message is of the format: `<what to remind you> in <when>`\n" +
+                    "Make sure the reminder is of the format: `<what to remind you> in <when>`\n" +
                     "Where in the first space you just add the text that Sora should remind you of and then the **in** is very important. " +
                     "After it you should add when he should remind you.\n" +
                     "For example: `3 hours` or `10 hours and 5 minutes.`");
@@ -69,9 +69,10 @@ namespace SoraBot.Bot.Modules
             
             // Just add the reminder to the user :D
             await _remindRepo.AddReminderToUser(Context.User.Id, msg, dueDate.Value).ConfigureAwait(false);
+            var remindIn = dueDate.Value.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
             await ReplySuccessEmbedExtended(
                 "Successfully set reminder",
-                $"I will remind you to `{msg}` in roughly {dueDate.Value.TimeOfDay.Humanize(minUnit: TimeUnit.Minute, precision: 4)}");
+                $"I will remind you to `{msg}` in roughly {remindIn.Humanize(minUnit: TimeUnit.Minute, precision: 4)}");
         }
         
         /// <summary>
@@ -95,7 +96,7 @@ namespace SoraBot.Bot.Modules
 
                 if (captured.Count != 3)
                     return Maybe.Zero<DateTime>();
-                if (uint.TryParse(captured[1].Value, out var time))
+                if (!uint.TryParse(captured[1].Value, out var time))
                     return Maybe.Zero<DateTime>();
 
                 string type = captured[2].Value;
