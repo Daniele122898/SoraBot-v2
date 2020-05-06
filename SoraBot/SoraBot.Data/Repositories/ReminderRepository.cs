@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
@@ -17,12 +18,21 @@ namespace SoraBot.Data.Repositories
         {
             _soraTransactor = soraTransactor;
         }
-        
-        public Task<List<Reminder>> GetUserReminders(ulong userId)
-        {
-            throw new System.NotImplementedException();
-        }
 
+        public async Task<Maybe<List<Reminder>>> GetUserReminders(ulong userId)
+            => await _soraTransactor.DoAsync(async context =>
+            {
+                var rems = await context.Reminders
+                    .Where(x => x.UserId == userId)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                
+                if (rems == null || rems.Count == 0) 
+                    return Maybe.Zero<List<Reminder>>();
+
+                return Maybe.FromVal(rems);
+            }).ConfigureAwait(false);
+        
         public async Task AddReminderToUser(ulong userId, string message, DateTime dueDate)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
