@@ -49,10 +49,10 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        public Task<List<Reminder>> GetAllReminders()
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task<List<Reminder>> GetAllReminders()
+            => await _soraTransactor.DoAsync(async context =>
+                await context.Reminders.ToListAsync().ConfigureAwait(false)
+            ).ConfigureAwait(false);
 
 
         /// <summary>
