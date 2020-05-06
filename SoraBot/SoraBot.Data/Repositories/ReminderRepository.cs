@@ -26,13 +26,21 @@ namespace SoraBot.Data.Repositories
                     .Where(x => x.UserId == userId)
                     .ToListAsync()
                     .ConfigureAwait(false);
-                
-                if (rems == null || rems.Count == 0) 
+
+                if (rems == null || rems.Count == 0)
                     return Maybe.Zero<List<Reminder>>();
 
                 return Maybe.FromVal(rems);
             }).ConfigureAwait(false);
-        
+
+        public async Task<int> GetUserReminderCount(ulong userId)
+            => await _soraTransactor.DoAsync(async context =>
+                await context.Reminders
+                    .Where(x => x.UserId == userId)
+                    .CountAsync()
+                    .ConfigureAwait(false)
+            ).ConfigureAwait(false);
+
         public async Task AddReminderToUser(ulong userId, string message, DateTime dueDate)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
@@ -40,7 +48,7 @@ namespace SoraBot.Data.Repositories
                 user.Reminders.Add(new Reminder(userId, message, dueDate));
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
-        
+
         public Task<List<Reminder>> GetAllReminders()
         {
             throw new System.NotImplementedException();
@@ -55,7 +63,7 @@ namespace SoraBot.Data.Repositories
             {
                 // Generally we dont need to do that here because there's no actual iteration.
                 // But whatever idk what linq does lol
-                var dueDate = DateTime.UtcNow; 
+                var dueDate = DateTime.UtcNow;
                 var reminders = await context.Reminders
                     .Where(x => x.DueDateUtc < dueDate)
                     .ToListAsync()
@@ -76,7 +84,7 @@ namespace SoraBot.Data.Repositories
                     .ToListAsync()
                     .ConfigureAwait(false);
                 if (remsToRemove == null || remsToRemove.Count == 0) return;
-                
+
                 context.Reminders.RemoveRange(remsToRemove);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);

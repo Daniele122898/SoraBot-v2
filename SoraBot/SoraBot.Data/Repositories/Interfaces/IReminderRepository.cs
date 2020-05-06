@@ -9,6 +9,7 @@ namespace SoraBot.Data.Repositories.Interfaces
     public interface IReminderRepository
     {
         Task<Maybe<List<Reminder>>> GetUserReminders(ulong userId);
+        Task<int> GetUserReminderCount(ulong userId);
         Task AddReminderToUser(ulong userId, string message, DateTime dueDate);
 
         Task<List<Reminder>> GetAllReminders();
