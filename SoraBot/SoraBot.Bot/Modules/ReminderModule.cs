@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Discord.Commands;
+using Humanizer;
+using Humanizer.Localisation;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -13,19 +16,69 @@ namespace SoraBot.Bot.Modules
     public class ReminderModule : SoraSocketCommandModule
     {
         private readonly IReminderRepository _remindRepo;
+        private const short _MAX_USER_REMINDERS = 10;
 
         public ReminderModule(IReminderRepository remindRepo)
         {
             _remindRepo = remindRepo;
         }
-        
-        
+
+        [Command("remind"), Alias("rm", "remind me")]
+        [Summary("Set's a reminder for you. It must be of the form: " +
+                 "`what to remind in 3 hours 2 min`. The **in** is very important!")]
+        public async Task RemindMe(
+            [Summary("The reminder query"), Remainder]
+            string remind)
+        {
+            var dueDate = ParseTime(remind);
+            if (!dueDate.HasValue)
+            {
+                await ReplyFailureEmbedExtended(
+                    "Reminder was not correctly formatted!",
+                    "Make sure the reminder message is of the format: `<what to remind you> in <when>`\n" +
+                    "Where in the first space you just add the text that Sora should remind you of and then the **in** is very important. " +
+                    "After it you should add when he should remind you.\n" +
+                    "For example: `3 hours` or `10 hours and 5 minutes.`");
+                return;
+            }
+            
+            // Check that there's actually a message and not just timer
+            string msg = remind
+                .Substring(0, remind.LastIndexOf(" in ", StringComparison.InvariantCultureIgnoreCase))
+                .Trim();
+
+            if (string.IsNullOrWhiteSpace(msg))
+            {
+                await ReplyFailureEmbedExtended(
+                    "Reminder was not correctly formatted!",
+                    "Make sure the reminder message is of the format: `<what to remind you> in <when>`\n" +
+                    "Where in the first space you just add the text that Sora should remind you of and then the **in** is very important. " +
+                    "After it you should add when he should remind you.\n" +
+                    "For example: `3 hours` or `10 hours and 5 minutes.`");
+                return;
+            }
+            
+            // Otherwise see how many reminders we already have. We don't want to allow users to spam with reminders!
+            var userRemCount = await _remindRepo.GetUserReminderCount(Context.User.Id).ConfigureAwait(false);
+            if (userRemCount >= _MAX_USER_REMINDERS)
+            {
+                await ReplyFailureEmbed(
+                    $"You already have the maximum amount of {_MAX_USER_REMINDERS.ToString()} reminders!");
+                return;
+            }
+            
+            // Just add the reminder to the user :D
+            await _remindRepo.AddReminderToUser(Context.User.Id, msg, dueDate.Value).ConfigureAwait(false);
+            await ReplySuccessEmbedExtended(
+                "Successfully set reminder",
+                $"I will remind you to `{msg}` in roughly {dueDate.Value.TimeOfDay.Humanize(minUnit: TimeUnit.Minute, precision: 4)}");
+        }
         
         /// <summary>
         /// Tries to properly parse the time or if it cant returns a Zero Maybe
         /// No silent failing. If smth isn't exactly right we completely fail the entire parsing!
         /// </summary>
-        private Maybe<DateTime> ParseTime(string message)
+        private static Maybe<DateTime> ParseTime(string message)
         {
             if (!message.Contains(" in "))
                 return Maybe.Zero<DateTime>();
