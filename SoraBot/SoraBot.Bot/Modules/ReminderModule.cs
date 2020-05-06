@@ -69,10 +69,10 @@ namespace SoraBot.Bot.Modules
             
             // Just add the reminder to the user :D
             await _remindRepo.AddReminderToUser(Context.User.Id, msg, dueDate.Value).ConfigureAwait(false);
-            var remindIn = dueDate.Value.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
+            var remindIn = dueDate.Value.Subtract(DateTime.UtcNow);
             await ReplySuccessEmbedExtended(
                 "Successfully set reminder",
-                $"I will remind you to `{msg}` in roughly {remindIn.Humanize(minUnit: TimeUnit.Minute, precision: 4)}");
+                $"I will remind you to `{msg}` in {remindIn.Humanize(minUnit: TimeUnit.Second, maxUnit: TimeUnit.Year, precision: 10)}");
         }
         
         /// <summary>
