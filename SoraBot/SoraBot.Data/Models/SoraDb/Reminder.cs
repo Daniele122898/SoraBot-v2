@@ -17,20 +17,20 @@ namespace SoraBot.Data.Models.SoraDb
         public string Message { get; set; }
 
         [Required]
-        public DateTime DueDateUTC { get; set; }
+        public DateTime DueDateUtc { get; set; }
 
-        public Reminder(ulong userId, string msg, DateTime dueDateUtc)
+        public Reminder(ulong userId, string message, DateTime dueDateUtc)
         {
             this.UserId = userId;
-            this.Message = msg;
-            this.DueDateUTC = dueDateUtc;
+            this.Message = message;
+            this.DueDateUtc = dueDateUtc;
         }
 
-        public Reminder(ulong userId, string msg, TimeSpan dueIn)
+        public Reminder(ulong userId, string message, TimeSpan dueIn)
         {
             this.UserId = userId;
-            this.Message = msg;
-            this.DueDateUTC = DateTime.UtcNow.Add(dueIn);
+            this.Message = message;
+            this.DueDateUtc = DateTime.UtcNow.Add(dueIn);
         }
 
         public virtual User User { get; set; }
