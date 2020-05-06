@@ -71,6 +71,8 @@ namespace SoraBot.Services.Reminder
                     {
                         // This is probably due to the user not accepting DMs.
                         // not worth handling or doing anything about
+                        // Like to have it here to be more explicit when reading the code. Just preference :)
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                 }
