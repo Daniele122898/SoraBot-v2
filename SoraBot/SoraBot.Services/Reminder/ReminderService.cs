@@ -10,13 +10,18 @@ namespace SoraBot.Services.Reminder
         private readonly ILogger<ReminderService> _log;
         public const int TIMER_INTERVAL_MINS = 1;
         
-        private Timer _timer;
+        private readonly Timer _timer;
         
         public ReminderService(ILogger<ReminderService> log)
         {
             _log = log;
-            _timer = new Timer(CheckReminders, null, TimeSpan.FromMinutes(TIMER_INTERVAL_MINS), 
-                TimeSpan.FromMinutes(TIMER_INTERVAL_MINS));
+            // We only want the timer to run on shard 0. ONLY shard 0 shall actually handle reminders.
+            // All other shards shall just add to the reminders!
+            if (GlobalConstants.ShardId == 0)
+            {
+                _timer = new Timer(CheckReminders, null, TimeSpan.FromMinutes(TIMER_INTERVAL_MINS), 
+                    TimeSpan.FromMinutes(TIMER_INTERVAL_MINS));
+            }
         }
 
         private void CheckReminders(object _)
