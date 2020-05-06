@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -22,6 +23,14 @@ namespace SoraBot.Data.Repositories
             throw new System.NotImplementedException();
         }
 
+        public async Task AddReminderToUser(ulong userId, string message, DateTime dueDate)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var user = await context.Users.GetOrCreateUserNoSaveAsync(userId).ConfigureAwait(false);
+                user.Reminders.Add(new Reminder(userId, message, dueDate));
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+        
         public Task<List<Reminder>> GetAllReminders()
         {
             throw new System.NotImplementedException();
