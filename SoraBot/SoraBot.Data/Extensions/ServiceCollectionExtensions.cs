@@ -20,6 +20,7 @@ namespace SoraBot.Data.Extensions
             services.AddScoped<IGuildRepository, GuildRepository>();
             services.AddScoped<IProfileRepository, ProfileRepository>();
             services.AddScoped<IStarboardRepository, StarboardRepository>();
+            services.AddScoped<IReminderRepository, ReminderRepository>();
             
             // Use this pool in the transactor as well for improved performance
             services.AddDbContextPool<SoraContext>(op =>
