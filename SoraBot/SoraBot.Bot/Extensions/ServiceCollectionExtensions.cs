@@ -16,6 +16,7 @@ using SoraBot.Services.Guilds;
 using SoraBot.Services.Misc;
 using SoraBot.Services.Profile;
 using SoraBot.Services.ReactionHandlers;
+using SoraBot.Services.Reminder;
 using SoraBot.Services.Users;
 using SoraBot.Services.Utils;
 using SoraBot.Services.Waifu;
@@ -72,7 +73,8 @@ namespace SoraBot.Bot.Extensions
                 .AddUserServices()
                 .AddProfileServices()
                 .AddMiscServices()
-                .AddReactionHandlerServices();
+                .AddReactionHandlerServices()
+                .AddReminderService();
 
             services.AddHostedService<SoraBot>();
             
