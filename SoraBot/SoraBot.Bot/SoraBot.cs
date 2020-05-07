@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using SoraBot.Bot.Extensions;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Misc;
+using SoraBot.Services.Reminder;
+using SoraBot.Services.Utils;
 
 namespace SoraBot.Bot
 {
@@ -99,6 +101,10 @@ namespace SoraBot.Bot
 
                 await StartClient(stoppingToken);
                 _logger.LogInformation("Discord client started successfully.");
+                
+                _logger.LogInformation("Warming up all services that rely on timers etc.");
+                _scope.ServiceProvider.GetRequiredService<IReminderService>();
+                _scope.ServiceProvider.GetRequiredService<HealthChecker>();
 
                 // This way the background task stays alive 
                 // await Task.Delay(-1);

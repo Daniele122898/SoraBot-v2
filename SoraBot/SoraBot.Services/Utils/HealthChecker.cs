@@ -29,6 +29,7 @@ namespace SoraBot.Services.Utils
                 TimeSpan.FromMinutes(30));
             
             _client.Disconnected += ClientOnDisconnected;
+            _log.LogInformation("Initialized HealthChecker");
         }
 
         private Task ClientOnDisconnected(Exception ex)
