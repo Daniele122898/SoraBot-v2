@@ -71,10 +71,14 @@ namespace SoraBot.Data.Repositories
                 return reminders;
             }).ConfigureAwait(false);
 
-        public Task RemoveReminder(uint id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task RemoveReminder(uint id)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var remToRemove = await context.Reminders.FindAsync(id).ConfigureAwait(false);
+                if (remToRemove == null) return;
+                context.Reminders.Remove(remToRemove);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
 
         public async Task RemoveReminders(List<uint> ids)
             => await _soraTransactor.DoInTransactionAsync(async context =>

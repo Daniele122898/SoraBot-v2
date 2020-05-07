@@ -4,9 +4,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Humanizer;
 using Humanizer.Localisation;
+using SoraBot.Bot.Extensions.Interactive;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -17,11 +19,74 @@ namespace SoraBot.Bot.Modules
     public class ReminderModule : SoraSocketCommandModule
     {
         private readonly IReminderRepository _remindRepo;
+        private readonly InteractiveService _interactiveService;
         private const short _MAX_USER_REMINDERS = 10;
 
-        public ReminderModule(IReminderRepository remindRepo)
+        public ReminderModule(IReminderRepository remindRepo, InteractiveService interactiveService)
         {
             _remindRepo = remindRepo;
+            _interactiveService = interactiveService;
+        }
+
+        [Command("removereminders"), Alias("remove reminders", "rmrem", "delrem")]
+        [Summary("Select which reminder to remove from a list of all of your reminders")]
+        public async Task RemoveReminder()
+        {
+            var rems = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
+            if (!rems.HasValue)
+            {
+                await ReplyFailureEmbed("You don't have any reminders.");
+                return;
+            }
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Purple,
+                ThumbnailUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl(),
+                Title = "⏰ Remove a Reminder",
+                Description = "Answer with a number indicating the ID of the reminder you'd like to remove.",
+                Footer = RequestedByMe()
+            };
+            
+            rems.Value.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
+
+            for (int i = 0; i < rems.Value.Count; i++)
+            {
+                var rem = rems.Value[i];
+                var remindIn = rem.DueDateUtc.Subtract(DateTime.UtcNow);
+                int num = i + 1;
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name =
+                        $"**{num.ToString()}#** Due in {remindIn.Humanize(minUnit: TimeUnit.Second, maxUnit: TimeUnit.Year, precision: 4)}";
+                    x.Value = $"{rem.Message}\n_On {rem.DueDateUtc.Date.ToString("dd/MM/yyyy")}_";
+                });
+            }
+
+            await ReplyEmbed(eb);
+            var criteria = InteractiveServiceExtensions.CreateEnsureFromUserInChannelCriteria(Context.User.Id, Context.Channel.Id);
+            var resp = await _interactiveService.NextMessageAsync(Context, criteria, TimeSpan.FromSeconds(45));
+            if (resp == null)
+            {
+                await ReplyFailureEmbed("Failed to answer in time >.<");
+                return;
+            }
+
+            if (!int.TryParse(resp.Content, out var removeId))
+            {
+                await ReplyFailureEmbed("Please respond with the ID of the reminder to remove e.g. `1` or `7`.");
+                return;
+            }
+            removeId--;
+            if (removeId < 0 || removeId >= rems.Value.Count)
+            {
+                await ReplyFailureEmbed($"Not a valid ID! Please choose a reminder between 1 and {rems.Value.Count.ToString()}");
+                return;               
+            }
+
+            await _remindRepo.RemoveReminder(rems.Value[removeId].Id);
+            await ReplySuccessEmbed("Successfully removed reminder.");
         }
 
         [Command("reminders"), Alias("rems", "remlist", "reminderlist")]
