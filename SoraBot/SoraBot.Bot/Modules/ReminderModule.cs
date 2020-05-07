@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ArgonautCore.Maybe;
+using Discord;
 using Discord.Commands;
 using Humanizer;
 using Humanizer.Localisation;
@@ -21,6 +22,44 @@ namespace SoraBot.Bot.Modules
         public ReminderModule(IReminderRepository remindRepo)
         {
             _remindRepo = remindRepo;
+        }
+
+        [Command("reminders"), Alias("rems", "remlist", "reminderlist")]
+        [Summary("Shows you all your reminders and when they go off")]
+        public async Task AllReminders()
+        {
+            var rems = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
+            if (!rems.HasValue)
+            {
+                await ReplyFailureEmbed("You don't have any reminders.");
+                return;
+            }
+                            
+            var eb = new EmbedBuilder()
+            {
+                Color = Purple,
+                ThumbnailUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl(),
+                Title = "⏰ Reminders",
+                Footer = RequestedByMe()
+            };
+            
+            rems.Value.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
+
+            for (int i = 0; i < rems.Value.Count; i++)
+            {
+                var rem = rems.Value[i];
+                var remindIn = rem.DueDateUtc.Subtract(DateTime.UtcNow);
+                int num = i + 1;
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name =
+                        $"{num.ToString()}# Due in {remindIn.Humanize(minUnit: TimeUnit.Second, maxUnit: TimeUnit.Year, precision: 4)}";
+                    x.Value = $"{rem.Message}\n_On {rem.DueDateUtc.Date.ToString("dd/MM/yyyy")}_";
+                });
+            }
+
+            await ReplyEmbed(eb);
         }
 
         [Command("remind"), Alias("rm", "remind me")]
