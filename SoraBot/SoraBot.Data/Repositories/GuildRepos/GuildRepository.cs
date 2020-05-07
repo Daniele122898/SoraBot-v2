@@ -56,8 +56,10 @@ namespace SoraBot.Data.Repositories.GuildRepos
         public async Task TryAddGuildUserExp(ulong guildId, ulong userId, uint expToAdd)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
+                var guild = await GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
                 var guildUser = await GetOrCreateGuildUser(guildId, userId, context).ConfigureAwait(false);
                 guildUser.Exp += expToAdd;
+                guild.GuildUsers.Add(guildUser);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
@@ -71,11 +73,8 @@ namespace SoraBot.Data.Repositories.GuildRepos
             var guildUser = await context.GuildUsers
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.GuildId == guildId).ConfigureAwait(false);
             if (guildUser != null) return guildUser;
-            // First create a guild object if there is none!
-            await GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
             // Create a user and return him
             guildUser = new GuildUser(userId, guildId, 0);
-            context.GuildUsers.Add(guildUser);
             return guildUser;
         }
         
