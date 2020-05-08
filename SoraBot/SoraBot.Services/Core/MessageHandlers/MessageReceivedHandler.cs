@@ -98,7 +98,6 @@ namespace SoraBot.Services.Core.MessageHandlers
             }
         }
         
-        // TODO redo these error messages
         private async Task HandleErrorAsync(IResult result, SocketCommandContext context,
             CommandException exception = null)
         {
