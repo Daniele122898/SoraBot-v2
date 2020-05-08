@@ -57,10 +57,8 @@ namespace SoraBot.Data.Repositories.GuildRepos
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
                 await GetOrSetAndGetGuild(guildId, context).ConfigureAwait(false);
-                var guild = await context.Guilds.FindAsync(guildId).ConfigureAwait(false);
                 var guildUser = await GetOrCreateGuildUser(guildId, userId, context).ConfigureAwait(false);
                 guildUser.Exp += expToAdd;
-                guild.GuildUsers.Add(guildUser);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
@@ -76,6 +74,7 @@ namespace SoraBot.Data.Repositories.GuildRepos
             if (guildUser != null) return guildUser;
             // Create a user and return him
             guildUser = new GuildUser(userId, guildId, 0);
+            context.GuildUsers.Add(guildUser);
             return guildUser;
         }
         
