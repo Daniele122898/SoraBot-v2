@@ -24,6 +24,7 @@ namespace SoraBot.Data
 
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; }
+        public DbSet<Sar> Sars { get; set; }
         
         public DbSet<Starboard> Starboards { get; set; }
         public DbSet<StarboardMessage> StarboardMessages { get; set; }
@@ -34,6 +35,7 @@ namespace SoraBot.Data
             builder.AddStarboardRelations();
             builder.AddGuildRelations();
             builder.AddReminderRelations();
+            builder.AddSarRelations();
         }
     }
 }
