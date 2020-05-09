@@ -92,7 +92,17 @@ namespace SoraBot.Bot.Modules
             }
             
             // Otherwise remove it from the user
-            await user.RemoveRoleAsync(role);
+            if (await user.TryRemoveRoleAsync(role))
+            {
+                await ReplySuccessEmbed($"Successfully removed {role.Name} from you :)");
+            }
+            else
+            {
+                await ReplyFailureEmbedExtended("Failed to removed the role from you.",
+                    "This could have different causes. Maybe the user is a guest user for which no roles can be assigned or removed by a bot. " +
+                    "Could also be a permission error etc. Another account should try to the command and see if it works.");
+            }
+            
             await ReplySuccessEmbed($"Successfully removed {role.Name} from you :)");
         }
 
@@ -134,8 +144,16 @@ namespace SoraBot.Bot.Modules
             }
             
             // Otherwise give it to the user
-            await user.AddRoleAsync(role);
-            await ReplySuccessEmbed($"Successfully assigned {role.Name} to you :)");
+            if (await user.TryAddRoleAsync(role))
+            {
+                await ReplySuccessEmbed($"Successfully assigned {role.Name} to you :)");
+            }
+            else
+            {
+                await ReplyFailureEmbedExtended("Failed to assign the role.",
+                    "This could have different causes. Maybe the user is a guest user for which no roles can be assigned by a bot. " +
+                    "Could also be a permission error etc. Another account should try to the command and see if it works.");
+            }
         }
         
         [Command("addsar"), Alias("asar", "addrole")]
