@@ -19,6 +19,19 @@ namespace SoraBot.Bot.Modules
         {
             _sarRepo = sarRepo;
         }
+
+        private async Task<bool> SoraCanAssignRole(int rolePosition, string failiureTitle, string failiureMsg)
+        {
+            var soraHighestRole = Context.Guild.CurrentUser.Roles
+                .OrderByDescending(x => x.Position)
+                .FirstOrDefault();
+            if (soraHighestRole == null || soraHighestRole.Position < rolePosition)
+            {
+                await ReplyFailureEmbedExtended(failiureTitle, failiureMsg);
+                return false;
+            }
+            return true;
+        }
         
         [Command("addsar"), Alias("asar", "addrole")]
         public async Task AddSar(
@@ -38,18 +51,13 @@ namespace SoraBot.Bot.Modules
             }
             
             // Make sure that sora is ABOVE the role in the hierarchy. Otherwise he cannot assign the role
-            var soraHighestRole = Context.Guild.CurrentUser.Roles
-                .OrderByDescending(x => x.Position)
-                .FirstOrDefault();
-            if (soraHighestRole == null || soraHighestRole.Position < role.Position)
-            {
-                await ReplyFailureEmbedExtended(
-                    "I cannot assing the specified role!",
-                    "For Sora to be able to assign this role he has to be or have a role that is above the specified role in the role hierarchy! " +
-                    "Discord sometimes fails to update this order so just move a group around and it should be fine :)");
+            if (!await this.SoraCanAssignRole(
+                role.Position, 
+                "I cannot assing the specified role!",
+                "For Sora to be able to assign this role he has to be or have a role that is above the specified role in the role hierarchy! " +
+                "Discord sometimes fails to update this order so just move a group around and it should be fine :)"))
                 return;
-            }
-            
+
             // Now make sure it doesnt already exist
             if (await _sarRepo.CheckIfRoleAlreadyExists(role.Id))
             {
