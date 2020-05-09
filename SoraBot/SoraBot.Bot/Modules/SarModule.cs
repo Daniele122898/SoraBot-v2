@@ -21,7 +21,9 @@ namespace SoraBot.Bot.Modules
         }
         
         [Command("addsar"), Alias("asar", "addrole")]
-        public async Task AddSar(string roleName)
+        public async Task AddSar(
+            [Summary("Name of the role"), Remainder]
+            string roleName)
         {
             if (!await this.UserHasGuildPermission(GuildPermission.Administrator))
                 return;
@@ -58,6 +60,36 @@ namespace SoraBot.Bot.Modules
             // Role exists, Sora can assign it, and it's not a sar yet. So create it :D
             await _sarRepo.AddSar(role.Id, Context.Guild.Id);
             await ReplySuccessEmbed($"Successfully added {role.Name} to the SAR list :>");
+        }
+
+        [Command("rmsar"), Alias("rsar", "rmrole", "delrole")]
+        [Summary("Removes the specified role from the SAR list")]
+        public async Task RemoveSar(
+            [Summary("Name of the role"), Remainder]
+            string roleName)
+        {
+            if (!await this.UserHasGuildPermission(GuildPermission.Administrator))
+                return;
+            
+            // Try to find the role specified
+            var role = Context.Guild.Roles
+                .FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
+            if (role == null)
+            {
+                await ReplyFailureEmbed("Could not find role! Make sure the role exists and is correctly spelled!");
+                return;
+            }
+            
+            // Now make sure it exists
+            if (!await _sarRepo.CheckIfRoleAlreadyExists(role.Id))
+            {
+                await ReplyFailureEmbed("This role is not a self assignable role.");
+                return;
+            }
+            
+            // Role exists, Sora can assign it, and it's not a sar yet. So create it :D
+            await _sarRepo.RemoveSar(role.Id);
+            await ReplySuccessEmbed($"Successfully removed {role.Name} from the SAR list :>");
         }
     }
 }
