@@ -20,6 +20,38 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("volume"), Alias("vol")]
+        [Summary("Set the volume of the player to a value between 1 - 100")]
+        public async Task SetVolume(
+            [Summary("Value between 1 and 100")] uint vol)
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+
+            vol = Math.Clamp(vol, 1, 100);
+            try
+            {
+                await player.UpdateVolumeAsync((ushort)vol);
+                await ReplyMusicEmbed($"Set volume to {vol.ToString()}");
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
+        }
+
         [Command("skip"), Alias("next")]
         [Summary("Skips the current song and plays the next")]
         public async Task SkipSong()
