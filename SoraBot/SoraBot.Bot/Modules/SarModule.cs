@@ -20,6 +20,39 @@ namespace SoraBot.Bot.Modules
         {
             _sarRepo = sarRepo;
         }
+
+        [Command("sarlist"), Alias("sars")]
+        [Summary("Lists all the Self assignable roles in this guild")]
+        public async Task Sars()
+        {
+            var sars = await _sarRepo.GetAllSarsInGuild(Context.Guild.Id);
+            if (!sars.HasValue)
+            {
+                await ReplyFailureEmbed("This guild has no self assignable roles!");
+                return;
+            }
+            var ss = sars.Value;
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Purple,
+                ThumbnailUrl = Context.Guild.IconUrl ?? Context.Client.CurrentUser.GetAvatarUrl(),
+                Footer = RequestedByMe(),
+                Title = $"All available Self-Assignable roles in {Context.Guild.Name}"
+            };
+
+            var roles = ss
+                .Select(x =>
+                {
+                    var role = Context.Guild.GetRole(x.RoleId);
+                    return role == null ? null : $"- {role.Name}";
+                })
+                .Where(x => x != null);
+            var desc = String.Join("\n", roles);
+            eb.WithDescription(desc);
+            
+            await ReplyEmbed(eb);
+        }
         
         [Command("iamnot")]
         [Summary("Removes the specified role from your roles if it is a self assignable role")]
