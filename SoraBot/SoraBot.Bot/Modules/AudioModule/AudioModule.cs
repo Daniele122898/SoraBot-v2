@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -19,6 +18,66 @@ namespace SoraBot.Bot.Modules.AudioModule
         public AudioModule(LavaNode node)
         {
             _node = node;
+        }
+
+        [Command("resume"), Alias("continue")]
+        [Summary("Resumes music playback")]
+        public async Task ResumePlayer()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+
+            if (player.PlayerState == PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm already playing ...");
+                return;
+            }
+            
+            try
+            {
+                await player.ResumeAsync();
+                await ReplyMusicEmbed($"Resumed {player.Track.Title}");
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
+        }
+        
+        [Command("pause")]
+        [Summary("Pauses the player.")]
+        public async Task PausePlayer()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+
+            try
+            {
+                await player.PauseAsync();
+                await ReplyMusicEmbed($"Paused {player.Track.Title}");
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
         }
 
         [Command("play"), Alias("add")]
@@ -96,8 +155,6 @@ namespace SoraBot.Bot.Modules.AudioModule
                 }
             }
         }
-        
-
 
         [Command("leave")]
         [Summary("Make sore leave your voice channel")]
