@@ -135,11 +135,12 @@ namespace SoraBot.Bot
             
         }
 
-        private async Task SocketClientOnReady()
+        private Task SocketClientOnReady()
         {
             // TODO figure out if this is fine or if we should use IsConnected to check
-            _ = _lavaNode.ConnectAsync();
+            _lavaNode.ConnectAsync();
             _socketClient.Ready -= SocketClientOnReady;
+            return Task.CompletedTask;
         }
 
         private void OnStopping()
