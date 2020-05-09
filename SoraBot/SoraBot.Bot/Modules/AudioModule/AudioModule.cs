@@ -20,6 +20,43 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("skip"), Alias("next")]
+        [Summary("Skips the current song and plays the next")]
+        public async Task SkipSong()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+
+            try
+            {
+                var currentTrack = await player.SkipAsync();
+                if (currentTrack == null)
+                {
+                    await ReplyMusicEmbed($"Queue is now finished.");
+                }
+                else
+                {
+                    await ReplyMusicExtended(currentTrack, false);
+                }
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
+        }
+
         [Command("resume"), Alias("continue")]
         [Summary("Resumes music playback")]
         public async Task ResumePlayer()
