@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -15,10 +16,12 @@ namespace SoraBot.Bot.Modules
     public class SarModule : SoraSocketCommandModule
     {
         private readonly ISarRepository _sarRepo;
+        private readonly ILogger<SarModule> _log;
 
-        public SarModule(ISarRepository sarRepo)
+        public SarModule(ISarRepository sarRepo, ILogger<SarModule> log)
         {
             _sarRepo = sarRepo;
+            _log = log;
         }
 
         [Command("sarlist"), Alias("sars")]
@@ -60,6 +63,9 @@ namespace SoraBot.Bot.Modules
             [Summary("Name of the role"), Remainder]
             string roleName)
         {
+            if (!await this.SoraHasManageRolesPerm())
+                return;
+            
             // Try to find the role specified
             var role = Context.Guild.Roles
                 .FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
@@ -92,7 +98,7 @@ namespace SoraBot.Bot.Modules
             }
             
             // Otherwise remove it from the user
-            if (await user.TryRemoveRoleAsync(role))
+            if (await user.TryRemoveRoleAsync(role, _log))
             {
                 await ReplySuccessEmbed($"Successfully removed {role.Name} from you :)");
             }
@@ -102,8 +108,6 @@ namespace SoraBot.Bot.Modules
                     "This could have different causes. Maybe the user is a guest user for which no roles can be assigned or removed by a bot. " +
                     "Could also be a permission error etc. Another account should try to the command and see if it works.");
             }
-            
-            await ReplySuccessEmbed($"Successfully removed {role.Name} from you :)");
         }
 
         [Command("iam"), Alias("sar")]
@@ -112,6 +116,9 @@ namespace SoraBot.Bot.Modules
             [Summary("Name of the role"), Remainder]
             string roleName)
         {
+            if (!await this.SoraHasManageRolesPerm())
+                return;
+            
             // Try to find the role specified
             var role = Context.Guild.Roles
                 .FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
@@ -144,7 +151,7 @@ namespace SoraBot.Bot.Modules
             }
             
             // Otherwise give it to the user
-            if (await user.TryAddRoleAsync(role))
+            if (await user.TryAddRoleAsync(role, _log))
             {
                 await ReplySuccessEmbed($"Successfully assigned {role.Name} to you :)");
             }
@@ -162,6 +169,9 @@ namespace SoraBot.Bot.Modules
             string roleName)
         {
             if (!await this.UserHasGuildPermission(GuildPermission.Administrator))
+                return;
+            
+            if (!await this.SoraHasManageRolesPerm())
                 return;
             
             // Try to find the role specified
@@ -201,6 +211,9 @@ namespace SoraBot.Bot.Modules
         {
             if (!await this.UserHasGuildPermission(GuildPermission.Administrator))
                 return;
+
+            if (!await this.SoraHasManageRolesPerm())
+                return;
             
             // Try to find the role specified
             var role = Context.Guild.Roles
@@ -221,6 +234,15 @@ namespace SoraBot.Bot.Modules
             // Role exists, Sora can assign it, and it's not a sar yet. So create it :D
             await _sarRepo.RemoveSar(role.Id);
             await ReplySuccessEmbed($"Successfully removed {role.Name} from the SAR list :>");
+        }
+
+        private async Task<bool> SoraHasManageRolesPerm()
+        {
+            if (Context.Guild.CurrentUser.GuildPermissions.Has(GuildPermission.ManageRoles))
+                return true;
+
+            await ReplyFailureEmbed("I need Manage Roles permission to perform self assignable role commands >.<");
+            return false;
         }
         
         private async Task<bool> SoraCanAssignRole(int rolePosition, string failiureTitle, string failiureMsg)
