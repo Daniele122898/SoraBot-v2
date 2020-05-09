@@ -83,9 +83,9 @@ namespace SoraBot.Services.Profile
                 var guildUserKeys = _guildExpCache.Keys;
                 foreach (var key in guildUserKeys)
                 {
-                    _guildExpCache.TryRemove(key, out var wb);
+                    _guildExpCache.TryRemove(key, out var expToAdd);
                     var ids = key.Split(":");
-                    await guildRepo.TryAddGuildUserExp(ulong.Parse(ids[0]), ulong.Parse(ids[1]), wb).ConfigureAwait(false);
+                    await guildRepo.TryAddGuildUserExp(ulong.Parse(ids[0]), ulong.Parse(ids[1]), expToAdd).ConfigureAwait(false);
                 }                
             }
             catch (Exception e)
