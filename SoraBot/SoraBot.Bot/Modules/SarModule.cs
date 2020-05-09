@@ -207,10 +207,7 @@ namespace SoraBot.Bot.Modules
         
         private async Task<bool> SoraCanAssignRole(int rolePosition, string failiureTitle, string failiureMsg)
         {
-            var soraHighestRole = Context.Guild.CurrentUser.Roles
-                .OrderByDescending(x => x.Position)
-                .FirstOrDefault();
-            if (soraHighestRole == null || soraHighestRole.Position < rolePosition)
+            if (Context.Guild.CurrentUser.Hierarchy < rolePosition)
             {
                 await ReplyFailureEmbedExtended(failiureTitle, failiureMsg);
                 return false;
