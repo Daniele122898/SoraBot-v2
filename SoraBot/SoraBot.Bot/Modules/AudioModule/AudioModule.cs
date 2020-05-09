@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
 using Victoria;
+using Victoria.Enums;
 
 namespace SoraBot.Bot.Modules.AudioModule
 {
     
     [Name("Music")]
     [Summary("All commands around music playing :>")]
-    public class AudioModule : SoraSocketCommandModule
+    public partial class AudioModule : SoraSocketCommandModule
     {
         private readonly LavaNode _node;
 
@@ -18,6 +20,84 @@ namespace SoraBot.Bot.Modules.AudioModule
         {
             _node = node;
         }
+
+        [Command("play"), Alias("add")]
+        public async Task Play(
+            [Summary("Either add a link to what you want to play or if you just enter a search " +
+                     "it will query YouTube and take the first result."), Remainder]
+            string query)
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            if (query.StartsWith("<") && query.EndsWith(">"))
+                query = query.TrimStart('<').TrimEnd('>');
+            
+            bool isLink = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute);
+            
+            var search = isLink
+                ? await _node.SearchAsync(query)
+                : await _node.SearchYouTubeAsync(query);
+
+            if (search.LoadStatus == LoadStatus.LoadFailed
+                || search.LoadStatus == LoadStatus.NoMatches
+                || search.Tracks == null || search.Tracks.Count == 0)
+            {
+                await ReplyFailureEmbed("Couldn't find anything :/");
+                return;
+            }
+
+            if (search.LoadStatus == LoadStatus.PlaylistLoaded)
+            {
+                int skip = -1;
+                // First add selected track
+                if (search.Playlist.SelectedTrack > 0 && search.Playlist.SelectedTrack < search.Tracks.Count)
+                {
+                    if (player.Track != null)
+                        player.Queue.Enqueue(search.Tracks[search.Playlist.SelectedTrack]);
+                    else
+                        await player.PlayAsync(search.Tracks[search.Playlist.SelectedTrack]);
+                    skip = search.Playlist.SelectedTrack;
+                }
+
+                // Add playlist
+                for (var i = 0; i < search.Tracks.Count; i++)
+                {
+                    if (i == skip) continue;
+                    
+                    var track = search.Tracks[i];
+                    if (player.Track != null)
+                        player.Queue.Enqueue(track);
+                    else
+                        await player.PlayAsync(track);
+                }
+
+                await ReplyMusicEmbed(
+                    $"Successfully added {search.Tracks.Count.ToString()} songs from playlist {search.Playlist.Name}");
+            }
+            else
+            {
+                var track = search.Tracks[0];
+                if (player.Track != null)
+                {
+                    player.Queue.Enqueue(track);
+                    await ReplyMusicExtended(track);
+                }
+                else
+                {
+                    await player.PlayAsync(track);
+                    await ReplyMusicExtended(track, false);
+                }
+            }
+        }
+        
+
 
         [Command("leave")]
         [Summary("Make sore leave your voice channel")]
@@ -28,19 +108,10 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I'm not connected to any VC in this guild");
                 return;
             }
-
+            
             var playerVC = player.VoiceChannel;
-            var userVC = ((IGuildUser) Context.User).VoiceChannel;
-            if (playerVC == null || userVC == null)
-            {
-                await ReplyFailureEmbed("You're not connected to a voice channel!");
+            if (!await CheckIfSameVc(playerVC))
                 return;
-            }
-            if (playerVC.Id != userVC.Id)
-            {
-                await ReplyFailureEmbed("I'm not in the same VC as you. Only listening users can make me leave.");
-                return;
-            }
 
             try
             {
