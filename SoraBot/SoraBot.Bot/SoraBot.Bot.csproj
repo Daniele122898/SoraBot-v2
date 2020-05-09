@@ -20,8 +20,4 @@
       <ProjectReference Include="..\SoraBot.Services\SoraBot.Services.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Modules\AudioModule" />
-    </ItemGroup>
-
 </Project>
