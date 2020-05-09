@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Bot.Modules
 {
@@ -12,6 +13,13 @@ namespace SoraBot.Bot.Modules
     [Summary("All commands that have to do with Self-assignable roles")]
     public class SarModule : SoraSocketCommandModule
     {
+        private readonly ISarRepository _sarRepo;
+
+        public SarModule(ISarRepository sarRepo)
+        {
+            _sarRepo = sarRepo;
+        }
+        
         [Command("addsar"), Alias("asar", "addrole")]
         public async Task AddSar(string roleName)
         {
@@ -39,6 +47,17 @@ namespace SoraBot.Bot.Modules
                     "Discord sometimes fails to update this order so just move a group around and it should be fine :)");
                 return;
             }
+            
+            // Now make sure it doesnt already exist
+            if (await _sarRepo.CheckIfRoleAlreadyExists(role.Id))
+            {
+                await ReplyFailureEmbed("This role is already self assignable.");
+                return;
+            }
+            
+            // Role exists, Sora can assign it, and it's not a sar yet. So create it :D
+            await _sarRepo.AddSar(role.Id, Context.Guild.Id);
+            await ReplySuccessEmbed($"Successfully added {role.Name} to the SAR list :>");
         }
     }
 }
