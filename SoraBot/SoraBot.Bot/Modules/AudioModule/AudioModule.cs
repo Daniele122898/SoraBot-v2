@@ -19,6 +19,39 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("leave")]
+        [Summary("Make sore leave your voice channel")]
+        public async Task LeaveVC()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I'm not connected to any VC in this guild");
+                return;
+            }
+
+            var playerVC = player.VoiceChannel;
+            var userVC = ((IGuildUser) Context.User).VoiceChannel;
+            if (playerVC == null || userVC == null)
+            {
+                await ReplyFailureEmbed("You're not connected to a voice channel!");
+                return;
+            }
+            if (playerVC.Id != userVC.Id)
+            {
+                await ReplyFailureEmbed("I'm not in the same VC as you. Only listening users can make me leave.");
+                return;
+            }
+
+            try
+            {
+                await _node.LeaveAsync(playerVC);
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something went wrong when i tried to leave :/");
+            }
+        }
+
         [Command("join")]
         [Summary("Make Sora join your voice channel")]
         public async Task Join()
