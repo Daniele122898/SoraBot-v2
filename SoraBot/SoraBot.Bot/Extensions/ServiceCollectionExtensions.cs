@@ -20,6 +20,7 @@ using SoraBot.Services.Reminder;
 using SoraBot.Services.Users;
 using SoraBot.Services.Utils;
 using SoraBot.Services.Waifu;
+using Victoria;
 
 namespace SoraBot.Bot.Extensions
 {
@@ -62,6 +63,22 @@ namespace SoraBot.Bot.Extensions
             
             services.AddSingleton<DiscordSerilogAdapter>();
             services.AddSingleton<InteractiveService>();
+
+            services.AddSingleton<LavaNode>();
+            services.AddSingleton(provider =>
+            {
+                var conf = provider.GetRequiredService<IOptions<LavaLinkConfig>>().Value;
+                return new LavaConfig()
+                {
+                    Authorization = conf.Password,
+                    Hostname = conf.IP,
+                    Port = conf.Port,
+                    BufferSize = 1024,
+                    EnableResume = false,
+                    LogSeverity = GlobalConstants.Production ? LogSeverity.Warning : LogSeverity.Verbose,
+                    ReconnectAttempts = 3
+                };
+            });
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()
