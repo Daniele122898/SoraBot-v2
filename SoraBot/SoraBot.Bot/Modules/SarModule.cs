@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -19,18 +20,89 @@ namespace SoraBot.Bot.Modules
         {
             _sarRepo = sarRepo;
         }
-
-        private async Task<bool> SoraCanAssignRole(int rolePosition, string failiureTitle, string failiureMsg)
+        
+        [Command("iamnot")]
+        [Summary("Removes the specified role from your roles if it is a self assignable role")]
+        public async Task IamNot(
+            [Summary("Name of the role"), Remainder]
+            string roleName)
         {
-            var soraHighestRole = Context.Guild.CurrentUser.Roles
-                .OrderByDescending(x => x.Position)
-                .FirstOrDefault();
-            if (soraHighestRole == null || soraHighestRole.Position < rolePosition)
+            // Try to find the role specified
+            var role = Context.Guild.Roles
+                .FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
+            if (role == null)
             {
-                await ReplyFailureEmbedExtended(failiureTitle, failiureMsg);
-                return false;
+                await ReplyFailureEmbed("Could not find role! Make sure the role exists and is correctly spelled!");
+                return;
             }
-            return true;
+            
+            // Make sure Sora could even assign it
+            if (!await this.SoraCanAssignRole(
+                role.Position, 
+                "I cannot remove the specified role!",
+                "For Sora to be able to remove this role he has to be - or have a role that is - above the specified role in the role hierarchy! "))
+                return;
+            
+            // Check if user even has it
+            var user = (SocketGuildUser) Context.User;
+            if (user.Roles.All(x => x.Id != role.Id))
+            {
+                await ReplyFailureEmbed("You don't have this role!");
+                return;
+            }
+            
+            // Check if it's even a SAR
+            if (!await _sarRepo.CheckIfRoleAlreadyExists(role.Id))
+            {
+                await ReplyFailureEmbed("This role is not a self assignable role.");
+                return;
+            }
+            
+            // Otherwise remove it from the user
+            await user.RemoveRoleAsync(role);
+            await ReplySuccessEmbed($"Successfully removed {role.Name} from you :)");
+        }
+
+        [Command("iam"), Alias("sar")]
+        [Summary("Adds the specified role to your roles if it is a self assignable role")]
+        public async Task Iam(
+            [Summary("Name of the role"), Remainder]
+            string roleName)
+        {
+            // Try to find the role specified
+            var role = Context.Guild.Roles
+                .FirstOrDefault(x => x.Name.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
+            if (role == null)
+            {
+                await ReplyFailureEmbed("Could not find role! Make sure the role exists and is correctly spelled!");
+                return;
+            }
+            
+            // Make sure Sora could even assign it
+            if (!await this.SoraCanAssignRole(
+                role.Position, 
+                "I cannot assing the specified role!",
+                "For Sora to be able to assign this role he has to be - or have a role that is - above the specified role in the role hierarchy! "))
+                return;
+            
+            // Check if user already has it
+            var user = (SocketGuildUser) Context.User;
+            if (user.Roles.Any(x => x.Id == role.Id))
+            {
+                await ReplyFailureEmbed("You already have this role!");
+                return;
+            }
+            
+            // Check if it's even a SAR
+            if (!await _sarRepo.CheckIfRoleAlreadyExists(role.Id))
+            {
+                await ReplyFailureEmbed("This role is not a self assignable role.");
+                return;
+            }
+            
+            // Otherwise give it to the user
+            await user.AddRoleAsync(role);
+            await ReplySuccessEmbed($"Successfully assigned {role.Name} to you :)");
         }
         
         [Command("addsar"), Alias("asar", "addrole")]
@@ -54,7 +126,7 @@ namespace SoraBot.Bot.Modules
             if (!await this.SoraCanAssignRole(
                 role.Position, 
                 "I cannot assing the specified role!",
-                "For Sora to be able to assign this role he has to be or have a role that is above the specified role in the role hierarchy! " +
+                "For Sora to be able to assign this role he has to be - or have a role that is - above the specified role in the role hierarchy! " +
                 "Discord sometimes fails to update this order so just move a group around and it should be fine :)"))
                 return;
 
@@ -98,6 +170,19 @@ namespace SoraBot.Bot.Modules
             // Role exists, Sora can assign it, and it's not a sar yet. So create it :D
             await _sarRepo.RemoveSar(role.Id);
             await ReplySuccessEmbed($"Successfully removed {role.Name} from the SAR list :>");
+        }
+        
+        private async Task<bool> SoraCanAssignRole(int rolePosition, string failiureTitle, string failiureMsg)
+        {
+            var soraHighestRole = Context.Guild.CurrentUser.Roles
+                .OrderByDescending(x => x.Position)
+                .FirstOrDefault();
+            if (soraHighestRole == null || soraHighestRole.Position < rolePosition)
+            {
+                await ReplyFailureEmbedExtended(failiureTitle, failiureMsg);
+                return false;
+            }
+            return true;
         }
     }
 }
