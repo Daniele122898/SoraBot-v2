@@ -47,8 +47,12 @@ namespace SoraBot.Bot.Modules.AudioModule
             e.Player.Queue.Remove(e.Track);
 
             var eb = this.GetSimpleMusicEmbed("Track threw and exception. Attempting to play next track");
+
+            string desc = "";
             if (!string.IsNullOrWhiteSpace(e.ErrorMessage))
-                eb.WithDescription(e.ErrorMessage);
+                desc += $"{e.ErrorMessage}\n";
+            desc += e.Track.Title;
+            eb.WithDescription(desc);
             
             await e.Player.TextChannel.SendMessageAsync(
                 embed: eb.Build());
@@ -64,7 +68,8 @@ namespace SoraBot.Bot.Modules.AudioModule
             e.Player.Queue.Remove(e.Track);
 
             await e.Player.TextChannel.SendMessageAsync(
-                embed: this.GetSimpleMusicEmbed("Track got stuck. Attempting to play next track").Build());
+                embed: this.GetSimpleMusicEmbed("Track got stuck. Attempting to play next track")
+                    .WithDescription(e.Track.Title).Build());
             
             await e.Player.SkipAsync();
         }
