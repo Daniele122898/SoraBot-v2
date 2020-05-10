@@ -47,25 +47,13 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             var eb = this.GetSimpleMusicEmbed("Track threw and exception. Attempting to play next track");
 
-            string desc = "";
+            string desc = $"**{e.Track.Title}**";
             if (!string.IsNullOrWhiteSpace(e.ErrorMessage))
-                desc += $"{e.ErrorMessage}\n";
-            desc += e.Track.Title;
+                desc += $"\n{e.ErrorMessage}";
             eb.WithDescription(desc);
             
             await e.Player.TextChannel.SendMessageAsync(
                 embed: eb.Build());
-            
-            var next = await e.Player.SkipAsync();
-            if (next == null)
-            {
-                await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
-                return;
-            }
-
-            var neb = await this.GetExtendedMusicEmbed(next);
-            await e.Player.TextChannel.SendMessageAsync(
-                embed: neb.Build());
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs e)
@@ -78,17 +66,6 @@ namespace SoraBot.Bot.Modules.AudioModule
             await e.Player.TextChannel.SendMessageAsync(
                 embed: this.GetSimpleMusicEmbed("Track got stuck. Attempting to play next track")
                     .WithDescription(e.Track.Title).Build());
-            
-            var next = await e.Player.SkipAsync();
-            if (next == null)
-            {
-                await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
-                return;
-            }
-
-            var neb = await this.GetExtendedMusicEmbed(next);
-            await e.Player.TextChannel.SendMessageAsync(
-                embed: neb.Build());
         }
 
         private EmbedBuilder GetSimpleMusicEmbed(string message)
