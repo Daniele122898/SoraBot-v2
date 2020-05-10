@@ -11,7 +11,6 @@ using Victoria.Enums;
 
 namespace SoraBot.Bot.Modules.AudioModule
 {
-    
     [Name("Music")]
     [Summary("All commands around music playing :>")]
     public partial class AudioModule : SoraSocketCommandModule
@@ -32,7 +31,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
 
@@ -41,7 +40,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("Queue empty. Nothing to shuffle");
                 return;
             }
-            
+
             player.Queue.Shuffle();
             await ReplyMusicEmbed("Shuffled queue for you ;)");
         }
@@ -55,10 +54,10 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             player.Queue.Clear();
             await ReplyMusicEmbed("Cleared entire queue :)");
         }
@@ -72,13 +71,13 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
             }
-            
+
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
@@ -99,9 +98,9 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyEmbed(eb);
                 return;
             }
-            
+
             // Otherwise built the rest of the queue
-            int count = 0;            
+            int count = 0;
             foreach (var item in player.Queue.Items)
             {
                 ++count;
@@ -113,11 +112,11 @@ namespace SoraBot.Bot.Modules.AudioModule
                     x.Name = $"#{count.ToString()} by {track.Author}";
                     x.Value = $"[{Formatter.FormatTime(track.Duration)}] - **[{track.Title}]({track.Url})**";
                 });
-                
+
                 if (count >= 10)
                     break;
             }
-            
+
             TimeSpan duration = new TimeSpan();
 
             foreach (var item in player.Queue.Items)
@@ -125,6 +124,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 var track = (LavaTrack) item;
                 duration = duration.Add(track.Duration);
             }
+
             duration = duration.Add(player.Track.Duration.Subtract(player.Track.Position));
             eb.AddField(x =>
             {
@@ -145,7 +145,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
@@ -157,31 +157,40 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I cannot display information about a stream");
                 return;
             }
-            
+
             double percentageDone = (100.0 / player.Track.Duration.TotalSeconds) *
                                     player.Track.Position.TotalSeconds;
             int rounded = (int) Math.Floor(percentageDone / 10);
             string progress = "";
             for (int i = 0; i < 10; i++)
             {
-                if (i == rounded) {
+                if (i == rounded)
+                {
                     progress += " :red_circle: ";
                     continue;
                 }
+
                 progress += "▬";
             }
-            
+
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
                 Title = $"{MusicalNote} Currently playing by {player.Track.Author}",
-                Description = $"**[{player.Track.Title}]({player.Track.Url})**{(player.PlayerState == PlayerState.Paused ? " (Paused)" : "")}"
+                Description =
+                    $"**[{player.Track.Title}]({player.Track.Url})**{(player.PlayerState == PlayerState.Paused ? " (Paused)" : "")}"
             };
+
+            var imageUrl = await player.Track.FetchArtworkAsync();
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+                eb.WithThumbnailUrl(imageUrl);
+
             eb.AddField(x =>
             {
                 x.IsInline = false;
                 x.Name = "Progress";
-                x.Value = $"[{Formatter.FormatTime(player.Track.Position)}] {progress} [{Formatter.FormatTime(player.Track.Duration)}]";
+                x.Value =
+                    $"[{Formatter.FormatTime(player.Track.Position)}] {progress} [{Formatter.FormatTime(player.Track.Duration)}]";
             });
 
             await ReplyEmbed(eb);
@@ -197,10 +206,10 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             if (player.PlayerState != PlayerState.Playing)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
@@ -210,7 +219,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             vol = Math.Clamp(vol, 1, 100);
             try
             {
-                await player.UpdateVolumeAsync((ushort)vol);
+                await player.UpdateVolumeAsync((ushort) vol);
                 await ReplyMusicEmbed($"Set volume to {vol.ToString()}");
             }
             catch (Exception)
@@ -218,7 +227,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("Something broke :/");
             }
         }
-        
+
         [Command("skip"), Alias("next")]
         [Summary("Skips the specified amount of songs")]
         public async Task SkipSong(
@@ -233,13 +242,13 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
             }
-            
+
             if (number < 1 || number > (player.Queue.Count + 1))
             {
                 await ReplyFailureEmbed(
@@ -261,6 +270,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                     await ReplyMusicEmbed($"Queue is now finished.");
                     return;
                 }
+
                 var currentTrack = await player.SkipAsync();
                 if (currentTrack == null)
                 {
@@ -287,7 +297,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
                 return Maybe.FromVal<TimeSpan>(TimeSpan.FromSeconds(seconds));
             }
-            
+
             // Parse as minute and second string :D
             var split = seek.Split(":");
             if (split.Length != 2)
@@ -303,17 +313,19 @@ namespace SoraBot.Bot.Modules.AudioModule
         [Command("seek")]
         [Summary("Seeks a certain amount in the track")]
         public async Task SeekSong(
-            [Summary("Time to seek. If just a number it will seek the amount in seconds. Otherwise you can use min:sec")]string seek)
+            [Summary(
+                "Time to seek. If just a number it will seek the amount in seconds. Otherwise you can use min:sec")]
+            string seek)
         {
             if (!_node.TryGetPlayer(Context.Guild, out var player))
             {
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
@@ -337,7 +349,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                                         $"track length ({(player.Track.Duration.TotalSeconds - 1).ToString(CultureInfo.InvariantCulture)} s).");
                 return;
             }
-            
+
             try
             {
                 await player.SeekAsync(skip);
@@ -358,10 +370,10 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
@@ -376,6 +388,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                     await ReplyMusicEmbed($"Queue is now finished.");
                     return;
                 }
+
                 var currentTrack = await player.SkipAsync();
                 if (currentTrack == null)
                 {
@@ -401,7 +414,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
 
@@ -410,7 +423,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I'm already playing ...");
                 return;
             }
-            
+
             try
             {
                 await player.ResumeAsync();
@@ -421,7 +434,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("Something broke :/");
             }
         }
-        
+
         [Command("pause")]
         [Summary("Pauses the player.")]
         public async Task PausePlayer()
@@ -431,7 +444,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
 
@@ -463,15 +476,15 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
                 return;
             }
-            
+
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
-            
+
             if (query.StartsWith("<") && query.EndsWith(">"))
                 query = query.TrimStart('<').TrimEnd('>');
-            
+
             bool isLink = Uri.IsWellFormedUriString(query, UriKind.RelativeOrAbsolute);
-            
+
             var search = isLink
                 ? await _node.SearchAsync(query)
                 : await _node.SearchYouTubeAsync(query);
@@ -501,7 +514,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 for (var i = 0; i < search.Tracks.Count; i++)
                 {
                     if (i == skip) continue;
-                    
+
                     var track = search.Tracks[i];
                     if (player.Track != null)
                         player.Queue.Enqueue(track);
@@ -537,7 +550,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("I'm not connected to any VC in this guild");
                 return;
             }
-            
+
             var playerVC = player.VoiceChannel;
             if (!await CheckIfSameVc(playerVC))
                 return;
