@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Extensions;
+using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Misc;
 using SoraBot.Services.Reminder;
@@ -110,6 +111,7 @@ namespace SoraBot.Bot
                 _logger.LogInformation("Warming up all services that rely on timers etc.");
                 _scope.ServiceProvider.GetRequiredService<IReminderService>();
                 _scope.ServiceProvider.GetRequiredService<HealthChecker>();
+                _scope.ServiceProvider.GetRequiredService<AudioEventHandler>();
 
                 // This way the background task stays alive 
                 // await Task.Delay(-1);

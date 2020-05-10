@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Models;
+using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
@@ -79,6 +80,7 @@ namespace SoraBot.Bot.Extensions
                     ReconnectAttempts = 3
                 };
             });
+            services.AddSingleton<AudioEventHandler>();
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()
