@@ -199,7 +199,7 @@ namespace SoraBot.Bot.Modules.AudioModule
         [Summary("Skips the specified amount of songs")]
         public async Task SkipSong(
             [Summary("Number of songs to skip. 1 would just skip the currently playing song")]
-            uint number)
+            int number)
         {
             if (!_node.TryGetPlayer(Context.Guild, out var player))
             {
@@ -223,8 +223,11 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
 
-            uint queueRemove = --number;
-            player.Queue.RemoveRange(0, (int)queueRemove);
+            int queueRemove = --number;
+            for (int i = 0; i < queueRemove; i++)
+            {
+                player.Queue.TryDequeue(out _);
+            }
 
             try
             {
