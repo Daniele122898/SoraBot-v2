@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Logging;
+using SoraBot.Common.Extensions.Modules;
 using Victoria;
 using Victoria.EventArgs;
 
@@ -46,9 +47,53 @@ namespace SoraBot.Bot.Modules.AudioModule
             throw new NotImplementedException();
         }
 
-        private Task OnTrackEnded(TrackEndedEventArgs arg)
+        private EmbedBuilder GetSimpleMusicEmbed(string message)
+            => new EmbedBuilder()
+            {
+                Color = SoraSocketCommandModule.Blue,
+                Title = $"{SoraSocketCommandModule.MusicalNote} {message}"
+            };
+
+        private async Task<EmbedBuilder> GetExtendedMusicEmbed(LavaTrack track)
         {
-            throw new NotImplementedException();
+            var eb = new EmbedBuilder()
+            {
+                Color = SoraSocketCommandModule.Blue,
+                Title = $"{SoraSocketCommandModule.MusicalNote} Next: [{track.Duration.ToString(@"mm\:ss")}] - **{track.Title}**",
+                Footer = new EmbedFooterBuilder()
+                {
+                    Text = $"Video by {track.Author}"
+                },
+                Url = track.Url,
+            };
+            var imageUrl = await track.FetchArtworkAsync();
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+                eb.WithThumbnailUrl(imageUrl);
+            return eb;
+        }
+
+        private async Task OnTrackEnded(TrackEndedEventArgs e)
+        {
+            if (!e.Reason.ShouldPlayNext() || e.Player == null)
+                return;
+
+            if (!e.Player.Queue.TryDequeue(out var queueable))
+            {
+                await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
+                return;
+            }
+
+            if (!(queueable is LavaTrack track))
+            {
+                await e.Player.TextChannel.SendMessageAsync(
+                    embed: this.GetSimpleMusicEmbed("Next item in queue was not a track. Stopped playback..").Build());
+                return;
+            }
+            
+            // Queue next song
+            await e.Player.PlayAsync(track);
+            var eb = await this.GetExtendedMusicEmbed(track);
+            await e.Player.TextChannel.SendMessageAsync(embed: eb.Build());
         }
 
         private Task OnLog(LogMessage log)
