@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
+using ArgonautCore.Maybe;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
@@ -241,6 +243,78 @@ namespace SoraBot.Bot.Modules.AudioModule
                 {
                     await ReplyMusicExtended(currentTrack, false);
                 }
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
+        }
+
+        private static Maybe<TimeSpan> SeekParse(string seek)
+        {
+            if (!seek.Contains(":"))
+            {
+                // Try parse as seconds
+                if (!int.TryParse(seek, out var seconds))
+                    return Maybe.Zero<TimeSpan>();
+
+                return Maybe.FromVal<TimeSpan>(TimeSpan.FromSeconds(seconds));
+            }
+            
+            // Parse as minute and second string :D
+            var split = seek.Split(":");
+            if (split.Length != 2)
+                return Maybe.Zero<TimeSpan>();
+
+            // Otherwise try to parse both values
+            if (!int.TryParse(split[0], out var minutes) || !int.TryParse(split[1], out var secs))
+                return Maybe.Zero<TimeSpan>();
+
+            return Maybe.FromVal<TimeSpan>(TimeSpan.FromMinutes(minutes).Add(TimeSpan.FromSeconds(secs)));
+        }
+
+        [Command("seek")]
+        [Summary("Seeks a certain amount in the track")]
+        public async Task SeekSong(
+            [Summary("Time to seek. If just a number it will seek the amount in seconds. Otherwise you can use min:sec")]string seek)
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            if (player.Track == null)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+
+            var parsed = SeekParse(seek.Trim());
+            if (!parsed.HasValue)
+            {
+                await ReplyFailureEmbedExtended(
+                    "Failed to parse seek amount!",
+                    "Make sure you either send just a number indicating the amount of seconds to skip or `min:sec`. For example `1:30`");
+                return;
+            }
+
+            var skip = parsed.Value;
+
+            if (skip.TotalSeconds < 1 || skip.TotalSeconds > (player.Track.Duration.TotalSeconds - 1))
+            {
+                await ReplyFailureEmbed($"Cannot seek shorter than 1 second or longer than " +
+                                        $"track length ({(player.Track.Duration.TotalSeconds - 1).ToString(CultureInfo.InvariantCulture)} s).");
+                return;
+            }
+            
+            try
+            {
+                await player.SeekAsync(skip);
+                await ReplyMusicEmbed($"Seeked song to {Formatter.FormatTime(skip)}");
             }
             catch (Exception)
             {
