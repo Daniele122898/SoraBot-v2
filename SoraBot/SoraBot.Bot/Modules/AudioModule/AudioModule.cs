@@ -20,6 +20,57 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("nowplaying"), Alias("np", "now playing")]
+        [Summary("Stats about the currently playing song.")]
+        public async Task Np()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+
+            if (player.Track.IsStream)
+            {
+                await ReplyFailureEmbed("I cannot display information about a stream");
+                return;
+            }
+            
+            double percentageDone = (100.0 / player.Track.Duration.TotalSeconds) *
+                                    player.Track.Position.TotalSeconds;
+            int rounded = (int) Math.Floor(percentageDone / 10);
+            string progress = "";
+            for (int i = 0; i < 10; i++)
+            {
+                if (i == rounded) {
+                    progress += " :red_circle: ";
+                    continue;
+                }
+                progress += "▬";
+            }
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Title = $"{MusicalNote} Currently playing by {player.Track.Author}",
+                Description = $"**[{player.Track.Title}]({player.Track.Url})**"
+            };
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = "Progress";
+                x.Value = $"[{player.Track.Position.ToString(@"mm\:ss")}] {progress} [{player.Track.Duration.ToString(@"mm\:ss")}]";
+            });
+
+            await ReplyEmbed(eb);
+        }
+
         [Command("volume"), Alias("vol")]
         [Summary("Set the volume of the player to a value between 1 - 100")]
         public async Task SetVolume(
