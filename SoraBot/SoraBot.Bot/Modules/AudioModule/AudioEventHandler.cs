@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Logging;
 using Victoria;
+using Victoria.EventArgs;
 
 namespace SoraBot.Bot.Modules.AudioModule
 {
@@ -18,6 +19,36 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
             
             _node.OnLog += OnLog;
+            _node.OnTrackEnded += OnTrackEnded;
+            _node.OnTrackStuck += OnTrackStuck;
+            _node.OnTrackException += OnTrackException;
+            _node.OnWebSocketClosed += OnWebSocketClosed;
+            _node.OnStatsReceived += OnStatsReceived;
+        }
+
+        private Task OnStatsReceived(StatsEventArgs arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task OnWebSocketClosed(WebSocketClosedEventArgs arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task OnTrackException(TrackExceptionEventArgs arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task OnTrackStuck(TrackStuckEventArgs arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task OnTrackEnded(TrackEndedEventArgs arg)
+        {
+            throw new NotImplementedException();
         }
 
         private Task OnLog(LogMessage log)
@@ -50,6 +81,12 @@ namespace SoraBot.Bot.Modules.AudioModule
 
         public void Dispose()
         {
+            _node.OnLog -= OnLog;
+            _node.OnTrackEnded -= OnTrackEnded;
+            _node.OnTrackStuck -= OnTrackStuck;
+            _node.OnTrackException -= OnTrackException;
+            _node.OnWebSocketClosed -= OnWebSocketClosed;
+            _node.OnStatsReceived -= OnStatsReceived;
         }
     }
 }
