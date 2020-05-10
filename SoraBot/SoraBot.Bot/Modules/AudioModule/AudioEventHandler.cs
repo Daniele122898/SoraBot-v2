@@ -57,7 +57,16 @@ namespace SoraBot.Bot.Modules.AudioModule
             await e.Player.TextChannel.SendMessageAsync(
                 embed: eb.Build());
             
-            await e.Player.SkipAsync();
+            var next = await e.Player.SkipAsync();
+            if (next == null)
+            {
+                await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
+                return;
+            }
+
+            var neb = await this.GetExtendedMusicEmbed(next);
+            await e.Player.TextChannel.SendMessageAsync(
+                embed: neb.Build());
         }
 
         private async Task OnTrackStuck(TrackStuckEventArgs e)
@@ -71,7 +80,16 @@ namespace SoraBot.Bot.Modules.AudioModule
                 embed: this.GetSimpleMusicEmbed("Track got stuck. Attempting to play next track")
                     .WithDescription(e.Track.Title).Build());
             
-            await e.Player.SkipAsync();
+            var next = await e.Player.SkipAsync();
+            if (next == null)
+            {
+                await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
+                return;
+            }
+
+            var neb = await this.GetExtendedMusicEmbed(next);
+            await e.Player.TextChannel.SendMessageAsync(
+                embed: neb.Build());
         }
 
         private EmbedBuilder GetSimpleMusicEmbed(string message)
