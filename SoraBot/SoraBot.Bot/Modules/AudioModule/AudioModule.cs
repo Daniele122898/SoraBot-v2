@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;

@@ -46,6 +46,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 eb.AddField(x =>
                 {
                     x.IsInline = false;
+                    // ReSharper disable once AccessToModifiedClosure
                     x.Name = $"#{(i + 1).ToString()} by {track.Author}";
                     x.Value = $"[{Formatter.FormatTime(track.Duration)}] - **[{track.Title}]({track.Url})**";
                 });
