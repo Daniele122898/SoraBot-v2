@@ -51,6 +51,46 @@ namespace SoraBot.Bot.Modules.AudioModule
                 x.Value =
                     $"[{Formatter.FormatTime(player.Track.Duration)}] - **[{player.Track.Title}]({player.Track.Url})**";
             });
+
+            if (player.Queue.Count == 0)
+            {
+                await ReplyEmbed(eb);
+                return;
+            }
+            
+            // Otherwise built the rest of the queue
+            int count = 0;            
+            foreach (var item in player.Queue.Items)
+            {
+                ++count;
+                var track = (LavaTrack) item;
+                eb.AddField(x =>
+                {
+                    x.IsInline = false;
+                    x.Name = $"#{count.ToString()} by {track.Author}";
+                    x.Value = $"[{Formatter.FormatTime(track.Duration)}] - **[{track.Title}]({track.Url})**";
+                });
+                
+                if (count >= 10)
+                    break;
+            }
+            
+            TimeSpan duration = new TimeSpan();
+
+            foreach (var item in player.Queue.Items)
+            {
+                var track = (LavaTrack) item;
+                duration = duration.Add(track.Duration);
+            }
+            duration = duration.Add(player.Track.Duration.Subtract(player.Track.Position));
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = $"{player.Queue.Count.ToString()} songs in queue";
+                x.Value = $"[{Formatter.FormatTime(duration)}] total playtime";
+            });
+
+            await ReplyEmbed(eb);
         }
 
         [Command("nowplaying"), Alias("np", "now playing")]
