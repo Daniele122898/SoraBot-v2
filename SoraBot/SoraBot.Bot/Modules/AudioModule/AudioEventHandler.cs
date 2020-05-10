@@ -35,13 +35,14 @@ namespace SoraBot.Bot.Modules.AudioModule
 
         private Task OnStatsReceived(StatsEventArgs e)
         {
+            _log.LogTrace("Received Stats from LavaLink");
             _audioStatsService.SetStats(e);
             return Task.CompletedTask;
         }
 
         private Task OnWebSocketClosed(WebSocketClosedEventArgs e)
         {
-            _log.LogWarning("Websocket connection lost from LavaNode");
+            _log.LogInformation($"Websocket connection lost from LavaNode,({e.Code.ToString()}) {e.Reason}");
             return Task.CompletedTask;
         }
 
