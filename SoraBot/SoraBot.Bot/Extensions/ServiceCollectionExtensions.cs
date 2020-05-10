@@ -81,6 +81,7 @@ namespace SoraBot.Bot.Extensions
                 };
             });
             services.AddSingleton<AudioEventHandler>();
+            services.AddSingleton<AudioStatsService>();
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()

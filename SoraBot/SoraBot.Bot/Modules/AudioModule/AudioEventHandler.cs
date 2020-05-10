@@ -13,13 +13,18 @@ namespace SoraBot.Bot.Modules.AudioModule
     {
         private readonly ILogger<AudioEventHandler> _log;
         private readonly LavaNode _node;
+        private readonly AudioStatsService _audioStatsService;
 
-        public AudioEventHandler(ILogger<AudioEventHandler> log, LavaNode node)
+        public AudioEventHandler(
+            ILogger<AudioEventHandler> log, 
+            LavaNode node,
+            AudioStatsService audioStatsService)
         {
             log.LogInformation("Initialized Audio Event Handlers");
             _log = log;
             _node = node;
-            
+            _audioStatsService = audioStatsService;
+
             _node.OnLog += OnLog;
             _node.OnTrackEnded += OnTrackEnded;
             _node.OnTrackStuck += OnTrackStuck;
@@ -28,9 +33,10 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node.OnStatsReceived += OnStatsReceived;
         }
 
-        private Task OnStatsReceived(StatsEventArgs arg)
+        private Task OnStatsReceived(StatsEventArgs e)
         {
-            throw new NotImplementedException();
+            _audioStatsService.SetStats(e);
+            return Task.CompletedTask;
         }
 
         private Task OnWebSocketClosed(WebSocketClosedEventArgs e)
