@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Logging;
@@ -32,9 +33,10 @@ namespace SoraBot.Bot.Modules.AudioModule
             throw new NotImplementedException();
         }
 
-        private Task OnWebSocketClosed(WebSocketClosedEventArgs arg)
+        private Task OnWebSocketClosed(WebSocketClosedEventArgs e)
         {
-            throw new NotImplementedException();
+            _log.LogWarning("Websocket connection lost from LavaNode");
+            return Task.CompletedTask;
         }
 
         private async Task OnTrackException(TrackExceptionEventArgs e)
