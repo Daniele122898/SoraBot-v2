@@ -23,6 +23,29 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("shuffle"), Alias("shufflequeue", "shufflelist")]
+        [Summary("Shuffles the queue")]
+        public async Task ShuffleQueue()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+
+            if (player.Queue.Count == 0)
+            {
+                await ReplyFailureEmbed("Queue empty. Nothing to shuffle");
+                return;
+            }
+            
+            player.Queue.Shuffle();
+            await ReplyMusicEmbed("Shuffled queue for you ;)");
+        }
+
         [Command("clear"), Alias("clearqueue", "clearlist")]
         [Summary("Cleares the entire music queue")]
         public async Task ClearQueue()
