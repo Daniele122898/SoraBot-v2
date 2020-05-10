@@ -11,10 +11,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Extensions;
+using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Data.Configurations;
 using SoraBot.Services.Misc;
 using SoraBot.Services.Reminder;
 using SoraBot.Services.Utils;
+using Victoria;
 
 namespace SoraBot.Bot
 {
@@ -28,6 +30,7 @@ namespace SoraBot.Bot
         private readonly IServiceProvider _serviceProvider;
         private readonly DiscordSerilogAdapter _serilogAdapter;
         private readonly WeebService _weebService;
+        private readonly LavaNode _lavaNode;
 
         private IServiceScope _scope;
         private readonly SoraBotConfig _config;
@@ -40,7 +43,8 @@ namespace SoraBot.Bot
             IServiceProvider serviceProvider,
             DiscordSerilogAdapter serilogAdapter,
             IOptions<SoraBotConfig> soraConfig,
-            WeebService weebService)
+            WeebService weebService,
+            LavaNode lavaNode)
         {
             _logger = logger;
             _socketClient = socketClient;
@@ -49,6 +53,7 @@ namespace SoraBot.Bot
             _serviceProvider = serviceProvider;
             _serilogAdapter = serilogAdapter;
             _weebService = weebService;
+            _lavaNode = lavaNode;
             _config = soraConfig?.Value ?? throw new ArgumentNullException(nameof(soraConfig));
         }
         
@@ -66,6 +71,7 @@ namespace SoraBot.Bot
                 _socketClient.Disconnected += OnDisconnect;
                 
                 _socketClient.Log += _serilogAdapter.HandleLog;
+                _socketClient.Ready += SocketClientOnReady;
                 _restClient.Log += _serilogAdapter.HandleLog;
                 _commandService.Log += _serilogAdapter.HandleLog;
 
@@ -105,6 +111,7 @@ namespace SoraBot.Bot
                 _logger.LogInformation("Warming up all services that rely on timers etc.");
                 _scope.ServiceProvider.GetRequiredService<IReminderService>();
                 _scope.ServiceProvider.GetRequiredService<HealthChecker>();
+                _scope.ServiceProvider.GetRequiredService<AudioEventHandler>();
 
                 // This way the background task stays alive 
                 // await Task.Delay(-1);
@@ -128,6 +135,14 @@ namespace SoraBot.Bot
                 throw;
             }
             
+        }
+
+        private Task SocketClientOnReady()
+        {
+            // TODO figure out if this is fine or if we should use IsConnected to check
+            _lavaNode.ConnectAsync();
+            _socketClient.Ready -= SocketClientOnReady;
+            return Task.CompletedTask;
         }
 
         private void OnStopping()

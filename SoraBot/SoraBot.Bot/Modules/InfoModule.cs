@@ -7,6 +7,7 @@ using Discord.Commands;
 using Humanizer;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Models;
+using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
@@ -24,15 +25,18 @@ namespace SoraBot.Bot.Modules
     {
         private readonly IPrefixService _prefixService;
         private readonly IUserRepository _userRepo;
+        private readonly AudioStatsService _audioStatsService;
         private readonly SoraBotConfig _config;
 
         public InfoModule(
             IOptions<SoraBotConfig> config,
             IPrefixService prefixService,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            AudioStatsService audioStatsService)
         {
             _prefixService = prefixService;
             _userRepo = userRepo;
+            _audioStatsService = audioStatsService;
             _config = config.Value;
         }
 
@@ -253,7 +257,7 @@ namespace SoraBot.Bot.Modules
                 x.Name = "Used RAM";
                 x.IsInline = true;
                 var mem = GC.GetTotalMemory(false);
-                x.Value = $"{(mem.Bytes().Humanize("MB"))}";
+                x.Value = mem.Bytes().Humanize("MB");
             });
             eb.AddField(x =>
             {
@@ -294,6 +298,30 @@ namespace SoraBot.Bot.Modules
                 x.IsInline = true;
                 x.Value = _config.TotalShards.ToString();
             });
+            
+            // Music stats
+            if (_audioStatsService.AudioStats != null)
+            {
+                var stats = _audioStatsService.AudioStats;
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = "Active -/ Total Players";
+                    x.Value = $"{stats.PlayingPlayers.ToString()} / {stats.Players.ToString()}";
+                });
+                eb.AddField(x =>
+                {
+                    x.IsInline = true;
+                    x.Name = "LavaLink CPU Usage";
+                    x.Value = $"{(stats.Cpu.LavalinkLoad*100):f2}%";
+                });
+                eb.AddField(x =>
+                {
+                    x.Name = "LavaLink Ram Usage";
+                    x.IsInline = true;
+                    x.Value = stats.Memory.Used.Bytes().Humanize("MB");
+                });
+            }
             
             eb.AddField((x) =>
             {

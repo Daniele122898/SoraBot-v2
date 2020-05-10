@@ -37,6 +37,36 @@ namespace SoraBot.Common.Extensions.Modules
             return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
         }
         
+        public async Task<IUserMessage> ReplyMusicEmbed(string message, string url = null)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Title = $"{MusicalNote} {message}"
+            };
+            if (!string.IsNullOrWhiteSpace(url))
+                eb.WithUrl(url);
+            return await ReplyAsync("", embed: eb.Build());
+        }
+        
+        public async Task<IUserMessage> ReplyMusicEmbedExtended(string songName, string authorName, string imageUrl, string songLength, string videoUrl, bool added = true)
+        {
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Title = $"{MusicalNote} {(added ? "Enqueued" : "Playing")}: [{songLength}] - **{songName}**",
+                Footer = new EmbedFooterBuilder()
+                {
+                    IconUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl(),
+                    Text = $"Requested by {Formatter.UsernameDiscrim(Context.User)} | Video by {authorName}"
+                },
+                Url = videoUrl,
+            };
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+                eb.WithThumbnailUrl(imageUrl);
+            return await ReplyAsync("", embed: eb.Build());
+        }
+        
         public async Task<IUserMessage> ReplySuccessEmbedExtended(string title, string desc)
         {
             return await ReplyAsync("", embed: SimpleEmbed(Green, title, SuccessEmoji).WithDescription(desc).Build());

@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SoraBot.Bot.Models;
+using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
@@ -20,6 +21,7 @@ using SoraBot.Services.Reminder;
 using SoraBot.Services.Users;
 using SoraBot.Services.Utils;
 using SoraBot.Services.Waifu;
+using Victoria;
 
 namespace SoraBot.Bot.Extensions
 {
@@ -62,6 +64,24 @@ namespace SoraBot.Bot.Extensions
             
             services.AddSingleton<DiscordSerilogAdapter>();
             services.AddSingleton<InteractiveService>();
+
+            services.AddSingleton<LavaNode>();
+            services.AddSingleton(provider =>
+            {
+                var conf = provider.GetRequiredService<IOptions<LavaLinkConfig>>().Value;
+                return new LavaConfig()
+                {
+                    Authorization = conf.Password,
+                    Hostname = conf.IP,
+                    Port = conf.Port,
+                    BufferSize = 1024,
+                    EnableResume = false,
+                    LogSeverity = GlobalConstants.Production ? LogSeverity.Warning : LogSeverity.Verbose,
+                    ReconnectAttempts = 3
+                };
+            });
+            services.AddSingleton<AudioEventHandler>();
+            services.AddSingleton<AudioStatsService>();
 
             services.AddSingleton<IHostedService, BehaviorHost>()
                 .AddSoraBotCore()
