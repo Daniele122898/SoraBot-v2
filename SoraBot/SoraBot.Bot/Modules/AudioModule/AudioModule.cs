@@ -21,6 +21,23 @@ namespace SoraBot.Bot.Modules.AudioModule
             _node = node;
         }
 
+        [Command("clear"), Alias("clearqueue", "clearlist")]
+        [Summary("Cleares the entire music queue")]
+        public async Task ClearQueue()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            player.Queue.Clear();
+            await ReplyMusicEmbed("Cleared entire queue :)");
+        }
+
         [Command("queue"), Alias("list", "musiclist")]
         [Summary("Displays the next couple songs in the queue")]
         public async Task ShowQueue()
@@ -31,7 +48,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
             
-            if (player.PlayerState != PlayerState.Playing)
+            if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
@@ -103,7 +120,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
             
-            if (player.PlayerState != PlayerState.Playing)
+            if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
@@ -132,7 +149,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             {
                 Color = Blue,
                 Title = $"{MusicalNote} Currently playing by {player.Track.Author}",
-                Description = $"**[{player.Track.Title}]({player.Track.Url})**"
+                Description = $"**[{player.Track.Title}]({player.Track.Url})**{(player.PlayerState == PlayerState.Paused ? " (Paused)" : "")}"
             };
             eb.AddField(x =>
             {
@@ -191,7 +208,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
             
-            if (player.PlayerState != PlayerState.Playing)
+            if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
@@ -244,7 +261,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             if (!await CheckIfSameVc(player.VoiceChannel))
                 return;
             
-            if (player.PlayerState != PlayerState.Playing)
+            if (player.Track == null)
             {
                 await ReplyFailureEmbed("I'm currently not playing anything");
                 return;
