@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
 using Victoria;
 using Victoria.EventArgs;
 
@@ -80,7 +81,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = SoraSocketCommandModule.Blue,
-                Title = $"{SoraSocketCommandModule.MusicalNote} Next: [{track.Duration.ToString(@"mm\:ss")}] - **{track.Title}**",
+                Title = $"{SoraSocketCommandModule.MusicalNote} Next: [{Formatter.FormatTime(track.Duration)}] - **{track.Title}**",
                 Footer = new EmbedFooterBuilder()
                 {
                     Text = $"Video by {track.Author}"

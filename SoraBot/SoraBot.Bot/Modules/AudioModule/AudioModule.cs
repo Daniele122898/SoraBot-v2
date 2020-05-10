@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
 using Victoria;
 using Victoria.Enums;
 
@@ -18,6 +19,38 @@ namespace SoraBot.Bot.Modules.AudioModule
         public AudioModule(LavaNode node)
         {
             _node = node;
+        }
+
+        [Command("queue"), Alias("list", "musiclist")]
+        [Summary("Displays the next couple songs in the queue")]
+        public async Task ShowQueue()
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+            
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+            
+            var eb = new EmbedBuilder()
+            {
+                Color = Blue,
+                Title = $"{MusicalNote} Queue",
+                Footer = RequestedByMe()
+            };
+
+            eb.AddField(x =>
+            {
+                x.IsInline = false;
+                x.Name = $"Now playing by {player.Track.Author}";
+                x.Value =
+                    $"[{Formatter.FormatTime(player.Track.Duration)}] - **[{player.Track.Title}]({player.Track.Url})**";
+            });
         }
 
         [Command("nowplaying"), Alias("np", "now playing")]
@@ -65,7 +98,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             {
                 x.IsInline = false;
                 x.Name = "Progress";
-                x.Value = $"[{player.Track.Position.ToString(@"mm\:ss")}] {progress} [{player.Track.Duration.ToString(@"mm\:ss")}]";
+                x.Value = $"[{Formatter.FormatTime(player.Track.Position)}] {progress} [{Formatter.FormatTime(player.Track.Duration)}]";
             });
 
             await ReplyEmbed(eb);
