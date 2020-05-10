@@ -37,14 +37,34 @@ namespace SoraBot.Bot.Modules.AudioModule
             throw new NotImplementedException();
         }
 
-        private Task OnTrackException(TrackExceptionEventArgs arg)
+        private async Task OnTrackException(TrackExceptionEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.Player == null || e.Track == null) 
+                return;   
+            
+            e.Player.Queue.Remove(e.Track);
+
+            var eb = this.GetSimpleMusicEmbed("Track threw and exception. Attempting to play next track");
+            if (!string.IsNullOrWhiteSpace(e.ErrorMessage))
+                eb.WithDescription(e.ErrorMessage);
+            
+            await e.Player.TextChannel.SendMessageAsync(
+                embed: eb.Build());
+            
+            await e.Player.SkipAsync();
         }
 
-        private Task OnTrackStuck(TrackStuckEventArgs arg)
+        private async Task OnTrackStuck(TrackStuckEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.Player == null || e.Track == null) 
+                return;   
+            
+            e.Player.Queue.Remove(e.Track);
+
+            await e.Player.TextChannel.SendMessageAsync(
+                embed: this.GetSimpleMusicEmbed("Track got stuck. Attempting to play next track").Build());
+            
+            await e.Player.SkipAsync();
         }
 
         private EmbedBuilder GetSimpleMusicEmbed(string message)
