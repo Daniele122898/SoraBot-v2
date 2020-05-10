@@ -23,12 +23,15 @@ namespace SoraBot.Bot.Modules.AudioModule
         }
 
         private async Task ReplyMusicExtended(LavaTrack track, bool added = true)
-            => await ReplyMusicEmbedExtended(
+        {
+            var url = await track.FetchArtworkAsync();
+            await ReplyMusicEmbedExtended(
                 track.Title,
                 track.Author,
-                (await track.FetchArtworkAsync()),
+                url,
                 track.Duration.ToString(@"mm\:ss"),
                 track.Url,
                 added);
+        }
     }
 }
