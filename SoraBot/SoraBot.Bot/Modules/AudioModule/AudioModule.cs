@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using ArgonautCore.Maybe;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
@@ -16,10 +17,32 @@ namespace SoraBot.Bot.Modules.AudioModule
     public partial class AudioModule : SoraSocketCommandModule
     {
         private readonly LavaNode _node;
+        private readonly InteractiveService _interactiveService;
 
-        public AudioModule(LavaNode node)
+        public AudioModule(
+            LavaNode node,
+            InteractiveService interactiveService)
         {
             _node = node;
+            _interactiveService = interactiveService;
+        }
+        
+        [Command("soundcloud"), Alias("sc")]
+        [Summary("Searches SoundCloud and gives you a list of possible songs")]
+        public async Task ScSearch(
+            [Summary("Name of the song you want to search"), Remainder]
+            string query)
+        {
+            await this.SearchAndChoose(query.Trim(), false);
+        }
+
+        [Command("youtube"), Alias("yt")]
+        [Summary("Searches YouTube and gives you a list of possible videos")]
+        public async Task YtSearch(
+            [Summary("Name of the video you want to search"), Remainder]
+            string query)
+        {
+            await this.SearchAndChoose(query.Trim(), true);
         }
 
         [Command("shuffle"), Alias("shufflequeue", "shufflelist")]
@@ -285,29 +308,6 @@ namespace SoraBot.Bot.Modules.AudioModule
             {
                 await ReplyFailureEmbed("Something broke :/");
             }
-        }
-
-        private static Maybe<TimeSpan> SeekParse(string seek)
-        {
-            if (!seek.Contains(":"))
-            {
-                // Try parse as seconds
-                if (!int.TryParse(seek, out var seconds))
-                    return Maybe.Zero<TimeSpan>();
-
-                return Maybe.FromVal<TimeSpan>(TimeSpan.FromSeconds(seconds));
-            }
-
-            // Parse as minute and second string :D
-            var split = seek.Split(":");
-            if (split.Length != 2)
-                return Maybe.Zero<TimeSpan>();
-
-            // Otherwise try to parse both values
-            if (!int.TryParse(split[0], out var minutes) || !int.TryParse(split[1], out var secs))
-                return Maybe.Zero<TimeSpan>();
-
-            return Maybe.FromVal<TimeSpan>(TimeSpan.FromMinutes(minutes).Add(TimeSpan.FromSeconds(secs)));
         }
 
         [Command("seek")]
