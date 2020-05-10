@@ -175,6 +175,61 @@ namespace SoraBot.Bot.Modules.AudioModule
                 await ReplyFailureEmbed("Something broke :/");
             }
         }
+        
+        [Command("skip"), Alias("next")]
+        [Summary("Skips the specified amount of songs")]
+        public async Task SkipSong(
+            [Summary("Number of songs to skip. 1 would just skip the currently playing song")]
+            uint number)
+        {
+            if (!_node.TryGetPlayer(Context.Guild, out var player))
+            {
+                await ReplyFailureEmbed("I have not joined any Voice Channel yet.");
+                return;
+            }
+
+            if (!await CheckIfSameVc(player.VoiceChannel))
+                return;
+            
+            if (player.PlayerState != PlayerState.Playing)
+            {
+                await ReplyFailureEmbed("I'm currently not playing anything");
+                return;
+            }
+            
+            if (number < 1 || number > (player.Queue.Count + 1))
+            {
+                await ReplyFailureEmbed(
+                    $"Cannot skip less than 1 song or more than the queue length + 1 ({(player.Queue.Count + 1).ToString()})");
+                return;
+            }
+
+            uint queueRemove = --number;
+            player.Queue.RemoveRange(0, (int)queueRemove);
+
+            try
+            {
+                if (player.Queue.Count == 0)
+                {
+                    await player.StopAsync();
+                    await ReplyMusicEmbed($"Queue is now finished.");
+                    return;
+                }
+                var currentTrack = await player.SkipAsync();
+                if (currentTrack == null)
+                {
+                    await ReplyMusicEmbed($"Queue is now finished.");
+                }
+                else
+                {
+                    await ReplyMusicExtended(currentTrack, false);
+                }
+            }
+            catch (Exception)
+            {
+                await ReplyFailureEmbed("Something broke :/");
+            }
+        }
 
         [Command("skip"), Alias("next")]
         [Summary("Skips the current song and plays the next")]
@@ -197,6 +252,12 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             try
             {
+                if (player.Queue.Count == 0)
+                {
+                    await player.StopAsync();
+                    await ReplyMusicEmbed($"Queue is now finished.");
+                    return;
+                }
                 var currentTrack = await player.SkipAsync();
                 if (currentTrack == null)
                 {
