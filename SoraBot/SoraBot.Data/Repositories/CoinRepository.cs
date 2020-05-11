@@ -67,17 +67,8 @@ namespace SoraBot.Data.Repositories
             }).ConfigureAwait(false);
         }
 
-        public uint GetCoins(ulong userId)
-        {
-            return _soraTransactor.ReadUncommitted<uint>(context =>
-            {
-                // var user = await context.Users.FindAsync(userId);
-                // return user?.Coins ?? (uint) 0;
-                
-                // This actually produces a better query where we do not fetch all the user data just for the
-                // coin amount but actually just query for the coins
-                return context.Users.Where(u => u.Id == userId).Select(u => u.Coins).FirstOrDefault();
-            });
-        }
+        public uint GetCoins(ulong userId) =>
+            _soraTransactor.ReadUncommitted<uint>(context =>
+                context.Users.Where(u => u.Id == userId).Select(u => u.Coins).FirstOrDefault());
     }
 }

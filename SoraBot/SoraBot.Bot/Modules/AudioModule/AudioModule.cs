@@ -568,7 +568,7 @@ namespace SoraBot.Bot.Modules.AudioModule
         [Summary("Make Sora join your voice channel")]
         public async Task Join()
         {
-            if (_node.HasPlayer(Context.Guild))
+            if (_node.TryGetPlayer(Context.Guild, out var player) && player.VoiceChannel != null)
             {
                 await ReplyFailureEmbed("I'm already in another Voice Channel. Dont try to steal me >.<");
                 return;
