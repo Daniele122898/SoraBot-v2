@@ -37,7 +37,7 @@ namespace SoraBot.Bot.Modules
             var userDb = await _userRepo.GetOrCreateUser(Context.User.Id);
             if (await FailedToGetUser(userDb)) return;
 
-            var user = userDb.Value;
+            var user = ~userDb;
             var nextDailyPossible = user.LastDaily.AddHours(CoinModule.DAILY_COOLDOWN_HOURS);
             if (nextDailyPossible.CompareTo(DateTime.UtcNow) >= 0)
             {
@@ -116,7 +116,7 @@ namespace SoraBot.Bot.Modules
                 // Create the user
                 var userOption = await _userRepo.GetOrCreateUser(receiverId).ConfigureAwait(false);
                 if (await FailedToGetUser(userOption)) return;
-                receiverDb = userOption.Value;
+                receiverDb = ~userOption;
             }
             else
             {

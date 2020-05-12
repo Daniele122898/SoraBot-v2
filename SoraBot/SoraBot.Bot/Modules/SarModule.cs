@@ -34,7 +34,7 @@ namespace SoraBot.Bot.Modules
                 await ReplyFailureEmbed("This guild has no self assignable roles!");
                 return;
             }
-            var ss = sars.Value;
+            var ss = ~sars;
             
             var eb = new EmbedBuilder()
             {

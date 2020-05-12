@@ -85,7 +85,7 @@ namespace SoraBot.Bot.Modules
             var cd = _cacheService.Get<DateTime>(CacheID.BgCooldownId(Context.User.Id));
             if (cd.HasValue)
             {
-                var secondsRemaining = cd.Value.Subtract(DateTime.UtcNow.TimeOfDay).Second;
+                var secondsRemaining = cd.Some().Subtract(DateTime.UtcNow.TimeOfDay).Second;
                 await ReplyFailureEmbed(
                     $"Dont break me >.< Please wait another {secondsRemaining.ToString()} seconds!");
                 return;
@@ -149,7 +149,7 @@ namespace SoraBot.Bot.Modules
                 string filePath = Path.Combine(_imgGen.ImageGenPath, ImageGenerator.PROFILE_CARDS,
                     $"{user.Id.ToString()}.png");
 
-                var us = userStatsM.Value;
+                var us = ~userStatsM;
                 var globalLevel = ExpService.CalculateLevel(us.GlobalExp);
                 var localLevel = ExpService.CalculateLevel(us.LocalExp);
                 _imgGen.GenerateProfileImage(new ProfileImageGenDto()

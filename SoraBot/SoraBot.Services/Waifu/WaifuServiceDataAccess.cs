@@ -26,7 +26,7 @@ namespace SoraBot.Services.Waifu
 
                 return allWaifus.GroupBy(w => w.Rarity, (rarity, ws) => new {rarity, count = ws.Count()})
                     .ToDictionary(x => x.rarity, x => x.count);
-            }, TimeSpan.FromHours(1)).ConfigureAwait(false)).Value;
+            }, TimeSpan.FromHours(1)).ConfigureAwait(false)).Some();
         }
 
         public async Task<Maybe<(uint waifusSold, uint coinAmount)>> SellDupes(ulong userId)
@@ -38,7 +38,7 @@ namespace SoraBot.Services.Waifu
             // otherwise we gonna do a DB call to try get the waifu :)
             var cached = this.TryGetWaifuFromCache(w => w.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (cached.HasValue)
-                return cached.Value;
+                return cached.Some();
             
             // The cache is empty so we gotta hit the db
             return await _waifuRepo.GetWaifuByName(name).ConfigureAwait(false);
@@ -50,7 +50,7 @@ namespace SoraBot.Services.Waifu
             // otherwise we gonna do a DB call to try get the waifu :)
             var cached = this.TryGetWaifuFromCache(w => w.Id == id);
             if (cached.HasValue)
-                return cached.Value;
+                return cached.Some();
             
             // The cache is empty so we gotta hit the db
             return await _waifuRepo.GetWaifuById(id).ConfigureAwait(false);

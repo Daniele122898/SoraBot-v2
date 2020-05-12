@@ -340,7 +340,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
 
-            var skip = parsed.Value;
+            var skip = ~parsed;
 
             if (skip.TotalSeconds < 1 || skip.TotalSeconds > (player.Track.Duration.TotalSeconds - 1))
             {
