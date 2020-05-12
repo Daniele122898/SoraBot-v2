@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -283,7 +283,7 @@ namespace SoraBot.Services.ReactionHandlers
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
-        private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
+        private async Task<Option<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
             return await _cache.TryGetOrSetAndGetAsync(
                 CacheID.GetMessageId(messageId),
@@ -307,7 +307,7 @@ namespace SoraBot.Services.ReactionHandlers
             return null;
         }
 
-        private async Task<Maybe<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
+        private async Task<Option<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
             => await _cache.TryGetOrSetAndGetAsync(
                     CacheID.GetMessageId(msg.Id),
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),

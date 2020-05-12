@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using SoraBot.Bot.Extensions.Interactive;
 using SoraBot.Common.Utils;
@@ -98,27 +98,27 @@ namespace SoraBot.Bot.Modules.AudioModule
             }
         }
 
-        private static Maybe<TimeSpan> SeekParse(string seek)
+        private static Option<TimeSpan> SeekParse(string seek)
         {
             if (!seek.Contains(":"))
             {
                 // Try parse as seconds
                 if (!int.TryParse(seek, out var seconds))
-                    return Maybe.Zero<TimeSpan>();
+                    return Option.None<TimeSpan>();
 
-                return Maybe.FromVal<TimeSpan>(TimeSpan.FromSeconds(seconds));
+                return TimeSpan.FromSeconds(seconds);
             }
 
             // Parse as minute and second string :D
             var split = seek.Split(":");
             if (split.Length != 2)
-                return Maybe.Zero<TimeSpan>();
+                return Option.None<TimeSpan>();
 
             // Otherwise try to parse both values
             if (!int.TryParse(split[0], out var minutes) || !int.TryParse(split[1], out var secs))
-                return Maybe.Zero<TimeSpan>();
+                return Option.None<TimeSpan>();
 
-            return Maybe.FromVal<TimeSpan>(TimeSpan.FromMinutes(minutes).Add(TimeSpan.FromSeconds(secs)));
+            return TimeSpan.FromMinutes(minutes).Add(TimeSpan.FromSeconds(secs));
         }
 
         private async Task<bool> CheckIfSameVc(IVoiceChannel playerVC)

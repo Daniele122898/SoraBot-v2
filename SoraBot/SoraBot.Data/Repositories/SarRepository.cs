@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
@@ -22,15 +22,15 @@ namespace SoraBot.Data.Repositories
                 await context.Sars.CountAsync(x => x.RoleId == roleId) == 1
             ).ConfigureAwait(false);
 
-        public async Task<Maybe<List<Sar>>> GetAllSarsInGuild(ulong guildId)
+        public async Task<Option<List<Sar>>> GetAllSarsInGuild(ulong guildId)
             => await _soraTransactor.DoAsync(async context =>
             {
                 var sars = await context.Sars
                     .Where(x => x.GuildId == guildId)
                     .ToListAsync()
                     .ConfigureAwait(false);
-                if (sars.Count == 0) return Maybe.Zero<List<Sar>>();
-                return Maybe.FromVal(sars);
+                if (sars.Count == 0) return Option.None<List<Sar>>();
+                return sars;
             }).ConfigureAwait(false);
         
         public async Task AddSar(ulong roleId, ulong guildId)

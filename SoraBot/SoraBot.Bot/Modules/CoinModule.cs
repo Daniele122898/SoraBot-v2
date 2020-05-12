@@ -114,9 +114,9 @@ namespace SoraBot.Bot.Modules
             if (receiver != null)
             {
                 // Create the user
-                var userMaybe = await _userRepo.GetOrCreateUser(receiverId).ConfigureAwait(false);
-                if (await FailedToGetUser(userMaybe)) return;
-                receiverDb = userMaybe.Value;
+                var userOption = await _userRepo.GetOrCreateUser(receiverId).ConfigureAwait(false);
+                if (await FailedToGetUser(userOption)) return;
+                receiverDb = userOption.Value;
             }
             else
             {

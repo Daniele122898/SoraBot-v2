@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArgonautCore.Lw;
 using ArgonautCore.Maybe;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Cache;
@@ -82,12 +83,12 @@ namespace SoraBot.Services.Waifu
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        private Maybe<WaifuDbo> TryGetWaifuFromCache(Func<WaifuDbo, bool> predicate)
+        private Option<WaifuDbo> TryGetWaifuFromCache(Func<WaifuDbo, bool> predicate)
         {
             var waifuList = this._cacheService.Get<List<WaifuDbo>>((ulong) CustomCacheIDs.WaifuList);
             if (!waifuList.HasValue)
-                return Maybe.FromErr<WaifuDbo>(string.Empty); // Error just means cache is empty
-            return Maybe.FromVal(waifuList.Value.FirstOrDefault(predicate)); // Here we pass a result even if there is none
+                return Option.None<WaifuDbo>(); // Error just means cache is empty
+            return waifuList.Some().FirstOrDefault(predicate); // Here we pass a result even if there is none
         }
     }
 }

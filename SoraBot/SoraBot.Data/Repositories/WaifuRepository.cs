@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArgonautCore.Lw;
 using ArgonautCore.Maybe;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Models.SoraDb;
@@ -145,7 +146,7 @@ namespace SoraBot.Data.Repositories
 
         public async Task<Maybe<uint>> QuickSellWaifu(ulong userId, int waifuId, uint amount, WaifuRarity? rarity = null)
         {
-            return await _soraTransactor.DoInTransactionAndGetAsync<uint>(async context =>
+            return await _soraTransactor.DoInTransactionAndGetAsync<Maybe<uint>>(async context =>
             {
                 var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
                 if (user == null) return Maybe.FromErr<uint>("You dont have any Waifus. Get some by opening Waifu Boxes!");
@@ -212,14 +213,14 @@ namespace SoraBot.Data.Repositories
             }).ConfigureAwait(false);
         }
 
-        public async Task<Maybe<Waifu>> GetFavWaifuOfUser(ulong userId)
+        public async Task<Option<Waifu>> GetFavWaifuOfUser(ulong userId)
         {
-            return await _soraTransactor.DoAsync(async context =>
+            return await _soraTransactor.DoAsync<Option<Waifu>>(async context =>
             {
                 var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
-                if (user == null) return Maybe.Zero<Waifu>();
+                if (user == null) return Option.None<Waifu>();
                 var favWaifu = user.FavoriteWaifu;
-                return favWaifu == null ? Maybe.Zero<Waifu>() : Maybe.FromVal(favWaifu);
+                return favWaifu == null ? Option.None<Waifu>() : Option.Some(favWaifu);
             }).ConfigureAwait(false);
         }
 

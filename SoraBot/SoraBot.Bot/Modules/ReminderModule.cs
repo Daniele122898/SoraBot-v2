@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
@@ -183,14 +183,14 @@ namespace SoraBot.Bot.Modules
         /// Tries to properly parse the time or if it cant returns a Zero Maybe
         /// No silent failing. If smth isn't exactly right we completely fail the entire parsing!
         /// </summary>
-        private static Maybe<DateTime> ParseTime(string message)
+        private static Option<DateTime> ParseTime(string message)
         {
             if (!message.Contains(" in "))
-                return Maybe.Zero<DateTime>();
+                return Option.None<DateTime>();
 
             string timeString = message.Split(" in ").LastOrDefault();
             if (string.IsNullOrWhiteSpace(timeString))
-                return Maybe.Zero<DateTime>();
+                return Option.None<DateTime>();
 
             var regex = Regex.Matches(timeString, @"(\d+)\s{0,1}([a-zA-Z]*)");
             double timeToAdd = 0;
@@ -199,9 +199,9 @@ namespace SoraBot.Bot.Modules
                 var captured = regex[i].Groups;
 
                 if (captured.Count != 3)
-                    return Maybe.Zero<DateTime>();
+                    return Option.None<DateTime>();
                 if (!uint.TryParse(captured[1].Value, out var time))
-                    return Maybe.Zero<DateTime>();
+                    return Option.None<DateTime>();
 
                 string type = captured[2].Value;
 
@@ -237,11 +237,11 @@ namespace SoraBot.Bot.Modules
                         timeToAdd += time;
                         break;
                     default:
-                        return Maybe.Zero<DateTime>();
+                        return Option.None<DateTime>();
                 }
             }
 
-            return Maybe.FromVal<DateTime>(DateTime.UtcNow.AddSeconds(timeToAdd));
+            return Option.Some(DateTime.UtcNow.AddSeconds(timeToAdd));
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 
 namespace SoraBot.Services.Cache
 {
@@ -47,24 +47,24 @@ namespace SoraBot.Services.Cache
         #endregion
 
         #region Getters
-        public Maybe<object> Get(ulong id)
+        public Option<object> Get(ulong id)
         {
             _discordCache.TryGetValue(id, out var item);
-            if (item == null) return Maybe.Zero<object>();
-            if (item.IsValid()) return Maybe.FromVal<object>(item);
+            if (item == null) return Option.None<object>();
+            if (item.IsValid()) return Option.Some<object>(item);
             
             _discordCache.TryRemove(id, out _);
-            return Maybe.Zero<object>();
+            return Option.None<object>();
         }
 
-        public Maybe<T> Get<T>(ulong id)
+        public Option<T> Get<T>(ulong id)
         {
             _discordCache.TryGetValue(id, out var item);
-            if (item == null) return Maybe.Zero<T>();
-            if (item.IsValid()) return Maybe.FromVal((T)item.Content);
+            if (item == null) return Option.None<T>();
+            if (item.IsValid()) return Option.Some((T)item.Content);
             
             _discordCache.TryRemove(id, out _);
-            return Maybe.Zero<T>();
+            return Option.None<T>();
         }
 
         public bool Contains(ulong id) => _discordCache.ContainsKey(id);
@@ -75,38 +75,38 @@ namespace SoraBot.Services.Cache
         // is not the actual type. Because that means we would set the same ID to a different
         // type which should generally just not happen. This is bad design and should be punished
         
-        public Maybe<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null)
+        public Option<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null)
         {
-            return Maybe.FromVal(this.GetOrSetAndGet(id, _discordCache, set, ttl));
+            return Option.Some(this.GetOrSetAndGet(id, _discordCache, set, ttl));
         }
 
-        public async Task<Maybe<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
+        public async Task<Option<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
         {
-            return Maybe.FromVal(await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false));
+            return Option.Some(await GetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false));
         }
 
-        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
+        public async Task<Option<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null)
         {
             return await this.TryGetOrSetAndGetAsync(id, _discordCache, set, ttl).ConfigureAwait(false);
         }
         
-        private async Task<Maybe<TReturn>> TryGetOrSetAndGetAsync<TCacheKey, TReturn>(
+        private async Task<Option<TReturn>> TryGetOrSetAndGetAsync<TCacheKey, TReturn>(
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<Task<TReturn>> set, TimeSpan? ttl = null)
         {
             if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
             {
-                return Maybe.FromVal((TReturn)item.Content);
+                return Option.Some((TReturn)item.Content);
             }
             // Otherwise we have to set it
             TReturn result = await set().ConfigureAwait(false);
             if (result == null)
             {
-                return Maybe.Zero<TReturn>();
+                return Option.None<TReturn>();
             }
             var itemToStore = new CacheItem(result, ttl.HasValue ? (DateTime?)DateTime.UtcNow.Add(ttl.Value) : null);
             cache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
-            return Maybe.FromVal((TReturn) itemToStore.Content);
+            return Option.Some((TReturn) itemToStore.Content);
         }
 
         public void Set(ulong id, object obj, TimeSpan? ttl = null)
@@ -115,12 +115,12 @@ namespace SoraBot.Services.Cache
             _discordCache.AddOrUpdate(id, itemToStore, ((key, cacheItem) => itemToStore));
         }
 
-        public Maybe<T> TryRemove<T>(ulong id)
+        public Option<T> TryRemove<T>(ulong id)
         {
             _discordCache.TryRemove(id, out var cacheItem);
-            if (cacheItem == null) return Maybe.Zero<T>();
-            if (!cacheItem.IsValid()) return Maybe.Zero<T>();
-            return Maybe.FromVal((T) cacheItem.Content);
+            if (cacheItem == null) return Option.None<T>();
+            if (!cacheItem.IsValid()) return Option.None<T>();
+            return Option.Some((T) cacheItem.Content);
         }
 
         public void TryRemove(ulong id)

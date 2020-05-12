@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 
 namespace SoraBot.Services.Cache
 {
@@ -10,10 +10,10 @@ namespace SoraBot.Services.Cache
     /// </summary>
     public interface ICacheService
     {
-        Maybe<object> Get(string id);
-        Maybe<object> Get(ulong id);
-        Maybe<T> Get<T>(string id);
-        Maybe<T> Get<T>(ulong id);
+        Option<object> Get(string id);
+        Option<object> Get(ulong id);
+        Option<T> Get<T>(string id);
+        Option<T> Get<T>(ulong id);
 
         bool Contains(ulong id);
         bool Contains(string id);
@@ -21,34 +21,34 @@ namespace SoraBot.Services.Cache
         /// <summary>
         /// Tries to get the value out of the cache first. If it cant it will use the set function to get and cache it.
         /// </summary>
-        Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
+        Option<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null);
 
         /// <summary>
         /// Tries to get the value out of the cache first. If it cant it will use the set function to get and cache it.
         /// </summary>
-        Maybe<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);
+        Option<T> GetOrSetAndGet<T>(ulong id, Func<T> set, TimeSpan? ttl = null);
 
         /// <summary>
         /// Tries to get the value out of the cache first. If it cant it will use the set function to get and cache it.
         /// </summary>
-        Task<Maybe<T>> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Option<T>> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         /// <summary>
         /// Tries to get the value out of the cache first. If it cant it will use the set function to get and cache it.
         /// </summary>
-        Task<Maybe<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Option<T>> GetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         /// <summary>
         /// The difference from this to <see cref="GetOrSetAndGet{T}(string,System.Func{T},System.Nullable{System.TimeSpan})"/> is
         /// that here we dont throw an exception and just return Maybe.Zero 
         /// </summary>
-        Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Option<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         /// <summary>
         /// The difference from this to <see cref="GetOrSetAndGet{T}(string,System.Func{T},System.Nullable{System.TimeSpan})"/> is
         /// that here we dont throw an exception and just return Maybe.Zero 
         /// </summary>
-        Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
+        Task<Option<T>> TryGetOrSetAndGetAsync<T>(ulong id, Func<Task<T>> set, TimeSpan? ttl = null);
 
         void Set(string id, object obj, TimeSpan? ttl = null);
         void Set(ulong id, object obj, TimeSpan? ttl = null);
@@ -56,8 +56,8 @@ namespace SoraBot.Services.Cache
         void AddOrUpdate(ulong id, CacheItem addItem, Func<ulong, CacheItem, CacheItem> updateFunc);
         void AddOrUpdate(string id, CacheItem addItem, Func<string, CacheItem, CacheItem> updateFunc);
 
-        Maybe<T> TryRemove<T>(ulong id);
-        Maybe<T> TryRemove<T>(string id);
+        Option<T> TryRemove<T>(ulong id);
+        Option<T> TryRemove<T>(string id);
 
         void TryRemove(ulong id);
         void TryRemove(string id);

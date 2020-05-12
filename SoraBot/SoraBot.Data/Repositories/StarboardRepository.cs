@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.GuildRepos;
 using SoraBot.Data.Repositories.Interfaces;
@@ -15,13 +15,13 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
-        public async Task<Maybe<(ulong starboardChannelId, uint threshold)>> GetStarboardInfo(ulong guildId)
+        public async Task<Option<(ulong starboardChannelId, uint threshold)>> GetStarboardInfo(ulong guildId)
         {
-            return await _soraTransactor.DoAsync<Maybe<(ulong, uint)>>(async context =>
+            return await _soraTransactor.DoAsync<Option<(ulong, uint)>>(async context =>
             {
                 var starboard = await context.Starboards.FindAsync(guildId).ConfigureAwait(false);
-                if (starboard == null) return Maybe.Zero<(ulong, uint)>();
-                return Maybe.FromVal<(ulong, uint)>((starboard.StarboardChannelId, starboard.StarboardThreshold));
+                if (starboard == null) return Option.None<(ulong, uint)>();
+                return (starboard.StarboardChannelId, starboard.StarboardThreshold);
             }).ConfigureAwait(false);
         }
 
@@ -93,11 +93,11 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
 
-        public async Task<Maybe<StarboardMessage>> GetStarboardMessage(ulong messageId)
+        public async Task<Option<StarboardMessage>> GetStarboardMessage(ulong messageId)
             => await _soraTransactor.DoAsync(async context =>
             {
                 var msg = await context.StarboardMessages.FindAsync(messageId).ConfigureAwait(false);
-                return msg == null ? Maybe.Zero<StarboardMessage>() : Maybe.FromVal(msg);
+                return msg == null ? Option.None<StarboardMessage>() : msg;
             }).ConfigureAwait(false);
     }
 }

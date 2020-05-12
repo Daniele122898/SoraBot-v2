@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Dtos.Profile;
 using SoraBot.Data.Extensions;
@@ -18,12 +18,12 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
         
-        public async Task<Maybe<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId)
+        public async Task<Option<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId)
         {
-            return await _soraTransactor.DoAsync(async context =>
+            return await _soraTransactor.DoAsync<Option<ProfileImageGenDto>>(async context =>
             {
                 var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
-                if (user == null) return Maybe.Zero<ProfileImageGenDto>();
+                if (user == null) return Option.None<ProfileImageGenDto>();
 
                 var globalRank = await context.Users
                     .Where(u => u.Exp > user.Exp)
@@ -39,14 +39,14 @@ namespace SoraBot.Data.Repositories
                     .CountAsync()
                     .ConfigureAwait(false);
                     
-                return Maybe.FromVal(new ProfileImageGenDto()
+                return new ProfileImageGenDto()
                 {
                     GlobalExp = user.Exp,
                     GlobalRank = globalRank + 1,
                     HasCustomBg = user.HasCustomProfileBg,
                     LocalExp = guildUser.Exp,
                     LocalRank = localRank + 1
-                });
+                };
             }).ConfigureAwait(false);
         }
 
