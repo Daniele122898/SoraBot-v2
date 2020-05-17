@@ -123,7 +123,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             // Otherwise built the rest of the queue
             int count = 0;
-            foreach (var item in player.Queue.Items)
+            foreach (var item in player.Queue)
             {
                 ++count;
                 var track = (LavaTrack) item;
@@ -141,7 +141,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             TimeSpan duration = new TimeSpan();
 
-            foreach (var item in player.Queue.Items)
+            foreach (var item in player.Queue)
             {
                 var track = (LavaTrack) item;
                 duration = duration.Add(track.Duration);
