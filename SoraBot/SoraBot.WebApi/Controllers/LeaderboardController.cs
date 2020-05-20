@@ -40,9 +40,10 @@ namespace SoraBot.WebApi.Controllers
                 var dbUser = users[i];
                 var user = _userService.Get(dbUser.Id);
                 if (!user) continue;
+                int rank = i + 1;
                 leaderboard.Ranks.Add(user.MatchSome((u) => new GuildRank()
                 {
-                    Rank = i+1,
+                    Rank = rank,
                     AvatarUrl = u.GetAvatarUrl() ?? u.GetDefaultAvatarUrl(),
                     Discrim = u.Discriminator,
                     Exp = dbUser.Exp,
