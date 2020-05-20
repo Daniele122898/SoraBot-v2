@@ -34,7 +34,7 @@ namespace SoraBot.WebApi.Controllers
             }
 
             using var proc = Process.GetCurrentProcess();
-            return new SoraStats()
+            var soraStats = new SoraStats()
             {
                 Version = _config.SoraVersion,
                 Ping = _client.Latency,
@@ -45,6 +45,7 @@ namespace SoraBot.WebApi.Controllers
                 CommandsExecuted = GlobalConstants.CommandsExecuted,
                 MessagesReceived = GlobalConstants.MessagesReceived.ToString()
             };
+            return Ok(soraStats);
         }
     }
 }
