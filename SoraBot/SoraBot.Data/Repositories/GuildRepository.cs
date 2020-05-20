@@ -6,7 +6,7 @@ using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
-namespace SoraBot.Data.Repositories.GuildRepos
+namespace SoraBot.Data.Repositories
 {
     public class GuildRepository : IGuildRepository
     {

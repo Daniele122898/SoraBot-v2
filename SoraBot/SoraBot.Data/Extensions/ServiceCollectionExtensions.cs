@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoraBot.Data.Repositories;
-using SoraBot.Data.Repositories.GuildRepos;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Extensions

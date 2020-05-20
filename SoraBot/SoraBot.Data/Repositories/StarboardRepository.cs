@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArgonautCore.Lw;
 using SoraBot.Data.Models.SoraDb;
-using SoraBot.Data.Repositories.GuildRepos;
 using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Data.Repositories
