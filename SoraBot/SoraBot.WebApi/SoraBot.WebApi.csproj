@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ArgonautCore" Version="1.5.0" />
+      <PackageReference Include="ArgonautCore" Version="1.5.1" />
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
       <PackageReference Include="Sentry.Serilog" Version="2.1.1" />
