@@ -20,6 +20,12 @@ namespace SoraBot.WebApi.Controllers
             _userService = userService;
         }
 
+        [HttpGet("{guildId}")]
+        public async Task<IActionResult> GetLocalLeaderboard(ulong guildId)
+        {
+            
+        }
+
         [HttpGet("global")]
         public async Task<ActionResult<GlobalLeaderboard>> GetGlobalLeaderboard()
         {
