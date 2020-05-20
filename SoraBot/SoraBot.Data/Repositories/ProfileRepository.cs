@@ -73,5 +73,18 @@ namespace SoraBot.Data.Repositories
                     return Option.None<List<User>>();
                 return users;
             }).ConfigureAwait(false);
+
+        public async Task<Option<List<GuildUser>>> GetGuildUsersSorted(ulong guildId)
+            => await _soraTransactor.DoAsync<Option<List<GuildUser>>>(async context =>
+            {
+                var users = await context.GuildUsers
+                    .Where(x => x.GuildId == guildId)
+                    .OrderByDescending(x => x.Exp)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                if (users.Count == 0)
+                    return Option.None<List<GuildUser>>();
+                return users;
+            }).ConfigureAwait(false);
     }
 }
