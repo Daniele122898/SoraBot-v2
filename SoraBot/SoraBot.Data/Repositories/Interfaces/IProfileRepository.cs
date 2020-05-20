@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ArgonautCore.Lw;
 using SoraBot.Data.Dtos.Profile;
+using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Data.Repositories.Interfaces
 {
@@ -8,5 +10,6 @@ namespace SoraBot.Data.Repositories.Interfaces
     {
         Task<Option<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId);
         Task SetUserHasBgBoolean(ulong userId, bool hasCustomBg);
+        Task<Option<List<User>>> GetTop150Users();
     }
 }

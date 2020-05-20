@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
@@ -59,5 +60,18 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
+
+        public async Task<Option<List<User>>> GetTop150Users()
+            => await _soraTransactor.DoAsync<Option<List<User>>>(async context =>
+            {
+                var users = await context.Users
+                    .OrderByDescending(x => x.Exp)
+                    .Take(150)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                if (users.Count == 0)
+                    return Option.None<List<User>>();
+                return users;
+            }).ConfigureAwait(false);
     }
 }
