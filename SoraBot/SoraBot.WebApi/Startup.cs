@@ -50,10 +50,7 @@ namespace SoraBot.WebApi
             services.AddControllers();
             services.AddRouting(op => op.LowercaseUrls = true);
             
-            services.AddCors(op =>
-            {
-                op.AddPolicy("AllowLocal", builder => builder.WithOrigins("localhost")); // Enable CORS to only allow calls from localhost
-            });
+            services.AddCors();
 
             services.AddConfigurations(_configuration);
 
@@ -75,7 +72,7 @@ namespace SoraBot.WebApi
                 });
             }
             
-            app.UseCors(x => x.WithOrigins("localhost"));
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             
             app.UseRouting();
 
