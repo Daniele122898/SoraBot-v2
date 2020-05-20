@@ -38,6 +38,7 @@ namespace SoraBot.Services.Core.MessageHandlers
         
         public async Task HandleMessageAsync(MessageReceived msg, CancellationToken cancellationToken = default)
         {
+            ++GlobalConstants.MessagesReceived;
             var m = msg.Message;
             // Make sure its a SocketUserMessage and the author is not null
             if (!(m is SocketUserMessage message) || m.Author == null)
