@@ -11,14 +11,14 @@ namespace SoraBot.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WaifuController : ControllerBase
+    public class WaifusController : ControllerBase
     {
         private readonly IWaifuService _waifuService;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
         // TODO this is quite heavy. might want to get a lighter way to fetch all waifus.
-        public WaifuController(
+        public WaifusController(
             IWaifuService waifuService, 
             IUserService userService,
             IMapper mapper)
