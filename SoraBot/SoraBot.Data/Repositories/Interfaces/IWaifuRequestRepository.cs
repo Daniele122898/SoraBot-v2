@@ -15,5 +15,6 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task EditWaifuRequest(WaifuRequestEditDto waifuRequestAddDto);
         Task<bool> WaifuExists(string waifuName);
         Task<bool> WaifuExists(int id);
+        Task<int> UserRequestCount(ulong userId);
     }
 }

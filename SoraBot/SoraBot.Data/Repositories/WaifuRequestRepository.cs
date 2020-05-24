@@ -84,5 +84,10 @@ namespace SoraBot.Data.Repositories
             => await _soraTransactor.DoAsync(async context =>
                     await context.Waifus.FindAsync(id) != null)
                 .ConfigureAwait(false);
+
+        public async Task<int> UserRequestCount(ulong userId)
+            => await _soraTransactor.DoAsync<int>(async context =>
+                    await context.WaifuRequests.CountAsync(x => x.UserId == userId))
+                .ConfigureAwait(false);
     }
 }
