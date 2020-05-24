@@ -57,10 +57,22 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync().ConfigureAwait(false);
             });
 
-        public async Task<Option<List<WaifuRequest>>> AllWaifuRequests()
+        public async Task<Option<List<WaifuRequest>>> AllActiveRequests()
             => await _soraTransactor.DoAsync<Option<List<WaifuRequest>>>(async context =>
             {
-                var reqs = await context.WaifuRequests.ToListAsync().ConfigureAwait(false);
+                var reqs = await context.WaifuRequests
+                    .Where(x=> x.RequestState == RequestState.Pending)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                return reqs.Count == 0 ? Option.None<List<WaifuRequest>>() : reqs;
+            }).ConfigureAwait(false);
+
+        public async Task<Option<List<WaifuRequest>>> AllRequests()
+            => await _soraTransactor.DoAsync<Option<List<WaifuRequest>>>(async context =>
+            {
+                var reqs = await context.WaifuRequests
+                    .ToListAsync()
+                    .ConfigureAwait(false);
                 return reqs.Count == 0 ? Option.None<List<WaifuRequest>>() : reqs;
             }).ConfigureAwait(false);
 

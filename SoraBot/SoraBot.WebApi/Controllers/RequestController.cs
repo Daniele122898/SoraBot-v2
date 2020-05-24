@@ -16,18 +16,33 @@ namespace SoraBot.WebApi.Controllers
         private readonly IWaifuRequestRepository _waifuRequestRepo;
         private readonly IUserService _userService;
         private readonly IUserRepository _userRepo;
+        private readonly ICoinRepository _coinRepository;
         private readonly IMapper _mapper;
 
         public RequestController(
             IWaifuRequestRepository waifuRequestRepo,
             IUserService userService,
             IUserRepository userRepo,
+            ICoinRepository coinRepository,
             IMapper mapper)
         {
             _waifuRequestRepo = waifuRequestRepo;
             _userService = userService;
             _userRepo = userRepo;
+            _coinRepository = coinRepository;
             _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<WaifuRequestDto>>> GetAllRequests()
+        {
+            var reqs = await _waifuRequestRepo.AllActiveRequests();
+            if (!reqs)
+                return NotFound("There are currently no active requests");
+
+            var reqsToReturn = _mapper.Map<IEnumerable<WaifuRequestDto>>(reqs.Some());
+
+            return Ok(reqsToReturn);
         }
 
         [HttpPost("user/{userId}/notify")]
