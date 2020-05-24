@@ -34,7 +34,7 @@ namespace SoraBot.WebApi.Controllers
         }
 
         [HttpGet("{guildId}")]
-        public async Task<IActionResult> GetLocalLeaderboard(ulong guildId)
+        public async Task<ActionResult<GuildLeaderboard>> GetLocalLeaderboard(ulong guildId)
         {
             var guild = _client.GetGuild(guildId);
             if (guild == null)

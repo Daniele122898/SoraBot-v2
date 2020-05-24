@@ -19,7 +19,7 @@ namespace SoraBot.WebApi.Extensions
 
         private void AddRequestMaps()
         {
-            throw new System.NotImplementedException();
+            CreateMap<WaifuRequest, WaifuRequestDto>();
         }
     }
 }
