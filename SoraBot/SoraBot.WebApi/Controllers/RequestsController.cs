@@ -11,7 +11,7 @@ namespace SoraBot.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RequestController : ControllerBase
+    public class RequestsController : ControllerBase
     {
         private readonly IWaifuRequestRepository _waifuRequestRepo;
         private readonly IUserService _userService;
@@ -19,7 +19,7 @@ namespace SoraBot.WebApi.Controllers
         private readonly ICoinRepository _coinRepository;
         private readonly IMapper _mapper;
 
-        public RequestController(
+        public RequestsController(
             IWaifuRequestRepository waifuRequestRepo,
             IUserService userService,
             IUserRepository userRepo,
