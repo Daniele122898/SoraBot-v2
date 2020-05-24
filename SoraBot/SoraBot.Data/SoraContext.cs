@@ -30,6 +30,7 @@ namespace SoraBot.Data
         public DbSet<StarboardMessage> StarboardMessages { get; set; }
         
         public DbSet<WaifuRequest> WaifuRequests { get; set; }
+        public DbSet<UserNotifiedOnRequestProcess> UserNotifiedOnRequestProcesses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
