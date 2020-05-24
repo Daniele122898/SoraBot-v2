@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Users;
@@ -15,23 +16,31 @@ namespace SoraBot.WebApi.Controllers
     {
         private readonly IWaifuService _waifuService;
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
         // TODO this is quite heavy. might want to get a lighter way to fetch all waifus.
-        public WaifuController(IWaifuService waifuService, IUserService userService)
+        public WaifuController(
+            IWaifuService waifuService, 
+            IUserService userService,
+            IMapper mapper)
         {
             _waifuService = waifuService;
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Waifu>>> GetAllWaifus()
+        public async Task<ActionResult<IEnumerable<WaifuDto>>> GetAllWaifus()
         {
             var waifus = await _waifuService.GetAllWaifus().ConfigureAwait(false);
             if (waifus == null || waifus.Count == 0)
                 return NotFound("No Waifus found");
             // Sort in-place by rarity descending
             waifus.Sort((x,y) => -x.Rarity.CompareTo(y.Rarity));
-            return Ok(waifus);
+
+            var waifusToReturn = _mapper.Map<IEnumerable<WaifuDto>>(waifus);
+            
+            return Ok(waifusToReturn);
         }
 
         [HttpGet("user/{userId}")]

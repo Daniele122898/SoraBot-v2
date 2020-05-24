@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -51,6 +52,8 @@ namespace SoraBot.WebApi
             services.AddRouting(op => op.LowercaseUrls = true);
             
             services.AddCors();
+
+            services.AddAutoMapper(typeof(Startup).Assembly);
 
             services.AddConfigurations(_configuration);
 
