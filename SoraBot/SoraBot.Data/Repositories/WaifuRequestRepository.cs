@@ -26,7 +26,7 @@ namespace SoraBot.Data.Repositories
                     .Where(x => x.UserId == userId)
                     .ToListAsync()
                     .ConfigureAwait(false);
-                
+
                 if (requests.Count == 0)
                     return Option.None<List<WaifuRequest>>();
 
@@ -47,7 +47,7 @@ namespace SoraBot.Data.Repositories
                 context.UserNotifiedOnRequestProcesses.Add(setNotif);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             });
-        
+
         public async Task RemoveUserNotification(ulong userId)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
@@ -61,7 +61,7 @@ namespace SoraBot.Data.Repositories
             => await _soraTransactor.DoAsync<Option<List<WaifuRequest>>>(async context =>
             {
                 var reqs = await context.WaifuRequests
-                    .Where(x=> x.RequestState == RequestState.Pending)
+                    .Where(x => x.RequestState == RequestState.Pending)
                     .ToListAsync()
                     .ConfigureAwait(false);
                 return reqs.Count == 0 ? Option.None<List<WaifuRequest>>() : reqs;
@@ -110,15 +110,19 @@ namespace SoraBot.Data.Repositories
                     await context.Waifus.FirstOrDefaultAsync(x =>
                         x.Name.Equals(waifuName, StringComparison.OrdinalIgnoreCase)) != null)
                 .ConfigureAwait(false);
-        
+
         public async Task<bool> WaifuExists(int id)
             => await _soraTransactor.DoAsync(async context =>
                     await context.Waifus.FindAsync(id) != null)
                 .ConfigureAwait(false);
 
-        public async Task<int> UserRequestCount(ulong userId)
+        public async Task<int> UserRequestCountLast24Hours(ulong userId)
             => await _soraTransactor.DoAsync<int>(async context =>
-                    await context.WaifuRequests.CountAsync(x => x.UserId == userId))
+                {
+                    var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(24));
+                    return await context.WaifuRequests.CountAsync(x => x.UserId == userId && x.RequestTime > dt)
+                        .ConfigureAwait(false);
+                })
                 .ConfigureAwait(false);
     }
 }
