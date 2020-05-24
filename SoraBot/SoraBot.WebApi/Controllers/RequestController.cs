@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Users;
+using SoraBot.WebApi.Dtos;
 
 namespace SoraBot.WebApi.Controllers
 {
@@ -12,15 +16,18 @@ namespace SoraBot.WebApi.Controllers
         private readonly IWaifuRequestRepository _waifuRequestRepo;
         private readonly IUserService _userService;
         private readonly IUserRepository _userRepo;
+        private readonly IMapper _mapper;
 
         public RequestController(
             IWaifuRequestRepository waifuRequestRepo,
             IUserService userService,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            IMapper mapper)
         {
             _waifuRequestRepo = waifuRequestRepo;
             _userService = userService;
             _userRepo = userRepo;
+            _mapper = mapper;
         }
 
         [HttpPost("user/{userId}/notify")]
@@ -41,6 +48,18 @@ namespace SoraBot.WebApi.Controllers
                 await _waifuRequestRepo.RemoveUserNotification(userId);
             
             return Ok();
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<WaifuRequestDto>>> GetAllUserRequests(ulong userId)
+        {
+            var reqs = await _waifuRequestRepo.GetUserWaifuRequests(userId);
+            if (!reqs)
+                return NotFound("User has no requests");
+
+            var reqsToReturn = _mapper.Map<IEnumerable<WaifuRequestDto>>(reqs.Some());
+            
+            return Ok(reqsToReturn); 
         }
     }
 }
