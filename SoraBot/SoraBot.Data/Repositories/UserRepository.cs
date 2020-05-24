@@ -15,19 +15,19 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
-        public async Task<Option<User>> GetOrCreateUser(ulong id)
+        public async Task<Some<User>> GetOrCreateUser(ulong id)
         {
             return await _soraTransactor.DoInTransactionAndGetAsync(async context =>
             {
                 var user = await context.Users.FindAsync(id).ConfigureAwait(false);
                 if (user != null)
-                    return Option.Some(user);
+                    return  user;
 
                 // Otherwise we'll have to create the user ourselves
                 user = new User(){Id = id};
                 await context.Users.AddAsync(user).ConfigureAwait(false);
                 await context.SaveChangesAsync().ConfigureAwait(false);
-                return Option.Some(user);
+                return user;
             }).ConfigureAwait(false);
         }
 
