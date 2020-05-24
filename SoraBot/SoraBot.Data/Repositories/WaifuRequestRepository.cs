@@ -38,6 +38,25 @@ namespace SoraBot.Data.Repositories
                     await context.UserNotifiedOnRequestProcesses.FindAsync(userId) != null)
                 .ConfigureAwait(false);
 
+        public async Task ActivateUserNotification(ulong userId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var notif = await context.UserNotifiedOnRequestProcesses.FindAsync(userId).ConfigureAwait(false);
+                if (notif != null) return; // Already set so we ignore
+                var setNotif = new UserNotifiedOnRequestProcess(userId);
+                context.UserNotifiedOnRequestProcesses.Add(setNotif);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            });
+        
+        public async Task RemoveUserNotification(ulong userId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var notif = await context.UserNotifiedOnRequestProcesses.FindAsync(userId).ConfigureAwait(false);
+                if (notif == null) return; // Already not existant so we ignore
+                context.UserNotifiedOnRequestProcesses.Remove(notif);
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            });
+
         public async Task<Option<List<WaifuRequest>>> AllWaifuRequests()
             => await _soraTransactor.DoAsync<Option<List<WaifuRequest>>>(async context =>
             {
