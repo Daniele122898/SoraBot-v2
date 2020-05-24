@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SoraBot.Data.Dtos;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Users;
 using SoraBot.WebApi.Dtos;
@@ -74,6 +75,23 @@ namespace SoraBot.WebApi.Controllers
             var reqsToReturn = _mapper.Map<IEnumerable<WaifuRequestDto>>(reqs.Some());
             
             return Ok(reqsToReturn); 
+        }
+        
+        [HttpPost("user/{userId}")]
+        public async Task<IActionResult> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
+        {
+            if (await _waifuRequestRepo.UserRequestCountLast24Hours(userId) >= 3)
+                return this.BadRequest(
+                    "You already have 3 pending requests in the last 24 hours. Wait for them to be processed or after 24 hours have passed.");
+            
+            // Check if waifu already exists
+            waifuRequestAddDto.Name = waifuRequestAddDto.Name.Trim();
+            if (await _waifuRequestRepo.WaifuExists(waifuRequestAddDto.Name.Trim()))
+                return BadRequest("Waifu already exists");
+
+            await _waifuRequestRepo.AddWaifuRequest(waifuRequestAddDto);
+            
+            return Ok(); 
         }
     }
 }
