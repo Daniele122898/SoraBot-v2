@@ -120,7 +120,7 @@ namespace SoraBot.Data.Repositories
             => await _soraTransactor.DoAsync<int>(async context =>
                 {
                     var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(24));
-                    return await context.WaifuRequests.CountAsync(x => x.UserId == userId && x.RequestTime > dt)
+                    return await context.WaifuRequests.CountAsync(x => x.UserId == userId && x.RequestTime > dt && x.RequestState == RequestState.Pending)
                         .ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
