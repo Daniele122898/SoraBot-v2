@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Users;
 using SoraBot.Services.Waifu;
