@@ -37,13 +37,13 @@ namespace SoraBot.WebApi
                     Description = "SoraBot API"
                 });
                 
-                c.AddSecurityDefinition("Authentication", new OpenApiSecurityScheme()
+                c.AddSecurityDefinition("Authorization", new OpenApiSecurityScheme()
                 {
                     Description = "Used for Token",
-                    Name = "Authentication",
+                    Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Authentication"
+                    Scheme = "Authorization"
                 });
                 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement()
@@ -54,10 +54,10 @@ namespace SoraBot.WebApi
                             Reference = new OpenApiReference()
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "Authentication"
+                                Id = "Authorization"
                             },
                             Scheme = "oauth2",
-                            Name = "Authentication",
+                            Name = "Authorization",
                             In = ParameterLocation.Header
                         }, 
                         new List<string>()
