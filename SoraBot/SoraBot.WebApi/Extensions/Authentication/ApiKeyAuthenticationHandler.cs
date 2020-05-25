@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Security.Claims;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -27,9 +28,27 @@ namespace SoraBot.WebApi.Extensions.Authentication
             _config = config.Value;
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            throw new System.NotImplementedException();
+            // Check if the request has a Authorization header
+            if (!this.Request.Headers.TryGetValue(_API_KEY_HEADER_NAME, out var apiKeyHeaderValues) || apiKeyHeaderValues.Count == 0)
+                return AuthenticateResult.NoResult();
+
+            // Check if header has value
+            var keyHeader = apiKeyHeaderValues[0];
+            if (string.IsNullOrWhiteSpace(keyHeader))
+                return AuthenticateResult.NoResult();
+            
+            // Check if correct key
+            if (keyHeader != _config.ApiToken)
+                return AuthenticateResult.Fail("Invalid API key provided");
+            
+            // Proper key so let him pass
+            // Here is were you'd normally add the claims like userid or username that can be used in authorized methods
+            // but here we don't have anything connected to the api key. So we just pass empty values.
+            var principal = new ClaimsPrincipal(); 
+            var ticket = new AuthenticationTicket(principal, Options.Scheme);
+            return AuthenticateResult.Success(ticket);
         }
 
         protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
