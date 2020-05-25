@@ -59,7 +59,7 @@ WorkingDirectory=/home/sora/SoraProd/publish
 
 # The command to launch cdnnet.
 # You can probably leave this as-is since index.js is always relative to your working dir.
-ExecStart=/usr/bin/dotnet SoraBot.WebApi.dll %i 9000 1
+ExecStart=/usr/bin/dotnet SoraBot.WebApi.dll %i 8000 1
 
 # If cdnnet crashes give him 2 seconds of rest and reboot.
 Restart=on-failure
