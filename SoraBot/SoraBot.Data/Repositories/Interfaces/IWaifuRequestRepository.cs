@@ -9,6 +9,7 @@ namespace SoraBot.Data.Repositories.Interfaces
     public interface IWaifuRequestRepository
     {
         Task<Option<List<WaifuRequest>>> GetUserWaifuRequests(ulong userId);
+        Task<bool> RequestExistsAndBelongsToUser(ulong requestId, ulong userId);
         Task<bool> UserHasNotificationOn(ulong userId);
         Task ActivateUserNotification(ulong userId);
         Task RemoveUserNotification(ulong userId);
