@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -46,7 +47,9 @@ namespace SoraBot.WebApi.Extensions.Authentication
             // Proper key so let him pass
             // Here is were you'd normally add the claims like userid or username that can be used in authorized methods
             // but here we don't have anything connected to the api key. So we just pass empty values.
-            var principal = new ClaimsPrincipal(); 
+            var identity = new ClaimsIdentity(Options.AuthenticationType);
+            var identities = new List<ClaimsIdentity>{identity};
+            var principal = new ClaimsPrincipal(identities); 
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
