@@ -19,6 +19,16 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
+        public async Task ChangeRequestStatus(ulong requestId, RequestState requestState)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var req = await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false);
+                if (req == null) return;
+
+                req.RequestState = requestState;
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+        
         public async Task<Option<List<WaifuRequest>>> GetUserWaifuRequests(ulong userId)
             => await _soraTransactor.DoAsync<Option<List<WaifuRequest>>>(async context =>
             {
@@ -32,6 +42,12 @@ namespace SoraBot.Data.Repositories
 
                 return requests;
             }).ConfigureAwait(false);
+
+        public async Task<Option<WaifuRequest>> GetWaifuRequest(ulong requestId)
+            => await _soraTransactor.DoAsync(async context =>
+                    (await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false)) ??
+                    Option.None<WaifuRequest>())
+                .ConfigureAwait(false);
 
         public async Task<bool> RequestExistsAndBelongsToUser(ulong requestId, ulong userId)
             => await _soraTransactor.DoAsync(async context =>
@@ -135,5 +151,17 @@ namespace SoraBot.Data.Repositories
                         .ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
+
+        public async Task AddWaifu(WaifuRequest wr)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                context.Waifus.Add(new Waifu()
+                {
+                    ImageUrl = wr.ImageUrl,
+                    Name = wr.Name,
+                    Rarity = wr.Rarity
+                });
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
     }
 }
