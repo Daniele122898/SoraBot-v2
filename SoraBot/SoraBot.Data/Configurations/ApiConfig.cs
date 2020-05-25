@@ -2,6 +2,6 @@
 {
     public class ApiConfig
     {
-        
+        public string ApiToken { get; set; }
     }
 }
