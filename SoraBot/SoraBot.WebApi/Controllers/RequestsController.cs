@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Discord;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Dtos;
@@ -15,6 +16,7 @@ namespace SoraBot.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RequestsController : ControllerBase
     {
         private readonly IWaifuRequestRepository _waifuRequestRepo;
