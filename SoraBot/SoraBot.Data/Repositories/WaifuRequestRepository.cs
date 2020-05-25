@@ -37,7 +37,12 @@ namespace SoraBot.Data.Repositories
             => await _soraTransactor.DoAsync(async context =>
                 await context.WaifuRequests.CountAsync(x => x.Id == requestId && x.UserId == userId) == 1
             ).ConfigureAwait(false);
-        
+
+        public async Task<bool> RequestExists(ulong requestId)
+            => await _soraTransactor.DoAsync(async context =>
+                await context.WaifuRequests.CountAsync(x => x.Id == requestId) == 1
+            ).ConfigureAwait(false);
+
         public async Task<bool> UserHasNotificationOn(ulong userId)
             => await _soraTransactor.DoAsync(async context =>
                     await context.UserNotifiedOnRequestProcesses.FindAsync(userId) != null)
@@ -125,7 +130,8 @@ namespace SoraBot.Data.Repositories
             => await _soraTransactor.DoAsync<int>(async context =>
                 {
                     var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(24));
-                    return await context.WaifuRequests.CountAsync(x => x.UserId == userId && x.RequestTime > dt && x.RequestState == RequestState.Pending)
+                    return await context.WaifuRequests.CountAsync(x =>
+                            x.UserId == userId && x.RequestTime > dt && x.RequestState == RequestState.Pending)
                         .ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
