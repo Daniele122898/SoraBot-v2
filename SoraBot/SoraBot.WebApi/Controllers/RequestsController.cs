@@ -77,6 +77,38 @@ namespace SoraBot.WebApi.Controllers
             return Ok(reqsToReturn); 
         }
         
+        [HttpPut("{requestId}/admin")]
+        public async Task<IActionResult> EditWaifuRequestAdmin(ulong requestId,
+            [FromBody] WaifuRequestEditDto waifuRequestEditDto)
+        {
+            // Check if request exists and belongs to the right user
+            if (!ulong.TryParse(waifuRequestEditDto.UserId, out var userId))
+                return BadRequest("UserId invalid");
+
+            if (!await _waifuRequestRepo.RequestExists(requestId))
+                return NotFound("User request was not found");
+
+            await _waifuRequestRepo.EditWaifuRequest(waifuRequestEditDto);
+            
+            return Ok();
+        }
+
+        [HttpPut("{requestId}")]
+        public async Task<IActionResult> EditWaifuRequest(ulong requestId,
+            [FromBody] WaifuRequestEditDto waifuRequestEditDto)
+        {
+            // Check if request exists and belongs to the right user
+            if (!ulong.TryParse(waifuRequestEditDto.UserId, out var userId))
+                return BadRequest("UserId invalid");
+
+            if (!await _waifuRequestRepo.RequestExistsAndBelongsToUser(requestId, userId))
+                return NotFound("User request was not found");
+
+            await _waifuRequestRepo.EditWaifuRequest(waifuRequestEditDto);
+            
+            return Ok();
+        }
+        
         [HttpPost("user/{userId}")]
         public async Task<IActionResult> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
         {
