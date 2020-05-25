@@ -68,7 +68,7 @@ namespace SoraBot.WebApi
             // Parse and set up port
             if (args.Length < 2 || !int.TryParse(args[1], out int port))
             {
-                port = 9100;
+                port = 8100;
             }
 
             port += shardId;
