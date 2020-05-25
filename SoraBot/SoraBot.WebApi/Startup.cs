@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using AutoMapper;
@@ -33,6 +34,33 @@ namespace SoraBot.WebApi
                     Title = "SoraBot API",
                     Version = "v1",
                     Description = "SoraBot API"
+                });
+                
+                c.AddSecurityDefinition("Authentication", new OpenApiSecurityScheme()
+                {
+                    Description = "Used for Token",
+                    Name = "Authentication",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Authentication"
+                });
+                
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme()
+                        {
+                            Reference = new OpenApiReference()
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Authentication"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Authentication",
+                            In = ParameterLocation.Header
+                        }, 
+                        new List<string>()
+                    }
                 });
                 
                 // Set the comments path for the Swagger JSON and UI.
