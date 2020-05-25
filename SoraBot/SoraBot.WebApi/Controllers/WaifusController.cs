@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Extensions;
+using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Users;
 using SoraBot.Services.Waifu;
 using SoraBot.WebApi.Dtos;
@@ -26,6 +29,24 @@ namespace SoraBot.WebApi.Controllers
             _waifuService = waifuService;
             _userService = userService;
             _mapper = mapper;
+        }
+
+        [HttpGet("rarities")]
+        public ActionResult<IEnumerable<WaifuRarityDto>> GetAllRarities()
+        {
+            var allRarities = ((WaifuRarity[]) Enum.GetValues(typeof(WaifuRarity))).OrderBy(x => x).ToList();
+            var rarities = new List<WaifuRarityDto>(allRarities.Count);
+            for (var i = 0; i < allRarities.Count; i++)
+            {
+                var rarity = allRarities[i];
+                rarities.Add(new WaifuRarityDto()
+                {
+                    Name = rarity.ToString(),
+                    Value = (int)rarity
+                });
+            }
+
+            return Ok(rarities);
         }
 
         [HttpGet]

@@ -5,7 +5,9 @@ using AutoMapper;
 using Discord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Data.Configurations;
 using SoraBot.Data.Dtos;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
@@ -24,6 +26,7 @@ namespace SoraBot.WebApi.Controllers
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepository;
         private readonly IMapper _mapper;
+        private SoraBotConfig _config;
         private const int _REQUEST_REWARD = 2000;
 
         public RequestsController(
@@ -31,13 +34,15 @@ namespace SoraBot.WebApi.Controllers
             IUserService userService,
             IUserRepository userRepo,
             ICoinRepository coinRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IOptions<SoraBotConfig> config)
         {
             _waifuRequestRepo = waifuRequestRepo;
             _userService = userService;
             _userRepo = userRepo;
             _coinRepository = coinRepository;
             _mapper = mapper;
+            _config = config.Value;
         }
 
         private async Task NotifyUser(ulong userId, string waifuName, bool accepted)
