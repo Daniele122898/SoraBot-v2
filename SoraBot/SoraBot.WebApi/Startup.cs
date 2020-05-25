@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using SoraBot.Bot.Extensions;
 using SoraBot.Data.Extensions;
 using SoraBot.WebApi.Extensions;
+using SoraBot.WebApi.Extensions.Authentication;
 
 namespace SoraBot.WebApi
 {
@@ -54,6 +55,9 @@ namespace SoraBot.WebApi
             services.AddCors();
 
             services.AddAutoMapper(typeof(Startup).Assembly);
+
+            services.AddAuthentication()
+                .AddApiKeySupport(op => { });
 
             services.AddConfigurations(_configuration);
 
