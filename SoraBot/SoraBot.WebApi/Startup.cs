@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -87,6 +88,14 @@ namespace SoraBot.WebApi
             services.AddAuthentication()
                 .AddApiKeySupport(op => { });
 
+            services.AddAuthorization(op =>
+            {
+                op.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes("APIKey")
+                    .Build();
+            });
+
             services.AddConfigurations(_configuration);
 
             services.AddSoraData(_configuration);
@@ -110,6 +119,8 @@ namespace SoraBot.WebApi
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             
             app.UseRouting();
+            app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
