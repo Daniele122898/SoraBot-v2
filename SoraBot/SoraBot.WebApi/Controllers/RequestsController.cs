@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Discord;
 using Microsoft.AspNetCore.Mvc;
+using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Dtos;
+using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 using SoraBot.Services.Users;
 using SoraBot.WebApi.Dtos;
@@ -18,6 +22,7 @@ namespace SoraBot.WebApi.Controllers
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepository;
         private readonly IMapper _mapper;
+        private const int _REQUEST_REWARD = 2000;
 
         public RequestsController(
             IWaifuRequestRepository waifuRequestRepo,
@@ -33,6 +38,77 @@ namespace SoraBot.WebApi.Controllers
             _mapper = mapper;
         }
 
+        private async Task NotifyUser(ulong userId, string waifuName, bool accepted)
+        {
+            try
+            {
+                var user = await _userService.GetOrSetAndGet(userId);
+                if (!user) return;
+                var eb = new EmbedBuilder()
+                {
+                    Color = accepted ? SoraSocketCommandModule.Green : SoraSocketCommandModule.Red,
+                    Title = accepted ?
+                        $"You request for {waifuName} has been accepted. You've been awarded with {_REQUEST_REWARD.ToString()} SC." :
+                        $"You request for {waifuName} has been rejected."
+                };
+                await (~user).SendMessageAsync(embed: eb.Build());
+            }
+            catch (Exception)
+            {
+                // Ignore since user could have DMs disabled 
+            }
+        }
+
+        [HttpPatch("{requestId}/approve")]
+        public async Task<IActionResult> ApproveRequest(ulong requestId)
+        {
+            // Check if request exists
+            var req = await _waifuRequestRepo.GetWaifuRequest(requestId);
+            if (!req)
+                return NotFound("Request doesn't exist");
+
+            var wr = ~req;
+            
+            // Check if waifu already exists!
+            if (await _waifuRequestRepo.WaifuExists(wr.Name.Trim()))
+                return BadRequest("Waifu already exists!");
+            
+            // Change the state 
+            await _waifuRequestRepo.ChangeRequestStatus(requestId, RequestState.Accepted);
+            // Give user reward
+            await _coinRepository.GiveAmount(wr.UserId, _REQUEST_REWARD);
+            // add waifu
+            await _waifuRequestRepo.AddWaifu(wr);
+            // check if user wants to be notified
+            bool notify = await _waifuRequestRepo.UserHasNotificationOn(wr.UserId);
+            // notify
+            if (notify)
+                await this.NotifyUser(wr.UserId, wr.Name, true);
+            
+            return Ok();
+        }
+        
+        
+        [HttpPatch("{requestId}/reject")]
+        public async Task<IActionResult> RejectRequest(ulong requestId)
+        {
+            // Check if request exists
+            var req = await _waifuRequestRepo.GetWaifuRequest(requestId);
+            if (!req)
+                return NotFound("Request doesn't exist");
+            var wr = ~req;
+    
+            // Change the state 
+            await _waifuRequestRepo.ChangeRequestStatus(requestId, RequestState.Rejected);
+            // check if user wants to be notified
+            bool notify = await _waifuRequestRepo.UserHasNotificationOn(wr.UserId);
+            // notify
+            if (notify)
+                await this.NotifyUser(wr.UserId, wr.Name, false);
+            
+            return Ok();
+        }
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WaifuRequestDto>>> GetAllRequests()
         {
