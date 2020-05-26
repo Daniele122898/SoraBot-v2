@@ -95,7 +95,8 @@ namespace SoraBot.WebApi.Controllers
                     AvatarUrl = u.GetAvatarUrl() ?? u.GetDefaultAvatarUrl(),
                     Discrim = u.Discriminator,
                     Exp = dbUser.Exp,
-                    Name = u.Username
+                    Name = u.Username,
+                    UserId = u.Id.ToString(),
                 }));
                 if (leaderboard.Ranks.Count >= 100) break;
             }
