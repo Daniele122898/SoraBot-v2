@@ -67,7 +67,8 @@ namespace SoraBot.WebApi.Controllers
                     Discrim = u.Discriminator,
                     Exp = user.Exp,
                     Name = u.Username,
-                    Rank = rank
+                    Rank = rank,
+                    UserId = u.Id.ToString()
                 });
             }
 
