@@ -124,7 +124,7 @@ namespace SoraBot.WebApi.Controllers
         }
 
         [HttpPost("user/{userId}/notify")]
-        public async Task<IActionResult> SetUserNotify(ulong userId, bool notify)
+        public async Task<IActionResult> SetUserNotify(ulong userId, [FromBody] bool notify)
         {
             // Check if user exists
             var user = await _userService.GetOrSetAndGet(userId);
