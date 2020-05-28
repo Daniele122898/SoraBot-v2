@@ -122,6 +122,20 @@ namespace SoraBot.WebApi.Controllers
 
             return Ok(reqsToReturn);
         }
+        
+        [HttpGet("user/{userId}/notify")]
+        public async Task<ActionResult<bool>> GetUserNotify(ulong userId)
+        {
+            // Check if user exists
+            var user = await _userService.GetOrSetAndGet(userId);
+            if (!user)
+                return NotFound("User doesn't exist in Sora's reach");
+
+            // Make sure he exists in DB
+            var notify = await _waifuRequestRepo.UserHasNotificationOn(userId);
+            
+            return Ok(notify);
+        }
 
         [HttpPost("user/{userId}/notify")]
         public async Task<IActionResult> SetUserNotify(ulong userId, [FromBody] bool notify)
