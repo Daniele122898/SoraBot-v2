@@ -122,7 +122,8 @@ namespace SoraBot.Data.Repositories
         public async Task EditWaifuRequest(WaifuRequestEditDto waifuRequestAddDto)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
-                var req = await context.WaifuRequests.FindAsync(waifuRequestAddDto.RequestId).ConfigureAwait(false);
+                uint id = (uint) waifuRequestAddDto.RequestId;
+                var req = await context.WaifuRequests.FindAsync(id).ConfigureAwait(false);
                 if (req == null) return; // no op if it doesn't exist
 
                 req.Name = waifuRequestAddDto.Name;

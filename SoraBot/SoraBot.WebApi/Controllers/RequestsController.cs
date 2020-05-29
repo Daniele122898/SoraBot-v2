@@ -200,7 +200,7 @@ namespace SoraBot.WebApi.Controllers
             return Ok();
         }
         
-        [HttpDelete("/user/{userId}/{requestId}")]
+        [HttpDelete("user/{userId}/{requestId}")]
         public async Task<IActionResult> DeleteWaifuRequest(ulong userId, uint requestId)
         {
             // Check if request exists and belongs to the right user
