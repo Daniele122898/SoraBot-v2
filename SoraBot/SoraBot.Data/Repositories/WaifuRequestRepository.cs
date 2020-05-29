@@ -19,7 +19,7 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
-        public async Task ChangeRequestStatus(ulong requestId, RequestState requestState)
+        public async Task ChangeRequestStatus(uint requestId, RequestState requestState)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
                 var req = await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false);
@@ -43,18 +43,18 @@ namespace SoraBot.Data.Repositories
                 return requests;
             }).ConfigureAwait(false);
 
-        public async Task<Option<WaifuRequest>> GetWaifuRequest(ulong requestId)
+        public async Task<Option<WaifuRequest>> GetWaifuRequest(uint requestId)
             => await _soraTransactor.DoAsync(async context =>
                     (await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false)) ??
                     Option.None<WaifuRequest>())
                 .ConfigureAwait(false);
 
-        public async Task<bool> RequestExistsAndBelongsToUser(ulong requestId, ulong userId)
+        public async Task<bool> RequestExistsAndBelongsToUser(uint requestId, ulong userId)
             => await _soraTransactor.DoAsync(async context =>
                 await context.WaifuRequests.CountAsync(x => x.Id == requestId && x.UserId == userId) == 1
             ).ConfigureAwait(false);
 
-        public async Task<bool> RequestExists(ulong requestId)
+        public async Task<bool> RequestExists(uint requestId)
             => await _soraTransactor.DoAsync(async context =>
                 await context.WaifuRequests.CountAsync(x => x.Id == requestId) == 1
             ).ConfigureAwait(false);
@@ -161,6 +161,15 @@ namespace SoraBot.Data.Repositories
                     Name = wr.Name,
                     Rarity = wr.Rarity
                 });
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+        public async Task RemoveWaifuRequest(uint requestId)
+            => await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var req = await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false);
+                if (req == null) return; // Do nothing when it doesnt exist
+                context.WaifuRequests.Remove(req);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
     }

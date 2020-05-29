@@ -62,7 +62,7 @@ namespace SoraBot.WebApi.Controllers
         }
 
         [HttpPatch("{requestId}/approve")]
-        public async Task<IActionResult> ApproveRequest(ulong requestId)
+        public async Task<IActionResult> ApproveRequest(uint requestId)
         {
             // Check if request exists
             var req = await _waifuRequestRepo.GetWaifuRequest(requestId);
@@ -92,7 +92,7 @@ namespace SoraBot.WebApi.Controllers
         
         
         [HttpPatch("{requestId}/reject")]
-        public async Task<IActionResult> RejectRequest(ulong requestId)
+        public async Task<IActionResult> RejectRequest(uint requestId)
         {
             // Check if request exists
             var req = await _waifuRequestRepo.GetWaifuRequest(requestId);
@@ -138,7 +138,7 @@ namespace SoraBot.WebApi.Controllers
         }
 
         [HttpPost("user/{userId}/notify")]
-        public async Task<IActionResult> SetUserNotify(ulong userId, [FromBody] bool notify)
+        public async Task<IActionResult> SetUserNotify(ulong userId, [FromBody] NotifyDto notify)
         {
             // Check if user exists
             var user = await _userService.GetOrSetAndGet(userId);
@@ -149,7 +149,7 @@ namespace SoraBot.WebApi.Controllers
             await _userRepo.GetOrCreateUser(userId);
             
             // Now we set the notification
-            if (notify)
+            if (notify.Notify)
                 await _waifuRequestRepo.ActivateUserNotification(userId);
             else
                 await _waifuRequestRepo.RemoveUserNotification(userId);
@@ -170,7 +170,7 @@ namespace SoraBot.WebApi.Controllers
         }
         
         [HttpPut("{requestId}/admin")]
-        public async Task<IActionResult> EditWaifuRequestAdmin(ulong requestId,
+        public async Task<IActionResult> EditWaifuRequestAdmin(uint requestId,
             [FromBody] WaifuRequestEditDto waifuRequestEditDto)
         {
             // Check if request exists
@@ -183,7 +183,7 @@ namespace SoraBot.WebApi.Controllers
         }
 
         [HttpPut("{requestId}")]
-        public async Task<IActionResult> EditWaifuRequest(ulong requestId,
+        public async Task<IActionResult> EditWaifuRequest(uint requestId,
             [FromBody] WaifuRequestEditDto waifuRequestEditDto)
         {
             // Check if request exists and belongs to the right user
@@ -194,6 +194,18 @@ namespace SoraBot.WebApi.Controllers
                 return NotFound("User request was not found");
 
             await _waifuRequestRepo.EditWaifuRequest(waifuRequestEditDto);
+            
+            return Ok();
+        }
+        
+        [HttpDelete("/user/{userId}/{requestId}")]
+        public async Task<IActionResult> DeleteWaifuRequest(ulong userId, uint requestId)
+        {
+            // Check if request exists and belongs to the right user
+            if (!await _waifuRequestRepo.RequestExistsAndBelongsToUser(requestId, userId))
+                return NotFound("User request was not found");
+
+            await _waifuRequestRepo.RemoveWaifuRequest(requestId);
             
             return Ok();
         }

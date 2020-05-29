@@ -8,11 +8,11 @@ namespace SoraBot.Data.Repositories.Interfaces
 {
     public interface IWaifuRequestRepository
     {
-        Task ChangeRequestStatus(ulong requestId, RequestState requestState);
+        Task ChangeRequestStatus(uint requestId, RequestState requestState);
         Task<Option<List<WaifuRequest>>> GetUserWaifuRequests(ulong userId);
-        Task<Option<WaifuRequest>> GetWaifuRequest(ulong requestId);
-        Task<bool> RequestExistsAndBelongsToUser(ulong requestId, ulong userId);
-        Task<bool> RequestExists(ulong requestId);
+        Task<Option<WaifuRequest>> GetWaifuRequest(uint requestId);
+        Task<bool> RequestExistsAndBelongsToUser(uint requestId, ulong userId);
+        Task<bool> RequestExists(uint requestId);
         Task<bool> UserHasNotificationOn(ulong userId);
         Task ActivateUserNotification(ulong userId);
         Task RemoveUserNotification(ulong userId);
@@ -24,5 +24,6 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task<bool> WaifuExists(int id);
         Task<int> UserRequestCountLast24Hours(ulong userId);
         Task AddWaifu(WaifuRequest wr);
+        Task RemoveWaifuRequest(uint requestId);
     }
 }
