@@ -26,6 +26,7 @@ namespace SoraBot.Data.Repositories
                 if (req == null) return;
 
                 req.RequestState = requestState;
+                req.ProcessedTime = DateTime.UtcNow;
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         
