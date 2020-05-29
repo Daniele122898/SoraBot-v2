@@ -18,7 +18,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         Task RemoveUserNotification(ulong userId);
         Task<Option<List<WaifuRequest>>> AllActiveRequests();
         Task<Option<List<WaifuRequest>>> AllRequests();
-        Task AddWaifuRequest(WaifuRequestAddDto waifuRequestAddDto);
+        Task<uint> AddWaifuRequest(WaifuRequestAddDto waifuRequestAddDto);
         Task EditWaifuRequest(WaifuRequestEditDto waifuRequestAddDto);
         Task<bool> WaifuExists(string waifuName);
         Task<bool> WaifuExists(int id);

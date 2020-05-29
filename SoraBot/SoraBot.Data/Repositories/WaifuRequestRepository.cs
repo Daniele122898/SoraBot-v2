@@ -102,8 +102,8 @@ namespace SoraBot.Data.Repositories
                 return reqs.Count == 0 ? Option.None<List<WaifuRequest>>() : reqs;
             }).ConfigureAwait(false);
 
-        public async Task AddWaifuRequest(WaifuRequestAddDto waifuRequestAddDto)
-            => await _soraTransactor.DoInTransactionAsync(async context =>
+        public async Task<uint> AddWaifuRequest(WaifuRequestAddDto waifuRequestAddDto)
+            => await _soraTransactor.DoInTransactionAndGetAsync(async context =>
             {
                 WaifuRequest req = new WaifuRequest()
                 {
@@ -116,6 +116,7 @@ namespace SoraBot.Data.Repositories
                 };
                 context.WaifuRequests.Add(req);
                 await context.SaveChangesAsync().ConfigureAwait(false);
+                return req.Id;
             }).ConfigureAwait(false);
 
         public async Task EditWaifuRequest(WaifuRequestEditDto waifuRequestAddDto)

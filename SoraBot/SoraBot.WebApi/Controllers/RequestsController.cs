@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Discord;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Dtos;
@@ -211,7 +213,7 @@ namespace SoraBot.WebApi.Controllers
         }
         
         [HttpPost("user/{userId}")]
-        public async Task<IActionResult> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
+        public async Task<ActionResult<WaifuRequestDto>> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
         {
             if (await _waifuRequestRepo.UserRequestCountLast24Hours(userId) >= 3)
                 return this.BadRequest(
@@ -222,9 +224,16 @@ namespace SoraBot.WebApi.Controllers
             if (await _waifuRequestRepo.WaifuExists(waifuRequestAddDto.Name.Trim()))
                 return BadRequest("Waifu already exists");
 
-            await _waifuRequestRepo.AddWaifuRequest(waifuRequestAddDto);
+            var reqId = await _waifuRequestRepo.AddWaifuRequest(waifuRequestAddDto);
             
-            return Ok(); 
+            // Fetch newly created request
+            var req = await _waifuRequestRepo.GetWaifuRequest(reqId);
+            if (!req)
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new {error = "Failed to save waifu request"});
+            
+            var reqToReturn = _mapper.Map<WaifuRequestDto>(req.Some());
+            return Ok(reqToReturn); 
         }
     }
 }
