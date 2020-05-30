@@ -154,7 +154,7 @@ namespace SoraBot.Bot
             if (userCount > 0)
             {
                 // Check if channel is AFK channel
-                if (guild.AFKChannel.Id == player.VoiceChannel.Id)
+                if (guild.AFKChannel?.Id == player.VoiceChannel.Id)
                 {
                     // leave this shit
                     await _lavaNode.LeaveAsync(player.VoiceChannel);
