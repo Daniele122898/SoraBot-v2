@@ -1,44 +1,44 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 
 namespace SoraBot.Services.Cache
 {
     public partial class CacheService
     {
-        public Maybe<object> Get(string id)
+        public Option<object> Get(string id)
         {
             _customCache.TryGetValue(id, out var item);
-            if (item == null) return Maybe.Zero<object>();
-            if (item.IsValid()) return Maybe.FromVal<object>(item);
+            if (item == null) return Option.None<object>();
+            if (item.IsValid()) return Option.Some<object>(item);
 
             _customCache.TryRemove(id, out _);
-            return Maybe.Zero<object>();
+            return Option.None<object>();
         }
 
-        public Maybe<T> Get<T>(string id)
+        public Option<T> Get<T>(string id)
         {
             _customCache.TryGetValue(id, out var item);
-            if (item == null) return Maybe.Zero<T>();
-            if (item.IsValid()) return Maybe.FromVal<T>((T) item.Content);
+            if (item == null) return Option.None<T>();
+            if (item.IsValid()) return Option.Some<T>((T) item.Content);
 
             _customCache.TryRemove(id, out _);
-            return Maybe.Zero<T>();
+            return Option.None<T>();
         }
 
         public bool Contains(string id) => _customCache.ContainsKey(id);
 
-        public Maybe<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null)
+        public Option<T> GetOrSetAndGet<T>(string id, Func<T> set, TimeSpan? ttl = null)
         {
-            return Maybe.FromVal(this.GetOrSetAndGet(id, _customCache, set, ttl));
+            return Option.Some(this.GetOrSetAndGet(id, _customCache, set, ttl));
         }
 
-        public async Task<Maybe<T>> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
+        public async Task<Option<T>> GetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
         {
-            return Maybe.FromVal<T>(await GetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false));
+            return Option.Some<T>(await GetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false));
         }
 
-        public async Task<Maybe<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
+        public async Task<Option<T>> TryGetOrSetAndGetAsync<T>(string id, Func<Task<T>> set, TimeSpan? ttl = null)
         {
             return await this.TryGetOrSetAndGetAsync(id, _customCache, set, ttl).ConfigureAwait(false);
         }
@@ -54,12 +54,12 @@ namespace SoraBot.Services.Cache
             this._customCache.AddOrUpdate(id, addItem, updateFunc);
         }
 
-        public Maybe<T> TryRemove<T>(string id)
+        public Option<T> TryRemove<T>(string id)
         {
             _customCache.TryRemove(id, out var cacheItem);
-            if (cacheItem == null) return Maybe.Zero<T>();
-            if (!cacheItem.IsValid()) return Maybe.Zero<T>();
-            return Maybe.FromVal((T) cacheItem.Content);
+            if (cacheItem == null) return Option.None<T>();
+            if (!cacheItem.IsValid()) return Option.None<T>();
+            return Option.Some((T) cacheItem.Content);
         }
 
         public void TryRemove(string id)

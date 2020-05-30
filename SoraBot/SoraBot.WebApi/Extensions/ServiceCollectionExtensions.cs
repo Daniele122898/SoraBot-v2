@@ -11,6 +11,7 @@ namespace SoraBot.WebApi.Extensions
         {
             services.Configure<SoraBotConfig>(configuration.GetSection("SoraBotSettings"));
             services.Configure<LavaLinkConfig>(configuration.GetSection("LavaLink"));
+            services.Configure<ApiConfig>(configuration.GetSection("ApiSettings"));
             
             return services;
         }

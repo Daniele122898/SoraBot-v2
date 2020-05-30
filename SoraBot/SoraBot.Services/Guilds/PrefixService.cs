@@ -19,7 +19,7 @@ namespace SoraBot.Services.Guilds
         {
             return (await _cacheService.GetOrSetAndGetAsync(CacheID.PrefixCacheId(id),
                 async () => await _guildRepo.GetGuildPrefix(id).ConfigureAwait(false) ?? "$"
-            ).ConfigureAwait(false)).Value;
+            ).ConfigureAwait(false)).Some();
         }
 
         public async Task<bool> SetPrefix(ulong id, string prefix)

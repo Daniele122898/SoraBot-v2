@@ -28,7 +28,7 @@ namespace SoraBot.Bot.TypeReaders
             if (!user.HasValue)
                 return TypeReaderResult.FromError(CommandError.ParseFailed, "Could not find User");
             
-            return TypeReaderResult.FromSuccess(new DiscordGuildUser(user.Value));
+            return TypeReaderResult.FromSuccess(new DiscordGuildUser(~user));
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Data.Repositories.Interfaces
@@ -8,7 +8,7 @@ namespace SoraBot.Data.Repositories.Interfaces
     {
         Task<string> GetGuildPrefix(ulong id);
         Task<bool> SetGuildPrefix(ulong id, string prefix);
-        Task<Maybe<Guild>> GetOrSetAndGetGuild(ulong id);
+        Task<Option<Guild>> GetOrSetAndGetGuild(ulong id);
         Task<Guild> GetGuild(ulong id);
         Task RemoveGuild(ulong id);
         Task TryAddGuildUserExp(ulong guildId, ulong userId, uint expToAdd);

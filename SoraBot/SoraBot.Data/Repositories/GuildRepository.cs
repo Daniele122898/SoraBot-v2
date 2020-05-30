@@ -1,12 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
-namespace SoraBot.Data.Repositories.GuildRepos
+namespace SoraBot.Data.Repositories
 {
     public class GuildRepository : IGuildRepository
     {
@@ -35,9 +35,9 @@ namespace SoraBot.Data.Repositories.GuildRepos
             }).ConfigureAwait(false);
         }
 
-        public async Task<Maybe<Guild>> GetOrSetAndGetGuild(ulong id)
+        public async Task<Option<Guild>> GetOrSetAndGetGuild(ulong id)
             => await _soraTransactor.DoInTransactionAndGetAsync(async context
-                => Maybe.FromVal(await GetOrSetAndGetGuild(id, context).ConfigureAwait(false))
+                => Option.Some(await GetOrSetAndGetGuild(id, context).ConfigureAwait(false))
             ).ConfigureAwait(false);
 
         public async Task<Guild> GetGuild(ulong id)

@@ -17,7 +17,7 @@ namespace SoraBot.Bot.Modules
     public class CoinModule : SoraSocketCommandModule
     {
         public const short DAILY_COOLDOWN_HOURS = 20;
-        public const uint DAILY_REWARD = 1000000; // TODO CHANGE THIS BEFORE LAUNCH!!!
+        public const uint DAILY_REWARD = 1000;
 
         private readonly IUserRepository _userRepo;
         private readonly ICoinRepository _coinRepo;
@@ -34,11 +34,9 @@ namespace SoraBot.Bot.Modules
         public async Task EarnDaily()
         {
             // First lets try and get OR create the user because we're gonna need him
-            var userDb = await _userRepo.GetOrCreateUser(Context.User.Id);
-            if (await FailedToGetUser(userDb)) return;
+            User userDb = await _userRepo.GetOrCreateUser(Context.User.Id);
 
-            var user = userDb.Value;
-            var nextDailyPossible = user.LastDaily.AddHours(CoinModule.DAILY_COOLDOWN_HOURS);
+            var nextDailyPossible = userDb.LastDaily.AddHours(CoinModule.DAILY_COOLDOWN_HOURS);
             if (nextDailyPossible.CompareTo(DateTime.UtcNow) >= 0)
             {
                 var timeRemaining = nextDailyPossible.Subtract(DateTime.UtcNow.TimeOfDay).TimeOfDay;
@@ -49,7 +47,7 @@ namespace SoraBot.Bot.Modules
             }
 
             // Otherwise we can earn
-            if (await FailedTryTransaction(await _coinRepo.DoDaily(user.Id, DAILY_REWARD).ConfigureAwait(false)))
+            if (await FailedTryTransaction(await _coinRepo.DoDaily(userDb.Id, DAILY_REWARD).ConfigureAwait(false)))
             {
                 return;
             }
@@ -114,9 +112,7 @@ namespace SoraBot.Bot.Modules
             if (receiver != null)
             {
                 // Create the user
-                var userMaybe = await _userRepo.GetOrCreateUser(receiverId).ConfigureAwait(false);
-                if (await FailedToGetUser(userMaybe)) return;
-                receiverDb = userMaybe.Value;
+                receiverDb = await _userRepo.GetOrCreateUser(receiverId).ConfigureAwait(false);
             }
             else
             {

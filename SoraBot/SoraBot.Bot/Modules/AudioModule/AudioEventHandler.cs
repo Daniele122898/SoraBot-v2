@@ -4,6 +4,7 @@ using Discord;
 using Microsoft.Extensions.Logging;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
+using SoraBot.Services.Cache;
 using Victoria;
 using Victoria.EventArgs;
 
@@ -14,16 +15,21 @@ namespace SoraBot.Bot.Modules.AudioModule
         private readonly ILogger<AudioEventHandler> _log;
         private readonly LavaNode _node;
         private readonly AudioStatsService _audioStatsService;
+        private readonly ICacheService _cache;
+
+        private const int _MSG_CACHE_TTL_MINS = 30;
 
         public AudioEventHandler(
             ILogger<AudioEventHandler> log, 
             LavaNode node,
-            AudioStatsService audioStatsService)
+            AudioStatsService audioStatsService,
+            ICacheService cache)
         {
             log.LogInformation("Initialized Audio Event Handlers");
             _log = log;
             _node = node;
             _audioStatsService = audioStatsService;
+            _cache = cache;
 
             _node.OnLog += OnLog;
             _node.OnTrackEnded += OnTrackEnded;
@@ -122,7 +128,18 @@ namespace SoraBot.Bot.Modules.AudioModule
             // Queue next song
             await e.Player.PlayAsync(track);
             var eb = await this.GetExtendedMusicEmbed(track);
-            await e.Player.TextChannel.SendMessageAsync(embed: eb.Build());
+            var msg = await e.Player.TextChannel.SendMessageAsync(embed: eb.Build());
+            // Remove old and set new msg
+            await this.RemoveOldAndSetNewMessage(msg, e.Player);
+
+        }
+
+        private async Task RemoveOldAndSetNewMessage(IUserMessage msg, LavaPlayer player)
+        {
+            string msgId = CacheID.MusicCacheMessage(player.VoiceChannel.GuildId);
+            var oldMsg = _cache.Get<IUserMessage>(msgId);
+            await oldMsg.MatchSome(async message => await message.DeleteAsync());
+            _cache.Set(CacheID.MusicCacheMessage(player.VoiceChannel.GuildId), msg, TimeSpan.FromMinutes(_MSG_CACHE_TTL_MINS));
         }
 
         private Task OnLog(LogMessage log)

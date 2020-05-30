@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
@@ -15,19 +15,19 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
-        public async Task<Maybe<User>> GetOrCreateUser(ulong id)
+        public async Task<Some<User>> GetOrCreateUser(ulong id)
         {
             return await _soraTransactor.DoInTransactionAndGetAsync(async context =>
             {
                 var user = await context.Users.FindAsync(id).ConfigureAwait(false);
                 if (user != null)
-                    return Maybe.FromVal(user);
+                    return  user;
 
                 // Otherwise we'll have to create the user ourselves
                 user = new User(){Id = id};
                 await context.Users.AddAsync(user).ConfigureAwait(false);
                 await context.SaveChangesAsync().ConfigureAwait(false);
-                return Maybe.FromVal(user);
+                return user;
             }).ConfigureAwait(false);
         }
 

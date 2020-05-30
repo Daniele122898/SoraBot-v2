@@ -20,6 +20,7 @@
         public static string GetGuildUser(ulong userId, ulong guildId) => userId.ToString() + guildId.ToString();
         public static ulong GetUser(ulong userId) => userId;
         public static ulong GetMessageId(ulong messageId) => messageId;
+        public static string MusicCacheMessage(ulong guildId) => $"ms:{guildId.ToString()}";
 
 
     }

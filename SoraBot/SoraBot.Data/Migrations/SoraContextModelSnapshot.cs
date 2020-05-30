@@ -152,6 +152,16 @@ namespace SoraBot.Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("SoraBot.Data.Models.SoraDb.UserNotifiedOnRequestProcess", b =>
+                {
+                    b.Property<ulong>("UserId")
+                        .HasColumnType("bigint unsigned");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserNotifiedOnRequestProcesses");
+                });
+
             modelBuilder.Entity("SoraBot.Data.Models.SoraDb.UserWaifu", b =>
                 {
                     b.Property<ulong>("UserId")
@@ -190,6 +200,42 @@ namespace SoraBot.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Waifus");
+                });
+
+            modelBuilder.Entity("SoraBot.Data.Models.SoraDb.WaifuRequest", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int unsigned");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime?>("ProcessedTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Rarity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequestState")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RequestTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<ulong>("UserId")
+                        .HasColumnType("bigint unsigned");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WaifuRequests");
                 });
 
             modelBuilder.Entity("SoraBot.Data.Models.SoraDb.GuildUser", b =>
@@ -262,6 +308,15 @@ namespace SoraBot.Data.Migrations
                     b.HasOne("SoraBot.Data.Models.SoraDb.Waifu", "Waifu")
                         .WithMany("UserWaifus")
                         .HasForeignKey("WaifuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SoraBot.Data.Models.SoraDb.WaifuRequest", b =>
+                {
+                    b.HasOne("SoraBot.Data.Models.SoraDb.User", "User")
+                        .WithMany("WaifuRequests")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

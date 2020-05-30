@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
@@ -124,7 +123,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             // Otherwise built the rest of the queue
             int count = 0;
-            foreach (var item in player.Queue.Items)
+            foreach (var item in player.Queue)
             {
                 ++count;
                 var track = (LavaTrack) item;
@@ -142,7 +141,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             TimeSpan duration = new TimeSpan();
 
-            foreach (var item in player.Queue.Items)
+            foreach (var item in player.Queue)
             {
                 var track = (LavaTrack) item;
                 duration = duration.Add(track.Duration);
@@ -341,7 +340,7 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
 
-            var skip = parsed.Value;
+            var skip = ~parsed;
 
             if (skip.TotalSeconds < 1 || skip.TotalSeconds > (player.Track.Duration.TotalSeconds - 1))
             {
@@ -552,7 +551,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             }
 
             var playerVC = player.VoiceChannel;
-            if (!await CheckIfSameVc(playerVC))
+            if (!await CheckIfSameVc(playerVC) && CheckChannelIsStillValid(playerVC))
                 return;
 
             try
@@ -569,7 +568,7 @@ namespace SoraBot.Bot.Modules.AudioModule
         [Summary("Make Sora join your voice channel")]
         public async Task Join()
         {
-            if (_node.HasPlayer(Context.Guild))
+            if (_node.TryGetPlayer(Context.Guild, out var player) && player.VoiceChannel != null && CheckChannelIsStillValid(player.VoiceChannel))
             {
                 await ReplyFailureEmbed("I'm already in another Voice Channel. Dont try to steal me >.<");
                 return;

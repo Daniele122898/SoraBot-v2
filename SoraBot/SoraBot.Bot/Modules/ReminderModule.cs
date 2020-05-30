@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
@@ -32,8 +32,8 @@ namespace SoraBot.Bot.Modules
         [Summary("Select which reminder to remove from a list of all of your reminders")]
         public async Task RemoveReminder()
         {
-            var rems = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
-            if (!rems.HasValue)
+            var remsOption = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
+            if (!remsOption)
             {
                 await ReplyFailureEmbed("You don't have any reminders.");
                 return;
@@ -48,11 +48,12 @@ namespace SoraBot.Bot.Modules
                 Footer = RequestedByMe()
             };
             
-            rems.Value.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
+            var rems = ~remsOption;
+            rems.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
 
-            for (int i = 0; i < rems.Value.Count; i++)
+            for (int i = 0; i < rems.Count; i++)
             {
-                var rem = rems.Value[i];
+                var rem = rems[i];
                 var remindIn = rem.DueDateUtc.Subtract(DateTime.UtcNow);
                 int num = i + 1;
                 eb.AddField(x =>
@@ -79,13 +80,13 @@ namespace SoraBot.Bot.Modules
                 return;
             }
             removeId--;
-            if (removeId < 0 || removeId >= rems.Value.Count)
+            if (removeId < 0 || removeId >= rems.Count)
             {
-                await ReplyFailureEmbed($"Not a valid ID! Please choose a reminder between 1 and {rems.Value.Count.ToString()}");
+                await ReplyFailureEmbed($"Not a valid ID! Please choose a reminder between 1 and {rems.Count.ToString()}");
                 return;               
             }
 
-            await _remindRepo.RemoveReminder(rems.Value[removeId].Id);
+            await _remindRepo.RemoveReminder(rems[removeId].Id);
             await ReplySuccessEmbed("Successfully removed reminder.");
         }
 
@@ -93,8 +94,8 @@ namespace SoraBot.Bot.Modules
         [Summary("Shows you all your reminders and when they go off")]
         public async Task AllReminders()
         {
-            var rems = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
-            if (!rems.HasValue)
+            var remsOption = await _remindRepo.GetUserReminders(Context.User.Id).ConfigureAwait(false);
+            if (!remsOption)
             {
                 await ReplyFailureEmbed("You don't have any reminders.");
                 return;
@@ -107,12 +108,12 @@ namespace SoraBot.Bot.Modules
                 Title = "⏰ Reminders",
                 Footer = RequestedByMe()
             };
-            
-            rems.Value.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
+            var rems = ~remsOption;
+            rems.Sort((r1, r2) => r1.DueDateUtc.CompareTo(r2.DueDateUtc));
 
-            for (int i = 0; i < rems.Value.Count; i++)
+            for (int i = 0; i < rems.Count; i++)
             {
-                var rem = rems.Value[i];
+                var rem = rems[i];
                 var remindIn = rem.DueDateUtc.Subtract(DateTime.UtcNow);
                 int num = i + 1;
                 eb.AddField(x =>
@@ -172,8 +173,8 @@ namespace SoraBot.Bot.Modules
             }
             
             // Just add the reminder to the user :D
-            await _remindRepo.AddReminderToUser(Context.User.Id, msg, dueDate.Value).ConfigureAwait(false);
-            var remindIn = dueDate.Value.Subtract(DateTime.UtcNow);
+            await _remindRepo.AddReminderToUser(Context.User.Id, msg, ~dueDate).ConfigureAwait(false);
+            var remindIn = dueDate.Some().Subtract(DateTime.UtcNow);
             await ReplySuccessEmbedExtended(
                 "Successfully set reminder",
                 $"I will remind you to `{msg}` in {remindIn.Humanize(minUnit: TimeUnit.Second, maxUnit: TimeUnit.Year, precision: 10)}");
@@ -183,14 +184,14 @@ namespace SoraBot.Bot.Modules
         /// Tries to properly parse the time or if it cant returns a Zero Maybe
         /// No silent failing. If smth isn't exactly right we completely fail the entire parsing!
         /// </summary>
-        private static Maybe<DateTime> ParseTime(string message)
+        private static Option<DateTime> ParseTime(string message)
         {
             if (!message.Contains(" in "))
-                return Maybe.Zero<DateTime>();
+                return Option.None<DateTime>();
 
             string timeString = message.Split(" in ").LastOrDefault();
             if (string.IsNullOrWhiteSpace(timeString))
-                return Maybe.Zero<DateTime>();
+                return Option.None<DateTime>();
 
             var regex = Regex.Matches(timeString, @"(\d+)\s{0,1}([a-zA-Z]*)");
             double timeToAdd = 0;
@@ -199,9 +200,9 @@ namespace SoraBot.Bot.Modules
                 var captured = regex[i].Groups;
 
                 if (captured.Count != 3)
-                    return Maybe.Zero<DateTime>();
+                    return Option.None<DateTime>();
                 if (!uint.TryParse(captured[1].Value, out var time))
-                    return Maybe.Zero<DateTime>();
+                    return Option.None<DateTime>();
 
                 string type = captured[2].Value;
 
@@ -237,11 +238,11 @@ namespace SoraBot.Bot.Modules
                         timeToAdd += time;
                         break;
                     default:
-                        return Maybe.Zero<DateTime>();
+                        return Option.None<DateTime>();
                 }
             }
 
-            return Maybe.FromVal<DateTime>(DateTime.UtcNow.AddSeconds(timeToAdd));
+            return Option.Some(DateTime.UtcNow.AddSeconds(timeToAdd));
         }
     }
 }

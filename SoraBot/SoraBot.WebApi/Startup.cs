@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using SoraBot.Bot.Extensions;
 using SoraBot.Data.Extensions;
 using SoraBot.WebApi.Extensions;
+using SoraBot.WebApi.Extensions.Authentication;
 
 namespace SoraBot.WebApi
 {
@@ -33,6 +37,33 @@ namespace SoraBot.WebApi
                     Description = "SoraBot API"
                 });
                 
+                c.AddSecurityDefinition("Authorization", new OpenApiSecurityScheme()
+                {
+                    Description = "Used for Token",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Authorization"
+                });
+                
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme()
+                        {
+                            Reference = new OpenApiReference()
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Authorization"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Authorization",
+                            In = ParameterLocation.Header
+                        }, 
+                        new List<string>()
+                    }
+                });
+                
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -51,6 +82,19 @@ namespace SoraBot.WebApi
             services.AddRouting(op => op.LowercaseUrls = true);
             
             services.AddCors();
+
+            services.AddAutoMapper(typeof(Startup).Assembly);
+
+            services.AddAuthentication()
+                .AddApiKeySupport(op => { });
+
+            services.AddAuthorization(op =>
+            {
+                op.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes("APIKey")
+                    .Build();
+            });
 
             services.AddConfigurations(_configuration);
 
@@ -75,6 +119,8 @@ namespace SoraBot.WebApi
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             
             app.UseRouting();
+            app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

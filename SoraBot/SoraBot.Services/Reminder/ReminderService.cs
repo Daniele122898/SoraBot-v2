@@ -57,7 +57,7 @@ namespace SoraBot.Services.Reminder
                     if (!user.HasValue) continue;
                     try
                     {
-                        var channel = await user.Value.GetOrCreateDMChannelAsync().ConfigureAwait(false);
+                        var channel = await user.Some().GetOrCreateDMChannelAsync().ConfigureAwait(false);
                         if (channel == null) return;
                         var eb = new EmbedBuilder()
                         {

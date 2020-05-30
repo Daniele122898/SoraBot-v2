@@ -69,6 +69,7 @@ namespace SoraBot.Bot
                 _logger.LogTrace("Registering listeners for Discord client events.");
 
                 _socketClient.Disconnected += OnDisconnect;
+                _socketClient.UserVoiceStateUpdated += OnUserVoiceStateUpdated;
                 
                 _socketClient.Log += _serilogAdapter.HandleLog;
                 _socketClient.Ready += SocketClientOnReady;
@@ -135,6 +136,36 @@ namespace SoraBot.Bot
                 throw;
             }
             
+        }
+        
+        private async Task OnUserVoiceStateUpdated(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
+        {
+            var guild = newState.VoiceChannel?.Guild ?? oldState.VoiceChannel?.Guild;
+            if (guild == null) return;
+            if (!_lavaNode.TryGetPlayer(guild, out var player))
+                return;
+            // So this is a guild that has a currently active sora music player. Let's investigate
+            if (player.VoiceChannel == null) return; // shouldn't ever happen but we never know 
+            
+            SocketVoiceChannel vc = guild.CurrentUser.VoiceChannel;
+            if (vc == null) return; // Sora is in none so we'll just ignore this.
+            
+            var userCount = vc.Users.Count(x => !x.IsBot);
+            if (userCount > 0)
+            {
+                // Check if channel is AFK channel
+                if (guild.AFKChannel?.Id == player.VoiceChannel.Id)
+                {
+                    // leave this shit
+                    await _lavaNode.LeaveAsync(player.VoiceChannel);
+                    return;
+                }
+                // No action required
+                return; 
+            }
+            
+            // Otherwise we leave the VC.
+            await _lavaNode.LeaveAsync(player.VoiceChannel);
         }
 
         private Task SocketClientOnReady()

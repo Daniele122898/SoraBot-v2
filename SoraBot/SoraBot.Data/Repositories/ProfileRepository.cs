@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
 using SoraBot.Data.Dtos.Profile;
 using SoraBot.Data.Extensions;
@@ -18,12 +19,12 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
         
-        public async Task<Maybe<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId)
+        public async Task<Option<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId)
         {
-            return await _soraTransactor.DoAsync(async context =>
+            return await _soraTransactor.DoAsync<Option<ProfileImageGenDto>>(async context =>
             {
                 var user = await context.Users.FindAsync(userId).ConfigureAwait(false);
-                if (user == null) return Maybe.Zero<ProfileImageGenDto>();
+                if (user == null) return Option.None<ProfileImageGenDto>();
 
                 var globalRank = await context.Users
                     .Where(u => u.Exp > user.Exp)
@@ -39,14 +40,14 @@ namespace SoraBot.Data.Repositories
                     .CountAsync()
                     .ConfigureAwait(false);
                     
-                return Maybe.FromVal(new ProfileImageGenDto()
+                return new ProfileImageGenDto()
                 {
                     GlobalExp = user.Exp,
                     GlobalRank = globalRank + 1,
                     HasCustomBg = user.HasCustomProfileBg,
                     LocalExp = guildUser.Exp,
                     LocalRank = localRank + 1
-                });
+                };
             }).ConfigureAwait(false);
         }
 
@@ -59,5 +60,31 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
+
+        public async Task<Option<List<User>>> GetTop150Users()
+            => await _soraTransactor.DoAsync<Option<List<User>>>(async context =>
+            {
+                var users = await context.Users
+                    .OrderByDescending(x => x.Exp)
+                    .Take(150)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                if (users.Count == 0)
+                    return Option.None<List<User>>();
+                return users;
+            }).ConfigureAwait(false);
+
+        public async Task<Option<List<GuildUser>>> GetGuildUsersSorted(ulong guildId)
+            => await _soraTransactor.DoAsync<Option<List<GuildUser>>>(async context =>
+            {
+                var users = await context.GuildUsers
+                    .Where(x => x.GuildId == guildId)
+                    .OrderByDescending(x => x.Exp)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+                if (users.Count == 0)
+                    return Option.None<List<GuildUser>>();
+                return users;
+            }).ConfigureAwait(false);
     }
 }

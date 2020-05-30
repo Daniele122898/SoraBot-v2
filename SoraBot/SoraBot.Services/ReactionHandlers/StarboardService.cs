@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -50,14 +50,14 @@ namespace SoraBot.Services.ReactionHandlers
             if (!starmsg.HasValue) 
                 return;
 
-            var guild = _client.GetGuild(starmsg.Value.GuildId);
+            var guild = _client.GetGuild(starmsg.Some().GuildId);
             var starboardInfo = await _starRepo.GetStarboardInfo(guild.Id).ConfigureAwait(false);
             if (!starboardInfo.HasValue) return;
 
-            var starboardChannel = guild.GetTextChannel(starboardInfo.Value.starboardChannelId) as ITextChannel;
+            var starboardChannel = guild.GetTextChannel(starboardInfo.Some().starboardChannelId) as ITextChannel;
             if (starboardChannel == null) return;
 
-            await this.RemoveStarboardMessage(msg.Id, starmsg.Value.PostedMsgId, starboardChannel)
+            await this.RemoveStarboardMessage(msg.Id, starmsg.Some().PostedMsgId, starboardChannel)
                 .ConfigureAwait(false);
         }
         
@@ -82,11 +82,11 @@ namespace SoraBot.Services.ReactionHandlers
 
             // Check if still valid channel and if not remove the values from the DB
             var starboardChannel = await this
-                .IsValidChannelAndRemoveIfNot(guildInfo.Value.starboardChannelId, channel.Guild).ConfigureAwait(false);
+                .IsValidChannelAndRemoveIfNot(guildInfo.Some().starboardChannelId, channel.Guild).ConfigureAwait(false);
             if (starboardChannel == null) return;
             // Check threshold
             var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
-            if (reactionCount < guildInfo.Value.threshold) return;
+            if (reactionCount < guildInfo.Some().threshold) return;
 
             // Channel is setup and exists and msg exceed threshold.
             // Check if message is already posted
@@ -125,12 +125,12 @@ namespace SoraBot.Services.ReactionHandlers
             
             // Check if still valid channel and if not remove the values from the DB
             var starboardChannel = await this
-                .IsValidChannelAndRemoveIfNot(guildInfo.Value.starboardChannelId, channel.Guild).ConfigureAwait(false);
+                .IsValidChannelAndRemoveIfNot(guildInfo.Some().starboardChannelId, channel.Guild).ConfigureAwait(false);
             if (starboardChannel == null) return;
             
             // Check if still above threshold so we just update the count
             var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
-            if (reactionCount >= guildInfo.Value.threshold)
+            if (reactionCount >= guildInfo.Some().threshold)
             {
                 await this.TryUpdatePostedMessage(message, starboardChannel, reactionCount).ConfigureAwait(false);
             }
@@ -142,7 +142,7 @@ namespace SoraBot.Services.ReactionHandlers
                 // This means its not in the DB so we don't care about it essentially
                 if (!starmsg.HasValue) 
                     return;
-                await this.RemoveStarboardMessage(message.Id, starmsg.Value.PostedMsgId, starboardChannel)
+                await this.RemoveStarboardMessage(message.Id, starmsg.Some().PostedMsgId, starboardChannel)
                     .ConfigureAwait(false);
             }
             
@@ -158,7 +158,7 @@ namespace SoraBot.Services.ReactionHandlers
             if (!postedMsg.HasValue) return; // Msg doesn't exist anymore
             try
             {
-                await postedMsg.Value.DeleteAsync().ConfigureAwait(false);
+                await postedMsg.Some().DeleteAsync().ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -171,7 +171,7 @@ namespace SoraBot.Services.ReactionHandlers
         private bool UserRateLimitReached(ulong messageId, ulong userId)
         {
             var reactCount = _cache.Get<int>(CacheID.StarboardUserMessageReactCountId(messageId, userId));
-            if (reactCount.HasValue && reactCount.Value >= 2) return true;
+            if (reactCount.HasValue && reactCount.Some() >= 2) return true;
             return false;
         }
 
@@ -188,10 +188,10 @@ namespace SoraBot.Services.ReactionHandlers
         {
             var messageM = await this.GetOrDownloadMessage(msg).ConfigureAwait(false);
             if (!messageM.HasValue) return null;
-            if (messageM.Value.Author.IsBot || messageM.Value.Author.IsWebhook) return null;
-            if (reactionUserId == messageM.Value.Author.Id) return null;
+            if (messageM.Some().Author.IsBot || messageM.Some().Author.IsWebhook) return null;
+            if (reactionUserId == messageM.Some().Author.Id) return null;
             
-            return messageM.Value;
+            return messageM.Some();
         }
 
         private async Task<bool> TryUpdatePostedMessage(IUserMessage message, ITextChannel starboardChannel,
@@ -202,19 +202,19 @@ namespace SoraBot.Services.ReactionHandlers
                 return false;
 
             // Check if message still exists
-            var starMessage = await this.GetStarboardMessage(starmsg.Value.PostedMsgId, starboardChannel)
+            var starMessage = await this.GetStarboardMessage(starmsg.Some().PostedMsgId, starboardChannel)
                 .ConfigureAwait(false);
             if (starMessage.HasValue)
             {
                 // Update message
-                await starMessage.Value
+                await starMessage.Some()
                     .ModifyAsync(x => { x.Content = $"**{reactionCount.ToString()}** {STAR_EMOTE}"; })
                     .ConfigureAwait(false);
             }
             else
             {
                 // Remove the message from the cache and from the repo
-                await this.RemoveStarboardMessageFromCacheAndDb(starmsg.Value.MessageId, starmsg.Value.PostedMsgId)
+                await this.RemoveStarboardMessageFromCacheAndDb(starmsg.Some().MessageId, starmsg.Some().PostedMsgId)
                     .ConfigureAwait(false);
             }
 
@@ -283,7 +283,7 @@ namespace SoraBot.Services.ReactionHandlers
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
-        private async Task<Maybe<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
+        private async Task<Option<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
             return await _cache.TryGetOrSetAndGetAsync(
                 CacheID.GetMessageId(messageId),
@@ -307,7 +307,7 @@ namespace SoraBot.Services.ReactionHandlers
             return null;
         }
 
-        private async Task<Maybe<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
+        private async Task<Option<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
             => await _cache.TryGetOrSetAndGetAsync(
                     CacheID.GetMessageId(msg.Id),
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),

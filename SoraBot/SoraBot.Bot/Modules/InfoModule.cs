@@ -261,6 +261,12 @@ namespace SoraBot.Bot.Modules
             });
             eb.AddField(x =>
             {
+                x.Name = "Messages Received";
+                x.IsInline = true;
+                x.Value = GlobalConstants.MessagesReceived.ToString();
+            });
+            eb.AddField(x =>
+            {
                 x.Name = "Commands Executed";
                 x.IsInline = true;
                 x.Value = GlobalConstants.CommandsExecuted.ToString();
@@ -285,6 +291,12 @@ namespace SoraBot.Bot.Modules
                 x.Name = "Ping";
                 x.IsInline = true;
                 x.Value = $"{Context.Client.Latency.ToString()} ms";
+            });
+            eb.AddField(x =>
+            {
+                x.Name = "Sora Version";
+                x.IsInline = true;
+                x.Value = _config.SoraVersion;
             });
             eb.AddField(x =>
             {

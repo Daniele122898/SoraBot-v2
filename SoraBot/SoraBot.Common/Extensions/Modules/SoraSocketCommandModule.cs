@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using ArgonautCore.Maybe;
+using ArgonautCore.Lw;
 using Discord;
 using Discord.Commands;
 using SoraBot.Common.Utils;
@@ -97,9 +97,9 @@ namespace SoraBot.Common.Extensions.Modules
             return await ReplyAsync("", embed: SimpleEmbed(Purple, message).Build());
         }
 
-        public async Task<bool> FailedToGetUser(Maybe<User> userMaybe)
+        public async Task<bool> FailedToGetUser(Option<User> userOption)
         {
-            if (userMaybe.HasValue)
+            if (userOption)
                 return false;
             // otherwise send error
             await ReplyFailureEmbed("Failed to fetch or create your user data. Please try again.");
