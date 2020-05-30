@@ -39,6 +39,12 @@ namespace SoraBot.Bot.Modules
             _audioStatsService = audioStatsService;
             _config = config.Value;
         }
+
+        [Command("support"), Summary("link to support server")]
+        public async Task Support()
+        {
+            await ReplyAsync($"**Get support here**\n{_config.DiscordSupportInvite}");
+        }
         
         [Command("leaderboard"), Alias("localleader", "levels", "ranks"),
          Summary("Shows the link to go see the local leaderboard")]
