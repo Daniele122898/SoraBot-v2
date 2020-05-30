@@ -12,6 +12,9 @@ namespace SoraBot.Bot.Modules.AudioModule
 {
     public partial class AudioModule
     {
+        private bool CheckChannelIsStillValid(IVoiceChannel channel) =>
+            Context.Guild.CurrentUser.VoiceChannel?.Id == channel.Id;
+        
         private async Task SearchAndChoose(string query, bool yt)
         {
             if (!_node.TryGetPlayer(Context.Guild, out var player))

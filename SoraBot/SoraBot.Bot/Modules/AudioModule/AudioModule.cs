@@ -551,7 +551,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             }
 
             var playerVC = player.VoiceChannel;
-            if (!await CheckIfSameVc(playerVC))
+            if (!await CheckIfSameVc(playerVC) && CheckChannelIsStillValid(playerVC))
                 return;
 
             try
@@ -568,7 +568,7 @@ namespace SoraBot.Bot.Modules.AudioModule
         [Summary("Make Sora join your voice channel")]
         public async Task Join()
         {
-            if (_node.TryGetPlayer(Context.Guild, out var player) && player.VoiceChannel != null)
+            if (_node.TryGetPlayer(Context.Guild, out var player) && player.VoiceChannel != null && CheckChannelIsStillValid(player.VoiceChannel))
             {
                 await ReplyFailureEmbed("I'm already in another Voice Channel. Dont try to steal me >.<");
                 return;
