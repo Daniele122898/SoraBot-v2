@@ -60,6 +60,9 @@ namespace SoraBot.Services.Waifu
             var remaining = (await this.GetAllWaifus().ConfigureAwait(false))
                 .Where(x => x.Rarity == specialRarity && !userWaifus.ContainsKey(x.Id))
                 .ToList();
+
+            if (remaining.Count == 0)
+                return null;
             
             return remaining[_rand.GetRandomNext(0, remaining.Count)];
         }
