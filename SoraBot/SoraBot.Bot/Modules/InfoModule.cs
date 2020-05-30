@@ -54,6 +54,13 @@ namespace SoraBot.Bot.Modules
         {
             await Context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: https://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
         }
+        
+        [Command("request"), Alias("request waifu", "requestwaifu"),
+         Summary("Posts the link where you can request waifus")]
+        public async Task RequestWaifuLink()
+        {
+            await ReplyAsync("You can request waifus here:\n https://request.sorabot.pw/");
+        }
 
         [Command("userinfo"), Alias("whois", "uinfo")]
         [Summary("Gives infos about the @mentioned user. If none is mentioned it will show infos about you")]
