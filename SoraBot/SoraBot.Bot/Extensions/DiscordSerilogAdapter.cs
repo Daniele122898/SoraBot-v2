@@ -19,7 +19,7 @@ namespace SoraBot.Bot.Extensions
             switch (message.Severity)
             {
                 case LogSeverity.Critical:
-                    _log.LogCritical(message.Exception, message.Message ?? "An exception bubbled up: ");
+                    _log.LogCritical(message.Exception, message.ToString() ?? "An exception bubbled up: ");
                     break;
                 case LogSeverity.Debug:
                     _log.LogDebug(message.ToString());
@@ -28,10 +28,10 @@ namespace SoraBot.Bot.Extensions
                     if (message.Exception == null)
                         _log.LogWarning(message.ToString());
                     else
-                        _log.LogWarning(message.Exception, message.Message);
+                        _log.LogWarning(message.Exception, message.ToString());
                     break;
                 case LogSeverity.Error:
-                    _log.LogError(message.Exception, message.Message ?? "An exception bubbled up: ");
+                    _log.LogError(message.Exception, message.ToString() ?? "An exception bubbled up: ");
                     break;
                 case LogSeverity.Info:
                     _log.LogInformation(message.ToString());
