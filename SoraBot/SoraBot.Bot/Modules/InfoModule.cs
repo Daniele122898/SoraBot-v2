@@ -39,6 +39,21 @@ namespace SoraBot.Bot.Modules
             _audioStatsService = audioStatsService;
             _config = config.Value;
         }
+        
+        [Command("leaderboard"), Alias("localleader", "levels", "ranks"),
+         Summary("Shows the link to go see the local leaderboard")]
+        public async Task LocalLeaderboard()
+        {
+            await Context.Channel.SendMessageAsync($"Check out **{Context.Guild.Name}'s leaderboard** here: " +
+                                                   $"https://sorabot.pw/guild/{Context.Guild.Id.ToString()}/leaderboard ｡◕ ‿ ◕｡");
+        }
+        
+        [Command("globalleaderboard"), Alias("gleaderboard", "alllevels", "gleader", "global leaderboard", "globalleaderboard", "global leaderboard"),
+         Summary("Shows the top 10 users globally")]
+        public async Task GlobalLeaderboard()
+        {
+            await Context.Channel.SendMessageAsync($"Check out the **Global Leaderboard** here: https://sorabot.pw/globalleader °˖✧◝(⁰▿⁰)◜✧˖°");
+        }
 
         [Command("userinfo"), Alias("whois", "uinfo")]
         [Summary("Gives infos about the @mentioned user. If none is mentioned it will show infos about you")]
