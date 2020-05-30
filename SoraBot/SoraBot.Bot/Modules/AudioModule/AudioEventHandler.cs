@@ -15,7 +15,7 @@ namespace SoraBot.Bot.Modules.AudioModule
         private readonly ILogger<AudioEventHandler> _log;
         private readonly LavaNode _node;
         private readonly AudioStatsService _audioStatsService;
-        private readonly CacheService _cache;
+        private readonly ICacheService _cache;
 
         private const int _MSG_CACHE_TTL_MINS = 30;
 
@@ -23,7 +23,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             ILogger<AudioEventHandler> log, 
             LavaNode node,
             AudioStatsService audioStatsService,
-            CacheService cache)
+            ICacheService cache)
         {
             log.LogInformation("Initialized Audio Event Handlers");
             _log = log;
