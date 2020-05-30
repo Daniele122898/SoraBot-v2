@@ -25,7 +25,10 @@ namespace SoraBot.Bot.Extensions
                     _log.LogDebug(message.ToString());
                     break;
                 case LogSeverity.Warning:
-                    _log.LogWarning(message.ToString());
+                    if (message.Exception == null)
+                        _log.LogWarning(message.ToString());
+                    else
+                        _log.LogWarning(message.Exception, message.Message);
                     break;
                 case LogSeverity.Error:
                     _log.LogError(message.Exception, message.Message ?? "An exception bubbled up: ");
