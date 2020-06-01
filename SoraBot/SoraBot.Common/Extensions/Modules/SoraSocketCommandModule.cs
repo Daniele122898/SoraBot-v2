@@ -21,6 +21,7 @@ namespace SoraBot.Common.Extensions.Modules
         public const string InfoEmoji = "ℹ";
         public const string PartyEmoji = "🎉";
         public const string MusicalNote = "🎵";
+        public const string CoinEmoji = "💰";
 
         public async Task<IUserMessage> ReplyEmbed(string message,
             Color? embedColor = null, string emoji = null)
@@ -30,11 +31,11 @@ namespace SoraBot.Common.Extensions.Modules
         }
 
         public async Task<IUserMessage> ReplyEmbed(EmbedBuilder eb)
-            => await ReplyAsync("", embed: eb.Build()); 
+            => await ReplyAsync(embed: eb.Build()); 
 
         public async Task<IUserMessage> ReplySuccessEmbed(string message)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
         }
         
         public async Task<IUserMessage> ReplyMusicEmbed(string message, string url = null)
@@ -46,7 +47,7 @@ namespace SoraBot.Common.Extensions.Modules
             };
             if (!string.IsNullOrWhiteSpace(url))
                 eb.WithUrl(url);
-            return await ReplyAsync("", embed: eb.Build());
+            return await ReplyAsync(embed: eb.Build());
         }
         
         public async Task<IUserMessage> ReplyMusicEmbedExtended(string songName, string authorName, string imageUrl, string songLength, string videoUrl, bool added = true)
@@ -69,32 +70,38 @@ namespace SoraBot.Common.Extensions.Modules
         
         public async Task<IUserMessage> ReplySuccessEmbedExtended(string title, string desc)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Green, title, SuccessEmoji).WithDescription(desc).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Green, title, SuccessEmoji).WithDescription(desc).Build());
         }
 
         public async Task<IUserMessage> ReplyFailureEmbed(string message)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Red, message, FailureEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Red, message, FailureEmoji).Build());
         }
 
         public async Task<IUserMessage> ReplyFailureEmbedExtended(string title, string desc)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Red, title, FailureEmoji).WithDescription(desc).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Red, title, FailureEmoji).WithDescription(desc).Build());
         }
+
+        public async Task<IUserMessage> ReplyMoneyEmbed(string title)
+            => await ReplyAsync(embed: SimpleEmbed(Yellow, title, CoinEmoji).Build());        
+ 
+        public async Task<IUserMessage> ReplyMoneyLostEmbed(string title)
+            => await ReplyAsync(embed: SimpleEmbed(Red, title, CoinEmoji).Build());
         
         public async Task<IUserMessage> ReplyWarningEmbed(string message)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Yellow, message, WarnEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Yellow, message, WarnEmoji).Build());
         }
         
         public async Task<IUserMessage> ReplyInfoEmbed(string message)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Blue, message, InfoEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Blue, message, InfoEmoji).Build());
         }
         
         public async Task<IUserMessage> ReplyDefaultEmbed(string message)
         {
-            return await ReplyAsync("", embed: SimpleEmbed(Purple, message).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Purple, message).Build());
         }
 
         public async Task<bool> FailedToGetUser(Option<User> userOption)
