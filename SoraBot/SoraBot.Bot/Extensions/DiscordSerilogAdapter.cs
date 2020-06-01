@@ -31,7 +31,10 @@ namespace SoraBot.Bot.Extensions
                         _log.LogWarning(message.Exception, message.ToString());
                     break;
                 case LogSeverity.Error:
-                    _log.LogError(message.Exception, message.ToString() ?? "An exception bubbled up: ");
+                    string msg = message.ToString() ?? "An exception bubbled up: ";
+                    if (msg.Contains("50013: Missing Permissions"))
+                        return Task.CompletedTask; // These are not our mistakes so we dont care.
+                    _log.LogError(message.Exception, msg);
                     break;
                 case LogSeverity.Info:
                     _log.LogInformation(message.ToString());
