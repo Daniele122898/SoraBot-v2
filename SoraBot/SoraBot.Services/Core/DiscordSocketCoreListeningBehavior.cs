@@ -44,6 +44,7 @@ namespace SoraBot.Services.Core
             _client.ReactionsCleared += OnReactionsCleared;
             _client.MessageDeleted += OnMessageDeleted;
             _client.UserLeft += OnUserLeft;
+            _client.UserJoined += OnUserJoined;
             _client.LeftGuild += OnLeftGuild;
 
             return Task.CompletedTask;
@@ -64,8 +65,15 @@ namespace SoraBot.Services.Core
             _cacheService.TryRemove(CacheId.PrefixCacheId(guild.Id));
         }
 
+        private Task OnUserJoined(SocketGuildUser user)
+        {
+            _broker.Dispatch(new UserJoined(user));
+            return Task.CompletedTask;
+        }
+        
         private Task OnUserLeft(SocketGuildUser user)
         {
+            _broker.Dispatch(new UserLeft(user));
             // When a user leaves a guild there's a possibility that Sora lost reach of him.
             // Thus we just clear him out of the cache
             _cacheService.TryRemove(user.Id);
