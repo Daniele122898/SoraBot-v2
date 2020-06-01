@@ -170,8 +170,12 @@ namespace SoraBot.Bot.Modules
             }
             catch (Exception e)
             {
-                await ReplyFailureEmbed("Failed to generate image. Something went wrong sorry :/");
-                _log.LogError(e, $"Failed to generate image for {user.Id.ToString()}");
+                await ReplyFailureEmbedExtended(
+                    "Failed to generate image. Something went wrong sorry :/",
+                    "This could have multiple reasons. One of them could be that your username has characters that " +
+                    "are currently not supported. This is any weird character that you wouldn't naturally find on your standard " +
+                    "keyboard.");
+                _log.LogError(e, $"Failed to generate image for {user.Id.ToString()} ({user.Username})");
             }
             finally
             {
