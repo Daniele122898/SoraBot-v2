@@ -49,9 +49,9 @@ namespace SoraBot.Services.Cache
         #region Getters
         public Option<object> Get(ulong id)
         {
-            _discordCache.TryGetValue(id, out var item);
-            if (item == null) return Option.None<object>();
-            if (item.IsValid()) return Option.Some<object>(item);
+            if (!_discordCache.TryGetValue(id, out var item))
+                return Option.None<object>();
+            if (item.IsValid()) return Option.Some<object>(item.Content);
             
             _discordCache.TryRemove(id, out _);
             return Option.None<object>();
@@ -59,8 +59,8 @@ namespace SoraBot.Services.Cache
 
         public Option<T> Get<T>(ulong id)
         {
-            _discordCache.TryGetValue(id, out var item);
-            if (item == null) return Option.None<T>();
+            if (!_discordCache.TryGetValue(id, out var item))
+                return Option.None<T>();
             if (item.IsValid()) return Option.Some((T)item.Content);
             
             _discordCache.TryRemove(id, out _);
@@ -117,8 +117,8 @@ namespace SoraBot.Services.Cache
 
         public Option<T> TryRemove<T>(ulong id)
         {
-            _discordCache.TryRemove(id, out var cacheItem);
-            if (cacheItem == null) return Option.None<T>();
+            if (!_discordCache.TryRemove(id, out var cacheItem))
+                return Option.None<T>();
             if (!cacheItem.IsValid()) return Option.None<T>();
             return Option.Some((T) cacheItem.Content);
         }
