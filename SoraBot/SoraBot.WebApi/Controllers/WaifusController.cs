@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Users;
@@ -63,7 +64,7 @@ namespace SoraBot.WebApi.Controllers
                 var rarity = allRarities[i];
                 rarities.Add(new WaifuRarityDto()
                 {
-                    Name = rarity.ToString(),
+                    Name = rarity.ToString().Humanize(LetterCasing.Title),
                     Value = (int)rarity,
                     InterpolationGuideline = GetRarityInterpolation(rarity)
                 });
