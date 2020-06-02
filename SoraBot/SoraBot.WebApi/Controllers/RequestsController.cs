@@ -42,7 +42,7 @@ namespace SoraBot.WebApi.Controllers
             _mapper = mapper;
         }
 
-        private async Task NotifyUser(ulong userId, string waifuName, bool accepted)
+        private async Task NotifyUser(ulong userId, string waifuName, bool accepted, string reason = null)
         {
             try
             {
@@ -55,6 +55,10 @@ namespace SoraBot.WebApi.Controllers
                         $"You request for {waifuName} has been accepted. You've been awarded with {_REQUEST_REWARD.ToString()} SC." :
                         $"You request for {waifuName} has been rejected."
                 };
+                if (!string.IsNullOrWhiteSpace(reason))
+                {
+                    eb.WithDescription($"**Reason:** {reason}");
+                }
                 await (~user).SendMessageAsync(embed: eb.Build());
             }
             catch (Exception)
@@ -94,7 +98,7 @@ namespace SoraBot.WebApi.Controllers
         
         
         [HttpPatch("{requestId}/reject")]
-        public async Task<IActionResult> RejectRequest(uint requestId)
+        public async Task<IActionResult> RejectRequest(uint requestId, [FromBody] RequestRejectDto rejectDto)
         {
             // Check if request exists
             var req = await _waifuRequestRepo.GetWaifuRequest(requestId);
@@ -103,12 +107,12 @@ namespace SoraBot.WebApi.Controllers
             var wr = ~req;
     
             // Change the state 
-            await _waifuRequestRepo.ChangeRequestStatus(requestId, RequestState.Rejected);
+            await _waifuRequestRepo.ChangeRequestStatus(requestId, RequestState.Rejected, rejectDto.Reason);
             // check if user wants to be notified
             bool notify = await _waifuRequestRepo.UserHasNotificationOn(wr.UserId);
             // notify
             if (notify)
-                await this.NotifyUser(wr.UserId, wr.Name, false);
+                await this.NotifyUser(wr.UserId, wr.Name, false, rejectDto.Reason);
             
             return Ok();
         }

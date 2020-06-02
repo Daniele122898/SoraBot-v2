@@ -18,6 +18,11 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .Property(p => p.ProcessedTime)
                 .IsRequired(false)
                 .HasDefaultValue(null);
+
+            mb.Entity<WaifuRequest>()
+                .Property(p => p.RejectReason)
+                .IsRequired(false)
+                .HasDefaultValue(null);
             
             mb.Entity<WaifuRequest>()
                 .Property(p => p.RequestState)

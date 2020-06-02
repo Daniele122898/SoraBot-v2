@@ -19,7 +19,7 @@ namespace SoraBot.Data.Repositories
             _soraTransactor = soraTransactor;
         }
 
-        public async Task ChangeRequestStatus(uint requestId, RequestState requestState)
+        public async Task ChangeRequestStatus(uint requestId, RequestState requestState, string rejectReason = null)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
                 var req = await context.WaifuRequests.FindAsync(requestId).ConfigureAwait(false);
@@ -27,6 +27,8 @@ namespace SoraBot.Data.Repositories
 
                 req.RequestState = requestState;
                 req.ProcessedTime = DateTime.UtcNow;
+                if (requestState == RequestState.Rejected && !string.IsNullOrWhiteSpace(rejectReason))
+                    req.RejectReason = rejectReason;
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
         

@@ -22,6 +22,7 @@ namespace SoraBot.Data.Models.SoraDb
         public DateTime RequestTime { get; set; }
 
         public DateTime? ProcessedTime { get; set; }
+        public string RejectReason { get; set; }
         
         [Required]
         public string Name { get; set; }
