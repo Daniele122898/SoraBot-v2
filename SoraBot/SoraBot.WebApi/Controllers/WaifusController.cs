@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Services.Users;
@@ -30,6 +31,29 @@ namespace SoraBot.WebApi.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// This will return a string that can be used to properly name the waifus.
+        /// Certain rarities will have prefixes or maybe suffixes like Christmas Zero Two.
+        /// In that example this function would return "Christmas %". This means that the
+        /// waifu rarity has a prefix of Christmas and the actual waifu name should be put in
+        /// place for the %.
+        /// </summary>
+        /// <param name="rarity"></param>
+        /// <returns></returns>
+        private static string GetRarityInterpolation(WaifuRarity rarity) =>
+            rarity switch
+            {
+                WaifuRarity.Common => "%",
+                WaifuRarity.Uncommon => "%",
+                WaifuRarity.Rare => "%",
+                WaifuRarity.Epic => "%",
+                WaifuRarity.UltimateWaifu => "%",
+                WaifuRarity.Halloween => "Spoopy %",
+                WaifuRarity.Christmas => "Christmas %",
+                WaifuRarity.Summer => "Summer %",
+                _ => throw new ArgumentOutOfRangeException(nameof(rarity), rarity, null)
+            };
+
         [HttpGet("rarities")]
         public ActionResult<IEnumerable<WaifuRarityDto>> GetAllRarities()
         {
@@ -40,8 +64,9 @@ namespace SoraBot.WebApi.Controllers
                 var rarity = allRarities[i];
                 rarities.Add(new WaifuRarityDto()
                 {
-                    Name = rarity.ToString(),
-                    Value = (int)rarity
+                    Name = rarity.ToString().Humanize(LetterCasing.Title),
+                    Value = (int)rarity,
+                    InterpolationGuideline = GetRarityInterpolation(rarity)
                 });
             }
 
