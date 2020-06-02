@@ -216,7 +216,6 @@ namespace SoraBot.WebApi.Controllers
         public async Task<ActionResult<WaifuRequestDto>> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
         {
             // Check if Url is valid Uri
-            // if (!Uri.IsWellFormedUriString(waifuRequestAddDto.ImageUrl, UriKind.RelativeOrAbsolute))
             if (!Helper.UrlValidUri(waifuRequestAddDto.ImageUrl) || Helper.LinkIsNoImage(waifuRequestAddDto.ImageUrl))
                 return BadRequest("ImageUrl is not a valid image URL");
             
