@@ -8,7 +8,7 @@ namespace SoraBot.Data.Repositories.Interfaces
 {
     public interface IWaifuRequestRepository
     {
-        Task ChangeRequestStatus(uint requestId, RequestState requestState);
+        Task ChangeRequestStatus(uint requestId, RequestState requestState, string rejectReason = null);
         Task<Option<List<WaifuRequest>>> GetUserWaifuRequests(ulong userId);
         Task<Option<WaifuRequest>> GetWaifuRequest(uint requestId);
         Task<bool> RequestExistsAndBelongsToUser(uint requestId, ulong userId);
