@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SoraBot.Common.Extensions.Modules;
+using SoraBot.Common.Utils;
 using SoraBot.Data.Dtos;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
@@ -214,6 +215,15 @@ namespace SoraBot.WebApi.Controllers
         [HttpPost("user/{userId}")]
         public async Task<ActionResult<WaifuRequestDto>> PostWaifuRequest(ulong userId, [FromBody] WaifuRequestAddDto waifuRequestAddDto)
         {
+            // Check if Url is valid Uri
+            // if (!Uri.IsWellFormedUriString(waifuRequestAddDto.ImageUrl, UriKind.RelativeOrAbsolute))
+            if (!Helper.UrlValidUri(waifuRequestAddDto.ImageUrl) || Helper.LinkIsNoImage(waifuRequestAddDto.ImageUrl))
+                return BadRequest("ImageUrl is not a valid image URL");
+            
+            // Check if valid rarity
+            if (!Enum.IsDefined(typeof(WaifuRarity), waifuRequestAddDto.Rarity))
+                return BadRequest("Invalid Waifu rarity");
+            
             if (await _waifuRequestRepo.UserRequestCountLast24Hours(userId) >= 3)
                 return this.BadRequest(
                     "You already have 3 pending requests in the last 24 hours. Wait for them to be processed or after 24 hours have passed.");
