@@ -88,7 +88,7 @@ namespace SoraBot.Services.Waifu
             var waifuList = this._cacheService.Get<List<WaifuDbo>>((ulong) CustomCacheIDs.WaifuList);
             if (!waifuList.HasValue)
                 return Option.None<WaifuDbo>(); // Error just means cache is empty
-            return waifuList.Some().FirstOrDefault(predicate); // Here we pass a result even if there is none
+            return waifuList.Some().FirstOrDefault(predicate) ?? Option.None<WaifuDbo>(); // Here we pass a result even if there is none
         }
     }
 }
