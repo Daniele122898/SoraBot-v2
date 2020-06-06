@@ -42,23 +42,25 @@ namespace SoraBot.WebApi.Controllers
             _mapper = mapper;
         }
 
-        private async Task NotifyUser(ulong userId, string waifuName, bool accepted, string reason = null)
+        private async Task NotifyUser(WaifuRequest wr, bool accepted, string reason = null)
         {
             try
             {
-                var user = await _userService.GetOrSetAndGet(userId);
+                var user = await _userService.GetOrSetAndGet(wr.UserId);
                 if (!user) return;
                 var eb = new EmbedBuilder()
                 {
                     Color = accepted ? SoraSocketCommandModule.Green : SoraSocketCommandModule.Red,
                     Title = accepted ?
-                        $"You request for {waifuName} has been accepted. You've been awarded with {_REQUEST_REWARD.ToString()} SC." :
-                        $"You request for {waifuName} has been rejected."
+                        $"You request for {wr.Name} has been accepted. You've been awarded with {_REQUEST_REWARD.ToString()} SC." :
+                        $"You request for {wr.Name} has been rejected."
                 };
                 if (!string.IsNullOrWhiteSpace(reason))
                 {
                     eb.WithDescription($"**Reason:** {reason}");
                 }
+                eb.WithImageUrl(wr.ImageUrl);
+                
                 await (~user).SendMessageAsync(embed: eb.Build());
             }
             catch (Exception)
@@ -91,7 +93,7 @@ namespace SoraBot.WebApi.Controllers
             bool notify = await _waifuRequestRepo.UserHasNotificationOn(wr.UserId);
             // notify
             if (notify)
-                await this.NotifyUser(wr.UserId, wr.Name, true);
+                await this.NotifyUser(wr, true);
             
             return Ok();
         }
@@ -112,7 +114,7 @@ namespace SoraBot.WebApi.Controllers
             bool notify = await _waifuRequestRepo.UserHasNotificationOn(wr.UserId);
             // notify
             if (notify)
-                await this.NotifyUser(wr.UserId, wr.Name, false, rejectDto.Reason);
+                await this.NotifyUser(wr, false, rejectDto.Reason);
             
             return Ok();
         }
