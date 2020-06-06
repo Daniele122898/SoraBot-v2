@@ -14,6 +14,7 @@ namespace SoraBot.WebApi.Dtos
         public string Name { get; set; }
         public string ImageUrl { get; set; }
         public WaifuRarity Rarity { get; set; }
+        public string RejectReason { get; set; }
 
         public ulong UserId { get; set; }
 

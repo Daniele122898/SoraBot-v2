@@ -43,6 +43,12 @@ namespace SoraBot.Common.Messages
                     }
                     catch (Exception e)
                     {
+                        if (e.Message.Contains("Missing Permissions"))
+                        {
+                            _log.LogInformation($"Missing permissions to execute message {message.ToString()}");
+                            return; // We don't care about missing perm exceptions.
+                        }
+                        
                         _log.LogError(e, "An unexpect exception occured while handling a dispatched message: {Message}",
                             message);
                     }
