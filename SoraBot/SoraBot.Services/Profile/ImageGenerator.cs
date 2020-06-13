@@ -3,10 +3,10 @@ using System.IO;
 using System.Numerics;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
-using SixLabors.Shapes;
 using SoraBot.Data.Dtos.Profile;
 using Path = System.IO.Path;
 
@@ -100,24 +100,34 @@ namespace SoraBot.Services.Profile
 
         private void DrawStats(Image<Rgba32> image, ProfileImageGenDto c)
         {
-            var textGraphicOptionsCenterLeft = new TextGraphicsOptions(true)
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
+            var textGraphicOptionsCenterLeft = new TextGraphicsOptions(
+                new GraphicsOptions()
+                {
+                    Antialias = true
+                },
+                new TextOptions()
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                });
 
-            var textGraphicOptionsCenterRight = new TextGraphicsOptions(true)
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Right
-            };
+            var textGraphicOptionsCenterRight = new TextGraphicsOptions(
+                new GraphicsOptions()
+                {
+                    Antialias = true
+                },
+                new TextOptions()
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Right
+                });
 
             // Draw Username
             image.Mutate(x => x.DrawText(
                 textGraphicOptionsCenterLeft,
                 c.Name,
                 _heavyTitleFont,
-                Rgba32.White,
+                Color.White,
                 new Vector2(60, 27)));
 
             var blueHighlight = new Rgba32(47, 166, 222);
@@ -127,49 +137,54 @@ namespace SoraBot.Services.Profile
             var renderOps = new RendererOptions(_statsLightFont, 72);
             var textSize = TextMeasurer.Measure(globalStatsText, renderOps);
             image.Mutate(x => x.DrawText(
-                textGraphicOptionsCenterLeft, 
-                "GLOBAL RANK: ", 
-                _statsLightFont, 
-                Rgba32.White,
-                new Vector2(235 - (textSize.Width / 2), 221)));
-            
-            image.Mutate(x => x.DrawText(
-                textGraphicOptionsCenterRight, 
-                c.GlobalRank.ToString(), 
+                textGraphicOptionsCenterLeft,
+                "GLOBAL RANK: ",
                 _statsLightFont,
-                blueHighlight, 
+                Color.White,
+                new Vector2(235 - (textSize.Width / 2), 221)));
+
+            image.Mutate(x => x.DrawText(
+                textGraphicOptionsCenterRight,
+                c.GlobalRank.ToString(),
+                _statsLightFont,
+                blueHighlight,
                 new Vector2(235 + (textSize.Width / 2), 221)));
 
-            var centerOptions = new TextGraphicsOptions(true)
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
+            var centerOptions = new TextGraphicsOptions(
+                new GraphicsOptions()
+                {
+                    Antialias = true
+                },
+                new TextOptions()
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                });
             // Draw global level
             image.Mutate(x =>
-                x.DrawText(centerOptions, $"LEVEL: {c.GlobalLevel.ToString()}", _statsLightFont, Rgba32.White,
+                x.DrawText(centerOptions, $"LEVEL: {c.GlobalLevel.ToString()}", _statsLightFont, Color.White,
                     new Vector2(235, 236)));
             // Draw global EXP
             image.Mutate(x =>
                 x.DrawText(centerOptions, $"{c.GlobalExp.ToString()} / {c.GlobalNextLevelExp.ToString()}",
-                    _statsTinyFont, Rgba32.White, new Vector2(235, 250)));
+                    _statsTinyFont, Color.White, new Vector2(235, 250)));
 
             // Draw local STats
             var localStatsText = $"LOCAL RANK: {c.LocalRank.ToString()}";
             var localTextSize = TextMeasurer.Measure(localStatsText, renderOps);
-            
-            image.Mutate(x=>
-                x.DrawText(textGraphicOptionsCenterLeft, "LOCAL RANK: ", _statsLightFont, Rgba32.White,
-                    new Vector2(386-(localTextSize.Width / 2), 221)));
-            image.Mutate(x=>
+
+            image.Mutate(x =>
+                x.DrawText(textGraphicOptionsCenterLeft, "LOCAL RANK: ", _statsLightFont, Color.White,
+                    new Vector2(386 - (localTextSize.Width / 2), 221)));
+            image.Mutate(x =>
                 x.DrawText(textGraphicOptionsCenterRight, c.LocalRank.ToString(), _statsLightFont,
-                    blueHighlight, new Vector2(386+(localTextSize.Width/2), 221)));
-            image.Mutate(x=> 
-                x.DrawText(centerOptions, $"LEVEL: {c.LocalLevel.ToString()}", _statsLightFont, Rgba32.White,
+                    blueHighlight, new Vector2(386 + (localTextSize.Width / 2), 221)));
+            image.Mutate(x =>
+                x.DrawText(centerOptions, $"LEVEL: {c.LocalLevel.ToString()}", _statsLightFont, Color.White,
                     new Vector2(386, 236)));
-            image.Mutate(x=>
+            image.Mutate(x =>
                 x.DrawText(centerOptions, $"{c.LocalExp.ToString()} / {c.LocalNextLevelExp.ToString()}",
-                    _statsTinyFont, Rgba32.White, new Vector2(386, 250)));
+                    _statsTinyFont, Color.White, new Vector2(386, 250)));
         }
 
         public void DrawProfileAvatar(string avatarPath, Image<Rgba32> image, Rectangle pos, int cornerRadius)
@@ -210,11 +225,13 @@ namespace SoraBot.Services.Profile
             Size size = ctx.GetCurrentSize();
             IPathCollection corners = BuildCorners(size.Width, size.Height, cornerRadius);
 
-            return ctx.Fill(new GraphicsOptions(true)
+            ctx.SetGraphicsOptions(new GraphicsOptions()
             {
-                // enforces that any part of this shape that has color is punched out of the BG
-                AlphaCompositionMode = PixelAlphaCompositionMode.DestOut,
-            }, Rgba32.LimeGreen, corners); // User any color so that the corners will be clipped
+                Antialias = true,
+                AlphaCompositionMode = PixelAlphaCompositionMode.DestOut
+            });
+
+            return ctx.Fill(Color.Red, corners);
         }
 
         private static IPathCollection BuildCorners(int imageWidth, int imageHeight, float cornerRadius)

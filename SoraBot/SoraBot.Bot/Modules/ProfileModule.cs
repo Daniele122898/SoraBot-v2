@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
-using SixLabors.Primitives;
+using SixLabors.ImageSharp;
 using SoraBot.Bot.Models;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
