@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +14,7 @@ namespace SoraBot.WebApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             if (args.Length == 3)
             {
@@ -104,7 +106,8 @@ namespace SoraBot.WebApi
                     }
                 }
 
-                host.Run();
+                GlobalConstants.SetApplicationCancellationToken(new CancellationTokenSource());
+                await host.RunAsync(GlobalConstants.ApplicationCancellationTokenSource.Token);
             }
             catch (Exception e)
             {

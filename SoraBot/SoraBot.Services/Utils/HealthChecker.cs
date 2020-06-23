@@ -59,6 +59,10 @@ namespace SoraBot.Services.Utils
             _log.LogError("Socket client failed to reset itself. Shutting down application...");
             _client.Disconnected -= ClientOnDisconnected;
             _applicationLifetime.StopApplication();
+
+            // If the application lifetime doesn't work, cancel the application token.
+            if (_disconnectedCounter > 5)
+                GlobalConstants.ApplicationCancellationTokenSource.Cancel();
         }
     }
 }
