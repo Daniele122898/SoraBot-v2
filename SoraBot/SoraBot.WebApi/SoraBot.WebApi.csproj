@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="ArgonautCore" Version="1.5.2" />
+      <PackageReference Include="ArgonautCore.Network.Health" Version="1.0.0" />
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
       <PackageReference Include="Sentry.AspNetCore" Version="2.1.6" />
       <PackageReference Include="Sentry.Serilog" Version="2.1.6" />
