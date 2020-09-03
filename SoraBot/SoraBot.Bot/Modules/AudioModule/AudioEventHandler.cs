@@ -86,7 +86,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             => new EmbedBuilder()
             {
                 Color = SoraSocketCommandModule.Blue,
-                Title = $"{SoraSocketCommandModule.MusicalNote} {message}"
+                Title = $"{SoraSocketCommandModule.MUSICAL_NOTE} {message}"
             };
 
         private async Task<EmbedBuilder> GetExtendedMusicEmbed(LavaTrack track)
@@ -94,7 +94,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = SoraSocketCommandModule.Blue,
-                Title = $"{SoraSocketCommandModule.MusicalNote} Next: [{Formatter.FormatTime(track.Duration)}] - **{track.Title}**",
+                Title = $"{SoraSocketCommandModule.MUSICAL_NOTE} Next: [{Formatter.FormatTime(track.Duration)}] - **{track.Title}**",
                 Footer = new EmbedFooterBuilder()
                 {
                     Text = $"Video by {track.Author}"

@@ -103,7 +103,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} Queue",
+                Title = $"{MUSICAL_NOTE} Queue",
                 Footer = RequestedByMe()
             };
 
@@ -198,7 +198,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} Currently playing by {player.Track.Author}",
+                Title = $"{MUSICAL_NOTE} Currently playing by {player.Track.Author}",
                 Description =
                     $"**[{player.Track.Title}]({player.Track.Url})**{(player.PlayerState == PlayerState.Paused ? " (Paused)" : "")}"
             };

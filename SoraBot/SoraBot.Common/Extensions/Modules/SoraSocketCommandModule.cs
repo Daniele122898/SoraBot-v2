@@ -15,13 +15,13 @@ namespace SoraBot.Common.Extensions.Modules
         public static readonly Color Red = new Color(221, 46, 68);
         public static readonly Color Blue = new Color(59, 136, 195);
 
-        public const string SuccessEmoji = "✅";
-        public const string WarnEmoji = "⚠";
-        public const string FailureEmoji = "❌";
-        public const string InfoEmoji = "ℹ";
-        public const string PartyEmoji = "🎉";
-        public const string MusicalNote = "🎵";
-        public const string CoinEmoji = "💰";
+        public const string SUCCESS_EMOJI = "✅";
+        public const string WARN_EMOJI = "⚠";
+        public const string FAILURE_EMOJI = "❌";
+        public const string INFO_EMOJI = "ℹ";
+        public const string PARTY_EMOJI = "🎉";
+        public const string MUSICAL_NOTE = "🎵";
+        public const string COIN_EMOJI = "💰";
 
         public async Task<IUserMessage> ReplyEmbed(string message,
             Color? embedColor = null, string emoji = null)
@@ -35,7 +35,7 @@ namespace SoraBot.Common.Extensions.Modules
 
         public async Task<IUserMessage> ReplySuccessEmbed(string message)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Green, message, SuccessEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Green, message, SUCCESS_EMOJI).Build());
         }
         
         public async Task<IUserMessage> ReplyMusicEmbed(string message, string url = null)
@@ -43,7 +43,7 @@ namespace SoraBot.Common.Extensions.Modules
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} {message}"
+                Title = $"{MUSICAL_NOTE} {message}"
             };
             if (!string.IsNullOrWhiteSpace(url))
                 eb.WithUrl(url);
@@ -55,7 +55,7 @@ namespace SoraBot.Common.Extensions.Modules
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} {(added ? "Enqueued" : "Playing")}: [{songLength}] - **{songName}**",
+                Title = $"{MUSICAL_NOTE} {(added ? "Enqueued" : "Playing")}: [{songLength}] - **{songName}**",
                 Footer = new EmbedFooterBuilder()
                 {
                     IconUrl = Context.User.GetAvatarUrl() ?? Context.User.GetDefaultAvatarUrl(),
@@ -70,33 +70,33 @@ namespace SoraBot.Common.Extensions.Modules
         
         public async Task<IUserMessage> ReplySuccessEmbedExtended(string title, string desc)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Green, title, SuccessEmoji).WithDescription(desc).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Green, title, SUCCESS_EMOJI).WithDescription(desc).Build());
         }
 
         public async Task<IUserMessage> ReplyFailureEmbed(string message)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Red, message, FailureEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Red, message, FAILURE_EMOJI).Build());
         }
 
         public async Task<IUserMessage> ReplyFailureEmbedExtended(string title, string desc)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Red, title, FailureEmoji).WithDescription(desc).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Red, title, FAILURE_EMOJI).WithDescription(desc).Build());
         }
 
         public async Task<IUserMessage> ReplyMoneyEmbed(string title)
-            => await ReplyAsync(embed: SimpleEmbed(Yellow, title, CoinEmoji).Build());        
+            => await ReplyAsync(embed: SimpleEmbed(Yellow, title, COIN_EMOJI).Build());        
  
         public async Task<IUserMessage> ReplyMoneyLostEmbed(string title)
-            => await ReplyAsync(embed: SimpleEmbed(Red, title, CoinEmoji).Build());
+            => await ReplyAsync(embed: SimpleEmbed(Red, title, COIN_EMOJI).Build());
         
         public async Task<IUserMessage> ReplyWarningEmbed(string message)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Yellow, message, WarnEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Yellow, message, WARN_EMOJI).Build());
         }
         
         public async Task<IUserMessage> ReplyInfoEmbed(string message)
         {
-            return await ReplyAsync(embed: SimpleEmbed(Blue, message, InfoEmoji).Build());
+            return await ReplyAsync(embed: SimpleEmbed(Blue, message, INFO_EMOJI).Build());
         }
         
         public async Task<IUserMessage> ReplyDefaultEmbed(string message)

@@ -37,7 +37,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} Top Search Results",
+                Title = $"{MUSICAL_NOTE} Top Search Results",
                 Description = "Answer with the index of the song you'd like to add. Anything else to choose nothing",
                 Footer = RequestedByMe()
             };

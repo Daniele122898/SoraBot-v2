@@ -105,7 +105,7 @@ namespace SoraBot.Services.Core.MessageHandlers
                     await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
                     {
                         Color = SoraSocketCommandModule.Red,
-                        Title = $"{SoraSocketCommandModule.FailureEmoji} {result.ErrorReason}"
+                        Title = $"{SoraSocketCommandModule.FAILURE_EMOJI} {result.ErrorReason}"
                     }.Build());
                     break;
                 case CommandError.UnknownCommand:
@@ -114,7 +114,7 @@ namespace SoraBot.Services.Core.MessageHandlers
                     await context.Channel.SendMessageAsync("" ,embed: new EmbedBuilder()
                     {
                         Color = SoraSocketCommandModule.Red,
-                        Title = $"{SoraSocketCommandModule.FailureEmoji} Failed to parse the entered value(s)!",
+                        Title = $"{SoraSocketCommandModule.FAILURE_EMOJI} Failed to parse the entered value(s)!",
                         Description = $"Make sure you enter the correct Data type! If the command asks for a " +
                                       $"@mention then mention a user, if a command needs a number don't enter a word!"
                     }.Build());
@@ -123,7 +123,7 @@ namespace SoraBot.Services.Core.MessageHandlers
                     await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
                     {
                         Color = SoraSocketCommandModule.Red,
-                        Title = $"{SoraSocketCommandModule.FailureEmoji} Command failed unexpectedly. Creator was notified.",
+                        Title = $"{SoraSocketCommandModule.FAILURE_EMOJI} Command failed unexpectedly. Creator was notified.",
                         Description = $"Reason: {result.ErrorReason}"
                     }.Build());
                     _logger.LogError($"Command {exception?.Command?.Name ?? "Unknown"} failed with an exception! (Reason: {result.ErrorReason})", 
