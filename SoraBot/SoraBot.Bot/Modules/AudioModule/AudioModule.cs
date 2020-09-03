@@ -542,7 +542,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
         [Command("leave")]
         [Summary("Make sore leave your voice channel")]
-        public async Task LeaveVC()
+        public async Task LeaveVc()
         {
             if (!_node.TryGetPlayer(Context.Guild, out var player))
             {
@@ -550,13 +550,13 @@ namespace SoraBot.Bot.Modules.AudioModule
                 return;
             }
 
-            var playerVC = player.VoiceChannel;
-            if (!await CheckIfSameVc(playerVC) && CheckChannelIsStillValid(playerVC))
+            var playerVc = player.VoiceChannel;
+            if (!await CheckIfSameVc(playerVc) && CheckChannelIsStillValid(playerVc))
                 return;
 
             try
             {
-                await _node.LeaveAsync(playerVC);
+                await _node.LeaveAsync(playerVc);
             }
             catch (Exception)
             {

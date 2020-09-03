@@ -10,7 +10,7 @@
         WaifuList
     }
 
-    public static class CacheID
+    public static class CacheId
     {
         public const string WAIFU_RARITY_STATISTICS = "wrs";
         public static ulong PrefixCacheId(ulong guildId) => guildId;

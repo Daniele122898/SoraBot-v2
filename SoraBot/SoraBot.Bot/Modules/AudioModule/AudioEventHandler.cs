@@ -136,10 +136,10 @@ namespace SoraBot.Bot.Modules.AudioModule
 
         private async Task RemoveOldAndSetNewMessage(IUserMessage msg, LavaPlayer player)
         {
-            string msgId = CacheID.MusicCacheMessage(player.VoiceChannel.GuildId);
+            string msgId = CacheId.MusicCacheMessage(player.VoiceChannel.GuildId);
             var oldMsg = _cache.Get<IUserMessage>(msgId);
             await oldMsg.MatchSome(async message => await message.DeleteAsync());
-            _cache.Set(CacheID.MusicCacheMessage(player.VoiceChannel.GuildId), msg, TimeSpan.FromMinutes(_MSG_CACHE_TTL_MINS));
+            _cache.Set(CacheId.MusicCacheMessage(player.VoiceChannel.GuildId), msg, TimeSpan.FromMinutes(_MSG_CACHE_TTL_MINS));
         }
 
         private Task OnLog(LogMessage log)

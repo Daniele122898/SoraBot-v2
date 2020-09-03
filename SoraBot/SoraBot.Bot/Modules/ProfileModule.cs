@@ -82,7 +82,7 @@ namespace SoraBot.Bot.Modules
                 return;
             }
             // Check cooldown
-            var cd = _cacheService.Get<DateTime>(CacheID.BgCooldownId(Context.User.Id));
+            var cd = _cacheService.Get<DateTime>(CacheId.BgCooldownId(Context.User.Id));
             if (cd.HasValue)
             {
                 var secondsRemaining = cd.Some().Subtract(DateTime.UtcNow.TimeOfDay).Second;
@@ -116,7 +116,7 @@ namespace SoraBot.Bot.Modules
             // Set BG on user
             await _profileRepo.SetUserHasBgBoolean(Context.User.Id, true);
             // Add cooldown
-            _cacheService.Set(CacheID.BgCooldownId(Context.User.Id), DateTime.UtcNow.AddSeconds(_SET_BG_COOLDOWN_S), TimeSpan.FromSeconds(_SET_BG_COOLDOWN_S));
+            _cacheService.Set(CacheId.BgCooldownId(Context.User.Id), DateTime.UtcNow.AddSeconds(_SET_BG_COOLDOWN_S), TimeSpan.FromSeconds(_SET_BG_COOLDOWN_S));
 
             await ReplySuccessEmbed("Successfully updated your profile card background :>");
         }
