@@ -5,6 +5,6 @@ namespace SoraBot.Services.Afk
     public static class AfkDependencyInjection
     {
         public static IServiceCollection AddAfkServices(this IServiceCollection services)
-            => services.AddScoped<IAfkService, AfkService>();
+            => services.AddSingleton<IAfkService, AfkService>();
     }
 }

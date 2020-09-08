@@ -2,7 +2,6 @@
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Data.Repositories.Interfaces;
-using SoraBot.Services.Cache;
 
 namespace SoraBot.Bot.Modules
 {
