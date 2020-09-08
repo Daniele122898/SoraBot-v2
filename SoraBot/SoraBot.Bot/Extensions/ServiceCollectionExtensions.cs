@@ -11,7 +11,6 @@ using SoraBot.Bot.Modules.AudioModule;
 using SoraBot.Bot.TypeReaders;
 using SoraBot.Common.Extensions.Hosting;
 using SoraBot.Data.Configurations;
-using SoraBot.Services.Afk;
 using SoraBot.Services.Cache;
 using SoraBot.Services.Core;
 using SoraBot.Services.Guilds;
@@ -95,8 +94,7 @@ namespace SoraBot.Bot.Extensions
                 .AddProfileServices()
                 .AddMiscServices()
                 .AddReactionHandlerServices()
-                .AddReminderService()
-                .AddAfkServices();
+                .AddReminderService();
 
             services.AddHostedService<SoraBot>();
             
