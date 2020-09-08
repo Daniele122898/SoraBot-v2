@@ -11,6 +11,10 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .HasKey(k => k.UserId);
 
             mb.Entity<Afk>()
+                .Property(p => p.Message)
+                .IsRequired(false);
+
+            mb.Entity<Afk>()
                 .HasOne(u => u.User)
                 .WithOne(a => a.Afk)
                 .HasForeignKey<Afk>(k => k.UserId)

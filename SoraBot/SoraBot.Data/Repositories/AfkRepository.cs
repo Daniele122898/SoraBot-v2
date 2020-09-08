@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ArgonautCore.Lw;
+using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -37,18 +38,18 @@ namespace SoraBot.Data.Repositories
         public async Task SetUserAfk(ulong userId, string message)
             => await _soraTransactor.DoInTransactionAsync(async context =>
             {
-                var afk = await context.Afks.FindAsync(userId).ConfigureAwait(false);
-                if (afk == null)
+                var user = await context.Users.GetOrCreateUserNoSaveAsync(userId).ConfigureAwait(false);
+                if (user.Afk == null)
                 {
-                    afk = new Afk()
+                    var afk = new Afk()
                     {
                         UserId = userId,
                         Message = message
                     };
-                    context.Afks.Add(afk);
+                    user.Afk = afk;
                 }
                 else
-                    afk.Message = message;
+                    user.Afk.Message = message;
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }).ConfigureAwait(false);
