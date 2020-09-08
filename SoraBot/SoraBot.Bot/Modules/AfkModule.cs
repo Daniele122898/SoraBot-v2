@@ -9,12 +9,10 @@ namespace SoraBot.Bot.Modules
     public class AfkModule : SoraSocketCommandModule
     {
         private readonly IAfkRepository _afkRepo;
-        private readonly ICacheService _cache;
 
-        public AfkModule(IAfkRepository afkRepo, ICacheService cache)
+        public AfkModule(IAfkRepository afkRepo)
         {
             _afkRepo = afkRepo;
-            _cache = cache;
         }
         
         [Command("afk")]
