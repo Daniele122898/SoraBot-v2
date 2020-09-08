@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using SoraBot.Common.Messages;
 using SoraBot.Common.Messages.MessageAdapters;
+using SoraBot.Services.Afk;
 using SoraBot.Services.Profile;
 
 namespace SoraBot.Services.Core.MessageHandlers
@@ -14,22 +15,28 @@ namespace SoraBot.Services.Core.MessageHandlers
     public class MessageEventHandler : IMessageHandler<MessageReceived>
     {
         private readonly IExpService _expService;
+        private readonly IAfkService _afkService;
 
-        public MessageEventHandler(IExpService expService)
+        public MessageEventHandler(IExpService expService, IAfkService afkService)
         {
             _expService = expService;
+            _afkService = afkService;
         }
         
-        public async Task HandleMessageAsync(MessageReceived message, CancellationToken cancellationToken = default)
+        public Task HandleMessageAsync(MessageReceived message, CancellationToken cancellationToken = default)
         {
             var msg = message.Message;
-            if (msg.Author.IsBot || msg.Author.IsWebhook) return;
+            if (msg.Author.IsBot || msg.Author.IsWebhook) return Task.CompletedTask;
             // Make sure we only respond to guild channels.
             if (!(msg.Channel is SocketGuildChannel channel))
-                return;
+                return Task.CompletedTask;
             
             // Now let's give them EXP
-            await _expService.TryGiveUserExp(msg, channel);
+            var expTask = _expService.TryGiveUserExp(msg, channel);
+            // Check AFK status
+            var afkTask = _afkService.CheckUserAfkStatus(channel, msg.Author);
+            Task.WaitAll(expTask, afkTask);
+            return Task.CompletedTask;
         }
     }
 }
