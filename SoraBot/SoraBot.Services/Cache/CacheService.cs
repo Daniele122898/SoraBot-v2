@@ -94,7 +94,7 @@ namespace SoraBot.Services.Cache
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<Task<TReturn>> set, TimeSpan? ttl = null)
         {
-            if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
+            if (cache.TryGetValue(id, out var item) && item.IsValid())
             {
                 return Option.Some((TReturn)item.Content);
             }
@@ -137,7 +137,7 @@ namespace SoraBot.Services.Cache
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<Task<TReturn>> set, TimeSpan? ttl = null)
         {
-            if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
+            if (cache.TryGetValue(id, out var item) && item.IsValid())
             {
                 return (TReturn)item.Content;
             }
@@ -156,7 +156,7 @@ namespace SoraBot.Services.Cache
             TCacheKey id, ConcurrentDictionary<TCacheKey, CacheItem> cache,
             Func<TReturn> set, TimeSpan? ttl = null)
         {
-            if (cache.TryGetValue(id, out var item) && item != null && item.IsValid())
+            if (cache.TryGetValue(id, out var item) && item.IsValid())
             {
                 return (TReturn)item.Content;
             }
