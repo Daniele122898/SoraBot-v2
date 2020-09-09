@@ -13,9 +13,10 @@ namespace SoraBot.Services.Afk
 {
     public class AfkService : IAfkService
     {
+        public static readonly TimeSpan AfkTtl = TimeSpan.FromSeconds(30);
+
         private readonly ICacheService _cacheService;
         private readonly IAfkRepository _afkRepo;
-        private readonly TimeSpan _afkTtl = TimeSpan.FromSeconds(30);
         
 
         public AfkService(ICacheService cacheService, IAfkRepository afkRepo)
@@ -40,7 +41,7 @@ namespace SoraBot.Services.Afk
             var eb = new EmbedBuilder()
             {
                 Color = ss.Purple,
-                Title = $"{Formatter.UsernameDiscrim(user)} is currently AFK"
+                Title = $"💤 {Formatter.UsernameDiscrim(user)} is currently AFK"
             };
             
             if (!string.IsNullOrWhiteSpace(afk.Some().Afk.Message))
@@ -64,12 +65,12 @@ namespace SoraBot.Services.Afk
                     var afk = await _afkRepo.GetUserAfk(userId).ConfigureAwait(false);
                     inCache = false;
                     return !afk ? null : afk.Some();
-                }, _afkTtl);
+                }, AfkTtl);
 
             if (!cached)
             {
                 // TODO this is not clean at all and pretty bad practice. I just can't be bothered rn to write some form of hasmap to store the checks since i would need to make this singleton.
-                _cacheService.Set(CacheId.GetAfkCheckId(userId), new object(), _afkTtl);
+                _cacheService.Set(CacheId.GetAfkCheckId(userId), new object(), AfkTtl);
                 return Option.None<AfkCacheItem>();
             }
             
