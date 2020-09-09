@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using SoraBot.Common.Messages;
@@ -34,7 +35,13 @@ namespace SoraBot.Services.Core.MessageHandlers
             // Now let's give them EXP
             var expTask = _expService.TryGiveUserExp(msg, channel);
             // Check AFK status
-            var afkTask = _afkService.CheckUserAfkStatus(channel, msg.Author);
+            // Get all mentions in message
+            var mentions = message.Message.MentionedUsers.Where(x => !x.IsBot).ToList();
+            // We only respond with an AFK message if exactly that user is mentioned and no others. Otherwise we ignore.
+            if (mentions.Count != 1)
+                return Task.CompletedTask;
+            
+            var afkTask = _afkService.CheckUserAfkStatus(channel, mentions[0]);
             Task.WaitAll(expTask, afkTask);
             return Task.CompletedTask;
         }

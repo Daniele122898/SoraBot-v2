@@ -21,6 +21,7 @@
         public static ulong GetUser(ulong userId) => userId;
         public static ulong GetMessageId(ulong messageId) => messageId;
         public static string MusicCacheMessage(ulong guildId) => $"ms:{guildId.ToString()}";
+        public static string GetAfkId(ulong userId) => $"afk:{userId.ToString()}";
 
 
     }
