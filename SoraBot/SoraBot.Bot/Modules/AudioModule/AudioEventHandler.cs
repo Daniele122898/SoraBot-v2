@@ -86,7 +86,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             => new EmbedBuilder()
             {
                 Color = SoraSocketCommandModule.Blue,
-                Title = $"{SoraSocketCommandModule.MusicalNote} {message}"
+                Title = $"{SoraSocketCommandModule.MUSICAL_NOTE} {message}"
             };
 
         private async Task<EmbedBuilder> GetExtendedMusicEmbed(LavaTrack track)
@@ -94,7 +94,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = SoraSocketCommandModule.Blue,
-                Title = $"{SoraSocketCommandModule.MusicalNote} Next: [{Formatter.FormatTime(track.Duration)}] - **{track.Title}**",
+                Title = $"{SoraSocketCommandModule.MUSICAL_NOTE} Next: [{Formatter.FormatTime(track.Duration)}] - **{track.Title}**",
                 Footer = new EmbedFooterBuilder()
                 {
                     Text = $"Video by {track.Author}"
@@ -136,10 +136,10 @@ namespace SoraBot.Bot.Modules.AudioModule
 
         private async Task RemoveOldAndSetNewMessage(IUserMessage msg, LavaPlayer player)
         {
-            string msgId = CacheID.MusicCacheMessage(player.VoiceChannel.GuildId);
+            string msgId = CacheId.MusicCacheMessage(player.VoiceChannel.GuildId);
             var oldMsg = _cache.Get<IUserMessage>(msgId);
             await oldMsg.MatchSome(async message => await message.DeleteAsync());
-            _cache.Set(CacheID.MusicCacheMessage(player.VoiceChannel.GuildId), msg, TimeSpan.FromMinutes(_MSG_CACHE_TTL_MINS));
+            _cache.Set(CacheId.MusicCacheMessage(player.VoiceChannel.GuildId), msg, TimeSpan.FromMinutes(_MSG_CACHE_TTL_MINS));
         }
 
         private Task OnLog(LogMessage log)

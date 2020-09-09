@@ -40,7 +40,7 @@ namespace SoraBot.Bot.Modules
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{InfoEmoji} Sora Help",
+                Title = $"{INFO_EMOJI} Sora Help",
                 Description = $"This shows you all the available categories. " +
                               $"You can use `{prefix}help <Category Name>` to get a list of all available commands " +
                               $"within a category. (without the <>)",
@@ -79,7 +79,7 @@ namespace SoraBot.Bot.Modules
             string prefix = await _prefixService.GetPrefix(Context.Guild.Id).ConfigureAwait(false);
             var eb = new EmbedBuilder()
             {
-                Title = $"{InfoEmoji} Help for {category.Trim()}",
+                Title = $"{INFO_EMOJI} Help for {category.Trim()}",
                 Color = Blue,
                 Footer = RequestedByFooter(Context.User),
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
@@ -116,7 +116,7 @@ namespace SoraBot.Bot.Modules
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{InfoEmoji} Help for {cmdName.Trim()}"
+                Title = $"{INFO_EMOJI} Help for {cmdName.Trim()}"
             };
 
             foreach (var cmd in commands)

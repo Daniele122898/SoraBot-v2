@@ -61,7 +61,7 @@ namespace SoraBot.Services.Core
             sw.Stop();
             _log.LogInformation($"Removing Guild from DB in {sw.ElapsedMilliseconds.ToString()} ms.");
             // Clear the cache for prefix etc
-            _cacheService.TryRemove(CacheID.PrefixCacheId(guild.Id));
+            _cacheService.TryRemove(CacheId.PrefixCacheId(guild.Id));
         }
 
         private Task OnUserLeft(SocketGuildUser user)
@@ -77,7 +77,7 @@ namespace SoraBot.Services.Core
             // There's no need to dispatch an event yet internally so no need for async state machines
             // and threading. That's just overhead we dont need atm for just cleaning some caches.
             _cacheService.TryRemove(message.Id);
-            _cacheService.TryRemove(CacheID.StarboardDoNotPostId(message.Id));
+            _cacheService.TryRemove(CacheId.StarboardDoNotPostId(message.Id));
             return Task.CompletedTask;
         }
 

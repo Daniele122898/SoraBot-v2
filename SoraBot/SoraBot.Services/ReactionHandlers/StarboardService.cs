@@ -65,7 +65,7 @@ namespace SoraBot.Services.ReactionHandlers
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(CacheID.StarboardDoNotPostId(msg.Id))) return;
+            if (_cache.Contains(CacheId.StarboardDoNotPostId(msg.Id))) return;
             
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
@@ -108,7 +108,7 @@ namespace SoraBot.Services.ReactionHandlers
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
-            if (_cache.Contains(CacheID.StarboardDoNotPostId(msg.Id))) return;
+            if (_cache.Contains(CacheId.StarboardDoNotPostId(msg.Id))) return;
             
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
@@ -165,19 +165,19 @@ namespace SoraBot.Services.ReactionHandlers
                 _log.LogError(e, "Failed to remove starboard message");
             }
             // Add it to the cache to never be added again
-            _cache.Set(CacheID.StarboardDoNotPostId(messageId), null);
+            _cache.Set(CacheId.StarboardDoNotPostId(messageId), null);
         }
 
         private bool UserRateLimitReached(ulong messageId, ulong userId)
         {
-            var reactCount = _cache.Get<int>(CacheID.StarboardUserMessageReactCountId(messageId, userId));
+            var reactCount = _cache.Get<int>(CacheId.StarboardUserMessageReactCountId(messageId, userId));
             if (reactCount.HasValue && reactCount.Some() >= 2) return true;
             return false;
         }
 
         private void AddOrUpdateRateLimit(ulong messageId, ulong userId)
         {
-            _cache.AddOrUpdate(CacheID.StarboardUserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
+            _cache.AddOrUpdate(CacheId.StarboardUserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
             {
                 int amount = (int) item.Content;
                 return new CacheItem(amount + 1, _userRatelimitTtl); // Let's refresh the TTL on update
@@ -248,7 +248,7 @@ namespace SoraBot.Services.ReactionHandlers
                 .SendMessageAsync($"**{reactionCount.ToString()}** {STAR_EMOTE}", embed: eb.Build())
                 .ConfigureAwait(false);
 
-            _cache.Set(CacheID.GetMessageId(postedMsg.Id), postedMsg, _postedMsgTtl);
+            _cache.Set(CacheId.GetMessageId(postedMsg.Id), postedMsg, _postedMsgTtl);
             return postedMsg;
         }
 
@@ -278,15 +278,15 @@ namespace SoraBot.Services.ReactionHandlers
 
         private async Task RemoveStarboardMessageFromCacheAndDb(ulong messageId, ulong postedMessageId)
         {
-            _cache.TryRemove<object>(CacheID.GetMessageId(messageId));
-            _cache.TryRemove<object>(CacheID.GetMessageId(postedMessageId));
+            _cache.TryRemove<object>(CacheId.GetMessageId(messageId));
+            _cache.TryRemove<object>(CacheId.GetMessageId(postedMessageId));
             await _starRepo.RemoveStarboardMessage(messageId).ConfigureAwait(false);
         }
 
         private async Task<Option<IUserMessage>> GetStarboardMessage(ulong messageId, ITextChannel starboardChannel)
         {
             return await _cache.TryGetOrSetAndGetAsync(
-                CacheID.GetMessageId(messageId),
+                CacheId.GetMessageId(messageId),
                 async () => await starboardChannel.GetMessageAsync(messageId, CacheMode.AllowDownload)
                     .ConfigureAwait(false) as IUserMessage,
                 _postedMsgTtl).ConfigureAwait(false);
@@ -309,7 +309,7 @@ namespace SoraBot.Services.ReactionHandlers
 
         private async Task<Option<IUserMessage>> GetOrDownloadMessage(Cacheable<IUserMessage, ulong> msg)
             => await _cache.TryGetOrSetAndGetAsync(
-                    CacheID.GetMessageId(msg.Id),
+                    CacheId.GetMessageId(msg.Id),
                     async () => await msg.GetOrDownloadAsync().ConfigureAwait(false),
                     this._messageCacheTtl)
                 .ConfigureAwait(false);

@@ -81,7 +81,7 @@ namespace SoraBot.Bot.Modules
             {
                 Color = Blue,
                 ThumbnailUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl(),
-                Title = $"{InfoEmoji} {Formatter.UsernameDiscrim(user)}",
+                Title = $"{INFO_EMOJI} {Formatter.UsernameDiscrim(user)}",
                 Footer = footer.WithText($"{footer.Text} | ID: {user.Id.ToString()}"),
             };
             eb.AddField(x =>
@@ -174,7 +174,7 @@ namespace SoraBot.Bot.Modules
             {
                 Color = Blue,
                 Footer = footer.WithText($"{footer.Text} | Guild ID: {Context.Guild.Id.ToString()}"),
-                Title = $"{InfoEmoji} {Context.Guild.Name}",
+                Title = $"{INFO_EMOJI} {Context.Guild.Name}",
                 ThumbnailUrl = Context.Guild.IconUrl ?? Context.User.GetDefaultAvatarUrl(),
                 Description = $"Created on {Context.Guild.CreatedAt.DateTime.ToString("dd/MM/yyyy")}. " +
                               $"That's {((int) DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime).TotalDays).ToString()} days ago!"

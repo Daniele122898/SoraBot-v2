@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
@@ -152,6 +153,8 @@ namespace SoraBot.Bot.Modules.WaifuModule
             // We gave him the waifus. Now we just have to tell him :)
             waifusUnboxed.Sort((x, y) =>  -x.Rarity.CompareTo(y.Rarity));
 
+            string waifuImageUrl = waifusUnboxed.FirstOrDefault(x => Uri.IsWellFormedUriString(x.ImageUrl, UriKind.Absolute))?.ImageUrl;
+
             var eb = new EmbedBuilder()
             {
                 Title = "Congrats! You've got some nice waifus",
@@ -161,7 +164,7 @@ namespace SoraBot.Bot.Modules.WaifuModule
                                   $"You can open them with the `special` command" : $"")}",
                 Footer = RequestedByFooter(Context.User),
                 Color = Purple,
-                ImageUrl = waifusUnboxed[0].ImageUrl
+                ImageUrl = waifuImageUrl
             };
 
             foreach (var waifu in waifusUnboxed)

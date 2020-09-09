@@ -10,7 +10,7 @@
         WaifuList
     }
 
-    public static class CacheID
+    public static class CacheId
     {
         public const string WAIFU_RARITY_STATISTICS = "wrs";
         public static ulong PrefixCacheId(ulong guildId) => guildId;
@@ -21,6 +21,8 @@
         public static ulong GetUser(ulong userId) => userId;
         public static ulong GetMessageId(ulong messageId) => messageId;
         public static string MusicCacheMessage(ulong guildId) => $"ms:{guildId.ToString()}";
+        public static string GetAfkId(ulong userId) => $"afk:{userId.ToString()}";
+        public static string GetAfkCheckId(ulong userId) => $"afk:{userId.ToString()}:c";
 
 
     }

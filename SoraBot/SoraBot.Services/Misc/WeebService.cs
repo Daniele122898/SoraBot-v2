@@ -60,7 +60,7 @@ namespace SoraBot.Services.Misc
                             await context.Channel.SendMessageAsync("", embed: new EmbedBuilder()
                             {
                                 Color = SoraSocketCommandModule.Red,
-                                Title = $"{SoraSocketCommandModule.FailureEmoji} Failed to fetch image :/ Try another one."
+                                Title = $"{SoraSocketCommandModule.FAILURE_EMOJI} Failed to fetch image :/ Try another one."
                             }.Build());
                             return;
                         }

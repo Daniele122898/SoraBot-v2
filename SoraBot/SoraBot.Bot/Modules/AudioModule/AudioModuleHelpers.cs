@@ -37,7 +37,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             var eb = new EmbedBuilder()
             {
                 Color = Blue,
-                Title = $"{MusicalNote} Top Search Results",
+                Title = $"{MUSICAL_NOTE} Top Search Results",
                 Description = "Answer with the index of the song you'd like to add. Anything else to choose nothing",
                 Footer = RequestedByMe()
             };
@@ -124,16 +124,16 @@ namespace SoraBot.Bot.Modules.AudioModule
             return TimeSpan.FromMinutes(minutes).Add(TimeSpan.FromSeconds(secs));
         }
 
-        private async Task<bool> CheckIfSameVc(IVoiceChannel playerVC)
+        private async Task<bool> CheckIfSameVc(IVoiceChannel playerVc)
         {
-            var userVC = ((IGuildUser) Context.User).VoiceChannel;
-            if (playerVC == null || userVC == null)
+            var userVc = ((IGuildUser) Context.User).VoiceChannel;
+            if (playerVc == null || userVc == null)
             {
                 await ReplyFailureEmbed("You're not connected to a voice channel!");
                 return false;
             }
 
-            if (playerVC.Id != userVC.Id)
+            if (playerVc.Id != userVc.Id)
             {
                 await ReplyFailureEmbed("I'm not in the same voice channel as you.");
                 return false;
