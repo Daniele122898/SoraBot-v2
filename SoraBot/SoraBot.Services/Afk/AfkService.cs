@@ -51,6 +51,11 @@ namespace SoraBot.Services.Afk
 
         private async Task<Option<AfkCacheItem>> GetUserAfkThroughCache(ulong userId)
         {
+            // This user was checked and didnt have AFK so we return that. This is to stop the DB being queried for
+            // every single mention that didnt have an AFK set.
+            if (_cacheService.Contains(CacheId.GetAfkCheckId(userId)))
+                return Option.None<AfkCacheItem>();
+
             bool inCache = true;
             var cached = await _cacheService.TryGetOrSetAndGetAsync<Data.Models.SoraDb.Afk>(
                 CacheId.GetAfkId(userId),
@@ -60,9 +65,13 @@ namespace SoraBot.Services.Afk
                     inCache = false;
                     return !afk ? null : afk.Some();
                 }, _afkTtl);
-            
+
             if (!cached)
+            {
+                // TODO this is not clean at all and pretty bad practice. I just can't be bothered rn to write some form of hasmap to store the checks since i would need to make this singleton.
+                _cacheService.Set(CacheId.GetAfkCheckId(userId), new object(), _afkTtl);
                 return Option.None<AfkCacheItem>();
+            }
             
             return new Option<AfkCacheItem>(new AfkCacheItem(cached.Some(), inCache));
         }

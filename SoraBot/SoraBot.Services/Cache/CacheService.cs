@@ -17,7 +17,7 @@ namespace SoraBot.Services.Cache
         // ReSharper disable once NotAccessedField.Local
         private Timer _timer;
 
-        private const short _CACHE_CLEAN_DELAY = 60;
+        private const short _CACHE_CLEAN_DELAY = 10;
         
         public CacheService()
         {
