@@ -58,10 +58,21 @@ namespace SoraBot.Data.Repositories
                 return true;
             }).ConfigureAwait(false);
 
-        public Task<bool> TryDivorce(ulong user1, ulong user2)
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task<bool> TryDivorce(ulong user1, ulong user2)
+            => await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                // Sort ids
+                this.OrderUserIdsRef(ref user1, ref user2);
+                // Check if marriage exists
+                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1 == user1 && x.Partner2 == user2);
+                if (marr == null)
+                    return false;
+                
+                // remove it
+                context.Marriages.Remove(marr);
+                await context.SaveChangesAsync();
+                return true;
+            }).ConfigureAwait(false);
 
         public async Task<int> GetUserMarriageCount(ulong userId)
             => await _soraTransactor.DoAsync(async context => 
