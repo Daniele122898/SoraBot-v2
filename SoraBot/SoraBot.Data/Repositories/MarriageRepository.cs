@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
+using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
 
@@ -29,14 +31,52 @@ namespace SoraBot.Data.Repositories
                 return marriages;
             }).ConfigureAwait(false);
 
-        public Task<bool> TryAddMarriage(ulong user1, ulong user2)
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task<bool> TryAddMarriage(ulong user1, ulong user2)
+            => await _soraTransactor.TryDoInTransactionAsync(async context =>
+            {
+                this.OrderUserIdsRef(ref user1, ref user2);
+                
+                // Check if already exists
+                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1 == user1 && x.Partner2 == user2);
+                if (marr != null)
+                    return false;
+                
+                // Make sure users exists :)
+                await context.Users.GetOrCreateUserNoSaveAsync(user1);
+                await context.Users.GetOrCreateUserNoSaveAsync(user2);
+                
+                // Otherwise we create it
+                var marriage = new Marriage()
+                {
+                    Partner1 = user1,
+                    Partner2 = user2,
+                    PartnerSince = DateTime.UtcNow
+                };
+
+                context.Marriages.Add(marriage);
+                await context.SaveChangesAsync();
+                return true;
+            }).ConfigureAwait(false);
 
         public Task<bool> TryDivorce(ulong user1, ulong user2)
         {
             throw new System.NotImplementedException();
+        }
+
+        public async Task<int> GetUserMarriageCount(ulong userId)
+            => await _soraTransactor.DoAsync(async context => 
+                await context.Marriages
+                    .CountAsync(x => x.Partner1 == userId || x.Partner2 == userId)
+            ).ConfigureAwait(false);
+
+        private void OrderUserIdsRef(ref ulong user1, ref ulong user2)
+        {
+            if (user1 < user2)
+                return;
+            
+            var temp = user1;
+            user1 = user2;
+            user2 = temp;
         }
     }
 }
