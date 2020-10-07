@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
 using SoraBot.Common.Extensions.Modules;
-using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
-using SoraBot.Services.Afk;
 using SoraBot.Services.Cache;
 
 namespace SoraBot.Bot.Modules
