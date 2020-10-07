@@ -7,6 +7,8 @@ using SoraBot.Data.Repositories.Interfaces;
 
 namespace SoraBot.Bot.Modules
 {
+    [Name("Starboard")]
+    [Summary("All the commands for handling the Starboard")]
     public class StarboardModule : SoraSocketCommandModule
     {
         private readonly IStarboardRepository _starboardRepo;
