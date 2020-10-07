@@ -13,6 +13,7 @@ namespace SoraBot.Data.Repositories
     public class MarriageRepository : IMarriageRepository
     {
         private readonly ITransactor<SoraContext> _soraTransactor;
+        private const int _MAX_MARRIAGES = 10;
 
         public MarriageRepository(ITransactor<SoraContext> soraTransactor)
         {
@@ -31,7 +32,7 @@ namespace SoraBot.Data.Repositories
                 return marriages;
             }).ConfigureAwait(false);
 
-        public async Task<bool> TryAddMarriage(ulong user1, ulong user2)
+        public async Task<Result<bool, Error>> TryAddMarriage(ulong user1, ulong user2)
             => await _soraTransactor.TryDoInTransactionAsync(async context =>
             {
                 this.OrderUserIdsRef(ref user1, ref user2);
@@ -39,11 +40,16 @@ namespace SoraBot.Data.Repositories
                 // Check if already exists
                 var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1 == user1 && x.Partner2 == user2);
                 if (marr != null)
-                    return false;
+                    return new Result<bool, Error>(new Error("You are already married to this person"));
                 
                 // Make sure users exists :)
                 await context.Users.GetOrCreateUserNoSaveAsync(user1);
                 await context.Users.GetOrCreateUserNoSaveAsync(user2);
+
+                var user1Count = await this.GetUserMarriageCount(user1);
+                var user2Count = await this.GetUserMarriageCount(user2);
+                if (user1Count >= _MAX_MARRIAGES || user2Count >= _MAX_MARRIAGES)
+                    return new Result<bool, Error>(new Error("Marriage limit has been reached"));
                 
                 // Otherwise we create it
                 var marriage = new Marriage()
