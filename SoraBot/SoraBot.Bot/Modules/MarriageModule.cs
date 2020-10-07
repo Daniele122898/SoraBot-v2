@@ -12,6 +12,8 @@ using SoraBot.Services.Users;
 
 namespace SoraBot.Bot.Modules
 {
+    [Name("Marriage")]
+    [Summary("All the commands for handling your Marriage needs")]
     public class MarriageModule : SoraSocketCommandModule
     {
         private readonly IMarriageRepository _marriageRepo;

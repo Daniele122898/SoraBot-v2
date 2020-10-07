@@ -6,6 +6,8 @@ using SoraBot.Services.Cache;
 
 namespace SoraBot.Bot.Modules
 {
+    [Name("Afk")]
+    [Summary("All the commands for handling your AFK status")]
     public class AfkModule : SoraSocketCommandModule
     {
         private readonly IAfkRepository _afkRepo;
