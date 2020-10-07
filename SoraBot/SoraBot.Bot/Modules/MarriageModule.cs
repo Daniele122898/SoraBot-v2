@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
+using SoraBot.Bot.Extensions.Interactive;
 using SoraBot.Bot.Models;
 using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
@@ -13,13 +16,55 @@ namespace SoraBot.Bot.Modules
     {
         private readonly IMarriageRepository _marriageRepo;
         private readonly IUserService _userService;
+        private readonly InteractiveService _interactiveService;
 
-        public MarriageModule(IMarriageRepository marriageRepo, IUserService userService)
+        public MarriageModule(IMarriageRepository marriageRepo, IUserService userService, InteractiveService interactiveService)
         {
             _marriageRepo = marriageRepo;
             _userService = userService;
+            _interactiveService = interactiveService;
         }
 
+        [Command("marry")]
+        [Summary("Ask the @mentioned person to marry you")]
+        public async Task Marry(DiscordGuildUser user)
+        {
+            await ReplyEmbed(
+                $"{Formatter.UsernameDiscrim(user.GuildUser)}, do you want to marry {Formatter.UsernameDiscrim(Context.User)}?",
+                Purple, "💍");
+
+            var criteria =
+                InteractiveServiceExtensions.CreateEnsureFromUserInChannelCriteria(user.GuildUser.Id,
+                    Context.Channel.Id);
+            var resp = await _interactiveService.NextMessageAsync(Context, criteria, TimeSpan.FromSeconds(45)).ConfigureAwait(false);
+            if (resp == null)
+            {
+                await ReplyFailureEmbed($"{Formatter.UsernameDiscrim(user.GuildUser)} didn't answer in time >.<");
+                return;
+            }
+
+            if (!InteractiveServiceExtensions.StringContainsYes(resp.Content))
+            {
+                await ReplyFailureEmbed($"{Formatter.UsernameDiscrim(user.GuildUser)} didn't answer with a yes ˚‧º·(˚ ˃̣̣̥᷄⌓˂̣̣̥᷅ )‧º·˚");
+                return;
+            }
+            
+            var res = await _marriageRepo.TryAddMarriage(Context.User.Id, user.GuildUser.Id);
+            if (!res)
+            {
+                await ReplyFailureEmbed(res.Err().Message);
+                return;
+            }
+            var eb = new EmbedBuilder()
+            {
+                Color = Purple,
+                Title = "💑 You are now married",
+                ImageUrl = "https://cdn.argonaut.pw/file/f884fdcb-eb9b-4dbb-8c50-ac516d059696.webp"
+            };
+
+            await ReplyEmbed(eb);
+        }
+        
         [Command("marriages")]
         [Summary("Gives you a list of all the marriages of the specified user. " +
                  "Shows your own marriages if no user was @mentioned")]
