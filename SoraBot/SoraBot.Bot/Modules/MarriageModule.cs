@@ -25,6 +25,31 @@ namespace SoraBot.Bot.Modules
             _interactiveService = interactiveService;
         }
 
+        [Command("divorce")]
+        [Summary("Divorce a user by his UserId in case you cannot @ them anymore")]
+        public async Task DivorceId(ulong id)
+        {
+            await this.Divorce(id);
+        }
+        
+        [Command("divorce")]
+        [Summary("Divorce a user by @mentioning them")]
+        public async Task DivorceMention(DiscordGuildUser user)
+        {
+            await this.Divorce(user.GuildUser.Id);
+        }
+
+        private async Task Divorce(ulong id)
+        {
+            if (!await _marriageRepo.TryDivorce(Context.User.Id, id))
+            {
+                await ReplyFailureEmbed("You are not married to that user");
+                return;
+            }
+
+            await ReplySuccessEmbed("You have been successfully divorced");
+        }
+
         [Command("marry")]
         [Summary("Ask the @mentioned person to marry you")]
         public async Task Marry(DiscordGuildUser user)
