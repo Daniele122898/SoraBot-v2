@@ -23,6 +23,7 @@ namespace SoraBot.Data.Extensions
             services.AddScoped<ISarRepository, SarRepository>();
             services.AddScoped<IWaifuRequestRepository, WaifuRequestRepository>();
             services.AddScoped<IAfkRepository, AfkRepository>();
+            services.AddScoped<IMarriageRepository, MarriageRepository>();
             
             // Use this pool in the transactor as well for improved performance
             services.AddDbContextPool<SoraContext>(op =>

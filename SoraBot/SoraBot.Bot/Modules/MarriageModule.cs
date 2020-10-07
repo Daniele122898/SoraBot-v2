@@ -84,7 +84,7 @@ namespace SoraBot.Bot.Modules
             {
                 Color = Purple,
                 Title = "💑 You are now married",
-                ImageUrl = "https://cdn.argonaut.pw/file/f884fdcb-eb9b-4dbb-8c50-ac516d059696.webp"
+                ImageUrl = "https://media.giphy.com/media/iQ5rGja9wWB9K/giphy.gif"
             };
 
             await ReplyEmbed(eb);
@@ -128,7 +128,7 @@ namespace SoraBot.Bot.Modules
             var marr = marriages.Some();
             foreach (var marriage in marr)
             {
-                var partnerId = marriage.Partner1 == user.Id ? marriage.Partner2 : marriage.Partner1;
+                var partnerId = marriage.Partner1Id == user.Id ? marriage.Partner2Id : marriage.Partner1Id;
                 var u = await _userService.GetOrSetAndGet(partnerId);
                 var name = u ? Formatter.UsernameDiscrim((~u)) : partnerId.ToString();
 
@@ -136,7 +136,7 @@ namespace SoraBot.Bot.Modules
                 {
                     x.IsInline = true;
                     x.Name = name;
-                    x.Value = $"*Since {marriage.PartnerSince:dd/MM/yyyy}*{(adv ? $"ID: {partnerId.ToString()}" : "")}";
+                    x.Value = $"*Since {marriage.PartnerSince:dd/MM/yyyy}*{(adv ? $"\nID: {partnerId.ToString()}" : "")}";
                 });
             }
 

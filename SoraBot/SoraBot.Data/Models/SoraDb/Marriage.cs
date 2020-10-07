@@ -11,16 +11,13 @@ namespace SoraBot.Data.Models.SoraDb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ulong Partner1 { get; set; }
+        public ulong Partner1Id { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ulong Partner2 { get; set; }
+        public ulong Partner2Id { get; set; }
         
         [Required]
         public DateTime PartnerSince { get; set; } = DateTime.UtcNow;
-
-        public virtual User Partner1User { get; set; }
-        public virtual User Partner2User { get; set; }
     }
 }

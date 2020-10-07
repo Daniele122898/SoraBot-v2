@@ -10,19 +10,7 @@ namespace SoraBot.Data.Extensions.ModelBuilder
             this Microsoft.EntityFrameworkCore.ModelBuilder mb)
         {
             mb.Entity<Marriage>()
-                .HasKey(k => new {k.Partner1, k.Partner2});
-
-            mb.Entity<Marriage>()
-                .HasOne(m => m.Partner1User)
-                .WithMany(u => u.Marriages)
-                .HasForeignKey(k => k.Partner1)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            mb.Entity<Marriage>()
-                .HasOne(m => m.Partner2User)
-                .WithMany(u => u.Marriages)
-                .HasForeignKey(k => k.Partner2)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasKey(k => new {Partner1 = k.Partner1Id, Partner2 = k.Partner2Id});
 
             mb.Entity<Marriage>()
                 .Property(p => p.PartnerSince)

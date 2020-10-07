@@ -23,7 +23,7 @@ namespace SoraBot.Data.Repositories
         public async Task<Option<List<Marriage>>> GetAllMarriagesOfUser(ulong userId)
             => await _soraTransactor.DoAsync(async context =>
             {
-                var marriages = await context.Marriages.Where(x => x.Partner1 == userId || x.Partner2 == userId)
+                var marriages = await context.Marriages.Where(x => x.Partner1Id == userId || x.Partner2Id == userId)
                     .ToListAsync().ConfigureAwait(false);
 
                 if (marriages.Count == 0)
@@ -38,7 +38,7 @@ namespace SoraBot.Data.Repositories
                 this.OrderUserIdsRef(ref user1, ref user2);
                 
                 // Check if already exists
-                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1 == user1 && x.Partner2 == user2);
+                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1Id == user1 && x.Partner2Id == user2);
                 if (marr != null)
                     return new Result<bool, Error>(new Error("You are already married to this person"));
                 
@@ -54,8 +54,8 @@ namespace SoraBot.Data.Repositories
                 // Otherwise we create it
                 var marriage = new Marriage()
                 {
-                    Partner1 = user1,
-                    Partner2 = user2,
+                    Partner1Id = user1,
+                    Partner2Id = user2,
                     PartnerSince = DateTime.UtcNow
                 };
 
@@ -70,7 +70,7 @@ namespace SoraBot.Data.Repositories
                 // Sort ids
                 this.OrderUserIdsRef(ref user1, ref user2);
                 // Check if marriage exists
-                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1 == user1 && x.Partner2 == user2);
+                var marr = await context.Marriages.FirstOrDefaultAsync(x => x.Partner1Id == user1 && x.Partner2Id == user2);
                 if (marr == null)
                     return false;
                 
@@ -83,7 +83,7 @@ namespace SoraBot.Data.Repositories
         public async Task<int> GetUserMarriageCount(ulong userId)
             => await _soraTransactor.DoAsync(async context => 
                 await context.Marriages
-                    .CountAsync(x => x.Partner1 == userId || x.Partner2 == userId)
+                    .CountAsync(x => x.Partner1Id == userId || x.Partner2Id == userId)
             ).ConfigureAwait(false);
 
         private void OrderUserIdsRef(ref ulong user1, ref ulong user2)
