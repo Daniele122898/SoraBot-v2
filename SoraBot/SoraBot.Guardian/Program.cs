@@ -27,10 +27,17 @@ namespace SoraBot.Guardian
         // ReSharper disable once UnusedParameter.Local
         static async Task Main(string[] args)
         {
+            #if DEBUG
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
                 .CreateLogger();
+            #else
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .CreateLogger();
+            #endif
             
             Log.Information(@"
    _____                                                
@@ -69,7 +76,7 @@ namespace SoraBot.Guardian
 
         private static void OverwatchCallback(object obj)
         {
-            Log.Information("Starting Overwatch callback");
+            Log.Debug("Starting Overwatch callback");
             try
             {
                 // To simplify the code greatly we do not check the RAM usage of the Sora processes but rather just check
@@ -82,14 +89,14 @@ namespace SoraBot.Guardian
 
                 var memTotal = float.Parse(Regex.Match(memTotalStr, @"\d+").Value);
                 var memFree = float.Parse(Regex.Match(memFreeStr, @"\d+").Value);
-                Log.Information("\nTotal Memory: {TotalMem}\nFree Memory: {FreeMem}", memTotal, memFree);
+                Log.Debug("\nTotal Memory: {TotalMem}\nFree Memory: {FreeMem}", memTotal, memFree);
 
 
                 var freePerc = memFree / memTotal;
                 if (freePerc > _FREE_THRESHOLD)
                 {
                     _count = 0;
-                    Log.Information("Free Memory percentage of {FreePerc} over minimum Threshold of {MinThreshold}, resetting count.", freePerc, _FREE_THRESHOLD);
+                    Log.Debug("Free Memory percentage of {FreePerc} over minimum Threshold of {MinThreshold}, resetting count.", freePerc, _FREE_THRESHOLD);
                     return;
                 }
                 ++_count;
