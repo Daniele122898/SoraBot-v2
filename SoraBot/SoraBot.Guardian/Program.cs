@@ -22,7 +22,7 @@ namespace SoraBot.Guardian
         private const float _FREE_THRESHOLD = 0.15f;
 
         private static int _count = 0;
-        private const int _MAX_COUNT = 2;
+        private const int _MAX_COUNT = 4;
         
         // ReSharper disable once UnusedParameter.Local
         static async Task Main(string[] args)
