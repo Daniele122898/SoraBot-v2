@@ -84,30 +84,33 @@ namespace SoraBot.Guardian
                 // If total RAM usage is above a certain percentage we just restart the services.
                 var memInfo = File.ReadAllText("/proc/meminfo");
                 var memTotalStr = memInfo.Substring(0, memInfo.IndexOf("\n", StringComparison.Ordinal));
-                var reduced = memInfo.Substring(memTotalStr.Length);
+                var reduced = memInfo.Substring(memInfo.IndexOf("MemAvailable", StringComparison.Ordinal));
                 var memFreeStr = reduced.Substring(0, reduced.IndexOf("kB", StringComparison.Ordinal));
 
                 var memTotal = float.Parse(Regex.Match(memTotalStr, @"\d+").Value);
                 var memFree = float.Parse(Regex.Match(memFreeStr, @"\d+").Value);
-                Log.Debug("\nTotal Memory: {TotalMem}\nFree Memory: {FreeMem}", memTotal, memFree);
+                Log.Debug("\nTotal Memory: {TotalMem}\nAvailable Memory: {FreeMem}", memTotal, memFree);
 
 
                 var freePerc = memFree / memTotal;
                 if (freePerc > _FREE_THRESHOLD)
                 {
+                    if (_count == 0)
+                        Log.Debug("Available Memory percentage of {FreePerc} over minimum Threshold of {MinThreshold}, resetting count.", freePerc, _FREE_THRESHOLD);
+                    else
+                        Log.Information("Available Memory percentage of {FreePerc} over minimum Threshold of {MinThreshold}, resetting count.", freePerc, _FREE_THRESHOLD);
                     _count = 0;
-                    Log.Debug("Free Memory percentage of {FreePerc} over minimum Threshold of {MinThreshold}, resetting count.", freePerc, _FREE_THRESHOLD);
                     return;
                 }
                 ++_count;
                 if (_count < _MAX_COUNT)
                 {
-                    Log.Information("Free Memory below threshold. Count increased to {Count} but below Threshold {Threshold}, monitoring...", _count, _MAX_COUNT);
+                    Log.Information("Available Memory below threshold. Count increased to {Count} but below Threshold {Threshold}, monitoring...", _count, _MAX_COUNT);
                     return;
                 }
                 _count = 0;
                 
-                Log.Information("Free Memory below threshold and count exceeded. Restarting Sora services.");
+                Log.Information("Available Memory below threshold and count exceeded. Restarting Sora services.");
                 var soraProd = RestartSoraService("sora-oct-prod@{0..2}");
                 var soraBeta = RestartSoraService("sora-oct");
                 soraProd.Start();
