@@ -113,6 +113,8 @@ namespace SoraBot.Services.Core
             _client.ReactionRemoved -= OnReactionRemoved;
             _client.ReactionsCleared -= OnReactionsCleared;
             _client.MessageDeleted -= OnMessageDeleted;
+            _client.UserLeft -= OnUserLeft;
+            _client.LeftGuild -= OnLeftGuild;
 
             return Task.CompletedTask;
         }
