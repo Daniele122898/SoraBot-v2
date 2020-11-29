@@ -24,6 +24,9 @@ namespace SoraBot.Data.Models.SoraDb
         public virtual ICollection<WaifuRequest> WaifuRequests { get; set; }
         public virtual Afk Afk { get; set; }
         public virtual Waifu FavoriteWaifu { get; set; }
+        public virtual ClanMember ClanMember { get; set; }
+        public virtual Clan ClanOwner { get; set; }
+        public virtual ICollection<ClanInvite> ClanInvites { get; set; }
 
     }
 }

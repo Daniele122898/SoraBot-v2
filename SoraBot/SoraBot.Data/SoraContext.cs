@@ -43,6 +43,7 @@ namespace SoraBot.Data
             builder.AddSarRelations();
             builder.AddAfkRelations();
             builder.AddMarriageRelations();
+            builder.AddClanRelations();
         }
     }
 }
