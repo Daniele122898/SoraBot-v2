@@ -15,6 +15,10 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .Property(p => p.AvatarUrl)
                 .IsRequired(false);
 
+            // Make name unique
+            mb.Entity<Clan>()
+                .HasAlternateKey(k => k.Name);
+
             mb.Entity<Clan>()
                 .HasOne(u => u.Owner)
                 .WithOne(a => a.ClanOwner)
