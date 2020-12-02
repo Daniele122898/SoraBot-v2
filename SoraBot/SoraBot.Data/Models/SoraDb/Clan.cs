@@ -24,8 +24,8 @@ namespace SoraBot.Data.Models.SoraDb
         [Required]
         public DateTime Created { get; set; }
 
-        [Required]
-        public int Level { get; set; }
+        [Required] 
+        public int Level { get; set; } = 0;
 
         public virtual ICollection<ClanMember> Members { get; set; }
         public virtual ICollection<ClanInvite> Invites { get; set; }
