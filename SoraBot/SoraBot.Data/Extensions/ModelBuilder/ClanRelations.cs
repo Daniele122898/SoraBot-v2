@@ -31,7 +31,7 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .OnDelete(DeleteBehavior.Cascade);
 
             mb.Entity<ClanMember>()
-                .HasKey(k => new {k.ClanId, k.UserId});
+                .HasKey(k => k.UserId);
 
             mb.Entity<ClanMember>()
                 .HasOne(u => u.Clan)
