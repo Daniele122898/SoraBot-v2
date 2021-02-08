@@ -1,14 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.WebApi", "SoraBot.WebApi\SoraBot.WebApi.csproj", "{D222CB77-78E1-4D2B-9E16-30FB7EE0FFAC}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoraBot.WebApi", "SoraBot.WebApi\SoraBot.WebApi.csproj", "{D222CB77-78E1-4D2B-9E16-30FB7EE0FFAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Bot", "SoraBot.Bot\SoraBot.Bot.csproj", "{B8DEA723-BA1A-4794-9056-15EAEA19AE91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoraBot.Bot", "SoraBot.Bot\SoraBot.Bot.csproj", "{B8DEA723-BA1A-4794-9056-15EAEA19AE91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Data", "SoraBot.Data\SoraBot.Data.csproj", "{F0DB54B3-D940-4600-A990-B0FC373E1BCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoraBot.Data", "SoraBot.Data\SoraBot.Data.csproj", "{F0DB54B3-D940-4600-A990-B0FC373E1BCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Services", "SoraBot.Services\SoraBot.Services.csproj", "{2533EF73-0831-42D7-B4E8-D171ADC2E710}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoraBot.Services", "SoraBot.Services\SoraBot.Services.csproj", "{2533EF73-0831-42D7-B4E8-D171ADC2E710}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Common", "SoraBot.Common\SoraBot.Common.csproj", "{3B26DFC2-706C-4B15-A007-17F5C9F0278B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoraBot.Common", "SoraBot.Common\SoraBot.Common.csproj", "{3B26DFC2-706C-4B15-A007-17F5C9F0278B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoraBot.Guardian", "SoraBot.Guardian\SoraBot.Guardian.csproj", "{462A3E21-6B3A-458F-849F-9F3872190884}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +41,15 @@ Global
 		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B26DFC2-706C-4B15-A007-17F5C9F0278B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{462A3E21-6B3A-458F-849F-9F3872190884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{462A3E21-6B3A-458F-849F-9F3872190884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{462A3E21-6B3A-458F-849F-9F3872190884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{462A3E21-6B3A-458F-849F-9F3872190884}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3626728-DEE9-4957-BDAA-D1DC95FB8B97}
 	EndGlobalSection
 EndGlobal

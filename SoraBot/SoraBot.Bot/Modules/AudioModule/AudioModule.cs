@@ -126,7 +126,7 @@ namespace SoraBot.Bot.Modules.AudioModule
             foreach (var item in player.Queue)
             {
                 ++count;
-                var track = (LavaTrack) item;
+                var track = item;
                 eb.AddField(x =>
                 {
                     x.IsInline = false;
@@ -143,7 +143,7 @@ namespace SoraBot.Bot.Modules.AudioModule
 
             foreach (var item in player.Queue)
             {
-                var track = (LavaTrack) item;
+                var track = item;
                 duration = duration.Add(track.Duration);
             }
 

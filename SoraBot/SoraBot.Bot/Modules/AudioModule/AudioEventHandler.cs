@@ -112,13 +112,13 @@ namespace SoraBot.Bot.Modules.AudioModule
             if (!e.Reason.ShouldPlayNext() || e.Player == null)
                 return;
 
-            if (!e.Player.Queue.TryDequeue(out var queueable))
+            if (!e.Player.Queue.TryDequeue(out var track))
             {
                 await e.Player.TextChannel.SendMessageAsync(embed: this.GetSimpleMusicEmbed("No more tracks in queue.").Build());
                 return;
             }
 
-            if (!(queueable is LavaTrack track))
+            if (track == null)
             {
                 await e.Player.TextChannel.SendMessageAsync(
                     embed: this.GetSimpleMusicEmbed("Next item in queue was not a track. Stopped playback..").Build());
