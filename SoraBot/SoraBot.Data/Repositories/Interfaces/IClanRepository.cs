@@ -15,8 +15,8 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task<bool> IsUserInAClan(ulong userId);
         public Task<Option<Clan>> GetClanByUserId(ulong userId);
         public Task CreateClan(string name, ulong ownerId);
-        public Task SetClanDescription(string clanId, string description);
-        public Task SetClanAvatar(string avatarUrl);
+        public Task SetClanDescription(int clanId, string description);
+        public Task SetClanAvatar(int clanId, string avatarUrl);
         public Task LevelUp(int clanId);
         public Task ChangeClanName(int clanId, string newName);
 

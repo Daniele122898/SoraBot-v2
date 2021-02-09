@@ -128,24 +128,59 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync();
             });
 
-        public async Task SetClanDescription(string clanId, string description)
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task SetClanDescription(int clanId, string description) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
 
-        public async Task SetClanAvatar(string avatarUrl)
-        {
-            throw new System.NotImplementedException();
-        }
+                if (description.Length > 110)
+                    description = description.Substring(0, 110);
+                clan.Description = description;
+                
+                await context.SaveChangesAsync();
+            });
 
-        public async Task LevelUp(int clanId)
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task SetClanAvatar(int clanId, string avatarUrl) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
+                // Assume we already did url sanity checks
+                clan.AvatarUrl = avatarUrl;
+                await context.SaveChangesAsync();
+            });
 
-        public async Task ChangeClanName(int clanId, string newName)
-        {
-            throw new System.NotImplementedException();
-        }
+        public async Task LevelUp(int clanId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
+
+                clan.Level += 1;
+                await context.SaveChangesAsync();
+            });
+
+        public async Task ChangeClanName(int clanId, string newName) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
+                
+                // Check if clan with this name already exists, abort if it does
+                if (await context.Clans.Where(x => x.Name == newName)
+                    .CountAsync() > 0)
+                {
+                    return;
+                }
+
+                clan.Name = newName;
+                await context.SaveChangesAsync();
+            });
+
     }
 }
