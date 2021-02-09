@@ -182,5 +182,29 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync();
             });
 
+        public async Task UserJoinClan(int clanId, ulong userId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                // Check if user is in a clan already
+                if (await context.ClanMembers.CountAsync(x => x.UserId == userId) > 0)
+                    return;
+                
+                
+            });
+
+        public Task UserLeaveClan(ulong userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task InviteUser(int clanId, ulong userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveInvite(int clanId, ulong userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

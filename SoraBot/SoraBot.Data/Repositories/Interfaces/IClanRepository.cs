@@ -19,6 +19,10 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task SetClanAvatar(int clanId, string avatarUrl);
         public Task LevelUp(int clanId);
         public Task ChangeClanName(int clanId, string newName);
+        public Task UserJoinClan(int clanId, ulong userId);
+        public Task UserLeaveClan(ulong userId);
+        public Task InviteUser(int clanId, ulong userId);
+        public Task RemoveInvite(int clanId, ulong userId);
 
     }
 }
