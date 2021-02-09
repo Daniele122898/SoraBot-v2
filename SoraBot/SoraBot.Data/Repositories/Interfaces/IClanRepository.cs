@@ -12,8 +12,9 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task<Option<List<User>>> GetClanMembers(int clanId);
         public Task<int> GetMemberCount(int clanId);
         public Task<bool> DoesClanExistByName(string name);
+        public Task<bool> IsUserInAClan(ulong userId);
         public Task<Option<Clan>> GetClanByUserId(ulong userId);
-        public Task CreateClan(string name);
+        public Task CreateClan(string name, ulong ownerId);
         public Task SetClanDescription(string clanId, string description);
         public Task SetClanAvatar(string avatarUrl);
         public Task LevelUp(int clanId);
