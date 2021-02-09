@@ -21,6 +21,10 @@ namespace SoraBot.Data
         public DbSet<Afk> Afks { get; set; }
         public DbSet<Marriage> Marriages { get; set; }
         
+        public DbSet<Clan> Clans { get; set; }
+        public DbSet<ClanMember> ClanMembers { get; set; }
+        public DbSet<ClanInvite> ClanInvites { get; set; }
+        
         public DbSet<Waifu> Waifus { get; set; }
         public DbSet<UserWaifu> UserWaifus { get; set; }
 
