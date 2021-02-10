@@ -134,6 +134,15 @@ namespace SoraBot.Data.Repositories
                 };
 
                 context.Clans.Add(clan);
+                
+                // Create clan member for the owner
+                var member = new ClanMember()
+                {
+                    ClanId = clan.Id,
+                    UserId = ownerId
+                };
+                context.ClanMembers.Add(member);
+                
                 await context.SaveChangesAsync();
             });
 
@@ -201,19 +210,52 @@ namespace SoraBot.Data.Repositories
                 
             });
 
-        public Task UserLeaveClan(ulong userId)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task UserLeaveClan(ulong userId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var member = await context.ClanMembers.FindAsync(userId);
+                if (member == null)
+                    return;
 
-        public Task InviteUser(int clanId, ulong userId)
-        {
-            throw new NotImplementedException();
-        }
+                context.ClanMembers.Remove(member);
+                await context.SaveChangesAsync();
+            });
 
-        public Task RemoveInvite(int clanId, ulong userId)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task InviteUser(int clanId, ulong userId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                // Check if same user was already invited to this clan
+                if ((await context.ClanInvites
+                         .CountAsync(x => x.ClanId == clanId && x.UserId == userId) > 0))
+                    return;
+                
+                // Otherwise create an invite
+                var invite = new ClanInvite()
+                {
+                    ClanId = clanId,
+                    UserId = userId
+                };
+
+                context.ClanInvites.Add(invite);
+                await context.SaveChangesAsync();
+
+            });
+
+        public async Task<bool> DoesInviteExist(int clanId, ulong userId) =>
+            await _soraTransactor.DoAsync(async context => await context.ClanInvites
+                .CountAsync(x => x.ClanId == clanId && x.UserId == userId) > 0);
+
+        public async Task RemoveInvite(int clanId, ulong userId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var invite = await context.ClanInvites
+                    .FirstOrDefaultAsync(x => x.ClanId == clanId && x.UserId == userId);
+
+                if (invite == null)
+                    return;
+
+                context.ClanInvites.Remove(invite);
+                await context.SaveChangesAsync();
+            });
     }
 }

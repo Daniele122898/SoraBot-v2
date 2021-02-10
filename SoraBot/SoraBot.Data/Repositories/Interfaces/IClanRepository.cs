@@ -22,6 +22,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task UserJoinClan(int clanId, ulong userId);
         public Task UserLeaveClan(ulong userId);
         public Task InviteUser(int clanId, ulong userId);
+        public Task<bool> DoesInviteExist(int clanId, ulong userId);
         public Task RemoveInvite(int clanId, ulong userId);
 
     }

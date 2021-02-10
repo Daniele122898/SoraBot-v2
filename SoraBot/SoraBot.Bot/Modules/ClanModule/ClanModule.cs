@@ -67,7 +67,8 @@ namespace SoraBot.Bot.Modules.ClanModule
             if (!string.IsNullOrWhiteSpace(clan.AvatarUrl))
                 eb.WithThumbnailUrl(clan.AvatarUrl);
 
-            var members = await _clanRepo.GetClanMembers(clan.Id);
+            var members = await _clanRepo.GetClanMembers(clan.Id, 10);
+            
             
         }
     }
