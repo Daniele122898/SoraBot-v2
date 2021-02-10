@@ -9,6 +9,38 @@ namespace SoraBot.Bot.Modules.ClanModule
     {
         private const int _LEVEL_UP_COST = 7500;
         
+        [Command("clanrename"), Alias("renameclan")]
+        [Summary("Rename your clan")]
+        public async Task RenameClan(
+            [Summary("Clan name"), Remainder] string name)
+        {
+            // Check if clan name is too long
+            if (name.Length > 25 || name.Length < 2)
+            {
+                await ReplyFailureEmbed("Name can be no longer than 25 chars and must be more than 2 char long");
+                return;
+            }
+
+            if (name.Contains("<"))
+            {
+                await ReplyFailureEmbed("You are not allowed to use '<' in the clan name");
+                return;
+            }
+            
+            // Check if clan with that name already exists
+            if (await _clanRepo.DoesClanExistByName(name))
+            {
+                await ReplyFailureEmbed("Clan with that name already exists. Choose another one!");
+                return;
+            }
+            
+            if (!(await GetClanIfExistsAndOwner() is Clan clan))
+                return;
+            
+            await _clanRepo.ChangeClanName(clan.Id, name);
+            await ReplySuccessEmbed("Successfully renamed clan!");
+        } 
+        
         [Command("clanlevelup"), Alias("levelupcaln", "1up")]
         [Summary("Level up clan by paying 7'500 SC.")]
         public async Task LevelUpClan()
