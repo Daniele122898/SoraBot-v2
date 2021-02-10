@@ -13,7 +13,7 @@ namespace SoraBot.Bot.Modules.ClanModule
 {
     [Name("Clan")]
     [Summary("All commands for clan functions")]
-    public class ClanModule : SoraSocketCommandModule
+    public partial class ClanModule : SoraSocketCommandModule
     {
         private readonly IClanRepository _clanRepo;
         private readonly IUserService _userService;
