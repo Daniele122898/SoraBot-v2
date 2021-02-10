@@ -6,6 +6,7 @@ using SoraBot.Common.Extensions.Modules;
 using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
 using SoraBot.Data.Repositories.Interfaces;
+using SoraBot.Services.Users;
 
 namespace SoraBot.Bot.Modules.ClanModule
 {
@@ -14,10 +15,12 @@ namespace SoraBot.Bot.Modules.ClanModule
     public class ClanModule : SoraSocketCommandModule
     {
         private readonly IClanRepository _clanRepo;
+        private readonly IUserService _userService;
 
-        public ClanModule(IClanRepository clanRepo)
+        public ClanModule(IClanRepository clanRepo, IUserService userService)
         {
             _clanRepo = clanRepo;
+            _userService = userService;
         }
         
         [Command("claninfo"), Alias("cinfo", "clan info")]
@@ -56,9 +59,10 @@ namespace SoraBot.Bot.Modules.ClanModule
 
         private async Task PrintClanInfo(Clan clan)
         {
+            var footer = RequestedByMe();
             var eb = new EmbedBuilder()
             {
-                Footer = RequestedByMe(),
+                Footer = footer.WithText($"{footer.Text} | Created {clan.Created.ToString("dd/MM/yyyy")}"),
                 Title = $"{INFO_EMOJI} {clan.Name} info",
                 Color = Blue,
                 Description = clan.Description ?? "_No description_"
@@ -68,8 +72,37 @@ namespace SoraBot.Bot.Modules.ClanModule
                 eb.WithThumbnailUrl(clan.AvatarUrl);
 
             var members = await _clanRepo.GetClanMembers(clan.Id, 10);
-            
-            
+            if (!members || members.Some().Count == 0)
+            {
+                await ReplyFailureEmbed("This clan somehow has no members...");
+                return;
+            }
+
+            var totalExpTask = _clanRepo.GetClanTotalExp(clan.Id);
+            foreach (var member in members.Some())
+            {
+                var user = await this._userService.GetOrSetAndGet(member.Id);
+                string username = user.HasValue
+                    ? Formatter.UsernameDiscrim(~user)
+                    : member.Id.ToString(); 
+                    
+                eb.AddField(x =>
+                {
+                    x.Name = $"{(member.Id == clan.OwnerId ? "[O] " : "")}{username}";
+                    x.IsInline = true;
+                    x.Value = $"{member.Exp.ToString()} Exp";
+                });
+            }
+
+            var total = await totalExpTask;
+            eb.AddField(x =>
+            {
+                x.Name = "Total Clan";
+                x.IsInline = false;
+                x.Value = $"{total.ToString()} Exp";
+            });
+
+            await ReplyEmbed(eb);
         }
     }
 }

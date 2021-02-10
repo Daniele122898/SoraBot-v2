@@ -257,5 +257,15 @@ namespace SoraBot.Data.Repositories
                 context.ClanInvites.Remove(invite);
                 await context.SaveChangesAsync();
             });
+
+        public async Task<long> GetClanTotalExp(int clanId) =>
+            await _soraTransactor.DoAsync(async context =>
+            {
+                var total = await context.ClanMembers
+                    .Where(x => x.ClanId == clanId)
+                    .Select(x => x.User)
+                    .SumAsync(x => x.Exp);
+                return total;
+            });
     }
 }
