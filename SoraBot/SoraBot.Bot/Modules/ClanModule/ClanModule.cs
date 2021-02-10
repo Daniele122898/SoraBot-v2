@@ -17,11 +17,13 @@ namespace SoraBot.Bot.Modules.ClanModule
     {
         private readonly IClanRepository _clanRepo;
         private readonly IUserService _userService;
+        private readonly ICoinRepository _coinRepository;
 
-        public ClanModule(IClanRepository clanRepo, IUserService userService)
+        public ClanModule(IClanRepository clanRepo, IUserService userService, ICoinRepository coinRepository)
         {
             _clanRepo = clanRepo;
             _userService = userService;
+            _coinRepository = coinRepository;
         }
 
         [Command("clanlist"), Alias("clist", "clanleaderboard", "cleaderboard")]
