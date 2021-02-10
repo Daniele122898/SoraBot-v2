@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using SoraBot.Bot.Models;
@@ -21,6 +22,45 @@ namespace SoraBot.Bot.Modules.ClanModule
         {
             _clanRepo = clanRepo;
             _userService = userService;
+        }
+
+        [Command("clanlist"), Alias("clist", "clanleaderboard", "cleaderboard")]
+        [Summary("Show top 10 clans by total Exp")]
+        public async Task GetClanLeaderboard()
+        {
+            var clans = await _clanRepo.GetTopClans();
+            if (!clans)
+            {
+                await ReplyFailureEmbed("There are no clans at the moment. Create one!");
+                return;
+            }
+
+            var clanExp = clans.Some()
+                .Select(x => new {clan = x, exp = _clanRepo.GetClanTotalExp(x.Id)});
+
+            var eb = new EmbedBuilder()
+            {
+                Color = Purple,
+                Footer = RequestedByMe(),
+                Title = "Top 10 Clans"
+            };
+            int rank = 1;
+            foreach (var c in clanExp)
+            {
+                var exp = await c.exp;
+                // To avoid possible complications with data races or similar we create 
+                // a local copy for each embed field
+                var rankString = rank.ToString();
+                eb.AddField(x =>
+                {
+                    x.Name = $"{rankString}. {c.clan.Name}";
+                    x.IsInline = false;
+                    x.Value = $"{exp.ToString()} Exp";
+                });
+                ++rank;
+            }
+
+            await ReplyEmbed(eb);
         }
         
         [Command("claninfo"), Alias("cinfo", "clan info")]
