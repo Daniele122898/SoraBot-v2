@@ -9,7 +9,7 @@ namespace SoraBot.Data.Repositories.Interfaces
     {
         public Task<Option<Clan>> GetClanById(int clanId);
         public Task<Option<Clan>> GetClanByName(string clanName);
-        public Task<Option<List<User>>> GetClanMembers(int clanId);
+        public Task<Option<List<User>>> GetClanMembers(int clanId, int? limit = null);
         public Task<int> GetMemberCount(int clanId);
         public Task<bool> DoesClanExistByName(string name);
         public Task<bool> IsUserInAClan(ulong userId);

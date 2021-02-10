@@ -38,16 +38,25 @@ namespace SoraBot.Data.Repositories
             });
         }
 
-        public async Task<Option<List<User>>> GetClanMembers(int clanId)
+        public async Task<Option<List<User>>> GetClanMembers(int clanId, int? limit = null)
         {
             return await _soraTransactor.DoAsync(async context =>
             {
-                var members = await context.Clans
-                    .Where(x => x.Id == clanId)
-                    .SelectMany(x => x.Members)
-                    .Select(x => x.User)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
+                var members = (limit.HasValue
+                    ? (await context.Clans
+                        .Where(x => x.Id == clanId)
+                        .SelectMany(x => x.Members)
+                        .Select(x => x.User)
+                        .OrderByDescending(x => x.Exp)
+                        .Take(limit.Value)
+                        .ToListAsync()
+                        .ConfigureAwait(false))
+                    : (await context.Clans
+                        .Where(x => x.Id == clanId)
+                        .SelectMany(x => x.Members)
+                        .Select(x => x.User)
+                        .ToListAsync()
+                        .ConfigureAwait(false)));
 
                 return members?.Count == 0 ? Option.None<List<User>>() : members;
             });
