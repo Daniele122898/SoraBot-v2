@@ -5,6 +5,7 @@
         public ulong UserId { get; set; }
         public bool HasCustomBg { get; set; }
         public string Name { get; set; }
+        public string ClanName { get; set; }
         public int GlobalRank { get; set; }
         public uint GlobalExp { get; set; }
         public int GlobalLevel { get; set; }

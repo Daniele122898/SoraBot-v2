@@ -36,17 +36,22 @@ namespace SoraBot.Data.Repositories
                     .ConfigureAwait(false) ?? new GuildUser(0,0,0); // Just so we have default values to work with
 
                 var localRank = await context.GuildUsers
-                    .Where(g => g.Exp > guildUser.Exp)
-                    .CountAsync()
+                    .CountAsync(g => g.GuildId == guildId && g.Exp > guildUser.Exp)
                     .ConfigureAwait(false);
-                    
+
+                var clan = await context.ClanMembers
+                    .Where(x => x.UserId == userId)
+                    .Select(x => x.Clan)
+                    .FirstOrDefaultAsync();
+
                 return new ProfileImageGenDto()
                 {
                     GlobalExp = user.Exp,
                     GlobalRank = globalRank + 1,
                     HasCustomBg = user.HasCustomProfileBg,
                     LocalExp = guildUser.Exp,
-                    LocalRank = localRank + 1
+                    LocalRank = localRank + 1,
+                    ClanName = clan?.Name
                 };
             }).ConfigureAwait(false);
         }

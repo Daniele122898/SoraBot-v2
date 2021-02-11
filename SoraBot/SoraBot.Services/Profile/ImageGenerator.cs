@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SoraBot.Data.Dtos.Profile;
+using SoraBot.Data.Models.SoraDb;
 using Path = System.IO.Path;
 
 namespace SoraBot.Services.Profile
@@ -122,13 +123,35 @@ namespace SoraBot.Services.Profile
                     HorizontalAlignment = HorizontalAlignment.Right
                 });
 
-            // Draw Username
-            image.Mutate(x => x.DrawText(
-                textGraphicOptionsCenterLeft,
-                c.Name,
-                _heavyTitleFont,
-                Color.White,
-                new Vector2(60, 27)));
+            if (string.IsNullOrWhiteSpace(c.ClanName))
+            {
+                // Draw Username
+                image.Mutate(x => x.DrawText(
+                    textGraphicOptionsCenterLeft,
+                    c.Name,
+                    _heavyTitleFont,
+                    Color.White,
+                    new Vector2(60, 27)));
+            }
+            else
+            {
+                // Draw Username
+                image.Mutate(x => x.DrawText(
+                    textGraphicOptionsCenterLeft,
+                    c.Name,
+                    _heavyTitleFont,
+                    Color.White,
+                    new Vector2(60, 14)));
+                
+                // Draw Clan name
+                image.Mutate(x => x.DrawText(
+                    textGraphicOptionsCenterLeft,
+                    c.ClanName,
+                    _statsLightFont,
+                    Color.White,
+                    new Vector2(60, 34)));
+            }
+
 
             var blueHighlight = new Rgba32(47, 166, 222);
 
