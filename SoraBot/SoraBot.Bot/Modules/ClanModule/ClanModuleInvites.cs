@@ -40,7 +40,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                         .Build()
                     );
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -90,7 +90,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                             INFO_EMOJI)
                         .Build());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -209,7 +209,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                                 $"You have been appointed as the new owner of {clan.Some().Name}",
                                 INFO_EMOJI).Build());
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         /* ignored */
                     }
@@ -263,7 +263,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                         $"You have been kicked from {clan.Name}",
                         INFO_EMOJI).Build());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
