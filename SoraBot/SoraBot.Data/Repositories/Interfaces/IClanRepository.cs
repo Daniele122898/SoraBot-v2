@@ -14,6 +14,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task<int> GetMemberCount(int clanId);
         public Task<bool> DoesClanExistByName(string name);
         public Task<bool> IsUserInAClan(ulong userId);
+        public Task<bool> IsUserInClan(int clanId, ulong userId);
         public Task<Option<Clan>> GetClanByUserId(ulong userId);
         public Task CreateClan(string name, ulong ownerId);
         public Task RemoveClan(int clanId);

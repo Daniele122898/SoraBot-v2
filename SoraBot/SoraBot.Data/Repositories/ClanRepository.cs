@@ -103,6 +103,12 @@ namespace SoraBot.Data.Repositories
             });
         }
 
+        public async Task<bool> IsUserInClan(int clanId, ulong userId) =>
+            await _soraTransactor.DoAsync(async context =>
+                await context.ClanMembers
+                    .CountAsync(x => x.ClanId == clanId && x.UserId == userId)
+                > 0);
+
         public async Task<Option<Clan>> GetClanByUserId(ulong userId)
         {
             return await _soraTransactor.DoAsync(async context =>

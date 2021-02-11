@@ -58,21 +58,21 @@ namespace SoraBot.Bot.Modules.ClanModule
                                         "Make sure to spell it correctly");
                 return;
             }
-            
+
             // Clan exists. Check if invite exists
             if (!await _clanRepo.DoesInviteExist(clan.Some().Id, Context.User.Id))
             {
                 await ReplyFailureEmbed("You do not have an invite from this clan.");
                 return;
             }
-            
+
             // Check if user is already in a clan
             if (await _clanRepo.IsUserInAClan(Context.User.Id))
             {
                 await ReplyFailureEmbed("You already are in a clan. You must first leave to join another one.");
                 return;
             }
-            
+
             // Invite exists and user is in no clan so accept and join
             await _clanRepo.RemoveInvite(clan.Some().Id, Context.User.Id);
             await _clanRepo.UserJoinClan(clan.Some().Id, Context.User.Id);
@@ -84,7 +84,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                 if (!owner)
                     return;
                 await (await owner.Some().GetOrCreateDMChannelAsync())
-                    .SendMessageAsync( embed: SimpleEmbed(
+                    .SendMessageAsync(embed: SimpleEmbed(
                             Blue,
                             $"{Formatter.UsernameDiscrim(Context.User)} has accepted your invite",
                             INFO_EMOJI)
@@ -173,7 +173,7 @@ namespace SoraBot.Bot.Modules.ClanModule
 
             bool owner = clan.Some().OwnerId == Context.User.Id;
             var eb = SimpleEmbed(
-                Green, "Successfully left clan", 
+                Green, "Successfully left clan",
                 SUCCESS_EMOJI);
             if (owner)
             {
@@ -188,6 +188,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                     await ReplyEmbed(eb.WithDescription("Since you where the last member the clan has been deleted"));
                     return;
                 }
+
                 // Otherwise we have a new owner
                 await _clanRepo.AppointNewOwner(clan.Some().Id, topMember.Id);
                 var user = await _userService.GetOrSetAndGet(topMember.Id);
@@ -207,12 +208,65 @@ namespace SoraBot.Bot.Modules.ClanModule
                                 Blue,
                                 $"You have been appointed as the new owner of {clan.Some().Name}",
                                 INFO_EMOJI).Build());
-                    } catch (Exception e) { /* ignored */ }
+                    }
+                    catch (Exception e)
+                    {
+                        /* ignored */
+                    }
                 }
             }
 
             await _clanRepo.UserLeaveClan(Context.User.Id);
             await ReplyEmbed(eb);
+        }
+
+        [Command("kickuser"), Alias("clankick")]
+        [Summary("Kick a user off your clan")]
+        public async Task KickUser(
+            [Summary("Id of the user")] ulong userId)
+        {
+            await KickUserImpl(userId);
+        }
+
+        [Command("kickuser"), Alias("clankick")]
+        [Summary("Kick a user off your clan")]
+        public async Task KickUser(
+            [Summary("@mention of user")] DiscordUser user)
+        {
+            await KickUserImpl(user.User.Id);
+        }
+
+        private async Task KickUserImpl(ulong userId)
+        {
+            if (!(await GetClanIfExistsAndOwner() is Clan clan))
+                return;
+
+            // Check if user is even a member
+            if (!await _clanRepo.IsUserInClan(clan.Id, userId))
+            {
+                await ReplyFailureEmbed("User is not a member of your clan");
+                return;
+            }
+
+            // Otherwise remove him
+            await _clanRepo.UserLeaveClan(userId);
+            await ReplySuccessEmbed("Successfully kicked user");
+
+            try
+            {
+                var user = await _userService.GetOrSetAndGet(userId);
+                if (!user)
+                    return;
+                await (await user.Some().GetOrCreateDMChannelAsync())
+                    .SendMessageAsync(embed: SimpleEmbed(
+                        Blue,
+                        $"You have been kicked from {clan.Name}",
+                        INFO_EMOJI).Build());
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
     }
 }
