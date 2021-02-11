@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -47,12 +48,15 @@ namespace SoraBot.Bot.Modules.ClanModule
                 Title = "Top 10 Clans"
             };
             int rank = 1;
+            string firstClanAvatar = null;
             foreach (var c in clanExp)
             {
                 var exp = await c.exp;
                 // To avoid possible complications with data races or similar we create 
                 // a local copy for each embed field
                 var rankString = rank.ToString();
+                if (rank == 1)
+                    firstClanAvatar = c.clan.AvatarUrl;
                 eb.AddField(x =>
                 {
                     x.Name = $"{rankString}. {c.clan.Name}";
@@ -61,6 +65,9 @@ namespace SoraBot.Bot.Modules.ClanModule
                 });
                 ++rank;
             }
+
+            if (!string.IsNullOrWhiteSpace(firstClanAvatar))
+                eb.WithThumbnailUrl(firstClanAvatar);
 
             await ReplyEmbed(eb);
         }

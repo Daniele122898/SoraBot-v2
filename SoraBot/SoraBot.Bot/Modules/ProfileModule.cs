@@ -164,7 +164,8 @@ namespace SoraBot.Bot.Modules
                     LocalExp = us.LocalExp,
                     LocalRank = us.LocalRank,
                     LocalLevel = localLevel,
-                    LocalNextLevelExp = ExpService.CalculateNeededExp(localLevel + 1)
+                    LocalNextLevelExp = ExpService.CalculateNeededExp(localLevel + 1),
+                    ClanName = us.ClanName
                 }, filePath);
                 await Context.Channel.SendFileAsync(filePath);
             }

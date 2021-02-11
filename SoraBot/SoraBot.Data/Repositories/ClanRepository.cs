@@ -151,6 +151,7 @@ namespace SoraBot.Data.Repositories
                 };
 
                 context.Clans.Add(clan);
+                await context.SaveChangesAsync();
                 
                 // Create clan member for the owner
                 var member = new ClanMember()
@@ -192,7 +193,7 @@ namespace SoraBot.Data.Repositories
                 if (clan == null)
                     return;
 
-                if (description.Length > 110)
+                if (description?.Length > 110)
                     description = description.Substring(0, 110);
                 clan.Description = description;
                 
@@ -245,8 +246,13 @@ namespace SoraBot.Data.Repositories
                 // Check if user is in a clan already
                 if (await context.ClanMembers.CountAsync(x => x.UserId == userId) > 0)
                     return;
-                
-                
+
+                context.ClanMembers.Add(new ClanMember()
+                {
+                    ClanId = clanId,
+                    UserId = userId
+                });
+                await context.SaveChangesAsync();
             });
 
         public async Task UserLeaveClan(ulong userId) =>

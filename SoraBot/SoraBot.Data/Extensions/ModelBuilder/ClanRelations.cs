@@ -21,8 +21,8 @@ namespace SoraBot.Data.Extensions.ModelBuilder
                 .HasDefaultValue(0);
 
             // Make name unique
-            mb.Entity<Clan>()
-                .HasAlternateKey(k => k.Name);
+            // mb.Entity<Clan>()
+            //     .HasAlternateKey(k => k.Name);
 
             mb.Entity<Clan>()
                 .HasOne(u => u.Owner)

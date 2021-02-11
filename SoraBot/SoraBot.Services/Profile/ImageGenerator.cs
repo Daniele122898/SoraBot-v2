@@ -141,7 +141,7 @@ namespace SoraBot.Services.Profile
                     c.Name,
                     _heavyTitleFont,
                     Color.White,
-                    new Vector2(60, 14)));
+                    new Vector2(60, 16)));
                 
                 // Draw Clan name
                 image.Mutate(x => x.DrawText(
@@ -149,7 +149,7 @@ namespace SoraBot.Services.Profile
                     c.ClanName,
                     _statsLightFont,
                     Color.White,
-                    new Vector2(60, 34)));
+                    new Vector2(60, 36)));
             }
 
 

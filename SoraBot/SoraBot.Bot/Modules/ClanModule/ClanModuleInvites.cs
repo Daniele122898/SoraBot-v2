@@ -160,7 +160,7 @@ namespace SoraBot.Bot.Modules.ClanModule
             await ReplySuccessEmbed("Invite has been revoked");
         }
 
-        [Command("leaveclan")]
+        [Command("leaveclan"), Alias("clanleave")]
         [Summary("Leave your clan. If you are the owner it will transfer ownership to the user with the highest EXP.")]
         public async Task LeaveClan()
         {
@@ -220,7 +220,7 @@ namespace SoraBot.Bot.Modules.ClanModule
             await ReplyEmbed(eb);
         }
 
-        [Command("kickuser"), Alias("clankick")]
+        [Command("kickuser"), Alias("clankick", "kickmember")]
         [Summary("Kick a user off your clan")]
         public async Task KickUser(
             [Summary("Id of the user")] ulong userId)
@@ -228,7 +228,7 @@ namespace SoraBot.Bot.Modules.ClanModule
             await KickUserImpl(userId);
         }
 
-        [Command("kickuser"), Alias("clankick")]
+        [Command("kickuser"), Alias("clankick", "kickmember")]
         [Summary("Kick a user off your clan")]
         public async Task KickUser(
             [Summary("@mention of user")] DiscordUser user)
