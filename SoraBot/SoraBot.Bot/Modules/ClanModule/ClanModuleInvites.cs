@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using SoraBot.Bot.Models;
+using SoraBot.Common.Utils;
 using SoraBot.Data.Models.SoraDb;
 
 namespace SoraBot.Bot.Modules.ClanModule
@@ -75,6 +77,129 @@ namespace SoraBot.Bot.Modules.ClanModule
             await _clanRepo.RemoveInvite(clan.Some().Id, Context.User.Id);
             await _clanRepo.UserJoinClan(clan.Some().Id, Context.User.Id);
             await ReplySuccessEmbed("Successfully joined clan");
+
+            try
+            {
+                var owner = await _userService.GetOrSetAndGet(clan.Some().OwnerId);
+                if (!owner)
+                    return;
+                await (await owner.Some().GetOrCreateDMChannelAsync())
+                    .SendMessageAsync( embed: SimpleEmbed(
+                            Blue,
+                            $"{Formatter.UsernameDiscrim(Context.User)} has accepted your invite",
+                            INFO_EMOJI)
+                        .Build());
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+        }
+
+        [Command("issuedinvites"), Alias("invitelist")]
+        [Summary("Shows the invite list of your clan")]
+        public async Task ShowInviteList()
+        {
+            if (!(await GetClanIfExistsAndOwner() is Clan clan))
+                return;
+
+            var invites = await _clanRepo.GetInvitedUsers(clan.Id);
+
+            if (!invites)
+            {
+                await ReplyFailureEmbed("No invites found. Invite someone!");
+                return;
+            }
+
+            var eb = new EmbedBuilder()
+            {
+                Footer = RequestedByMe(),
+                Color = Blue,
+                Title = $"{INFO_EMOJI} Clan Invites",
+            };
+            if (!string.IsNullOrWhiteSpace(clan.AvatarUrl))
+                eb.WithThumbnailUrl(clan.AvatarUrl);
+
+            if ((~invites).Count > 22)
+                eb.WithDescription("More than 22 active invites. I can only show you the 22 oldest ones. " +
+                                   "Remove some to see the newer ones.");
+            var invs = invites.Some();
+            int count = Math.Min(invs.Count, 22);
+            for (int i = 0; i < count; i++)
+            {
+                var invite = invs[i];
+                var user = await _userService.GetOrSetAndGet(invite.Id);
+                string username = user
+                    ? Formatter.UsernameDiscrim(user.Some())
+                    : "_Unknown_";
+                eb.AddField(x =>
+                {
+                    x.Name = username;
+                    x.IsInline = true;
+                    x.Value = $"_ID: {invite.Id.ToString()}_";
+                });
+            }
+
+            await ReplyEmbed(eb);
+        }
+
+        [Command("removeinvite"), Alias("rminvite")]
+        [Summary("Remove the invite for a user id")]
+        public async Task RemoveInviteFromUser(ulong userid)
+        {
+            if (!(await GetClanIfExistsAndOwner() is Clan clan))
+                return;
+
+            if (!await _clanRepo.DoesInviteExist(clan.Id, userid))
+            {
+                await ReplyFailureEmbed("Invite for this user does not exist");
+                return;
+            }
+
+            await _clanRepo.RemoveInvite(clan.Id, userid);
+            await ReplySuccessEmbed("Invite has been revoked");
+        }
+
+        [Command("leaveclan")]
+        [Summary("Leave your clan. If you are the owner it will transfer ownership to the user with the highest EXP.")]
+        public async Task LeaveClan()
+        {
+            var clan = await _clanRepo.GetClanByUserId(Context.User.Id);
+            if (!clan)
+            {
+                await ReplyFailureEmbed("You are not in a clan");
+                return;
+            }
+
+            bool owner = clan.Some().OwnerId != Context.User.Id;
+            var eb = SimpleEmbed(
+                Green, "Successfully left clan", 
+                SUCCESS_EMOJI);
+            if (owner)
+            {
+                // Transfer ownership before we leave the clan
+                // There must be members because we are one.
+                var topMember = (await _clanRepo.GetClanMembers(clan.Some().Id, 2)).Some()
+                    .Find(x => x.Id != Context.User.Id);
+                if (topMember == null)
+                {
+                    // This means we are the only one in the clan so we will have to remove it
+                    await _clanRepo.RemoveClan(clan.Some().Id);
+                    await ReplyEmbed(eb.WithDescription("Since you where the last member the clan has been deleted"));
+                    return;
+                }
+                // Otherwise we have a new owner
+                await _clanRepo.AppointNewOwner(clan.Some().Id, topMember.Id);
+                var user = await _userService.GetOrSetAndGet(topMember.Id);
+                string username = user.HasValue
+                    ? Formatter.UsernameDiscrim(user.Some())
+                    : topMember.Id.ToString();
+                eb.WithDescription(
+                    $"Since you where the owner I appointed {username} as the next owner :)");
+            }
+
+            await _clanRepo.UserLeaveClan(Context.User.Id);
+            await ReplyEmbed(eb);
         }
     }
 }

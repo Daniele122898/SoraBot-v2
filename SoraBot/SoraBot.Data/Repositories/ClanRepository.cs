@@ -157,6 +157,28 @@ namespace SoraBot.Data.Repositories
                 await context.SaveChangesAsync();
             });
 
+        public async Task RemoveClan(int clanId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
+
+                context.Clans.Remove(clan);
+                await context.SaveChangesAsync();
+            });
+
+        public async Task AppointNewOwner(int clanId, ulong userId) =>
+            await _soraTransactor.DoInTransactionAsync(async context =>
+            {
+                var clan = await context.Clans.FindAsync(clanId);
+                if (clan == null)
+                    return;
+
+                clan.OwnerId = userId;
+                await context.SaveChangesAsync();
+            });
+
         public async Task SetClanDescription(int clanId, string description) =>
             await _soraTransactor.DoInTransactionAsync(async context =>
             {
@@ -267,6 +289,19 @@ namespace SoraBot.Data.Repositories
 
                 context.ClanInvites.Remove(invite);
                 await context.SaveChangesAsync();
+            });
+
+        public async Task<Option<List<User>>> GetInvitedUsers(int clanId) =>
+            await _soraTransactor.DoAsync(async context =>
+            {
+                var invites = await context.ClanInvites
+                    .Where(x => x.ClanId == clanId)
+                    .Select(x => x.User)
+                    .ToListAsync();
+
+                return invites?.Count == 0
+                    ? Option.None<List<User>>()
+                    : invites;
             });
 
         public async Task<long> GetClanTotalExp(int clanId) =>

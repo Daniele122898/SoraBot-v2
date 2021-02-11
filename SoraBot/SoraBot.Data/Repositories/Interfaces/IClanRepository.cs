@@ -16,6 +16,8 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task<bool> IsUserInAClan(ulong userId);
         public Task<Option<Clan>> GetClanByUserId(ulong userId);
         public Task CreateClan(string name, ulong ownerId);
+        public Task RemoveClan(int clanId);
+        public Task AppointNewOwner(int clanId, ulong userId);
         public Task SetClanDescription(int clanId, string description);
         public Task SetClanAvatar(int clanId, string avatarUrl);
         public Task LevelUp(int clanId);
@@ -25,6 +27,7 @@ namespace SoraBot.Data.Repositories.Interfaces
         public Task InviteUser(int clanId, ulong userId);
         public Task<bool> DoesInviteExist(int clanId, ulong userId);
         public Task RemoveInvite(int clanId, ulong userId);
+        public Task<Option<List<User>>> GetInvitedUsers(int clanId);
         public Task<long> GetClanTotalExp(int clanId);
 
     }
