@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SoraBot.Data.Migrations
 {
-    public partial class Clan : Migration
+    public partial class Clans : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,7 @@ namespace SoraBot.Data.Migrations
                 name: "PartnerSince",
                 table: "Marriages",
                 nullable: false,
-                defaultValue: new DateTime(2021, 2, 11, 22, 6, 13, 332, DateTimeKind.Utc).AddTicks(3256),
+                defaultValue: new DateTime(2021, 2, 11, 22, 26, 2, 221, DateTimeKind.Utc).AddTicks(5456),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime(6)",
                 oldDefaultValue: new DateTime(2020, 10, 7, 18, 11, 33, 882, DateTimeKind.Utc).AddTicks(34));
@@ -33,7 +33,6 @@ namespace SoraBot.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clans", x => x.Id);
-                    table.UniqueConstraint("AK_Clans_Name", x => x.Name);
                     table.ForeignKey(
                         name: "FK_Clans_Users_OwnerId",
                         column: x => x.OwnerId,
@@ -125,7 +124,7 @@ namespace SoraBot.Data.Migrations
                 nullable: false,
                 defaultValue: new DateTime(2020, 10, 7, 18, 11, 33, 882, DateTimeKind.Utc).AddTicks(34),
                 oldClrType: typeof(DateTime),
-                oldDefaultValue: new DateTime(2021, 2, 11, 22, 6, 13, 332, DateTimeKind.Utc).AddTicks(3256));
+                oldDefaultValue: new DateTime(2021, 2, 11, 22, 26, 2, 221, DateTimeKind.Utc).AddTicks(5456));
         }
     }
 }

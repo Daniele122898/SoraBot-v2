@@ -9,8 +9,8 @@ using SoraBot.Data;
 namespace SoraBot.Data.Migrations
 {
     [DbContext(typeof(SoraContext))]
-    [Migration("20210211220613_Clan")]
-    partial class Clan
+    [Migration("20210211222602_Clans")]
+    partial class Clans
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,14 +54,12 @@ namespace SoraBot.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<ulong>("OwnerId")
                         .HasColumnType("bigint unsigned");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("Name");
 
                     b.HasIndex("OwnerId")
                         .IsUnique();
@@ -144,7 +142,7 @@ namespace SoraBot.Data.Migrations
                     b.Property<DateTime>("PartnerSince")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
-                        .HasDefaultValue(new DateTime(2021, 2, 11, 22, 6, 13, 332, DateTimeKind.Utc).AddTicks(3256));
+                        .HasDefaultValue(new DateTime(2021, 2, 11, 22, 26, 2, 221, DateTimeKind.Utc).AddTicks(5456));
 
                     b.HasKey("Partner1Id", "Partner2Id");
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArgonautCore.Lw;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SoraBot.Data.Dtos.Profile;
 using SoraBot.Data.Extensions;
 using SoraBot.Data.Models.SoraDb;
@@ -13,10 +14,12 @@ namespace SoraBot.Data.Repositories
     public class ProfileRepository : IProfileRepository
     {
         private readonly ITransactor<SoraContext> _soraTransactor;
+        private readonly ILogger<ProfileRepository> _log;
 
-        public ProfileRepository(ITransactor<SoraContext> soraTransactor)
+        public ProfileRepository(ITransactor<SoraContext> soraTransactor, ILogger<ProfileRepository> log)
         {
             _soraTransactor = soraTransactor;
+            _log = log;
         }
         
         public async Task<Option<ProfileImageGenDto>> GetProfileStatistics(ulong userId, ulong guildId)
@@ -43,6 +46,8 @@ namespace SoraBot.Data.Repositories
                     .Where(x => x.UserId == userId)
                     .Select(x => x.Clan)
                     .FirstOrDefaultAsync();
+                
+                _log.LogInformation($"Clan was {clan?.Name}");
 
                 return new ProfileImageGenDto()
                 {
