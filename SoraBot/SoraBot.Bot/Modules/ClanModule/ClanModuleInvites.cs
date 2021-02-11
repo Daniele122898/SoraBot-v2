@@ -171,7 +171,7 @@ namespace SoraBot.Bot.Modules.ClanModule
                 return;
             }
 
-            bool owner = clan.Some().OwnerId != Context.User.Id;
+            bool owner = clan.Some().OwnerId == Context.User.Id;
             var eb = SimpleEmbed(
                 Green, "Successfully left clan", 
                 SUCCESS_EMOJI);
@@ -196,6 +196,19 @@ namespace SoraBot.Bot.Modules.ClanModule
                     : topMember.Id.ToString();
                 eb.WithDescription(
                     $"Since you where the owner I appointed {username} as the next owner :)");
+
+                // Send info so the new owner knows about this lol
+                if (user)
+                {
+                    try
+                    {
+                        await (await user.Some().GetOrCreateDMChannelAsync())
+                            .SendMessageAsync(embed: SimpleEmbed(
+                                Blue,
+                                $"You have been appointed as the new owner of {clan.Some().Name}",
+                                INFO_EMOJI).Build());
+                    } catch (Exception e) { /* ignored */ }
+                }
             }
 
             await _clanRepo.UserLeaveClan(Context.User.Id);
