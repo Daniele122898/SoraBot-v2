@@ -43,5 +43,5 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <hr/>
 <h2>Waifus</h2>
 <p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
-There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. <strong>Create the harem you always wanted!</strong></p>
+There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. </p>
 <img src="https://cdn.argonaut.pw/file/54c98fd0-8301-4ea2-a816-f6e9a7d6f5af.png" alt="Owned Waifus">
