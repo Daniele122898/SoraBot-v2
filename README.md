@@ -1,4 +1,4 @@
-[![](http://i.imgur.com/6gQhMSB.png)](http://argonaut.pw/Sora/)
+[![](http://i.imgur.com/6gQhMSB.png)](https://sorabot.pw/globalleader)
 [![](http://i.imgur.com/nImGi6j.png)](https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831)
 [![](http://i.imgur.com/qR7CGSV.png)](https://github.com/Daniele122898/SoraBot-v2/wiki)
 
@@ -16,7 +16,6 @@
 
 <h2>Dashboard</h2>
 <p>Sora now features a awesome Dashboard where you can set up nearly everything from the web <span style="font-size: 10px;">(still in alpha)</span></p>
-<img src="https://cdn.argonaut.pw/OAcaG8SEvdXOposXY4LWiMW3ftAgNOTk.png" alt="Dashbaord">
 <br>
 <hr/>
 <h2>Economy</h2>
