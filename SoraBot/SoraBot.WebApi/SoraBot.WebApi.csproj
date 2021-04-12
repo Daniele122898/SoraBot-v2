@@ -12,11 +12,11 @@
       <PackageReference Include="ArgonautCore" Version="1.5.3" />
       <PackageReference Include="ArgonautCore.Network.Health" Version="1.0.0" />
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-      <PackageReference Include="Sentry.AspNetCore" Version="3.0.3" />
-      <PackageReference Include="Sentry.Serilog" Version="3.0.3" />
+      <PackageReference Include="Sentry.AspNetCore" Version="3.3.1" />
+      <PackageReference Include="Sentry.Serilog" Version="3.3.1" />
       <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
       <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.0.2" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.2" />
     </ItemGroup>
 
     <ItemGroup>

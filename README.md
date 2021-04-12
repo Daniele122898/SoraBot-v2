@@ -1,4 +1,4 @@
-[![](http://i.imgur.com/6gQhMSB.png)](http://argonaut.pw/Sora/)
+[![](http://i.imgur.com/6gQhMSB.png)](https://sorabot.pw/globalleader)
 [![](http://i.imgur.com/nImGi6j.png)](https://discordapp.com/oauth2/authorize?client_id=270931284489011202&scope=bot&permissions=305523831)
 [![](http://i.imgur.com/qR7CGSV.png)](https://github.com/Daniele122898/SoraBot-v2/wiki)
 
@@ -16,7 +16,6 @@
 
 <h2>Dashboard</h2>
 <p>Sora now features a awesome Dashboard where you can set up nearly everything from the web <span style="font-size: 10px;">(still in alpha)</span></p>
-<img src="https://cdn.argonaut.pw/OAcaG8SEvdXOposXY4LWiMW3ftAgNOTk.png" alt="Dashbaord">
 <br>
 <hr/>
 <h2>Economy</h2>
@@ -43,5 +42,5 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <hr/>
 <h2>Waifus</h2>
 <p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
-There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. <strong>Create the harem you always wanted!</strong></p>
+There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. </p>
 <img src="https://cdn.argonaut.pw/file/54c98fd0-8301-4ea2-a816-f6e9a7d6f5af.png" alt="Owned Waifus">
