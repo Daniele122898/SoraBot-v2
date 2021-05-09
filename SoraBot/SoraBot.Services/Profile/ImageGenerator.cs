@@ -8,7 +8,6 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SoraBot.Data.Dtos.Profile;
-using SoraBot.Data.Models.SoraDb;
 using Path = System.IO.Path;
 
 namespace SoraBot.Services.Profile

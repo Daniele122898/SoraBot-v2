@@ -19,7 +19,7 @@ namespace SoraBot.Guardian
         // ReSharper disable once NotAccessedField.Local
         private static Timer _timer;
         private const int _OVERWATCH_COOLDOWN_MINS = 5;
-        private const float _FREE_THRESHOLD = 0.15f;
+        private const float _FREE_THRESHOLD = 0.25f;
 
         private static int _count = 0;
         private const int _MAX_COUNT = 4;
@@ -111,8 +111,8 @@ namespace SoraBot.Guardian
                 _count = 0;
                 
                 Log.Information("Available Memory below threshold and count exceeded. Restarting Sora services.");
-                var soraProd = RestartSoraService("sora-oct-prod@{0..2}");
-                var soraBeta = RestartSoraService("sora-oct");
+                var soraProd = RestartSoraService("sora@{0..2}");
+                var soraBeta = RestartSoraService("sora");
                 soraProd.Start();
                 soraBeta.Start();
                 
