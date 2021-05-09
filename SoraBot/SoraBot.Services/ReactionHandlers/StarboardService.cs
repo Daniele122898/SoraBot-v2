@@ -39,15 +39,15 @@ namespace SoraBot.Services.ReactionHandlers
 
         private static bool IsStarEmote(IEmote emote)
             => emote.Name == STAR_EMOTE;
-        
+
         public async Task HandleReactionCleared(Cacheable<IUserMessage, ulong> msg)
         {
             // Just check if the message is a starboard message. If so we remove it and add it to the 
             // don't post again list. Simple and easy
-            
+
             var starmsg = await _starRepo.GetStarboardMessage(msg.Id).ConfigureAwait(false);
             // This means its not in the DB so we don't care about it essentially
-            if (!starmsg.HasValue) 
+            if (!starmsg.HasValue)
                 return;
 
             var guild = _client.GetGuild(starmsg.Some().GuildId);
@@ -60,16 +60,16 @@ namespace SoraBot.Services.ReactionHandlers
             await this.RemoveStarboardMessage(msg.Id, starmsg.Some().PostedMsgId, starboardChannel)
                 .ConfigureAwait(false);
         }
-        
+
         public async Task HandleReactionAdded(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
             if (_cache.Contains(CacheId.StarboardDoNotPostId(msg.Id))) return;
-            
+
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
-            
+
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
             if (message == null) return;
@@ -97,37 +97,36 @@ namespace SoraBot.Services.ReactionHandlers
                     .ConfigureAwait(false);
                 await _starRepo.AddStarboardMessage(channel.Guild.Id, message.Id, postedMsg.Id).ConfigureAwait(false);
             }
-            
+
             // We've handled the users Reaction. Let's keep track of it. A user is only allowed to react to a message TWICE
             // This means he can add and remove the star. After that his actions will be ignored
             this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
-            
         }
-        
+
         public async Task HandleReactionRemoved(Cacheable<IUserMessage, ulong> msg, SocketReaction reaction)
         {
             if (!IsStarEmote(reaction.Emote)) return;
             // Abort if its in the "do not post again" cache
             if (_cache.Contains(CacheId.StarboardDoNotPostId(msg.Id))) return;
-            
+
             // Check if user reached his post ratelimit
             if (this.UserRateLimitReached(msg.Id, reaction.UserId)) return;
-            
+
             // Try get message
             var message = await TryGetMessageAndValidate(msg, reaction.UserId).ConfigureAwait(false);
             if (message == null) return;
-            
+
             // Check if this is in a guild and not DMs
             if (!(message.Channel is IGuildChannel channel)) return;
             var guildInfo = await _starRepo.GetStarboardInfo(channel.GuildId).ConfigureAwait(false);
             // This means that either there is no guild in the DB or it has no starboard Channel ID
             if (!guildInfo.HasValue) return;
-            
+
             // Check if still valid channel and if not remove the values from the DB
             var starboardChannel = await this
                 .IsValidChannelAndRemoveIfNot(guildInfo.Some().starboardChannelId, channel.Guild).ConfigureAwait(false);
             if (starboardChannel == null) return;
-            
+
             // Check if still above threshold so we just update the count
             var reactionCount = await GetReactionCount(message, reaction.Emote).ConfigureAwait(false);
             if (reactionCount >= guildInfo.Some().threshold)
@@ -140,15 +139,15 @@ namespace SoraBot.Services.ReactionHandlers
             {
                 var starmsg = await _starRepo.GetStarboardMessage(message.Id).ConfigureAwait(false);
                 // This means its not in the DB so we don't care about it essentially
-                if (!starmsg.HasValue) 
+                if (!starmsg.HasValue)
                     return;
                 await this.RemoveStarboardMessage(message.Id, starmsg.Some().PostedMsgId, starboardChannel)
                     .ConfigureAwait(false);
             }
-            
+
             this.AddOrUpdateRateLimit(msg.Id, reaction.UserId);
         }
-        
+
         private async Task RemoveStarboardMessage(ulong messageId, ulong postedMessageId, ITextChannel starboardChannel)
         {
             // Remove it from DB and Cache :)
@@ -164,6 +163,7 @@ namespace SoraBot.Services.ReactionHandlers
             {
                 _log.LogError(e, "Failed to remove starboard message");
             }
+
             // Add it to the cache to never be added again
             _cache.Set(CacheId.StarboardDoNotPostId(messageId), null);
         }
@@ -177,20 +177,22 @@ namespace SoraBot.Services.ReactionHandlers
 
         private void AddOrUpdateRateLimit(ulong messageId, ulong userId)
         {
-            _cache.AddOrUpdate(CacheId.StarboardUserMessageReactCountId(messageId, userId),new CacheItem(1, _userRatelimitTtl) , (id, item) =>
-            {
-                int amount = (int) item.Content;
-                return new CacheItem(amount + 1, _userRatelimitTtl); // Let's refresh the TTL on update
-            });
+            _cache.AddOrUpdate(CacheId.StarboardUserMessageReactCountId(messageId, userId),
+                new CacheItem(1, _userRatelimitTtl), (id, item) =>
+                {
+                    int amount = (int) item.Content;
+                    return new CacheItem(amount + 1, _userRatelimitTtl); // Let's refresh the TTL on update
+                });
         }
-        
-        private async Task<IUserMessage> TryGetMessageAndValidate(Cacheable<IUserMessage, ulong> msg, ulong reactionUserId)
+
+        private async Task<IUserMessage> TryGetMessageAndValidate(Cacheable<IUserMessage, ulong> msg,
+            ulong reactionUserId)
         {
             var messageM = await this.GetOrDownloadMessage(msg).ConfigureAwait(false);
             if (!messageM.HasValue) return null;
             if (messageM.Some().Author.IsBot || messageM.Some().Author.IsWebhook) return null;
             if (reactionUserId == messageM.Some().Author.Id) return null;
-            
+
             return messageM.Some();
         }
 
