@@ -24,14 +24,14 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <hr/>
 <h2>Profile Cards</h2>
 <p>Profile cards have been revamped! You can choose ANY custom Background! Clans have been added and now also show up in the profile card under the name!</p>
-<img src="https://cdn.argonaut.pw/file/65033271-96da-40ee-af97-ce5674f64004.png" alt="Profile Card">
+<img src="https://cdn.argonautdev.ch/file/65033271-96da-40ee-af97-ce5674f64004.png" alt="Profile Card">
 <hr/>
 <h2>Sophisticated Self-Assignable Role System!</h2>
 <p>Sora has one of the most sophisticated SAR system out there! You can create SARs that are free for anyone to pick like colors, or make them cost Sora Coins and even make them temporary. So users can buy premium for example which gets revoked after 30d or some baller role that lasts for 24h!</p>
 <hr/>
 <h2>Leaderboards</h2>
 <p>Sora has local and global EXP and levels! He can also award users with Roles after they reach a certain level. Sora also has profile cards and much more!</p>
-<img src="https://cdn.argonaut.pw/file/8529d12a-5c21-483c-87a1-340ce0012684.png" alt="Local leaderboard">
+<img src="https://cdn.argonautdev.ch/file/8529d12a-5c21-483c-87a1-340ce0012684.png" alt="Local leaderboard">
 <hr/>
 <h2>Powerful Moderation & Reward System</h2>
 <p>Sora has some seriously powerful moderation.</p>
@@ -43,4 +43,4 @@ They are also a tool to increase Clan member size to rise to the top of the lead
 <h2>Waifus</h2>
 <p>Now also with Waifu Boxes. You can now get your favorite Waifu and display it on your personal page by either opening boxes or trading with other users. 
 There are also limited time boxes like the Halloween box. Set your favorite waifu on your profile for everyone to see. </p>
-<img src="https://cdn.argonaut.pw/file/54c98fd0-8301-4ea2-a816-f6e9a7d6f5af.png" alt="Owned Waifus">
+<img src="https://cdn.argonautdev.ch/file/54c98fd0-8301-4ea2-a816-f6e9a7d6f5af.png" alt="Owned Waifus">
